@@ -1,18 +1,22 @@
 :root {
   /* Base theme */
-  --bg-color: #ffffff;
-  --text-color: #000000;
+  --bg-color: #fafafa;
+  --text-color: #1a1a1a;
+  --text-secondary: #666666;
 
   /* Accent colors */
-  --accent-color: #59ceb3;      /* used for buttons/nav */
-  --accent-text-on-bg: #ffffff; /* text on accent background */
+  --accent-color: #59ceb3;
+  --accent-text-on-bg: #ffffff;
   --accent-hover: #3fb29f;
 
   /* Button styles */
   --btn-bg: #ffffff;
-  --btn-text: #000000;
+  --btn-text: #1a1a1a;
   --btn-hover-bg: #59ceb3;
   --btn-hover-text: #ffffff;
+
+  /* Border and card edges */
+  --border-color: #e0e0e0;
 
   /* Navbar scroll variant */
   --nav-scroll-bg: #ffffff;
@@ -20,22 +24,23 @@
 }
 
 [data-theme="dark"] {
-  --bg-color: #111111;
-  --text-color: #ffffff;
+  --bg-color: #121212;
+  --text-color: #E0E0E0;
+  --text-secondary: #B0B0B0;
+  --border-color: #444444;
+  --accent-color: #888888;
+  --accent-text-on-bg: #E0E0E0;
 
-  --accent-color: #4ac7b4;
-  --accent-text-on-bg: #000000;
-  --accent-hover: #399c91;
+  --btn-bg: #121212;
+  --btn-text: #E0E0E0;
+  --btn-hover-bg: #888888;
+  --btn-hover-text: #121212;
 
-  --btn-bg: #111111;
-  --btn-text: #ffffff;
-  --btn-hover-bg: #4ac7b4;
-  --btn-hover-text: #111111;
-
-  --nav-scroll-bg: #111111;
-  --nav-scroll-text: #ffffff;
+  --nav-scroll-bg: #121212;
+  --nav-scroll-text: #E0E0E0;
 }
 
+/* Body + Layout */
 body {
   font-family: 'Birdseye', sans-serif;
   margin: 0;
@@ -50,9 +55,8 @@ body {
   padding: 1rem;
 }
 
+/* Header and Navigation */
 header {
-  background: #59ceb3;
-  color: white;
   padding: 1rem 0;
 }
 
@@ -88,8 +92,8 @@ header {
   padding: 0.5rem 1rem;
   display: inline-block;
   border: 2px solid transparent;
-  transition: all 0.3s ease;
   border-radius: 0;
+  transition: all 0.3s ease;
 }
 
 .nav-links a:hover {
@@ -98,13 +102,25 @@ header {
   color: white;
 }
 
-header, footer {
-  background: #59ceb3;
-  color: white;
-  padding: 1rem 0;
-  text-align: center;
+/* Navbar Scroll State */
+.nav-container.scrolled {
+  background: var(--nav-scroll-bg);
+  border-bottom: 1px solid var(--nav-scroll-text);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
+.nav-container.scrolled .logo a,
+.nav-container.scrolled .nav-links a {
+  color: var(--nav-scroll-text);
+}
+
+.nav-container.scrolled .nav-links a:hover {
+  border: 2px solid var(--nav-scroll-text);
+  background-color: transparent;
+  color: var(--nav-scroll-text);
+}
+
+/* Hero Section */
 .hero {
   background-color: var(--accent-color);
   color: var(--accent-text-on-bg);
@@ -113,22 +129,6 @@ header, footer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.services .grid {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.card {
-  background: white;
-  border: 1px solid #ddd;
-  padding: 1rem;
-  width: 30%;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-  text-align: center;
 }
 
 .hero .tagline {
@@ -149,7 +149,7 @@ header, footer {
   justify-content: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  border-radius: 0px;
+  border-radius: 0;
   font-size: 0.8rem;
 }
 
@@ -157,12 +157,11 @@ header, footer {
   padding: 0.5rem 1.5rem;
   background: var(--btn-bg);
   color: var(--btn-text);
-  border: 2px solid transparent;
-  font-weight: medium;
+  font-weight: 500;
   text-decoration: none;
-  border: none;
+  border: 2px solid transparent;
   cursor: pointer;
-  border-radius: 0px;
+  border-radius: 0;
   transition: all 0.3s ease;
 }
 
@@ -170,9 +169,6 @@ header, footer {
   background: var(--btn-hover-bg);
   color: var(--btn-hover-text);
   border: 2px solid var(--btn-hover-text);
-  border-radius: 0;
-  font-size: 0.8rem;
-  font-weight: 500;
 }
 
 .hero .search {
@@ -193,73 +189,81 @@ header, footer {
   padding: 0.5rem 1rem;
   border: none;
   background: white;
-  color: #59ceb3;
+  color: var(--accent-color);
   font-size: 1rem;
   border-radius: 3px;
   cursor: pointer;
 }
 
-/* Navbar scroll effect */
-.nav-container.scrolled {
-  background: var(--nav-scroll-bg);
-  border-bottom: 1px solid var(--nav-scroll-text);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+/* Services Grid */
+.services .grid {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
-/* Change logo and link colors in scrolled state */
-.nav-container.scrolled .logo a,
-.nav-container.scrolled .nav-links a {
-  color: var(--nav-scroll-text);
+.card {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  width: 30%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
 }
 
-/* Hover effect on nav links when scrolled */
-.nav-container.scrolled .nav-links a:hover {
-  border: 2px solid var(--nav-scroll-text);
-  background-color: transparent;
-  color: black;
-}
-
+/* Sections */
 .section {
   margin: auto;
   max-width: 75%;
   padding: 4rem 1rem;
   text-align: left;
-  color: #626262;
+  color: var(--text-secondary);
 }
 
 .section h2 {
   font-size: 1.6rem;
   margin-bottom: 1rem;
+  color: var(--text-color);
 }
 
 .section p {
   margin: 0 auto 2rem;
   font-size: 1rem;
   line-height: 1.6;
-  color: #2a2a2a;
+  color: var(--text-color);
 }
 
-.section a{
+.section a {
   font-size: 1rem;
   font-weight: 1000;
-  color: #59ceb3;
+  color: var(--accent-color);
 }
 
 .section .btn {
   background: var(--btn-bg);
   color: var(--btn-text);
-  border: 2px solid transparent;
   padding: 0.5rem 1.5rem;
   font-weight: 500;
   font-size: 0.85rem;
   text-transform: uppercase;
   text-decoration: none;
+  border: 2px solid transparent;
   border-radius: 0;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .section .btn:hover {
   background: var(--btn-hover-bg);
   color: var(--btn-hover-text);
   border: 2px solid var(--btn-hover-text);
+}
+
+/* Footer */
+footer {
+  background: var(--accent-color);
+  color: var(--accent-text-on-bg);
+  padding: 1rem 0;
+  text-align: center;
 }
