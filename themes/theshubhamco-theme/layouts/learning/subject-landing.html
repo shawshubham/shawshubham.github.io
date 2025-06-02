@@ -1,0 +1,34 @@
+{{ define "main" }}
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Explore Topics</p>
+    <h1 class="main-heading">{{ .Title }}</h1>
+  </div>
+</section>
+
+<section class="section toc-section">
+    <div class="container">
+      <h2>Table of Contents</h2>
+  
+      {{ $pageCount := 1 }}
+      <ul class="toc-outer-list">
+        {{ range $dir := .Sections }}
+          <li>
+            <strong>{{ $pageCount }}. {{ $dir.Title }}</strong>
+            <ul class="toc-inner-list">
+              {{ range $i, $page := $dir.Pages }}
+                <li>
+                  <a href="{{ $page.RelPermalink }}">
+                    {{ printf "%d.%d" $pageCount (add $i 1) }} {{ $page.Title }}
+                  </a> – {{ $page.Params.description }}
+                </li>
+              {{ end }}
+            </ul>
+          </li>
+          {{ $pageCount = add $pageCount 1 }}
+        {{ end }}
+      </ul>
+    </div>
+</section>
+{{ end }}
+
