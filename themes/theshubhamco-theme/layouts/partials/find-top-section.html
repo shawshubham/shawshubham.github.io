@@ -1,0 +1,21 @@
+{{ $parts := split .File.Path "/" }}
+{{ $topDirs := slice "foundational-skills" "intermediate-skills" "advanced-skills" "development_skills" "database-skills" "devops"}}
+{{ $topPageObject := .Site.Home }}
+{{ $section := .Section }}
+
+{{ range $i, $part := $parts }}
+  {{ if in $topDirs $part }}
+    {{ $nextIndex := add $i 1 }}
+    {{ if lt $nextIndex (len $parts) }}
+      {{ $nextDir := index $parts $nextIndex }}
+      {{ $pagePath := printf "/%s/%s/%s" $section $part $nextDir }}
+      {{ $page := site.GetPage $pagePath }}
+      {{ if $page }}
+        {{ $topPageObject = $page }}
+      {{ end }}
+    {{ end }}
+    {{ break }}
+  {{ end }}
+{{ end }}
+
+{{ .Scratch.Set "topPageObject" $topPageObject }}
