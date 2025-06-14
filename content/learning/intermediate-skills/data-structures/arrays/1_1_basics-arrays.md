@@ -1,5 +1,6 @@
 ---
 title: "Arrays Basic (1D & 2D Arrays)"
+weight: 1
 description: "Core Concepts With Java Examples"
 date: 2025-06-12
 layout: "topic-content"
@@ -45,6 +46,8 @@ arr1 = new int[5];  // [0, 0, 0, 0, 0]
 int[] arr3 = {1, 2, 3, 4, 5};
 ```
 
+> Note: Default values – `int` initializes to 0, `boolean` to false, `Object` references to null.
+
 ### 3.2 2D Arrays
 
 ```java
@@ -56,6 +59,8 @@ int[][] matrix2 = {
 };
 ```
 
+**Use Case:** Representing grids, game boards, spreadsheets, etc.
+
 ## 4. Accessing and Modifying Elements
 
 ---
@@ -66,6 +71,10 @@ int value = arr[1];       // Access element at index 1 → 20
 arr[2] = 50;              // Update index 2 to 50
 System.out.println(arr[2]); // Output: 50
 ```
+
+- Indexing starts from `0`
+- Access/modification is O(1)
+- Be cautious of `ArrayIndexOutOfBoundsException`
 
 ## 5. Array Length
 
@@ -87,3 +96,49 @@ System.out.println(arr.length); // Output: 10
 | Insert/Delete (middle) | O(n)            | Requires shifting elements |
 | Search (unsorted)      | O(n)            | Linear search              |
 | Search (sorted)        | O(log n)        | Binary search              |
+
+## 7. Common Mistakes
+
+---
+
+- ❌ Off-by-one errors: `arr[arr.length]` is invalid
+
+```java
+int[] arr = {10, 20, 30};  // length is 3
+System.out.println(arr[arr.length]); // ❌ ArrayIndexOutOfBoundsException
+System.out.println(arr[arr.length-1]); // ✅ This will work as arr.length = 3 but arr[3] is out of bound
+```
+
+- ❌ Forgetting zero-based indexing
+- ❌ Not checking array length before access
+
+## 8. Quick Quiz
+
+---
+
+What will be the output?
+
+```java
+int[] nums = {1, 2, 3, 4};
+nums[2] = nums[0] + nums[1];
+System.out.println(nums[2]);
+```
+
+<details>
+<summary>Answer</summary>
+3
+</details>
+
+### 🔗 What's Next?
+
+---
+
+Now that you've mastered the core concepts of arrays, it's time to apply them in problem-solving.
+
+Up next:  
+**👉 [Interview-Style Problems on Arrays](/learning/intermediate-skills/data-structures/arrays/1_2_array-problems/)**  
+Practice problems to strengthen your understanding: reverse array, rotate array, find missing number, and more.
+
+---
+
+> 📝 **Takeaway**: Arrays are simple yet powerful. Mastering array operations, time complexities, and problem-solving patterns is the key to cracking coding interviews and understanding more advanced data structures.

@@ -1,18 +1,31 @@
 {{ define "main" }}
 <section class="hero hero-small">
   <div class="container">
-    <p class="tagline">Explore Topics</p>
+    <p class="tagline">Let's Explore</p>
     <h1 class="main-heading">{{ .Title }}</h1>
   </div>
 </section>
 
 <section class="section topic-content-wrapper">
+    <div class="topic-outline">
+        <h2>We will be covering:</h2>
+        <ul>
+            {{ $content := .Content }}
+            {{ $matches := findRE "<h2[^>]*>(.*?)</h2>" $content }}
+            {{ range $i, $match := $matches }}
+            <li>{{ replaceRE "<.*?>" "" $match }}</li>
+            {{ end }}
+        </ul>
+    </div>
+
   <div class="container">
     <div class="topic-meta">
       <p class="last-updated">
         Last updated on: {{ .Lastmod.Format "2nd Jan, 06" }}
       </p>
     </div>
+
+    
 
     <article class="topic-content">
       {{ .Content }}
@@ -22,7 +35,7 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
-    {{ with .PrevInSection }}
+    {{ with .NextInSection }}
       <a href="{{ .RelPermalink }}" class="btn nav-btn">&larr; Back</a>
     {{ end }}
 
@@ -34,7 +47,7 @@
     </a>
     {{ end }}
 
-    {{ with .NextInSection }}
+    {{ with .PrevInSection}}
       <a href="{{ .RelPermalink }}" class="btn nav-btn">Next &rarr;</a>
     {{ end }}
   </div>
