@@ -7,28 +7,27 @@
 </section>
 
 <section class="section toc-section">
-    <div class="container">
-      <h2>Table of Contents</h2>
-  
-      {{ $pageCount := 1 }}
-      <ul class="toc-outer-list">
-        {{ range $dir := .Sections }}
+  <div class="container">
+    <h2>Table of Contents</h2>
+
+    {{ $secCount := 0 }}
+    <ul class="toc-outer-list">
+      {{ range $i, $dir := .Sections.ByWeight }}
+      {{ $secNum := add $i 1 }}
+      <li>
+        <h2>{{ $secNum }}. {{ $dir.Title }}</h2>
+        <ul class="toc-inner-list">
+          {{ range $j, $p := $dir.RegularPages.ByWeight }}
           <li>
-            <h2>{{ $pageCount }}. {{ $dir.Title }}</h2>
-            <ul class="toc-inner-list">
-              {{ range $i, $page := $dir.Pages }}
-                <li>
-                  <a href="{{ $page.RelPermalink }}">
-                    {{ printf "%d.%d" $pageCount (add $i 1) }} {{ $page.Title }}
-                  </a>
-                </li>
-              {{ end }}
-            </ul>
+            <a href="{{ $p.RelPermalink }}">
+              {{ printf "%d.%d" $secNum (add $j 1) }} {{ $p.Title }}
+            </a>
           </li>
-          {{ $pageCount = add $pageCount 1 }}
-        {{ end }}
-      </ul>
-    </div>
+          {{ end }}
+        </ul>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
 </section>
 {{ end }}
-
