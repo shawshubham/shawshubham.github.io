@@ -7,17 +7,26 @@
 </section>
 
 <section class="section topic-content-wrapper">
-    <div class="topic-outline">
-        <h2>We will be covering:</h2>
-        <ul>
-            {{ $content := .Content }}
-            {{ $matches := findRE "<h2[^>]*>(.*?)</h2>" $content }}
-            {{ range $i, $match := $matches }}
-            <li>{{ replaceRE "<.*?>" "" $match }}</li>
-            {{ end }}
-        </ul>
+    <!-- Progress Ring Floater (absolute in main section) -->
+    <div class="progress-ring-floating">
+      <svg class="ring" width="80" height="80">
+        <circle class="bg" cx="40" cy="40" r="35"></circle>
+        <circle class="progress" cx="40" cy="40" r="35"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
     </div>
 
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        {{ $content := .Content }}
+        {{ $matches := findRE "<h2[^>]*>(.*?)</h2>" $content }}
+        {{ range $i, $match := $matches }}
+        <li>{{ replaceRE "<.*?>" "" $match }}</li>
+        {{ end }}
+      </ul>
+    </div>
+  
     <div class="container">
       <div class="topic-meta">
         <p class="last-updated">
@@ -55,4 +64,23 @@
     {{ end }}
   </div>
 </section>
+
+<!-- JS for Progress Ring -->
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 35;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
 {{ end }}
