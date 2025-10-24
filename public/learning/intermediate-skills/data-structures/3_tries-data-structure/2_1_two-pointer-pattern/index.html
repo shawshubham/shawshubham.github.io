@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=56901&amp;path=livereload" data-no-instant defer></script>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=59066&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tries: Data Structure</title>
@@ -63,15 +63,24 @@
 </section>
 
 <section class="section topic-content-wrapper">
-    <div class="topic-outline">
-        <h2>We will be covering:</h2>
-        <ul>
-            
-            
-            
-        </ul>
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="80" height="80">
+        <circle class="bg" cx="40" cy="40" r="35"></circle>
+        <circle class="progress" cx="40" cy="40" r="35"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
     </div>
 
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+      </ul>
+    </div>
+  
     <div class="container">
       <div class="topic-meta">
         <p class="last-updated">
@@ -125,38 +134,21 @@
 </section>
 
 
-<div class="scroll-progress">
-  <svg class="progress-ring" width="80" height="80">
-    <circle class="progress-ring__circle" stroke="var(--primary-color)" stroke-width="6" fill="transparent" r="36" cx="40" cy="40" />
-  </svg>
-  <div class="progress-text">0%</div>
-</div>
-
-
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const circle = document.querySelector(".progress-ring__circle");
-    if (!circle) return;
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
 
-    const radius = circle.r.baseVal.value;
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 35;
     const circumference = 2 * Math.PI * radius;
-    const progressText = document.querySelector(".progress-text");
+    const offset = circumference - (scrollPercent / 100) * circumference;
 
-    circle.style.strokeDasharray = `${circumference}`;
-    circle.style.strokeDashoffset = `${circumference}`;
-
-    function setProgress(percent) {
-      const offset = circumference - (percent / 100) * circumference;
-      circle.style.strokeDashoffset = offset;
-      progressText.textContent = `${Math.round(percent)}%`;
-    }
-
-    document.addEventListener("scroll", () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.body.scrollHeight - window.innerHeight;
-      const scrollPercent = (scrollTop / docHeight) * 100;
-      setProgress(scrollPercent);
-    });
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
   });
 </script>
 
