@@ -116,7 +116,7 @@ By understanding the architecture and components of the JVM, developers can bett
 Now that you’ve explored how the Java Virtual Machine (JVM) works — from class loading and bytecode execution to memory management and garbage collection — it’s time to understand the broader ecosystem that makes Java applications run seamlessly.
 
 Up next:
-**👉 [Java Development Kit (JDK) and Java Runtime Environment (JRE)](/learning/foundational-skills/core-java/1_introduction-to-java/1_6_jdk-and-jre/)**
+**👉 [Java Development Kit (JDK) and Java Runtime Environment (JRE)](/learning/foundational-skills/core-java/1_introduction-to-java/1_7_jdk-and-jre/)**
 Learn how the JDK, JRE, and JVM work together to form the backbone of Java’s runtime architecture — from code compilation to execution.
 
 ---
