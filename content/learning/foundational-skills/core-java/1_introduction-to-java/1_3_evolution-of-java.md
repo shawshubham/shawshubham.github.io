@@ -34,13 +34,13 @@ Java has undergone significant evolution since its inception, with each version 
 >
 > That’s where LTS (Long-Term Support) comes in 👇
 >
-> - LTS Versions (like Java 8, 11, 17, 21) receive security updates, patches, and stability fixes for several years — making them ideal for enterprise and production systems.
+> - LTS Versions (like Java 8, 11, 17, 21, 25) receive security updates, patches, and stability fixes for several years — making them ideal for enterprise and production systems.
 > - Non-LTS Versions (like 12, 13, 14, 19, 20, 22, 23) are short-term releases — great for experimenting with new features but not meant for long-term use.
 > - LTS releases appear every 3 years, ensuring developers can plan migrations smoothly.
 > - Most frameworks (Spring, Hibernate, etc.) and companies officially support only LTS releases.
 >
 > **Current LTS Versions:**  
-> Java 8 → Java 11 → Java 17 → Java 21 → (next: Java 25 in 2025!)
+> Java 8 → Java 11 → Java 17 → Java 21 → Java 25 → (next: Java 29 in 2028!)
 
 ## 1. Early Versions
 
@@ -155,17 +155,27 @@ The focus shifted toward refining existing features, expanding Project Loom and 
 
 - <b>Java 24 (March 2025):</b> Released on March 18, 2025, marking another step toward developer productivity and language modernity.
 
-### Java 25 (September 2025, Upcoming LTS Release)
+### Java 25 (September 2025)
 
-The upcoming Java 25 release is planned as the next LTS (Long-Term Support) version — a significant event for enterprises and developers alike.
+Java 25 marks the latest Long-Term Support (LTS) release — a major milestone for developers and enterprises worldwide. This version continues Java’s tradition of innovation, stability, and performance with improvements across language design, concurrency, memory efficiency, and developer productivity.
 
-- <b>Focus Areas:</b>
+**Key Highlights**
 
-  - Enhanced <u>_Project Amber_</u> (language simplification features).
-  - Advanced <u>_Project Loom_</u> concurrency improvements.
-  - Expanded <u>_Project Panama_</u> (Java–native interoperability).
+- **Language Enhancements (Project Amber):**
+  Further simplifies Java syntax through primitive patterns, compact source files, and instance main methods, making the language cleaner and more expressive.
 
-- <b>Objective:</b> Deliver a faster, more efficient, and developer-friendly Java ecosystem — uniting simplicity, scalability, and power.
+- **Performance & Memory Optimization:**
+  Introduction of Compact Object Headers and Generational Shenandoah GC reduces memory footprint and improves garbage collection efficiency — especially for large-scale applications.
+- **Enhanced Concurrency (Project Loom):**
+  Continued evolution of Virtual Threads and Structured Concurrency, providing lightweight and high-performance concurrency for modern workloads.
+- **Native Interoperability (Project Panama):**
+  Expanded support for foreign function and memory APIs, enabling smoother and faster interaction between Java and native libraries.
+- **Developer Productivity:**
+  Improved Ahead-of-Time (AOT) startup performance, Vector API enhancements for high-performance computing, and continued simplification of boilerplate code.
+
+**Objective**
+
+Deliver a faster, leaner, and more developer-friendly Java ecosystem, balancing simplicity, scalability, and modern performance needs — while maintaining backward compatibility and long-term stability.
 
 ## 4. Future Directions
 

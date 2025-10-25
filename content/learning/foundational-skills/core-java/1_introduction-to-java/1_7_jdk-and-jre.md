@@ -70,6 +70,8 @@ The JRE provides the necessary environment to run Java applications. It includes
 
 ## 4. Key Differences
 
+---
+
 | Feature    | JDK                                      | JRE                          |
 | ---------- | ---------------------------------------- | ---------------------------- |
 | Purpose    | Develop and run Java applications        | Run Java applications        |
@@ -90,7 +92,7 @@ The JRE provides the necessary environment to run Java applications. It includes
 Now that you’ve understood how the JDK (Java Development Kit) and JRE (Java Runtime Environment) work together to support Java application development and execution, it’s time to set up your own Java environment and start coding.
 
 Up next:
-**👉 [Setting Up the Development Environment (Installing JDK and an IDE)](/learning/foundational-skills/core-java/1_introduction-to-java/1_8_setting-up-dev-env/)**
+**👉 [Setting Up the Development Environment (Installing JDK and an IDE)](/learning/foundational-skills/core-java/1_introduction-to-java/1_8_setting-environment/)**
 In the next section, you’ll learn how to install the JDK, configure environment variables like JAVA_HOME, and set up an IDE (such as IntelliJ IDEA or Eclipse) to begin your Java journey smoothly.
 
 ---
