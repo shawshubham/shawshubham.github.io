@@ -154,8 +154,8 @@ By following these steps, you will have a fully configured Java development envi
 
 Now that your Java development environment is up and running — with the JDK installed, environment variables configured, and your preferred IDE set up — you’re ready to take your first step into actual Java programming.
 
-Up next:
-**👉 [Writing Your First Java Program](/learning/foundational-skills/core-java/2_basics-of-java-programming/2_1_first-java-program/)**
+Up next:  
+**👉 [Writing Your First Java Program](/learning/foundational-skills/core-java/2_basics-of-java-programming/2_1_first-java-program/)**  
 In the next section, you’ll write your first Java program, understand how compilation and execution work, and see your code come to life using the tools you just configured.
 
 ---

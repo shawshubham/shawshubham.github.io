@@ -463,8 +463,8 @@ Java is predominantly an object-oriented language, but it also incorporates feat
 
 Now that you’ve explored the different programming paradigms — the philosophies and styles that shape how software is written — it’s time to look beneath the surface and understand how Java actually runs your code.
 
-Up next:
-**👉 [Java Virtual Machine (JVM)](/learning/foundational-skills/core-java/1_introduction-to-java/1_6_java-virtual-machine/)**
+Up next:  
+**👉 [Java Virtual Machine (JVM)](/learning/foundational-skills/core-java/1_introduction-to-java/1_6_java-virtual-machine/)**  
 Discover how the JVM works behind the scenes — from loading classes to executing bytecode, managing memory, and ensuring Java’s platform independence.
 
 ---
