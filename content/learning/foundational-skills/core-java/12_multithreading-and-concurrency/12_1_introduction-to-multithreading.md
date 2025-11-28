@@ -88,7 +88,7 @@ Java provides built-in support for multithreading through the `Thread` class, `R
 | Definition                  | An independent executing program                        | A lightweight subprocess within a process            |
 | Memory Sharing              | Separate memory space                                   | Shares memory with other threads in the same process |
 | Creation Overhead           | High (requires OS intervention)                         | Low (created within a process)                       |
-| Inter-process Communication | Difficult (requires IPC mechanisms like sockets, pipes) | JEasy (shared memory access)                         |
+| Inter-process Communication | Difficult (requires IPC mechanisms like sockets, pipes) | Easy (shared memory access)                          |
 | Performance                 | Slower (context switching is costly)                    | Faster (low overhead in switching)                   |
 | Example                     | Running two different applications                      | Running multiple tasks within an application         |
 
@@ -183,7 +183,7 @@ Now that you understand what multithreading is, why it’s needed, and where it�
 The next chapter walks you through all the ways to create and manage threads — the foundation of Java’s concurrency model.
 
 Up next:  
-**👉 [Creating Threads in Java](url/here)**  
+**👉 [Creating Threads in Java](/learning/foundational-skills/core-java/12_multithreading-and-concurrency/12_2_creating-threads-in-java)**  
 Learn how to create threads using the Thread class, Runnable interface, and modern approaches like Callable and Future. This section sets the stage for understanding thread execution, coordination, and advanced concurrency features.
 
 ---
