@@ -42,7 +42,7 @@ The simplest way to create a thread in Java is by extending the Thread class and
 Example: Creating a Thread by Extending the Thread Class
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/main/src/com/theshubhamco/learn/multithreading/creatingThread/ThreadExample.java">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/multithreading/creatingThread/ThreadExample.java">See Code in Git Repo</a>
     <a class="btn nav-btn" href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Practice Java Code Here</a>
 </div>
 
@@ -106,7 +106,7 @@ A better approach for creating threads is implementing the Runnable interface. I
 ### Example: Creating a Thread by Implementing Runnable
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/main/src/com/theshubhamco/learn/multithreading/creatingThread/RunnableExample.java">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/multithreading/creatingThread/RunnableExample.java">See Code in Git Repo</a>
     <a class="btn nav-btn" href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Practice Java Code Here</a>
 </div>
 
@@ -151,7 +151,7 @@ The previous two methods (Thread and Runnable) do not return results. Java provi
 **Example: Using Callable and Future**
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/main/src/com/theshubhamco/learn/multithreading/creatingThread/CallableExample.java">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/multithreading/creatingThread/CallableExample.java">See Code in Git Repo</a>
     <a class="btn nav-btn" href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Practice Java Code Here</a>
 </div>
 
@@ -215,7 +215,7 @@ Instead of manually creating threads using new Thread(), use Java’s built-in t
 **Example: Using ExecutorService**
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/main/src/com/theshubhamco/learn/multithreading/creatingThread/ExecutorExample.java">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/multithreading/creatingThread/ExecutorExample.java">See Code in Git Repo</a>
     <a class="btn nav-btn" href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Practice Java Code Here</a>
 </div>
 
@@ -261,7 +261,7 @@ Executing Task: pool-1-thread-1
 The join() method ensures that one thread completes execution before another starts.
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/main/src/com/theshubhamco/learn/multithreading/creatingThread/JoinExample.java">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/multithreading/creatingThread/JoinExample.java">See Code in Git Repo</a>
     <a class="btn nav-btn" href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Practice Java Code Here</a>
 </div>
 
@@ -306,7 +306,7 @@ Thread ending :Thread-1
 Never leave exceptions unhandled in threads. Use Thread.UncaughtExceptionHandler for better debugging.
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/main/src/com/theshubhamco/learn/multithreading/creatingThread/JoinExample.java">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/multithreading/creatingThread/ExceptionHandlingExample.java">See Code in Git Repo</a>
     <a class="btn nav-btn" href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Practice Java Code Here</a>
 </div>
 

@@ -65,7 +65,7 @@ HelloWorld.java
 #### **Step 3 — Write the code**
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/main/src/com/theshubhamco/learn/firstProgram/helloWorld/HelloWorld.java">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/basicsofjava/firstprogram/HelloWorld.java">See Code in Git Repo</a>
     <a class="btn nav-btn" href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Practice Java Code Here</a>
 </div>
 
