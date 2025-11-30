@@ -44,11 +44,15 @@ Let’s start with a basic design problem to see SRP in action.
 
 Let’s look at a simple implementation of the `Employee` class that **seems okay at first glance** but actually breaks the Single Responsibility Principle.
 
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example1/bad">See Code in Git Repo</a>
+</div>
+
 ```java
 import java.io.FileWriter;
 import java.io.IOException;
 
-class Employee {
+public class Employee {
     private String name;
     private String type; // Employee type: Full-time, Contract, Intern
 
@@ -69,25 +73,28 @@ class Employee {
         }
     }
 }
+```
 
+```java
 //What client has to do!
 public class Client {
-	public static void main(String args[]) {
-		Employee fullTimeEmployee = new Employee("Shubham", "FULLTIME");
-		Employee contractEmployee = new Employee("Ashwarya", "CONTRACT");
-		Employee internEmployee = new Employee("Arvind", "INTERN");
+    public static void main(String args[]) {
+        Employee fullTimeEmployee = new Employee("Shubham", "FULLTIME");
+        Employee contractEmployee = new Employee("Ashwarya", "CONTRACT");
+        Employee internEmployee = new Employee("Arvind", "INTERN");
 
-		fullTimeEmployee.save();
-		contractEmployee.save();
-		internEmployee.save();
-	}
+    	fullTimeEmployee.save();
+    	contractEmployee.save();
+    	internEmployee.save();
+    }
 }
+
 ```
 
 > **✅ Quick SRP Checklist**
 >
-> 🔸 Does this class have more than one reason to change?  
-> 🔸 Does it mix formatting, persistence, or business logic?  
+> 🔸 Does this class have more than one reason to change?
+> 🔸 Does it mix formatting, persistence, or business logic?
 > 🔸 Can you extract a responsibility into its own class?
 
 ### 🚨 What’s wrong here?
@@ -100,7 +107,7 @@ The Employee class is doing too much:
 
 ```java
 // ❌ Violates SRP: Employee handles multiple responsibilities (data + formatting + persistence)
-class Employee {
+public class Employee {
     private String name;
     private String type; // Employee type: Full-time, Contract, Intern
 
@@ -135,12 +142,13 @@ This clearly violates SRP.
 
 Let’s separate responsibilities.
 
-```java
-import java.io.FileWriter;
-import java.io.IOException;
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example1/good">See Code in Git Repo</a>
+</div>
 
+```java
 //Pure data holder
-class Employee {
+public class Employee {
     private String name;
     private String type;
 
@@ -152,25 +160,34 @@ class Employee {
     public String getName() { return name; }
     public String getType() { return type; }
 }
+```
 
+```java
 //Responsible for formatting employee data as required by HR
-class EmployeeFormatter {
+public class EmployeeFormatter {
     public String formatForHR(Employee emp) {
         return emp.getName() + " - " + emp.getType().toUpperCase();
     }
 }
+```
+
+```java
+import java.io.FileWriter;
+import java.io.IOException;
 
 //Handles persistence logic
-class EmployeeFileSaver {
+public class EmployeeFileSaver {
     public void saveToFile(String formattedData) throws IOException{
     	try (FileWriter writer = new FileWriter("employees.txt", true)) {
             writer.write(formattedData + "\n");
         }
     }
 }
+```
 
+```java
 //Coordinator/Orchestrator
-class EmployeeService {
+public class EmployeeService {
  private final EmployeeFormatter formatter = new EmployeeFormatter();
  private final EmployeeFileSaver fileSaver = new EmployeeFileSaver();
 
@@ -185,9 +202,11 @@ class EmployeeService {
      }
  }
 }
+```
 
+```java
 //Application
-public class Client{
+public class MainClient {
 	public static void main(String args []) {
 		EmployeeService service = new EmployeeService();
 		Employee employee = new Employee("Shubham", "FULLTIME");
@@ -216,11 +235,15 @@ In such a case, the current implementation will break, we might think of using i
 
 ## 3.1 Initial Design: SRP Violation (Bad Example)
 
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example2/bad">See Code in Git Repo</a>
+</div>
+
 ```java
 import java.io.FileWriter;
 import java.io.IOException;
 
-abstract class Employee {
+public abstract class Employee {
     protected String name;
 
     public Employee(String name) {
@@ -241,8 +264,10 @@ abstract class Employee {
         }
     }
 }
+```
 
-class FullTimeEmployee extends Employee {
+```java
+public class FullTimeEmployee extends Employee {
     public FullTimeEmployee(String name) {
         super(name);
     }
@@ -254,8 +279,10 @@ class FullTimeEmployee extends Employee {
 
     // You can later add methods like assignBonus(), manageTeam(), etc.
 }
+```
 
-class ContractEmployee extends Employee {
+```java
+public class ContractEmployee extends Employee {
     public ContractEmployee(String name) {
         super(name);
     }
@@ -267,8 +294,10 @@ class ContractEmployee extends Employee {
 
     // You can later add methods like assignBonus(), manageTeam(), etc.
 }
+```
 
-class InternEmployee extends Employee {
+```java
+public class InternEmployee extends Employee {
     public InternEmployee(String name) {
         super(name);
     }
@@ -280,24 +309,26 @@ class InternEmployee extends Employee {
 
     // You can later add methods like assignBonus(), manageTeam(), etc.
 }
+```
 
-public class Client {
-	public static void main(String args[]) {
-		Employee fullTimeEmployee = new FullTimeEmployee("Shubham");
-		Employee contractEmployee = new ContractEmployee("Ashwarya");
-		Employee internEmployee = new InternEmployee("Arvind");
+```java
+public class MyClient {
+    public static void main(String args[]) {
+        Employee fullTimeEmployee = new FullTimeEmployee("Shubham");
+        Employee contractEmployee = new ContractEmployee("Ashwarya");
+        Employee internEmployee = new InternEmployee("Arvind");
 
-		fullTimeEmployee.save();
-		contractEmployee.save();
-		internEmployee.save();
-	}
+    	fullTimeEmployee.save();
+    	contractEmployee.save();
+    	internEmployee.save();
+    }
 }
 ```
 
 > **✅ Quick SRP Checklist**
 >
-> 🔸 Does this class have more than one reason to change?  
-> 🔸 Does it mix formatting, persistence, or business logic?  
+> 🔸 Does this class have more than one reason to change?
+> 🔸 Does it mix formatting, persistence, or business logic?
 > 🔸 Can you extract a responsibility into its own class?
 
 ### 🚨 What’s wrong?
@@ -316,12 +347,13 @@ This tightly couples unrelated responsibilities and creates fragile inheritance.
 
 We now refactor so each class handles one responsibility only, even when we introduce subtypes.
 
-```java
-import java.io.FileWriter;
-import java.io.IOException;
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example2/good">See Code in Git Repo</a>
+</div>
 
+```java
 //Pure data holder
-abstract class Employee {
+public abstract class Employee {
 	private final String name;
 
 	public Employee(String name) {
@@ -334,8 +366,10 @@ abstract class Employee {
 
 	public abstract String getType(); // enforced behaviour
 }
+```
 
-class FullTimeEmployee extends Employee {
+```java
+public class FullTimeEmployee extends Employee {
 
 	public FullTimeEmployee(String name) {
 		super(name);
@@ -348,8 +382,10 @@ class FullTimeEmployee extends Employee {
 
 	// Future: add methods like assignBonus()
 }
+```
 
-class ContractEmployee extends Employee {
+```java
+public class ContractEmployee extends Employee {
 
 	public ContractEmployee(String name) {
 		super(name);
@@ -362,8 +398,10 @@ class ContractEmployee extends Employee {
 
 	// Future: add methods like extendContract()
 }
+```
 
-class InternEmployee extends Employee {
+```java
+public class InternEmployee extends Employee {
 	public InternEmployee(String name) {
 		super(name);
 	}
@@ -375,16 +413,23 @@ class InternEmployee extends Employee {
 
 	// Future: add methods like assignMentor()
 }
+```
 
+```java
 //Responsible for formatting employee data as required by HR
-class EmployeeFormatter {
+public class EmployeeFormatter {
 	public String formatForHR(Employee emp) {
 		return emp.getName() + " - " + emp.getType().toUpperCase();
 	}
 }
+```
+
+```java
+import java.io.FileWriter;
+import java.io.IOException;
 
 //Handles persistence logic
-class EmployeeFileSaver {
+public class EmployeeFileSaver {
 	private final String filePath;
 
 	public EmployeeFileSaver(String filePath) {
@@ -397,9 +442,11 @@ class EmployeeFileSaver {
 		}
 	}
 }
+```
 
+```java
 //Employee Orchestrator
-class EmployeeService {
+public class EmployeeService {
 	private final EmployeeFormatter formatter;
 	private final EmployeeFileSaver fileSaver;
 
@@ -419,7 +466,9 @@ class EmployeeService {
 		}
 	}
 }
+```
 
+```java
 public class Client {
 	public static void main(String args[]) {
 		Employee fullTimeEmployee = new FullTimeEmployee("Shubham");
@@ -463,11 +512,11 @@ public class Client {
 > - Self-documenting and strongly typed
 
 ```java
-enum EmployeeType {
+public enum EmployeeType {
     FULL_TIME, CONTRACT, INTERN
 }
 
-abstract class Employee {
+public abstract class Employee {
     private String name;
     private EmployeeType type;
 
@@ -488,7 +537,7 @@ abstract class Employee {
     }
 }
 
-class EmployeeFormatter {
+public class EmployeeFormatter {
     public String formatForHR(Employee emp) {
         return emp.getName() + " - " + emp.getType().name();
     }
@@ -511,8 +560,10 @@ This is especially useful when moving from simple CLI apps to enterprise-level s
 You can start with java.util.logging.Logger and later switch to more flexible libraries like **SLF4J with Logback** when using frameworks like Spring.
 
 ```java
+import java.util.logging.Logger;
+
 // Handles persistence logic
-class EmployeeFileSaver {
+public class EmployeeFileSaver {
     private static final Logger logger = Logger.getLogger(EmployeeFileSaver.class.getName());
     private final String filePath;
 
@@ -539,17 +590,19 @@ class EmployeeFileSaver {
 > - In a real-world project, each class would typically be defined in its own file following proper package structure and naming conventions.
 > - This layout is intentional to keep the focus on understanding the Single Responsibility Principle (SRP).
 
-```java
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.logging.Logger;
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/srp/finalrefactoredversion">See Code in Git Repo</a>
+</div>
 
-enum EmployeeType {
+```java
+public enum EmployeeType {
 	FULLTIME, CONTRACT, INTERN;
 }
+```
 
+```java
 //Pure data holder
-abstract class Employee {
+public abstract class Employee {
 	private final String name;
 
 	public Employee(String name) {
@@ -562,8 +615,10 @@ abstract class Employee {
 
 	public abstract EmployeeType getType(); // enforced behaviour
 }
+```
 
-class FullTimeEmployee extends Employee {
+```java
+public class FullTimeEmployee extends Employee {
 
 	public FullTimeEmployee(String name) {
 		super(name);
@@ -576,8 +631,10 @@ class FullTimeEmployee extends Employee {
 
 	// Future: add methods like assignBonus()
 }
+```
 
-class ContractEmployee extends Employee {
+```java
+public class ContractEmployee extends Employee {
 
 	public ContractEmployee(String name) {
 		super(name);
@@ -590,8 +647,10 @@ class ContractEmployee extends Employee {
 
 	// Future: add methods like extendContract()
 }
+```
 
-class InternEmployee extends Employee {
+```java
+public class InternEmployee extends Employee {
 	public InternEmployee(String name) {
 		super(name);
 	}
@@ -603,16 +662,23 @@ class InternEmployee extends Employee {
 
 	// Future: add methods like assignMentor()
 }
+```
 
+```java
 //Responsible for formatting employee data as required by HR
-class EmployeeFormatter {
+public class EmployeeFormatter {
 	public String formatForHR(Employee emp) {
 		return emp.getName() + " - " + emp.getType().name();
 	}
 }
+```
+
+```java
+import java.io.FileWriter;
+import java.io.IOException;
 
 //Handles persistence logic
-class EmployeeFileSaver {
+public class EmployeeFileSaver {
 	private final String filePath;
 
 	public EmployeeFileSaver(String filePath) {
@@ -625,9 +691,13 @@ class EmployeeFileSaver {
 		}
 	}
 }
+```
+
+```java
+import java.util.logging.Logger;
 
 //Employee Orchestrator
-class EmployeeService {
+public class EmployeeService {
 	private static final Logger logger = Logger.getLogger(EmployeeService.class.getName());
 
 	private final EmployeeFormatter formatter;
@@ -648,8 +718,12 @@ class EmployeeService {
 		}
 	}
 }
+```
 
-public class Client {
+```java
+import java.util.logging.Logger;
+
+public class MainClient {
 	private static final Logger logger = Logger.getLogger(Client.class.getName());
 
 	public static void main(String args[]) {
