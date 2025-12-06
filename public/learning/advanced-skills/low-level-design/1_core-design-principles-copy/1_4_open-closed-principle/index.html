@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=60466&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open/Closed Principle (OCP) in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Open/Closed Principle (OCP) in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. What is the Open/Closed Principle (OCP)?</li>
+        
+        <li>2. Design Problem: Saving Employee Data to Different Destinations</li>
+        
+        <li>3. Initial Design: Violating OCP ❌</li>
+        
+        <li>4. Refactored Design: Applying OCP ✅</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 4 Dec, 2025
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-what-is-the-openclosed-principle-ocp">1. What is the Open/Closed Principle (OCP)?</h2>
+<hr>
+<blockquote>
+<p><strong>Definition</strong>: <em>Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification.</em></p></blockquote>
+<p>The <strong>Open/Closed Principle</strong> ensures that you can add new functionality without changing existing code — minimizing the risk of breaking something that already works.</p>
+<p>This principle is key for:</p>
+<ul>
+<li><strong>✅ maintainability</strong></li>
+<li><strong>✅ Minimizing regression bugs</strong></li>
+<li><strong>✅ Scalable system architecture</strong></li>
+<li><strong>✅ Supporting team parallelism in large projects</strong></li>
+</ul>
+<h2 id="2-design-problem-saving-employee-data-to-different-destinations">2. Design Problem: Saving Employee Data to Different Destinations</h2>
+<hr>
+<h3 id="-initial-requirements-recap">💼 Initial Requirements Recap:</h3>
+<ul>
+<li>We designed an <code>EmployeeService</code> that saves employees to a file using <code>EmployeeFileSaver</code>.</li>
+</ul>
+<h3 id="-updated-requirement-new-business-need">🔁 Updated Requirement (New Business Need):</h3>
+<p>HR now wants to support <strong>multiple data storage options</strong>:</p>
+<ul>
+<li>✅ Save to a local file</li>
+<li>✅ Save to a database</li>
+<li>✅ Save to a remote REST API</li>
+<li>🔜 More destinations in the future (Kafka, S3, etc.)</li>
+</ul>
+<p>👉 Your system should support these additions <strong>without modifying</strong> the existing core logic.</p>
+<h2 id="3-initial-design-violating-ocp-">3. Initial Design: Violating OCP ❌</h2>
+<hr>
+<h3 id="initial-thought-but-wrong-approach">Initial Thought (But Wrong Approach)</h3>
+<p>An intuitive first step might be:</p>
+<blockquote>
+<p><strong>“Let’s just create separate classes for each save logic – one for file, one for DB, one for API.”</strong></p></blockquote>
+<p>While this feels modular, the actual orchestration violates the Open/Closed Principle.</p>
+<h3 id="31-saver-implementations">3.1 Saver Implementations</h3>
+<ol>
+<li><code>EmployeeFileSaver.java</code></li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFileSaver</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeFileSaver.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String filePath;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeFileSaver</span>(String filePath) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">filePath</span> <span style="color:#f92672">=</span> filePath;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveToFile</span>(String formattedData) <span style="color:#66d9ef">throws</span> IOException {
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saving employee data to &#34;</span> <span style="color:#f92672">+</span> filePath);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> (FileWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileWriter(filePath, <span style="color:#66d9ef">true</span>)) {
+</span></span><span style="display:flex;"><span>            writer.<span style="color:#a6e22e">write</span>(formattedData <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saved employee data to &#34;</span> <span style="color:#f92672">+</span> filePath);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ol start="2">
+<li><code>EmployeeDBSaver.java</code> (simulated)</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeDBSaver</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeDBSaver.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveToDB</span>(String formattedData) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Simulate saving to DB</span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saved data to DB: &#34;</span> <span style="color:#f92672">+</span> formattedData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ol start="3">
+<li><code>EmployeeRemoteAPISaver.java</code> (simulated)</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeRemoteAPISaver</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeDBSaver.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveToAPI</span>(String formattedData) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Simulate calling API call</span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Sending API Call: &#34;</span> <span style="color:#f92672">+</span> formattedData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="32-the-problematic-employeeservicejava">3.2 The Problematic EmployeeService.java</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeFormatter employeeFormatter;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeFileSaver employeeFileSaver;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeDBSaver employeeDBSaver;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeRemoteAPISaver employeeRemoteAPISaver;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeeFileSaver employeeFileSaver) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFileSaver</span> <span style="color:#f92672">=</span> employeeFileSaver;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeeDBSaver employeeDBSaver) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeDBSaver</span> <span style="color:#f92672">=</span> employeeDBSaver;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeeRemoteAPISaver employeeRemoteAPISaver) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeRemoteAPISaver</span> <span style="color:#f92672">=</span> employeeRemoteAPISaver;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee, String destinationType) {
+</span></span><span style="display:flex;"><span>        String formatted <span style="color:#f92672">=</span> employeeFormatter.<span style="color:#a6e22e">formatForHR</span>(employee);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (destinationType) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;FILE&#34;</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>                    employeeFileSaver.<span style="color:#a6e22e">saveToFile</span>(formatted);
+</span></span><span style="display:flex;"><span>                } <span style="color:#66d9ef">catch</span> (IOException e) {
+</span></span><span style="display:flex;"><span>                    logger.<span style="color:#a6e22e">severe</span>(<span style="color:#e6db74">&#34;Error saving employee data: &#34;</span> <span style="color:#f92672">+</span> e.<span style="color:#a6e22e">getMessage</span>());
+</span></span><span style="display:flex;"><span>                    <span style="color:#75715e">// optionally re-throw or handle differently in production</span>
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;DB&#34;</span>:
+</span></span><span style="display:flex;"><span>                employeeDBSaver.<span style="color:#a6e22e">saveToDB</span>(formatted);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;REMOTE&#34;</span>:
+</span></span><span style="display:flex;"><span>                employeeRemoteAPISaver.<span style="color:#a6e22e">saveToAPI</span>(formatted);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown destination type&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="33-main-client">3.3 Main Client</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(MainClient.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) {
+</span></span><span style="display:flex;"><span>        Employee fullTimeEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>);
+</span></span><span style="display:flex;"><span>        Employee contractEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>);
+</span></span><span style="display:flex;"><span>        Employee internEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeFormatter formatter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFormatter();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeFileSaver fileSaver <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFileSaver(<span style="color:#e6db74">&#34;employee.txt&#34;</span>);
+</span></span><span style="display:flex;"><span>        EmployeeDBSaver dbSaver <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeDBSaver();
+</span></span><span style="display:flex;"><span>        EmployeeRemoteAPISaver remoteAPISaver <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeRemoteAPISaver();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeService fileSaverService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter, fileSaver);
+</span></span><span style="display:flex;"><span>        EmployeeService dbSaverService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter, dbSaver);
+</span></span><span style="display:flex;"><span>        EmployeeService remoteAPISaverService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter, remoteAPISaver);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saving employees...&#34;</span>);
+</span></span><span style="display:flex;"><span>        fileSaverService.<span style="color:#a6e22e">save</span>(fullTimeEmployee, <span style="color:#e6db74">&#34;FILE&#34;</span>);
+</span></span><span style="display:flex;"><span>        dbSaverService.<span style="color:#a6e22e">save</span>(contractEmployee, <span style="color:#e6db74">&#34;DB&#34;</span>);
+</span></span><span style="display:flex;"><span>        remoteAPISaverService.<span style="color:#a6e22e">save</span>(internEmployee, <span style="color:#e6db74">&#34;REMOTE&#34;</span>);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Finished saving employees.&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-whats-wrong-here">🚨 What’s wrong here?</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Violation</th>
+          <th>Explanation</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Open/Closed Principle</td>
+          <td>EmployeeService is not closed for modification. Every new destination (e.g., Kafka, S3, FTP) will require: Adding a new dependencyModifying the save() methodAdding new switch cases</td>
+      </tr>
+      <tr>
+          <td>Constructor Explosion</td>
+          <td>You’ll need a new constructor per destination, or worse — manage nulls.</td>
+      </tr>
+      <tr>
+          <td>Tight Coupling</td>
+          <td>EmployeeService knows about all saver implementations, breaking separation of concerns.</td>
+      </tr>
+      <tr>
+          <td>Unscalable Design</td>
+          <td>Adding more save destinations becomes error-prone and tedious.</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="4-refactored-design-applying-ocp-">4. Refactored Design: Applying OCP ✅</h2>
+<hr>
+<p>To fix the earlier OCP violation, we now apply abstraction and polymorphism to allow the system to support new persistence mechanisms without modifying existing code.</p>
+<p>We are also applying the <strong>Strategy Design Pattern</strong> — a <strong>behavioral design pattern</strong> that allows selecting an algorithm’s behavior at runtime. While we’ll explore Strategy in detail later, consider this an early hands-on illustration.</p>
+<h3 id="41-define-a-strategy-interface">4.1 Define a Strategy Interface</h3>
+<p>We begin by creating a common interface to define the persistence behavior.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Abstraction to support saving to different destinations</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedData);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="42-implement-file-persistence-strategy">4.2 Implement File Persistence Strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFilePersistenceStrategy</span> <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeFilePersistenceStrategy.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String filePath;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeFilePersistenceStrategy</span>(String filePath) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">filePath</span> <span style="color:#f92672">=</span> filePath;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedData) {
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saving employee data to &#34;</span> <span style="color:#f92672">+</span> filePath);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> (FileWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileWriter(filePath, <span style="color:#66d9ef">true</span>)) {
+</span></span><span style="display:flex;"><span>            writer.<span style="color:#a6e22e">write</span>(formattedData <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span>);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (IOException e) {
+</span></span><span style="display:flex;"><span>            logger.<span style="color:#a6e22e">severe</span>(<span style="color:#e6db74">&#34;File saved failed: &#34;</span> <span style="color:#f92672">+</span> e.<span style="color:#a6e22e">getMessage</span>());
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saved employee data to &#34;</span> <span style="color:#f92672">+</span> filePath);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="43-implement-database-persistence-strategy-simulated">4.3 Implement Database Persistence Strategy (Simulated)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeDBPersistenceStrategy</span> <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeDBPersistenceStrategy.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedData) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Simulate saving to DB</span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saved data to DB: &#34;</span> <span style="color:#f92672">+</span> formattedData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="44-implement-remote-api-persistence-strategy-simulated">4.4 Implement Remote API Persistence Strategy (Simulated)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeAPIPersistenceStrategy</span> <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeAPIPersistenceStrategy.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedData) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Simulate calling API call</span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Sending API Call: &#34;</span> <span style="color:#f92672">+</span> formattedData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="45-refactor-employeeservice-to-use-the-strategy">4.5 Refactor EmployeeService to Use the Strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeFormatter employeeFormatter;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeePersistenceStrategy persistenceStrategy;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeePersistenceStrategy persistenceStrategy) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">persistenceStrategy</span> <span style="color:#f92672">=</span> persistenceStrategy;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        String formatted <span style="color:#f92672">=</span> employeeFormatter.<span style="color:#a6e22e">formatForHR</span>(employee);
+</span></span><span style="display:flex;"><span>        persistenceStrategy.<span style="color:#a6e22e">save</span>(formatted);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Saved employee {0}&#34;</span>, employee);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="46-final-usage-ocp-in-action">4.6 Final Usage: OCP in Action</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(MainClient.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) {
+</span></span><span style="display:flex;"><span>        Employee fullTimeEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>);
+</span></span><span style="display:flex;"><span>        Employee contractEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>);
+</span></span><span style="display:flex;"><span>        Employee internEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeFormatter formatter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFormatter();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeService fileSaverService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter, <span style="color:#66d9ef">new</span> EmployeeFilePersistenceStrategy(<span style="color:#e6db74">&#34;employee.txt&#34;</span>));
+</span></span><span style="display:flex;"><span>        EmployeeService dbSaverService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter, <span style="color:#66d9ef">new</span> EmployeeDBPersistenceStrategy());
+</span></span><span style="display:flex;"><span>        EmployeeService remoteAPISaverService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter, <span style="color:#66d9ef">new</span> EmployeeAPIPersistenceStrategy());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saving employees...&#34;</span>);
+</span></span><span style="display:flex;"><span>        fileSaverService.<span style="color:#a6e22e">save</span>(fullTimeEmployee);
+</span></span><span style="display:flex;"><span>        dbSaverService.<span style="color:#a6e22e">save</span>(contractEmployee);
+</span></span><span style="display:flex;"><span>        remoteAPISaverService.<span style="color:#a6e22e">save</span>(internEmployee);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Finished saving employees.&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-benefits-of-this-refactored-design">✅ Benefits of This Refactored Design</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Benefit</th>
+          <th>How It’s Achieved</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Open for Extension</td>
+          <td>Add new persistence strategies without touching old code</td>
+      </tr>
+      <tr>
+          <td>Closed for Modification</td>
+          <td>Existing classes (e.g., EmployeeService) remain untouched</td>
+      </tr>
+      <tr>
+          <td>Follows SRP</td>
+          <td>Each class has one responsibility — formatting, saving, etc.</td>
+      </tr>
+      <tr>
+          <td>Adheres to Strategy Pattern</td>
+          <td>Delegates behavior via interface at runtime</td>
+      </tr>
+      <tr>
+          <td>Highly Testable &amp; Maintainable</td>
+          <td>Each strategy can be unit tested independently</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<h3 id="quick-insight-strategy-vs-ocp">Quick Insight: Strategy vs OCP</h3>
+<p>The Strategy Pattern is a means to achieve Open/Closed Principle — by defining a family of algorithms (strategies) and making them interchangeable.</p></blockquote>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The Open/Closed Principle helps create robust, scalable, and maintainable software by reducing the cost of change. Instead of bloating old classes with new logic, we extend via interfaces and abstractions.</p>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that you’ve understood in details Single Responsibility Principle, let’s deep-dive into the next principle OCP.</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_4_open-closed-principle">Open-Closed Principle (OCP) →</a></strong>
+We’ll explore how to extend a system without modifying existing, working code — and refactor a business logic engine to apply OCP.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>SRP = One reason to change = One responsibility</li>
+<li>Applies to methods, classes, services, modules</li>
+<li>Watch out for: large methods, utility classes, if/else jungles</li>
+<li>Refactor step-by-step: split logic, formatters, and persistence</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/1_core-design-principles-copy/1_3_single-responsibility-principle/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2025 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

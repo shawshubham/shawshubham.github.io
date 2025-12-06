@@ -1,5 +1,5 @@
 ---
-title: "SOLID Principles Overview"
+title: "SOLID Principles"
 description: "Learn the SOLID Principles — five foundational object-oriented design principles to build maintainable, scalable, and modular software systems."
 keywords:
   - low level design
@@ -288,10 +288,10 @@ If you’re aiming for clean architecture or preparing for system design intervi
 
 ### 🔗 What’s Next?
 
-Now that you’ve understood the overview of SOLID, let’s deep-dive into each principle.
+Now that you’ve understood the overview of SOLID, let’s explore another essential design principle: DRY (Don’t Repeat Yourself).
 
-👉 **[Single Responsibility Principle (SRP) →](/learning/advanced-skills/low-level-design/1_core-design-principles/1_3_single-responsibility-principle)**  
-We’ll explore SRP with detailed scenarios, anti-patterns, and how SRP applies not just to classes but also methods, packages, components, and services.
+👉 **[DRY Principle →](/learning/advanced-skills/low-level-design/1_core-design-principles/1_3_DRY-principle-overview)**  
+We’ll see how to avoid duplication, promote reusability, and ensure consistent logic across your codebase.
 
 ---
 

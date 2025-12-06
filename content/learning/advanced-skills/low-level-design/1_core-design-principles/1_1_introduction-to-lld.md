@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Low-Level Design (LLD)"
+title: "Introduction"
 description: "Understand the fundamentals of Low-Level Design (LLD), how it differs from HLD, why it's essential for software engineers, and how to approach it in real-world development."
 keywords:
   - low level design

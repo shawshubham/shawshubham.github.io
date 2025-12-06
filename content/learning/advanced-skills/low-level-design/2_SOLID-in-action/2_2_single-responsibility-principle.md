@@ -9,7 +9,7 @@ keywords:
   - java clean code
   - object oriented design interview
   - software engineering best practices
-weight: 3
+weight: 2
 date: 2025-11-28
 layout: "topic-content"
 ---
@@ -48,6 +48,8 @@ Let’s look at a simple implementation of the `Employee` class that **seems oka
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example1/bad">See Code in Git Repo</a>
 </div>
 
+1. **`Employee.java`**
+
 ```java
 import java.io.FileWriter;
 import java.io.IOException;
@@ -75,9 +77,11 @@ public class Employee {
 }
 ```
 
+2. **`MainClient.java`**
+
 ```java
 //What client has to do!
-public class Client {
+public class MainClient {
     public static void main(String args[]) {
         Employee fullTimeEmployee = new Employee("Shubham", "FULLTIME");
         Employee contractEmployee = new Employee("Ashwarya", "CONTRACT");
@@ -93,8 +97,8 @@ public class Client {
 
 > **✅ Quick SRP Checklist**
 >
-> 🔸 Does this class have more than one reason to change?
-> 🔸 Does it mix formatting, persistence, or business logic?
+> 🔸 Does this class have more than one reason to change?  
+> 🔸 Does it mix formatting, persistence, or business logic?  
 > 🔸 Can you extract a responsibility into its own class?
 
 ### 🚨 What’s wrong here?
@@ -146,6 +150,8 @@ Let’s separate responsibilities.
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example1/good">See Code in Git Repo</a>
 </div>
 
+1. **`Employee.java`**
+
 ```java
 //Pure data holder
 public class Employee {
@@ -162,6 +168,8 @@ public class Employee {
 }
 ```
 
+2. **`EmployeeFormatter.java`**
+
 ```java
 //Responsible for formatting employee data as required by HR
 public class EmployeeFormatter {
@@ -170,6 +178,8 @@ public class EmployeeFormatter {
     }
 }
 ```
+
+3. **`EmployeeFileSaver.java`**
 
 ```java
 import java.io.FileWriter;
@@ -184,6 +194,8 @@ public class EmployeeFileSaver {
     }
 }
 ```
+
+4. **`EmployeeService.java`**
 
 ```java
 //Coordinator/Orchestrator
@@ -203,6 +215,8 @@ public class EmployeeService {
  }
 }
 ```
+
+5. **`MainClient.java`**
 
 ```java
 //Application
@@ -239,6 +253,8 @@ In such a case, the current implementation will break, we might think of using i
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example2/bad">See Code in Git Repo</a>
 </div>
 
+1. **`Employee.java`**
+
 ```java
 import java.io.FileWriter;
 import java.io.IOException;
@@ -266,6 +282,8 @@ public abstract class Employee {
 }
 ```
 
+2. **`FullTimeEmployee.java`**
+
 ```java
 public class FullTimeEmployee extends Employee {
     public FullTimeEmployee(String name) {
@@ -280,6 +298,8 @@ public class FullTimeEmployee extends Employee {
     // You can later add methods like assignBonus(), manageTeam(), etc.
 }
 ```
+
+3. **`ContractEmployee.java`**
 
 ```java
 public class ContractEmployee extends Employee {
@@ -296,6 +316,8 @@ public class ContractEmployee extends Employee {
 }
 ```
 
+4. **`InternEmployee.java`**
+
 ```java
 public class InternEmployee extends Employee {
     public InternEmployee(String name) {
@@ -310,6 +332,8 @@ public class InternEmployee extends Employee {
     // You can later add methods like assignBonus(), manageTeam(), etc.
 }
 ```
+
+5. **`MainClient.java`**
 
 ```java
 public class MyClient {
@@ -327,8 +351,8 @@ public class MyClient {
 
 > **✅ Quick SRP Checklist**
 >
-> 🔸 Does this class have more than one reason to change?
-> 🔸 Does it mix formatting, persistence, or business logic?
+> 🔸 Does this class have more than one reason to change?  
+> 🔸 Does it mix formatting, persistence, or business logic?  
 > 🔸 Can you extract a responsibility into its own class?
 
 ### 🚨 What’s wrong?
@@ -351,6 +375,8 @@ We now refactor so each class handles one responsibility only, even when we intr
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designprinciple/srp/example2/good">See Code in Git Repo</a>
 </div>
 
+1. **`Employee.java`**
+
 ```java
 //Pure data holder
 public abstract class Employee {
@@ -368,6 +394,8 @@ public abstract class Employee {
 }
 ```
 
+2. **`FullTimeEmployee.java`**
+
 ```java
 public class FullTimeEmployee extends Employee {
 
@@ -383,6 +411,8 @@ public class FullTimeEmployee extends Employee {
 	// Future: add methods like assignBonus()
 }
 ```
+
+3. **`ContractEmployee.java`**
 
 ```java
 public class ContractEmployee extends Employee {
@@ -400,6 +430,8 @@ public class ContractEmployee extends Employee {
 }
 ```
 
+4. **`InternEmployee.java`**
+
 ```java
 public class InternEmployee extends Employee {
 	public InternEmployee(String name) {
@@ -415,6 +447,8 @@ public class InternEmployee extends Employee {
 }
 ```
 
+5. **`EmployeeFormatter.java`**
+
 ```java
 //Responsible for formatting employee data as required by HR
 public class EmployeeFormatter {
@@ -423,6 +457,8 @@ public class EmployeeFormatter {
 	}
 }
 ```
+
+6. **`EmployeeFileSaver.java`**
 
 ```java
 import java.io.FileWriter;
@@ -443,6 +479,8 @@ public class EmployeeFileSaver {
 	}
 }
 ```
+
+7. **`EmployeeService.java`**
 
 ```java
 //Employee Orchestrator
@@ -468,8 +506,10 @@ public class EmployeeService {
 }
 ```
 
+8. **`MainClient.java`**
+
 ```java
-public class Client {
+public class MainClient {
 	public static void main(String args[]) {
 		Employee fullTimeEmployee = new FullTimeEmployee("Shubham");
 		Employee contractEmployee = new ContractEmployee("Ashwarya");
@@ -586,19 +626,24 @@ public class EmployeeFileSaver {
 
 > 📝 **Note**:
 >
-> - For simplicity and demonstration purposes, all classes are placed within a single `.java` file.
-> - In a real-world project, each class would typically be defined in its own file following proper package structure and naming conventions.
-> - This layout is intentional to keep the focus on understanding the Single Responsibility Principle (SRP).
+> - The final version now follows a more realistic and production-style design.
+> - Each class (like Employee, EmployeeFormatter, EmployeeFileSaver, etc.) has been defined separately with clear responsibility boundaries.
+> - This structure reflects how a real-world application would be organized — with modular classes, proper separation of concerns, and loose coupling.
+> - Such design not only aligns with SRP, but also improves testability, maintainability, and scalability of the system.
 
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/srp/finalrefactoredversion">See Code in Git Repo</a>
 </div>
+
+1. **`EmployeeType.java`**
 
 ```java
 public enum EmployeeType {
 	FULLTIME, CONTRACT, INTERN;
 }
 ```
+
+2. **`Employee.java`**
 
 ```java
 //Pure data holder
@@ -617,6 +662,8 @@ public abstract class Employee {
 }
 ```
 
+3. **`FullTimeEmployee.java`**
+
 ```java
 public class FullTimeEmployee extends Employee {
 
@@ -632,6 +679,8 @@ public class FullTimeEmployee extends Employee {
 	// Future: add methods like assignBonus()
 }
 ```
+
+4. **`ContractEmployee.java`**
 
 ```java
 public class ContractEmployee extends Employee {
@@ -649,6 +698,8 @@ public class ContractEmployee extends Employee {
 }
 ```
 
+5. **`InternEmployee.java`**
+
 ```java
 public class InternEmployee extends Employee {
 	public InternEmployee(String name) {
@@ -664,6 +715,8 @@ public class InternEmployee extends Employee {
 }
 ```
 
+6. **`EmployeeFormatter.java`**
+
 ```java
 //Responsible for formatting employee data as required by HR
 public class EmployeeFormatter {
@@ -672,6 +725,8 @@ public class EmployeeFormatter {
 	}
 }
 ```
+
+7. **`EmployeeFileSaver.java`**
 
 ```java
 import java.io.FileWriter;
@@ -692,6 +747,8 @@ public class EmployeeFileSaver {
 	}
 }
 ```
+
+8. **`EmployeeService.java`**
 
 ```java
 import java.util.logging.Logger;
@@ -719,6 +776,8 @@ public class EmployeeService {
 	}
 }
 ```
+
+9. **`MainClient.java`**
 
 ```java
 import java.util.logging.Logger;
@@ -753,7 +812,8 @@ public class MainClient {
 > - `EmployeeService` can be tested with mock/stub versions of `EmployeeFileSaver`
 > - You can simulate different `Employee` types via inheritance and test behaviors separately
 >   This modularity is one of SRP’s biggest hidden superpowers!
->   📌 We’ll cover detailed testing strategy in a separate tutorial.
+>
+> 📌 We’ll cover detailed testing strategy in a separate tutorial.
 
 ## 6. SRP Applies Beyond Classes
 
@@ -806,7 +866,7 @@ The Single Responsibility Principle enables modular, testable, and maintainable 
 
 Now that you’ve understood in details Single Responsibility Principle, let’s deep-dive into the next principle OCP.
 
-👉 **[Open-Closed Principle (OCP) →](/learning/advanced-skills/low-level-design/1_core-design-principles/1_4_open-close-principle)**
+👉 **[Open-Closed Principle (OCP) →](/learning/advanced-skills/low-level-design/1_core-design-principles/1_4_open-closed-principle)**
 We’ll explore how to extend a system without modifying existing, working code — and refactor a business logic engine to apply OCP.
 
 ---
