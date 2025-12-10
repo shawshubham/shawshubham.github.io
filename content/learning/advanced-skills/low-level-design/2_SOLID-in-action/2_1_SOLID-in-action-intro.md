@@ -56,7 +56,7 @@ This hands-on journey will help you:
 
 We’ll now start building the Employee Management System from scratch — beginning with the **Single Responsibility Principle (SRP)**.
 
-👉 **[Single Responsibility Principle (SRP) in Action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_2_single-responsibility-principle)**  
+👉 **[Single Responsibility Principle (SRP) in Action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_2_srp-example1)**  
 We’ll explore SRP with detailed scenarios, anti-patterns, and how SRP applies not just to classes but also methods, packages, components, and services.
 
 ---

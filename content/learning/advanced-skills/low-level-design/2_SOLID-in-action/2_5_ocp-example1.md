@@ -9,7 +9,7 @@ keywords:
   - extendable code design
   - java clean code best practices
   - employee management design pattern
-weight: 3
+weight: 5
 date: 2025-12-01
 layout: "topic-content"
 ---
