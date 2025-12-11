@@ -1,5 +1,5 @@
 ---
-title: "Open/Closed Principle (OCP) in Java"
+title: "Open/Closed Principle (OCP) - Saving Data to Different Destinations"
 description: "Learn the Open/Closed Principle (OCP) in Java with real-world examples. See how to extend behavior without modifying existing code using interfaces and polymorphism."
 keywords:
   - open closed principle java
@@ -33,11 +33,14 @@ This principle is key for:
 
 ---
 
-### 💼 Initial Requirements Recap:
+In the SRP chapter, we split responsibilities into clean collaborators (`Employee`, `EmployeeFormatter`, `EmployeeFileSaver`, `EmployeeService`).  
+In this OCP chapter, we build on that design and focus on **how to add new saving options without editing the existing service.**
+
+### Initial Requirements Recap:
 
 - We designed an `EmployeeService` that saves employees to a file using `EmployeeFileSaver`.
 
-### 🔁 Updated Requirement (New Business Need):
+### Updated Requirement (New Business Need):
 
 HR now wants to support **multiple data storage options**:
 
@@ -59,6 +62,10 @@ An intuitive first step might be:
 > **“Let’s just create separate classes for each save logic – one for file, one for DB, one for API.”**
 
 While this feels modular, the actual orchestration violates the Open/Closed Principle.
+
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/ocp/example1/bad">See Code in Git Repo</a>
+</div>
 
 ### 3.1 Saver Implementations
 
@@ -100,7 +107,7 @@ public class EmployeeDBSaver {
 
 ```java
 public class EmployeeRemoteAPISaver {
-    private static final Logger logger = Logger.getLogger(EmployeeDBSaver.class.getName());
+    private static final Logger logger = Logger.getLogger(EmployeeRemoteAPISaver.class.getName());
 
     public void saveToAPI(String formattedData) {
         //Simulate calling API call
@@ -113,9 +120,9 @@ public class EmployeeRemoteAPISaver {
 
 ```java
 public class EmployeeService {
-    private static Logger logger = Logger.getLogger(EmployeeService.class.getName());
+    private static final Logger logger = Logger.getLogger(EmployeeService.class.getName());
 
-    private EmployeeFormatter employeeFormatter;
+    private final EmployeeFormatter employeeFormatter;
     private EmployeeFileSaver employeeFileSaver;
     private EmployeeDBSaver employeeDBSaver;
     private EmployeeRemoteAPISaver employeeRemoteAPISaver;
@@ -195,12 +202,12 @@ public class MainClient {
 
 ### 🚨 What’s wrong here?
 
-| Violation             | Explanation                                                                                                                                                                          |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Open/Closed Principle | EmployeeService is not closed for modification. Every new destination (e.g., Kafka, S3, FTP) will require: Adding a new dependencyModifying the save() methodAdding new switch cases |
-| Constructor Explosion | You’ll need a new constructor per destination, or worse — manage nulls.                                                                                                              |
-| Tight Coupling        | EmployeeService knows about all saver implementations, breaking separation of concerns.                                                                                              |
-| Unscalable Design     | Adding more save destinations becomes error-prone and tedious.                                                                                                                       |
+| Violation             | Explanation                                                                                                |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Open/Closed Principle | Every new destination (Kafka, S3, FTP) forces you to modify `EmployeeService` and add new `case` branches. |
+| Constructor Explosion | Multiple constructors per saver lead to confusing initialization and potential `null` dependencies.        |
+| Tight Coupling        | `EmployeeService` knows about every concrete saver class.                                                  |
+| Non-localized change  | A simple requirement like “add Kafka” results in changes across multiple files and code paths.             |
 
 ## 4. Refactored Design: Applying OCP ✅
 
@@ -210,12 +217,17 @@ To fix the earlier OCP violation, we now apply abstraction and polymorphism to a
 
 We are also applying the **Strategy Design Pattern** — a **behavioral design pattern** that allows selecting an algorithm’s behavior at runtime. While we’ll explore Strategy in detail later, consider this an early hands-on illustration.
 
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/ocp/example1/good">See Code in Git Repo</a>
+</div>
+
 ### 4.1 Define a Strategy Interface
 
 We begin by creating a common interface to define the persistence behavior.
 
 ```java
 // Abstraction to support saving to different destinations
+// This is our "Strategy" interface for persistence behavior
 public interface EmployeePersistenceStrategy {
     void save(String formattedData);
 }
@@ -225,7 +237,7 @@ public interface EmployeePersistenceStrategy {
 
 ```java
 public class EmployeeFilePersistenceStrategy implements EmployeePersistenceStrategy{
-    private final static Logger logger = Logger.getLogger(EmployeeFilePersistenceStrategy.class.getName());
+    private static final Logger logger = Logger.getLogger(EmployeeFilePersistenceStrategy.class.getName());
 
     private final String filePath;
 
@@ -280,8 +292,8 @@ public class EmployeeAPIPersistenceStrategy implements EmployeePersistenceStrate
 public class EmployeeService {
     private static Logger logger = Logger.getLogger(EmployeeService.class.getName());
 
-    private EmployeeFormatter employeeFormatter;
-    private EmployeePersistenceStrategy persistenceStrategy;
+    private final EmployeeFormatter employeeFormatter;
+    private final EmployeePersistenceStrategy persistenceStrategy;
 
     public EmployeeService(EmployeeFormatter employeeFormatter,
                            EmployeePersistenceStrategy persistenceStrategy) {
@@ -345,16 +357,20 @@ The Open/Closed Principle helps create robust, scalable, and maintainable softwa
 
 ### 🔗 What’s Next?
 
-Now that you’ve understood in details Single Responsibility Principle, let’s deep-dive into the next principle OCP.
+In this example, we applied OCP to the **persistence layer** using a strategy interface and multiple saver implementations.
 
-👉 **[Open-Closed Principle (OCP) →](/learning/advanced-skills/low-level-design/1_core-design-principles/1_4_open-closed-principle)**
-We’ll explore how to extend a system without modifying existing, working code — and refactor a business logic engine to apply OCP.
+Next, we’ll look at a **different axis of change**: evolving business rules per employee type (e.g., salary calculation, benefits, contract rules) without touching the existing, stable code.
+
+👉 **[OCP Example 2: Extending Business Rules per Employee Type →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_6_ocp-example2)**
+
+We’ll start from a naive design with `if/else` and `switch` explosions and then refactor to a clean, OCP-compliant design using dedicated strategies per employee type.
 
 ---
 
 > 📝 **Takeaway**:
 >
-> - SRP = One reason to change = One responsibility
-> - Applies to methods, classes, services, modules
-> - Watch out for: large methods, utility classes, if/else jungles
-> - Refactor step-by-step: split logic, formatters, and persistence
+> - **OCP** means your stable classes (like `EmployeeService`) are _closed for modification_ but **open for extension** through new implementations.
+> - You achieve OCP in practice by depending on **abstractions** (e.g., `EmployeePersistenceStrategy`) and plugging in new behaviors via **polymorphism** instead of editing existing code.
+> - Large `switch`/`if-else` blocks on “type” or “destination” are a strong smell that your design is not OCP-friendly.
+> - Combine **SRP + OCP**: first separate responsibilities (formatter, saver, service), then extract interfaces around the parts that change most frequently.
+> - A good litmus test: when requirements change, you should **add a class**, not keep reopening and editing the same core service.
