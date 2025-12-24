@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61030&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dependency Inversion Principle (DIP) in Action – Decoupling Business Logic from Infrastructure</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Dependency Inversion Principle (DIP) in Action – Decoupling Business Logic from Infrastructure</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. What Is the Dependency Inversion Principle (DIP)?</li>
+        
+        <li>2. You’ve Already Seen DIP (Whether You Noticed or Not)</li>
+        
+        <li>3. Identifying High-Level and Low-Level Modules (Why This Matters)</li>
+        
+        <li>4. What a DIP Violation Would Look Like ❌</li>
+        
+        <li>5. DIP-Compliant Design (Already Implemented)</li>
+        
+        <li>6. Why DIP Matters (Beyond OCP)</li>
+        
+        <li>8. How DIP Completes the SOLID Story</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Dec, 2025
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-what-is-the-dependency-inversion-principle-dip">1. What Is the Dependency Inversion Principle (DIP)?</h2>
+<hr>
+<blockquote>
+<p><strong>High-level modules should not depend on low-level modules.<br>
+Both should depend on abstractions.</strong></p></blockquote>
+<p>In simple terms:</p>
+<blockquote>
+<p><strong>Business logic should not depend on technical details.<br>
+Technical details should depend on business abstractions.</strong></p></blockquote>
+<p>This principle is often misunderstood because it is frequently confused with <strong>Dependency Injection (DI)</strong>.</p>
+<p>📌 <strong>Important distinction</strong>:</p>
+<ul>
+<li><strong>DIP</strong> is a <em>design principle</em></li>
+<li><strong>DI</strong> is a <em>technique</em> to apply DIP</li>
+</ul>
+<h2 id="2-youve-already-seen-dip-whether-you-noticed-or-not">2. You’ve Already Seen DIP (Whether You Noticed or Not)</h2>
+<hr>
+<p>If you followed the earlier chapters closely, this might feel familiar.</p>
+<p>In the <strong>Open/Closed Principle (OCP)</strong> example, we introduced:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeePersistenceStrategy
+</span></span></code></pre></div><p>and injected it into EmployeeService.</p>
+<p>At the time, our goal was <strong>extensibility</strong> — adding new persistence mechanisms without modifying existing code.</p>
+<p>However, that same design decision also demonstrates <strong>Dependency Inversion Principle</strong>.</p>
+<p>The difference is <strong>perspective</strong>.</p>
+<h3 id="same-design-different-lens">Same Design, Different Lens</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Principle</th>
+          <th>Question It Answers</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>OCP</td>
+          <td>Can I add new behavior without modifying existing code?</td>
+      </tr>
+      <tr>
+          <td>DIP</td>
+          <td>Does my business logic depend on concrete infrastructure details?</td>
+      </tr>
+  </tbody>
+</table>
+<p>Let’s revisit the same design — this time focusing on <strong>dependency direction</strong>.</p>
+<h2 id="3-identifying-high-level-and-low-level-modules-why-this-matters">3. Identifying High-Level and Low-Level Modules (Why This Matters)</h2>
+<hr>
+<p>This step may feel theoretical, but it is essential. DIP cannot be applied correctly unless we first identify which parts of the system represent business intent and which parts are technical details.</p>
+<p>Before we apply the Dependency Inversion Principle, we must answer one <strong>foundational question</strong>:</p>
+<blockquote>
+<p><strong>Which parts of our system represent business decisions, and which parts are just technical details?</strong></p></blockquote>
+<p>DIP is not about writing new code first —
+it is about <strong>understanding dependency direction</strong>.</p>
+<p>So let’s clearly identify the roles in our Employee Management System.</p>
+<h3 id="31-what-is-a-high-level-module">3.1 What Is a High-Level Module?</h3>
+<p><strong>High-level modules contain business logic.</strong></p>
+<p>They:</p>
+<ul>
+<li>express what the system does</li>
+<li>coordinate workflows</li>
+<li>change when business rules change</li>
+<li>should remain stable even if technology changes</li>
+</ul>
+<p>In our system, the high-level module is:</p>
+<p><strong>✅ EmployeeService</strong></p>
+<p>Why?</p>
+<ul>
+<li>It orchestrates employee-related workflows</li>
+<li>It decides when to save data</li>
+<li>It coordinates salary calculation and deductions</li>
+<li>It represents <strong>business use-cases</strong>, not storage or transport details</li>
+</ul>
+<p>Example business intent:</p>
+<ul>
+<li>“Save an employee”</li>
+<li>“Calculate salary”</li>
+<li>“Apply deductions”</li>
+</ul>
+<p>These are <strong>business rules</strong>, not technical concerns.</p>
+<p>That is why EmployeeService is classified as a <strong>high-level module</strong>.</p>
+<h3 id="32-what-are-low-level-modules">3.2 What Are Low-Level Modules?</h3>
+<p><strong>Low-level modules handle technical details.</strong></p>
+<p>They:</p>
+<ul>
+<li>deal with infrastructure</li>
+<li>depend on frameworks, I/O, or external systems</li>
+<li>are volatile and often change over time</li>
+</ul>
+<p>In our system, low-level modules include:</p>
+<ul>
+<li>File persistence</li>
+<li>Database persistence</li>
+<li>Remote API persistence</li>
+</ul>
+<p>These modules answer questions like:</p>
+<ul>
+<li>Where is data stored?</li>
+<li>How is it written?</li>
+<li>Which protocol or format is used?</li>
+</ul>
+<p>Importantly:</p>
+<blockquote>
+<p><strong>The business does not care about these details.</strong></p></blockquote>
+<p>If tomorrow we switch from:</p>
+<ul>
+<li>file → database</li>
+<li>database → Kafka</li>
+<li>API → cloud storage</li>
+</ul>
+<p>…the business rules should not change.</p>
+<p>That’s why these are classified as <strong>low-level modules</strong>.</p>
+<h3 id="33-the-missing-piece-abstraction">3.3 The Missing Piece: Abstraction</h3>
+<p>Now we ask:</p>
+<blockquote>
+<p><strong>How should high-level business logic talk to low-level infrastructure without being coupled to it?</strong></p></blockquote>
+<p>The answer is <strong>abstraction</strong>.</p>
+<p>In our EMS, that abstraction is:</p>
+<p><strong>✅ EmployeePersistenceStrategy</strong><br>
+This interface represents:</p>
+<blockquote>
+<p>“The business needs to persist employee data —
+but it does not care how.”</p></blockquote>
+<p>The abstraction defines <strong>what is needed</strong>, not <strong>how it is done</strong>.</p>
+<h3 id="34-the-key-dip-diagnostic-question">3.4 The Key DIP Diagnostic Question</h3>
+<p>With these roles identified, we can now ask the <strong>real DIP question</strong>:</p>
+<blockquote>
+<p><strong>Does EmployeeService depend on concrete details like files, databases, or APIs?</strong><br>
+<strong>Or does it depend only on an abstraction?</strong></p></blockquote>
+<p>This question determines whether DIP is satisfied — and whether future infrastructure changes will force modifications in business logic.</p>
+<ul>
+<li>If business logic depends on concrete classes → ❌ DIP violation</li>
+<li>If business logic depends on abstractions → ✅ DIP applied</li>
+</ul>
+<p>This section exists solely to make that distinction clear.</p>
+<p>In a DIP-compliant design, dependencies point <strong>inward</strong>:
+from infrastructure → abstractions → business logic.</p>
+<h3 id="35-why-this-step-is-necessary">3.5 Why This Step Is Necessary</h3>
+<p>Many DIP violations occur not because the principle is unknown,
+but because business logic and infrastructure are never clearly separated.</p>
+<p>Once those roles are explicit, applying DIP becomes straightforward.</p>
+<h2 id="4-what-a-dip-violation-would-look-like-">4. What a DIP Violation Would Look Like ❌</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/ocp/example1/bad">See Code in Git Repo</a>
+</div>
+<p>Before applying DIP, a typical implementation might look like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFormatter employeeFormatter;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeFileSaver employeeFileSaver;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeDBSaver employeeDBSaver;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeRemoteAPISaver employeeRemoteAPISaver;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeeFileSaver employeeFileSaver) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFileSaver</span> <span style="color:#f92672">=</span> employeeFileSaver;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeeDBSaver employeeDBSaver) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeDBSaver</span> <span style="color:#f92672">=</span> employeeDBSaver;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeeRemoteAPISaver employeeRemoteAPISaver) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeRemoteAPISaver</span> <span style="color:#f92672">=</span> employeeRemoteAPISaver;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee, String destinationType) {
+</span></span><span style="display:flex;"><span>        String formatted <span style="color:#f92672">=</span> employeeFormatter.<span style="color:#a6e22e">formatForHR</span>(employee);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (destinationType) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;FILE&#34;</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>                    employeeFileSaver.<span style="color:#a6e22e">saveToFile</span>(formatted);
+</span></span><span style="display:flex;"><span>                } <span style="color:#66d9ef">catch</span> (IOException e) {
+</span></span><span style="display:flex;"><span>                    logger.<span style="color:#a6e22e">severe</span>(<span style="color:#e6db74">&#34;Error saving employee data: &#34;</span> <span style="color:#f92672">+</span> e.<span style="color:#a6e22e">getMessage</span>());
+</span></span><span style="display:flex;"><span>                    <span style="color:#75715e">// optionally re-throw or handle differently in production</span>
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;DB&#34;</span>:
+</span></span><span style="display:flex;"><span>                employeeDBSaver.<span style="color:#a6e22e">saveToDB</span>(formatted);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;REMOTE&#34;</span>:
+</span></span><span style="display:flex;"><span>                employeeRemoteAPISaver.<span style="color:#a6e22e">saveToAPI</span>(formatted);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown destination type&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="why-this-violates-dip">Why This Violates DIP</h3>
+<ul>
+<li>EmployeeService is a <strong>high-level module</strong></li>
+<li>It directly depends on:
+<ul>
+<li>file system</li>
+<li>file format</li>
+<li>a concrete persistence class</li>
+</ul>
+</li>
+<li>Any change (DB, Kafka, API) requires modifying business logic</li>
+</ul>
+<p>This creates <strong>tight coupling</strong> between business rules and infrastructure.</p>
+<h2 id="5-dip-compliant-design-already-implemented">5. DIP-Compliant Design (Already Implemented)</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/ocp/example1/good">See Code in Git Repo</a>
+</div>
+<p>Here is the design you already implemented earlier:</p>
+<h4 id="abstraction">Abstraction</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedEmployee);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="low-level-modules-depend-on-the-abstraction">Low-Level Modules Depend on the Abstraction</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFilePersistenceStrategy</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedEmployee) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// file persistence logic</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeDBPersistenceStrategy</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedEmployee) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// database persistence logic</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="high-level-module-depends-on-the-abstraction">High-Level Module Depends on the Abstraction</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFormatter employeeFormatter;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeePersistenceStrategy persistenceStrategy;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeePersistenceStrategy persistenceStrategy) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">persistenceStrategy</span> <span style="color:#f92672">=</span> persistenceStrategy;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        String formatted <span style="color:#f92672">=</span> employeeFormatter.<span style="color:#a6e22e">formatForHR</span>(employee);
+</span></span><span style="display:flex;"><span>        persistenceStrategy.<span style="color:#a6e22e">save</span>(formatted);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Saved employee {0}&#34;</span>, employee);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="what-changed">What Changed?</h3>
+<p>Only one thing: <strong>The direction of dependency</strong>.</p>
+<ul>
+<li>Business logic no longer knows <em>how</em> data is stored</li>
+<li>It only knows <em>that</em> data can be stored</li>
+</ul>
+<p>That is <strong>Dependency Inversion Principle in action</strong>.</p>
+<h2 id="6-why-dip-matters-beyond-ocp">6. Why DIP Matters (Beyond OCP)</h2>
+<hr>
+<p>OCP made the system <strong>extensible</strong>.
+DIP makes the system <strong>architecturally stable</strong>.</p>
+<h4 id="without-dip">Without DIP</h4>
+<ul>
+<li>Business logic tightly coupled to infrastructure</li>
+<li>Hard to test (requires real DB / files)</li>
+<li>Expensive refactors</li>
+<li>Framework lock-in</li>
+</ul>
+<h4 id="with-dip">With DIP</h4>
+<ul>
+<li>Business logic is framework-agnostic</li>
+<li>Infrastructure becomes pluggable</li>
+<li>Easy mocking and testing</li>
+<li>Supports clean architecture</li>
+</ul>
+<p>DIP protects your <strong>core business rules</strong> from change.</p>
+<h3 id="7-dip-is-the-foundation-of-modern-frameworks">7. DIP Is the Foundation of Modern Frameworks</h3>
+<hr>
+<p>Frameworks like <strong>Spring</strong>, <strong>Quarkus</strong>, or <strong>Micronaut</strong> did not invent DIP.</p>
+<p>They exist <strong>because DIP works</strong>.</p>
+<p>What frameworks provide:</p>
+<ul>
+<li>automatic wiring</li>
+<li>lifecycle management</li>
+<li>configuration</li>
+</ul>
+<p>What DIP provides:</p>
+<ul>
+<li>correct dependency direction</li>
+<li>clean boundaries</li>
+<li>replaceable infrastructure</li>
+</ul>
+<blockquote>
+<p><strong>Frameworks help you apply DIP —</strong><br>
+<strong>they do not replace the need to understand it.</strong></p></blockquote>
+<h2 id="8-how-dip-completes-the-solid-story">8. How DIP Completes the SOLID Story</h2>
+<hr>
+<p>Let’s see how DIP ties everything together in our EMS:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Principle</th>
+          <th>What It Solved</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>SRP</td>
+          <td>Separated responsibilities</td>
+      </tr>
+      <tr>
+          <td>OCP</td>
+          <td>Enabled safe extension</td>
+      </tr>
+      <tr>
+          <td>LSP</td>
+          <td>Ensured correct substitution</td>
+      </tr>
+      <tr>
+          <td>ISP</td>
+          <td>Reduced client coupling</td>
+      </tr>
+      <tr>
+          <td>DIP</td>
+          <td>Decoupled business from infrastructure</td>
+      </tr>
+  </tbody>
+</table>
+<p>At this point, the system is:</p>
+<ul>
+<li>extensible</li>
+<li>testable</li>
+<li>decoupled</li>
+<li>architecture-ready</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The Dependency Inversion Principle teaches us that:</p>
+<blockquote>
+<p><strong>Stable business rules should not depend on unstable technical details.</strong></p></blockquote>
+<p>When dependency direction is correct:</p>
+<ul>
+<li>systems scale safely</li>
+<li>changes are localized</li>
+<li>architecture remains clean</li>
+</ul>
+<p>DIP is not about frameworks or annotations —
+it is about <strong>who depends on whom</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that all five SOLID principles are applied, we step back and look at the bigger picture.</p>
+<p><strong><a href="/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_10_how-solid-work-together">SOLID in Action – How the Principles Work Together →</a></strong>
+We’ll recap the entire Employee Management System and see how the principles reinforce each other.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>DIP is about dependency direction, not dependency injection</li>
+<li>High-level modules should depend on abstractions</li>
+<li>OCP and DIP often appear together in real designs</li>
+<li>DIP protects business logic from infrastructure changes</li>
+<li>Frameworks exist to support DIP — not replace it</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-principles/2_8_isp-example1/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-principles/2_10_how-solid-work-together/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2025 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

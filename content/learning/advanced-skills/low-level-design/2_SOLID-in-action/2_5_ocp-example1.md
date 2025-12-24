@@ -1,5 +1,5 @@
 ---
-title: "Open/Closed Principle (OCP) - Saving Data to Different Destinations"
+title: "OCP – Saving Data to Different Destinations"
 description: "Learn the Open/Closed Principle (OCP) in Java with real-world examples. See how to extend behavior without modifying existing code using interfaces and polymorphism."
 keywords:
   - open closed principle java

@@ -1,5 +1,5 @@
 ---
-title: "SOLID in Action – How the Principles Work Together"
+title: "SOLID – How the Principles Work Together"
 description: "A complete recap of SOLID principles using the Employee Management System. See how SRP, OCP, LSP, ISP, and DIP reinforce each other in real-world design."
 keywords:
   - solid principles in action

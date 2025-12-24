@@ -1,5 +1,5 @@
 ---
-title: "Single Responsibility Principle (SRP) - Inheritance & Subtypes"
+title: "SRP – Inheritance & Subtypes"
 description: "Explore how the Single Responsibility Principle applies when working with inheritance, subtypes, and extended behaviors in Java."
 keywords:
   - single responsibility principle java

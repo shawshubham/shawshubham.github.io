@@ -1,5 +1,5 @@
 ---
-title: "Single Responsibility Principle (SRP) - Enhancements: Enum, Logging & Final Touches"
+title: "SRP – Enhancements: Enum, Logging & Final Touches"
 description: "Strengthen your understanding of the Single Responsibility Principle by using enums, structured logging, and preparing a production-ready design."
 keywords:
   - single responsibility principle java

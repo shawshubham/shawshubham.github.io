@@ -1,5 +1,5 @@
 ---
-title: "Interface Segregation Principle (ISP) - Designing Focused Contracts in Employee Management"
+title: "ISP – Designing Focused Contracts in Employee Management"
 description: "Learn the Interface Segregation Principle (ISP) using a real-world Employee Management System example. See how fat interfaces cause problems and how to refactor them into focused, role-based contracts."
 keywords:
   - interface segregation principle java

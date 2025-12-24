@@ -1,5 +1,5 @@
 ---
-title: "Dependency Inversion Principle (DIP) in Action – Decoupling Business Logic from Infrastructure"
+title: "DIP – Decoupling Business Logic from Infrastructure"
 description: "Learn the Dependency Inversion Principle (DIP) through a real-world Employee Management System example. Understand dependency direction, abstractions, and why frameworks like Spring exist."
 keywords:
   - dependency inversion principle java

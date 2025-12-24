@@ -1,5 +1,5 @@
 ---
-title: "Open/Close Principle (OCP) - Extending Business Rules per Employee Type"
+title: "OCP – Extending Business Rules per Employee Type"
 description: "Learn how to apply the Open/Closed Principle (OCP) by extending business rules through the Strategy Pattern. No more switch statements or modifying existing logic."
 keywords:
   - open closed principle java

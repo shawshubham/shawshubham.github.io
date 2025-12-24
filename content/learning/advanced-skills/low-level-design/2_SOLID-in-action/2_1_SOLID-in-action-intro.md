@@ -1,5 +1,5 @@
 ---
-title: "SOLID Principles in Action: Designing a Real System from Scratch"
+title: "Designing a Real System from Scratch"
 description: "Kick off the SOLID Principles in Action phase by designing a real-world Employee Management System from scratch. Learn how to apply each SOLID principle step by step to build scalable, maintainable, and testable software."
 keywords:
   - solid principles java

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61030&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Single Responsibility Principle (SRP) – Basics and Initial Refactoring</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Single Responsibility Principle (SRP) – Basics and Initial Refactoring</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. What is the Single Responsibility Principle (SRP)?</li>
+        
+        <li>2. Design Problem: Employee Management System</li>
+        
+        <li>3. Initial Design: SRP Violation (Bad Example)</li>
+        
+        <li>4. Refactored Design: Applying SRP (Good Example)</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Dec, 2025
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-what-is-the-single-responsibility-principle-srp">1. What is the Single Responsibility Principle (SRP)?</h2>
+<hr>
+<blockquote>
+<p><strong>Definition:</strong> <em>A class (or module, or method) should have only one reason to change.</em></p></blockquote>
+<p>The <strong>Single Responsibility Principle</strong> helps developers write cleaner, more testable, and easier-to-maintain code by separating concerns. Also, avoids common anti-patterns seen in interviews and production systems</p>
+<p>It is the first and arguably the most foundational principle in the SOLID family. SRP emphasizes that <strong>each software unit (class, method, service, etc.) should be responsible for only one thing</strong> — and therefore, should change only when that responsibility changes.</p>
+<h2 id="2-design-problem-employee-management-system">2. Design Problem: Employee Management System</h2>
+<hr>
+<p>Let’s start with a basic design problem to see SRP in action.</p>
+<h3 id="basic-requirements"><strong>Basic Requirements:</strong></h3>
+<ol>
+<li>
+<p>The system should support different types of employees:</p>
+<ul>
+<li>Full-time</li>
+<li>Contract</li>
+<li>Interns</li>
+</ul>
+</li>
+<li>
+<p>It should provide functionality to <strong>save employee data</strong> in a <strong>specific format required by HR</strong> — into a file system.</p>
+</li>
+</ol>
+<h2 id="3-initial-design-srp-violation-bad-example">3. Initial Design: SRP Violation (Bad Example)</h2>
+<hr>
+<p>Let’s look at a simple implementation of the <code>Employee</code> class that <strong>seems okay at first glance</strong> but actually breaks the Single Responsibility Principle.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/srp/example1/bad">See Code in Git Repo</a>
+</div>
+<h4 id="1-employee-class--model--logic---srp-violation">1. Employee class : Model + Logic = ❌ SRP Violation</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.FileWriter;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String type; <span style="color:#75715e">// Employee type: Full-time, Contract, Intern</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(String name, String type) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> type;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Format according to HR</span>
+</span></span><span style="display:flex;"><span>        String formatted <span style="color:#f92672">=</span> name <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; - &#34;</span> <span style="color:#f92672">+</span> type.<span style="color:#a6e22e">toUpperCase</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Save to file</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> (FileWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileWriter(<span style="color:#e6db74">&#34;employees.txt&#34;</span>, <span style="color:#66d9ef">true</span>)) {
+</span></span><span style="display:flex;"><span>            writer.<span style="color:#a6e22e">write</span>(formatted <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span>);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (IOException e) {
+</span></span><span style="display:flex;"><span>            e.<span style="color:#a6e22e">printStackTrace</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="2-main-class--acting-as-client">2. Main Class : Acting as Client</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//What client has to do!</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) {
+</span></span><span style="display:flex;"><span>        Employee fullTimeEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Employee(<span style="color:#e6db74">&#34;Shubham&#34;</span>, <span style="color:#e6db74">&#34;FULLTIME&#34;</span>);
+</span></span><span style="display:flex;"><span>        Employee contractEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Employee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>, <span style="color:#e6db74">&#34;CONTRACT&#34;</span>);
+</span></span><span style="display:flex;"><span>        Employee internEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Employee(<span style="color:#e6db74">&#34;Arvind&#34;</span>, <span style="color:#e6db74">&#34;INTERN&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    	fullTimeEmployee.<span style="color:#a6e22e">save</span>();
+</span></span><span style="display:flex;"><span>    	contractEmployee.<span style="color:#a6e22e">save</span>();
+</span></span><span style="display:flex;"><span>    	internEmployee.<span style="color:#a6e22e">save</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p><strong>✅ Quick SRP Checklist</strong></p>
+<p>🔸 Does this class have more than one reason to change?<br>
+🔸 Does it mix formatting, persistence, or business logic?<br>
+🔸 Can you extract a responsibility into its own class?</p></blockquote>
+<h3 id="-whats-wrong-here">🚨 What’s wrong here?</h3>
+<p>The Employee class is responsible for:</p>
+<ul>
+<li>Holding employee data</li>
+<li>Formatting employee data</li>
+<li>Writing to a file</li>
+<li>Handling IO exceptions</li>
+</ul>
+<p>It now has three reasons to change:</p>
+<ol>
+<li>If <strong>employee attributes change</strong></li>
+<li>If <strong>HR changes their formatting requirements</strong></li>
+<li>If <strong>file writing logic changes</strong></li>
+</ol>
+<blockquote>
+<p>❌ SRP Violation: Class has too many responsibilities and becomes fragile.</p></blockquote>
+<h2 id="4-refactored-design-applying-srp-good-example">4. Refactored Design: Applying SRP (Good Example)</h2>
+<hr>
+<p>Let’s separate these responsibilities using <strong>dedicated classes</strong>.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/srp/example1/good">See Code in Git Repo</a>
+</div>
+<h4 id="1-employee-class-pure-domain-model">1. Employee Class: Pure Domain Model</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//Pure data holder</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String type;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(String name, String type){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> type;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span>() { <span style="color:#66d9ef">return</span> name; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getType</span>() { <span style="color:#66d9ef">return</span> type; }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="2-formatter-class--dedicated-to-presentation-logic">2. Formatter Class — Dedicated to Presentation Logic</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//Responsible for formatting employee data as required by HR</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFormatter</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">formatForHR</span>(Employee emp) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> emp.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; - &#34;</span> <span style="color:#f92672">+</span> emp.<span style="color:#a6e22e">getType</span>().<span style="color:#a6e22e">toUpperCase</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="3-file-saver--dedicated-to-persistence-logic">3. File Saver — Dedicated to Persistence Logic</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.FileWriter;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//Handles persistence logic</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFileSaver</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveToFile</span>(String formattedData) <span style="color:#66d9ef">throws</span> IOException{
+</span></span><span style="display:flex;"><span>    	<span style="color:#66d9ef">try</span> (FileWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileWriter(<span style="color:#e6db74">&#34;employees.txt&#34;</span>, <span style="color:#66d9ef">true</span>)) {
+</span></span><span style="display:flex;"><span>            writer.<span style="color:#a6e22e">write</span>(formattedData <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="4-employeeservice--the-orchestrator">4. EmployeeService — The Orchestrator</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//Coordinator/Orchestrator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFormatter formatter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFormatter();
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFileSaver fileSaver <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFileSaver();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee emp) {
+</span></span><span style="display:flex;"><span>     String formatted <span style="color:#f92672">=</span> formatter.<span style="color:#a6e22e">formatForHR</span>(emp);
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>         fileSaver.<span style="color:#a6e22e">saveToFile</span>(formatted);
+</span></span><span style="display:flex;"><span>     } <span style="color:#66d9ef">catch</span> (IOException e) {
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e">// ✅ Proper place to log/report</span>
+</span></span><span style="display:flex;"><span>         System.<span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Error saving employee data: &#34;</span> <span style="color:#f92672">+</span> e.<span style="color:#a6e22e">getMessage</span>());
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e">// Optionally log to a file or monitoring system</span>
+</span></span><span style="display:flex;"><span>     }
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="5-mainclient--clean-and-simple">5. MainClient — Clean and Simple</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//Application</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainClient</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args <span style="color:#f92672">[]</span>) {
+</span></span><span style="display:flex;"><span>		EmployeeService service <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService();
+</span></span><span style="display:flex;"><span>		Employee employee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Employee(<span style="color:#e6db74">&#34;Shubham&#34;</span>, <span style="color:#e6db74">&#34;FULLTIME&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		service.<span style="color:#a6e22e">save</span>(employee);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-result">✅ Result:</h3>
+<p>👉 This design now adheres to SRP — responsibilities are clearly separated into:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Class</th>
+          <th>Responsibility</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Employee</td>
+          <td>Holds data</td>
+      </tr>
+      <tr>
+          <td>EmployeeFormatter</td>
+          <td>Handles formatting</td>
+      </tr>
+      <tr>
+          <td>EmployeeFileSaver</td>
+          <td>Saves to file</td>
+      </tr>
+      <tr>
+          <td>EmployeeService</td>
+          <td>Coordinates workflow</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The <strong>Single Responsibility Principle</strong> lays the foundation for modular and scalable design.<br>
+It helps you avoid long, fragile classes that try to do too much — a common issue in both interview questions and enterprise systems.</p>
+<p>✅ By breaking down responsibilities into smaller, single-purpose classes:</p>
+<ul>
+<li>You improve modularity</li>
+<li>You simplify testing</li>
+<li>You enhance maintainability for future changes</li>
+</ul>
+<p>This sets the tone for clean, principle-driven architecture — and prepares us for more advanced concepts.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_3_srp-example2">SRP with Inheritance &amp; Subtypes →</a></strong><br>
+Learn how to apply SRP when designing class hierarchies like <code>FullTimeEmployee</code>, <code>Intern</code>, and <code>ContractEmployee</code>.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>SRP = One responsibility = One reason to change</li>
+<li>Avoid mixing formatting, saving, and domain logic in the same class</li>
+<li>Start refactoring early in the design phase to keep codebase clean</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-principles/2_1_solid-in-action-intro/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-principles/2_3_srp-example2/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2025 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

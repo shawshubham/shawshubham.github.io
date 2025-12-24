@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61030&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interface Segregation Principle (ISP) - Designing Focused Contracts in Employee Management</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Interface Segregation Principle (ISP) - Designing Focused Contracts in Employee Management</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. What Is the Interface Segregation Principle (ISP)?</li>
+        
+        <li>2. New Requirement: Unified Employee Operations</li>
+        
+        <li>3. The Fat Interface – ISP Violation ❌</li>
+        
+        <li>4. Where the ISP Violation Actually Happens</li>
+        
+        <li>5. Why This Design Violates ISP</li>
+        
+        <li>6. Refactoring the Design – Applying ISP ✅</li>
+        
+        <li>7. Why This Design Follows ISP</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Dec, 2025
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-what-is-the-interface-segregation-principle-isp">1. What Is the Interface Segregation Principle (ISP)?</h2>
+<hr>
+<blockquote>
+<p><strong>Clients should not be forced to depend on interfaces they do not use.</strong></p></blockquote>
+<p>In simple terms:</p>
+<blockquote>
+<p><strong>Smaller, focused interfaces are better than large, generic ones.</strong></p></blockquote>
+<p>ISP helps prevent:</p>
+<ul>
+<li>bloated interfaces</li>
+<li>unnecessary method implementations</li>
+<li>fragile designs where changes ripple everywhere</li>
+</ul>
+<h2 id="2-new-requirement-unified-employee-operations">2. New Requirement: Unified Employee Operations</h2>
+<hr>
+<p>As the Employee Management System evolves, multiple teams start interacting with it:</p>
+<ul>
+<li><strong>HR Team</strong> → manages employee records and attendance</li>
+<li><strong>Payroll Team</strong> → calculates salary and deductions</li>
+<li><strong>IT/Admin Team</strong> → provisions system access</li>
+<li><strong>Reporting Team</strong> → exports employee data</li>
+</ul>
+<p>A developer proposes a “simple” solution:</p>
+<blockquote>
+<p><strong>“Let’s expose everything through one EmployeeOperations interface.”</strong></p></blockquote>
+<p>This is a very common real-world decision — and also a common mistake.</p>
+<h2 id="3-the-fat-interface--isp-violation-">3. The Fat Interface – ISP Violation ❌</h2>
+<hr>
+<p>To support all teams quickly, a single, unified interface is introduced.</p>
+<p>At first glance, this looks reasonable — all employee-related actions are grouped together.</p>
+<p>However, this interface <strong>violates the Interface Segregation Principle</strong>.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/isp/example1/bad">See Code in Git Repo</a>
+</div>
+<h3 id="-problem-1-the-interface-is-too-broad">❌ Problem 1: The Interface Is Too Broad</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeeOperations</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//HR Operations</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addEmployee</span>(Employee employee);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">updateEmployee</span>(Employee employee);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">markAttendance</span>(Employee employee, <span style="color:#66d9ef">int</span> daysPresent);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Payroll Operations</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateSalary</span>(Employee employee);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//IT/Admin Operations</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">provisionSystemAccess</span>(Employee employee, String role, String systemId);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">revokeSystemAccess</span>(Employee employee, String role, String systemId);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Reporting Operations</span>
+</span></span><span style="display:flex;"><span>    String <span style="color:#a6e22e">generateReport</span>(Employee employee);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This single interface now mixes multiple unrelated responsibilities:</p>
+<ul>
+<li>HR concerns</li>
+<li>Payroll logic</li>
+<li>IT administration</li>
+<li>Reporting</li>
+</ul>
+<p>The interface no longer represents one cohesive contract.
+Instead, it represents everything the system can do.</p>
+<h3 id="-problem-2-employeeservice-becomes-a-god-service">❌ Problem 2: EmployeeService Becomes a “God Service”</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> <span style="color:#66d9ef">implements</span> EmployeeOperations{
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>EmployeeService now exposes all operations through one interface, even though:</p>
+<ul>
+<li>HR clients don’t care about payroll</li>
+<li>Payroll clients don’t care about IT access</li>
+<li>Reporting clients don’t care about attendance</li>
+</ul>
+<blockquote>
+<p>⚠️ Important:
+The ISP violation is not about where the logic lives.
+It is about what clients are forced to depend on.</p></blockquote>
+<h2 id="4-where-the-isp-violation-actually-happens">4. Where the ISP Violation Actually Happens</h2>
+<hr>
+<p>The real problem appears when clients depend on this interface.</p>
+<h3 id="-hrclient-depends-on-too-much">❌ HRClient Depends on Too Much</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HRClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(HRClient.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeOperations employeeOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">HRClient</span>(EmployeeOperations employeeOperations) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeOperations</span> <span style="color:#f92672">=</span> employeeOperations;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addEmployee</span>(Employee employeeData) {
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Adding employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>        employeeOperations.<span style="color:#a6e22e">addEmployee</span>(employeeData);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Added employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">updateEmployee</span>(Employee employeeData){
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Updating employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>        employeeOperations.<span style="color:#a6e22e">updateEmployee</span>(employeeData);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Updated employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">markAttendance</span>(Employee employeeData, <span style="color:#66d9ef">int</span> daysPresent){
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Marking attendance for employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>        employeeOperations.<span style="color:#a6e22e">markAttendance</span>(employeeData, daysPresent);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Marked attendance for employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Although HRClient only needs:</p>
+<ul>
+<li>addEmployee</li>
+<li>updateEmployee</li>
+<li>markAttendance</li>
+</ul>
+<p>it is forced to depend on:</p>
+<ul>
+<li>salary calculation</li>
+<li>deductions</li>
+<li>system access provisioning</li>
+<li>reporting</li>
+</ul>
+<p>Any change to payroll, IT, or reporting can break HRClient, even though HR does not use those methods.</p>
+<h3 id="-payrollclient-is-tightly-coupled-to-hr-and-it">❌ PayrollClient Is Tightly Coupled to HR and IT</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayrollClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(PayrollClient.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeOperations employeeOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PayrollClient</span>(EmployeeOperations employeeOperations) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeOperations</span> <span style="color:#f92672">=</span> employeeOperations;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">runPayroll</span>(Employee employeeData) {
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Processing payroll for employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Payroll processing logic using employeeOperations</span>
+</span></span><span style="display:flex;"><span>        employeeOperations.<span style="color:#a6e22e">calculateSalary</span>(employeeData);
+</span></span><span style="display:flex;"><span>        employeeOperations.<span style="color:#a6e22e">calculateDeduction</span>(employeeData);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Processed payroll for employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Payroll only cares about:</p>
+<ul>
+<li>calculateSalary</li>
+<li>calculateDeduction</li>
+</ul>
+<p>Yet it is now coupled to:</p>
+<ul>
+<li>HR operations</li>
+<li>attendance logic</li>
+<li>IT system access</li>
+<li>reporting changes</li>
+</ul>
+<p>This violates ISP directly.</p>
+<blockquote>
+<p><strong>Clients should not be forced to depend on methods they do not use.</strong></p></blockquote>
+<p>PayrollClient is forced to depend on everything.</p>
+<h3 id="-change-ripple-effect-the-hidden-cost">❌ Change Ripple Effect (The Hidden Cost)</h3>
+<p>Imagine HR adds a new requirement:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">approveLeave</span>(Employee employee);
+</span></span></code></pre></div><p>Because it is added to EmployeeOperations:</p>
+<ul>
+<li>EmployeeService must change</li>
+<li>HRClient must recompile</li>
+<li>PayrollClient must recompile</li>
+<li>ITAdminClient must recompile</li>
+<li>ReportingClient must recompile</li>
+</ul>
+<p>Even though only HR cares about leave approval.</p>
+<p>This is exactly what ISP warns against.</p>
+<h2 id="5-why-this-design-violates-isp">5. Why This Design Violates ISP</h2>
+<hr>
+<p>This design violates the Interface Segregation Principle because:</p>
+<ul>
+<li>Clients are forced to depend on methods they do not use</li>
+<li>Interfaces are designed around system capabilities, not client needs</li>
+<li>Any change in one domain (HR, IT, Reporting) affects unrelated clients</li>
+<li>The interface becomes a bottleneck for evolution</li>
+</ul>
+<p>This code <strong>works</strong>, but it is <strong>fragile</strong>.</p>
+<h3 id="-isp-violation-summary">🚨 ISP Violation Summary</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Issue</th>
+          <th>Explanation</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Fat interface</td>
+          <td>One interface tries to represent multiple responsibilities</td>
+      </tr>
+      <tr>
+          <td>Forced dependencies</td>
+          <td>Clients depend on methods they never use</td>
+      </tr>
+      <tr>
+          <td>High coupling</td>
+          <td>Changes ripple across unrelated modules</td>
+      </tr>
+      <tr>
+          <td>Poor scalability</td>
+          <td>Adding new operations becomes risky</td>
+      </tr>
+  </tbody>
+</table>
+<p>This is a <strong>classic ISP violation</strong> seen in real-world systems.</p>
+<h2 id="6-refactoring-the-design--applying-isp-">6. Refactoring the Design – Applying ISP ✅</h2>
+<hr>
+<p>The fix is not to remove EmployeeService.</p>
+<p>The fix is to:</p>
+<blockquote>
+<p><strong>Split the fat interface into smaller, role-based interfaces.</strong></p></blockquote>
+<h3 id="-focused-interfaces-isp-compliant-design">✅ Focused Interfaces (ISP-Compliant Design)</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/isp/example1/good">See Code in Git Repo</a>
+</div>
+<h4 id="hr-operations-interface">HR Operations Interface</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">HROperations</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//HR Operations</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addEmployee</span>(Employee employee);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">updateEmployee</span>(Employee employee);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">markAttendance</span>(Employee employee, <span style="color:#66d9ef">int</span> daysPresent);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="payroll-operations-interface">Payroll Operations Interface</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">PayrollOperations</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Payroll Operations</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateSalary</span>(Employee employee);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="it-administration-operations-interface">IT Administration Operations Interface</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ITAdminOperations</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//ITAdmin Operations</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">provisionSystemAccess</span>(Employee employee, String role, String systemId);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">revokeSystemAccess</span>(Employee employee, String role, String systemId);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="reporting-operations-interface">Reporting Operations Interface</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportingOperations</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Reporting Operations</span>
+</span></span><span style="display:flex;"><span>    String <span style="color:#a6e22e">generateReport</span>(Employee employee);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Each interface now has:</p>
+<ul>
+<li>a single reason to change</li>
+<li>a clear audience</li>
+<li>a focused responsibility</li>
+</ul>
+<h3 id="-employeeservice-remains-the-internal-orchestrator">✅ EmployeeService Remains the Internal Orchestrator</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> <span style="color:#66d9ef">implements</span> HROperations, PayrollOperations, ITAdminOperations, ReportingOperations {
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p>Key point:
+EmployeeService is unchanged internally —
+only the contracts exposed to clients are refined.</p></blockquote>
+<h3 id="-focused-clients-with-minimal-dependencies">✅ Focused Clients with Minimal Dependencies</h3>
+<h4 id="hrclient-now-isp-compliant">HRClient (Now ISP-Compliant)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HRClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(HRClient.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> HROperations hrOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">HRClient</span>(HROperations hrOperations) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">hrOperations</span> <span style="color:#f92672">=</span> hrOperations;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addEmployee</span>(Employee employeeData) {
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Adding employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>        hrOperations.<span style="color:#a6e22e">addEmployee</span>(employeeData);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Added employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">updateEmployee</span>(Employee employeeData){
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Updating employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>        hrOperations.<span style="color:#a6e22e">updateEmployee</span>(employeeData);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Updated employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">markAttendance</span>(Employee employeeData, <span style="color:#66d9ef">int</span> daysPresent){
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Marking attendance for employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>        hrOperations.<span style="color:#a6e22e">markAttendance</span>(employeeData, daysPresent);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Marked attendance for employee {0}&#34;</span>, employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="itadminclient-now-isp-compliant">ITAdminClient (Now ISP-Compliant)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ITAdminClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ITAdminOperations itAdminOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ITAdminClient</span>(ITAdminOperations itAdminOperations) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">itAdminOperations</span> <span style="color:#f92672">=</span> itAdminOperations;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">provisionSystemAccess</span>(Employee employeeData, String role, String systemId) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// System access provisioning logic using employeeOperations</span>
+</span></span><span style="display:flex;"><span>        itAdminOperations.<span style="color:#a6e22e">provisionSystemAccess</span>(employeeData, role, systemId);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">revokeSystemAccess</span>(Employee employeeData, String role, String systemId) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// System access revocation logic using employeeOperations</span>
+</span></span><span style="display:flex;"><span>        itAdminOperations.<span style="color:#a6e22e">revokeSystemAccess</span>(employeeData, role, systemId);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Each client now depends <strong>only on what it actually uses</strong>.</p>
+<h2 id="7-why-this-design-follows-isp">7. Why This Design Follows ISP</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Fat Interface ❌</th>
+          <th>Segregated Interfaces ✅</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Client dependency</td>
+          <td>Forced on unused methods</td>
+          <td>Depends only on what it needs</td>
+      </tr>
+      <tr>
+          <td>Change impact</td>
+          <td>High</td>
+          <td>Localized</td>
+      </tr>
+      <tr>
+          <td>Readability</td>
+          <td>Poor</td>
+          <td>Clear and intention-revealing</td>
+      </tr>
+      <tr>
+          <td>Testability</td>
+          <td>Hard</td>
+          <td>Easy</td>
+      </tr>
+      <tr>
+          <td>Extensibility</td>
+          <td>Fragile</td>
+          <td>Safe</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The Interface Segregation Principle teaches us that:</p>
+<blockquote>
+<p><strong>More interfaces are often better than fewer, bloated ones.</strong></p></blockquote>
+<p>When interfaces grow too large:</p>
+<ul>
+<li>clients become coupled to changes they don’t care about</li>
+<li>implementations become fragile</li>
+<li>design clarity is lost</li>
+</ul>
+<p>By splitting interfaces based on roles and responsibilities, we create systems that are:</p>
+<ul>
+<li>easier to maintain</li>
+<li>easier to extend</li>
+<li>easier to understand</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>With ISP complete, we move to the final SOLID principle:</p>
+<p>Next, we move to the third SOLID principle:</p>
+<p><strong><a href="/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_9_dip-example1">Dependency Inversion Principle (DIP) in action →</a></strong>
+High-level modules should not depend on low-level modules — both should depend on abstractions.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Fat interfaces are a design smell</li>
+<li>Clients should only depend on methods they actually use</li>
+<li>ISP reduces ripple effects and improves maintainability</li>
+<li>Role-based interfaces scale better than generic ones</li>
+<li>Clean interfaces lead to clean systems</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-patterns/2_7_lsp-example1/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-patterns/2_9_dip-example1/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2025 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

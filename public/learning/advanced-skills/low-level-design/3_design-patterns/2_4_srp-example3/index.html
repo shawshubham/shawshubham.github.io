@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61030&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Single Responsibility Principle (SRP) - Enhancements: Enum, Logging &amp; Final Touches</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Single Responsibility Principle (SRP) - Enhancements: Enum, Logging &amp; Final Touches</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Towards a Production-Ready Design</li>
+        
+        <li>2. Code Enhancements for SRP</li>
+        
+        <li>3. SRP Applies Beyond Classes</li>
+        
+        <li>4. How to Spot SRP Violations</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Dec, 2025
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-towards-a-production-ready-design">1. Towards a Production-Ready Design</h2>
+<hr>
+<p>Now that we’ve broken down responsibilities in our <code>Employee</code> Management System using SRP, let&rsquo;s take the final steps to <strong>make the code more robust and extensible</strong>:</p>
+<ul>
+<li>Replace string-based <code>type</code> with a <strong>Java Enum</strong></li>
+<li>Replace <code>System.err</code> with <strong>structured logging</strong></li>
+<li>Structure the saving logic in a dedicated class (<code>EmployeeFileSaver</code>) so it can be easily replaced by an interface later when we apply OCP.</li>
+</ul>
+<p>These improvements make the system:</p>
+<ul>
+<li>Safer (with type safety via enums)</li>
+<li>Easier to debug and monitor (via logging)</li>
+<li>More extensible and testable (via abstractions)</li>
+</ul>
+<h2 id="2-code-enhancements-for-srp">2. Code Enhancements for SRP</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/srp/finalrefactoredversion">See Code in Git Repo</a>
+</div>
+<h3 id="-1-enum-for-employee-type">✅ 1. Enum for Employee Type</h3>
+<blockquote>
+<p>Why Enum?</p>
+<ul>
+<li>Avoids typos like &ldquo;FULLTIME&rdquo; vs &ldquo;Fulltime&rdquo;</li>
+<li>Allows compiler checks and switch statements</li>
+<li>Self-documenting and strongly typed</li>
+</ul></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> EmployeeType {
+</span></span><span style="display:flex;"><span>    FULLTIME,
+</span></span><span style="display:flex;"><span>	CONTRACT,
+</span></span><span style="display:flex;"><span>	INTERN
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-2-updated-employee-class">✅ 2. Updated Employee Class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//Pure data holder</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(String name) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> name;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> EmployeeType <span style="color:#a6e22e">getType</span>(); <span style="color:#75715e">// enforced behaviour</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-3-updated-employee-subclasses">✅ 3. Updated Employee Subclasses</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FullTimeEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">FullTimeEmployee</span>(String name) { <span style="color:#66d9ef">super</span>(name); }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() { <span style="color:#66d9ef">return</span> EmployeeType.<span style="color:#a6e22e">FULLTIME</span>; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Future: add methods like assignBonus()</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContractEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ContractEmployee</span>(String name) { <span style="color:#66d9ef">super</span>(name); }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() { <span style="color:#66d9ef">return</span> EmployeeType.<span style="color:#a6e22e">CONTRACT</span>; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Future: add methods like extendContract()</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InternEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">InternEmployee</span>(String name) { <span style="color:#66d9ef">super</span>(name); }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() { <span style="color:#66d9ef">return</span> EmployeeType.<span style="color:#a6e22e">INTERN</span>; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Future: add methods like assignMentor()</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-4-updated-formatter-class">✅ 4. Updated Formatter Class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//Responsible for formatting employee data as required by HR</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFormatter</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">formatForHR</span>(Employee emp) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> emp.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; - &#34;</span> <span style="color:#f92672">+</span> emp.<span style="color:#a6e22e">getType</span>().<span style="color:#a6e22e">name</span>();
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-5-employeefilesaver-class--no-change">✅ 5. EmployeeFileSaver Class : No Change</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.FileWriter;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//Handles persistence logic</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFileSaver</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String filePath;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeFileSaver</span>(String filePath) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">filePath</span> <span style="color:#f92672">=</span> filePath;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveToFile</span>(String formattedData) <span style="color:#66d9ef">throws</span> IOException {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">try</span> (FileWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileWriter(filePath, <span style="color:#66d9ef">true</span>)) {
+</span></span><span style="display:flex;"><span>			writer.<span style="color:#a6e22e">write</span>(formattedData <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span>);
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-6-use-structured-logging">✅ 6. Use Structured Logging</h3>
+<p>Instead of using System.out.println() or System.err.println() for debugging or error reporting, it’s a better practice to use a proper logging mechanism like Java’s built-in java.util.logging.Logger.</p>
+<blockquote>
+<p><strong>Why use Logger?</strong></p>
+<ul>
+<li>Provides structured logging with log levels like INFO, WARNING, SEVERE, etc.</li>
+<li>Makes it easier to filter and analyze logs in production systems.</li>
+<li>Can be easily integrated with log monitoring tools or external logging frameworks like Log4j, SLF4J, etc.</li>
+<li>Supports advanced features like log formatting, file output, and log rotation.</li>
+</ul></blockquote>
+<p>This is especially useful when moving from simple CLI apps to enterprise-level systems where observability and debugging become critical.</p>
+<p>You can start with java.util.logging.Logger and later switch to more flexible libraries like <strong>SLF4J with Logback</strong> when using frameworks like Spring.</p>
+<h3 id="-7-updated-employeeservice-class">✅ 7. Updated EmployeeService class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.logging.Logger;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> java.util.logging.Level.SEVERE;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//Employee Orchestrator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeFormatter employeeFormatter;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeFileSaver employeeFileSaver;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter, EmployeeFileSaver employeeFileSaver) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFileSaver</span> <span style="color:#f92672">=</span> employeeFileSaver;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        String formatted <span style="color:#f92672">=</span> employeeFormatter.<span style="color:#a6e22e">formatForHR</span>(employee);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            employeeFileSaver.<span style="color:#a6e22e">saveToFile</span>(formatted);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (IOException e) {
+</span></span><span style="display:flex;"><span>            logger.<span style="color:#a6e22e">log</span>(SEVERE, <span style="color:#e6db74">&#34;Error saving employee data for &#34;</span> <span style="color:#f92672">+</span> employee.<span style="color:#a6e22e">getName</span>(), e);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException(<span style="color:#e6db74">&#34;Failed to save employee data&#34;</span>, e); <span style="color:#75715e">// signal failure to callers</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-8-updated-mainclient-class">✅ 8. Updated MainClient class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.logging.Logger;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainClient</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(MainClient.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) {
+</span></span><span style="display:flex;"><span>		Employee fullTimeEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>);
+</span></span><span style="display:flex;"><span>		Employee contractEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>);
+</span></span><span style="display:flex;"><span>		Employee internEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		EmployeeFormatter formatter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFormatter();
+</span></span><span style="display:flex;"><span>		EmployeeFileSaver fileSaver <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFileSaver(<span style="color:#e6db74">&#34;employee.txt&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		EmployeeService service <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter, fileSaver);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Saving employees...&#34;</span>);
+</span></span><span style="display:flex;"><span>		service.<span style="color:#a6e22e">save</span>(fullTimeEmployee);
+</span></span><span style="display:flex;"><span>		service.<span style="color:#a6e22e">save</span>(contractEmployee);
+</span></span><span style="display:flex;"><span>		service.<span style="color:#a6e22e">save</span>(internEmployee);
+</span></span><span style="display:flex;"><span>		logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Finished saving employees.&#34;</span>);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<h3 id="-bonus-srp-improves-testability">🧪 Bonus: SRP Improves Testability</h3>
+<p>Because each class has a clear responsibility:</p>
+<ul>
+<li><code>EmployeeFormatter</code> can be unit tested independently</li>
+<li><code>EmployeeService</code> can be tested with mock/stub versions of <code>EmployeeFileSaver</code></li>
+<li>You can simulate different <code>Employee</code> types via inheritance and test behaviors separately
+This modularity is one of SRP’s biggest hidden superpowers!</li>
+</ul>
+<p>📌 We’ll cover detailed testing strategy in a separate tutorial.</p></blockquote>
+<h2 id="3-srp-applies-beyond-classes">3. SRP Applies Beyond Classes</h2>
+<hr>
+<p>SRP is not just for classes — it applies to:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Unit</th>
+          <th>Example</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Methods</td>
+          <td>Method doing validation + DB call + formatting</td>
+      </tr>
+      <tr>
+          <td>Classes</td>
+          <td>Class doing logic + I/O + formatting</td>
+      </tr>
+      <tr>
+          <td>Packages</td>
+          <td>Module mixing domain logic with infrastructure code</td>
+      </tr>
+      <tr>
+          <td>Microservices</td>
+          <td>Service managing business logic + auth + metrics</td>
+      </tr>
+  </tbody>
+</table>
+<p>💡 SRP = Separation of Concerns at every level.</p>
+<h2 id="4-how-to-spot-srp-violations">4. How to Spot SRP Violations</h2>
+<hr>
+<p>Here are red flags that your code might be violating SRP:</p>
+<h4 id="1-monster-methods">1. Monster Methods</h4>
+<ul>
+<li>A single method is 50+ lines long and performs multiple steps</li>
+<li>📉 Hard to test, hard to debug</li>
+</ul>
+<h4 id="2-utilityhelper-god-classes">2. Utility/Helper God Classes</h4>
+<ul>
+<li>StringUtils, EmployeeHelper, etc. that have dozens of unrelated methods</li>
+<li>📉 These are often SRP violation magnets</li>
+</ul>
+<h4 id="3-too-many-ifelse-chains">3. Too Many If/Else Chains</h4>
+<ul>
+<li>When a class/method handles behavior for multiple types</li>
+<li>📉 Indicates responsibilities are not delegated properly (e.g., Strategy Pattern may help)</li>
+</ul>
+<h4 id="4-tightly-coupled-code">4. Tightly Coupled Code</h4>
+<ul>
+<li>Formatting + logic + storage all bundled into one</li>
+<li>📉 Hard to isolate bugs or change one part without affecting the rest</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>We’ve now completed a full SRP-compliant design:</p>
+<ul>
+<li>Domain class with clean data modeling</li>
+<li>Presentation separated via <code>Formatter</code></li>
+<li>Persistence isolated in its own saver class, setting the stage for introducing an extensible saver interface under OCP.</li>
+<li>Logic orchestrated by a <code>Service</code></li>
+<li>Clean logging for observability</li>
+</ul>
+<p>This foundation sets the stage for applying the next SOLID principle — <strong>Open/Closed Principle (OCP)</strong> — where we’ll allow extension of saving logic without touching the existing implementation.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that you’ve understood in details Single Responsibility Principle, let’s deep-dive into the next principle OCP.</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_5_ocp-example1">Open-Closed Principle (OCP) in action →</a></strong>
+We’ll explore how to extend a system without modifying existing, working code — and refactor a business logic engine to apply OCP.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Enums and structured logging turn a demo-friendly design into something <strong>production-ready</strong>.</li>
+<li>Small, single-purpose classes (<code>Employee</code>, <code>Formatter</code>, <code>Saver</code>, <code>Service</code>) are easier to test, evolve, and monitor than one god class.</li>
+<li>Designing with SRP-friendly abstractions today makes it much easier to apply <strong>OCP</strong> tomorrow when requirements change.</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-patterns/2_3_srp-example2/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/3_design-patterns/2_5_ocp-example1/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2025 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

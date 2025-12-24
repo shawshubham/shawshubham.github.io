@@ -1,5 +1,5 @@
 ---
-title: "Liskov Substitution Principle (LSP) - Preventing Broken Inheritance in Employee Management"
+title: "LSP – Preventing Broken Inheritance in Employee Management"
 description: "Learn the Liskov Substitution Principle (LSP) through a real-world Employee Management System example. See how a wrong design breaks substitutability and how to fix it using behavior policies."
 keywords:
   - liskov substitution principle java

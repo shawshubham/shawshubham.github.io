@@ -1,5 +1,5 @@
 ---
-title: "Single Responsibility Principle (SRP) – Basics and Initial Refactoring"
+title: "SRP – Basics and Initial Refactoring"
 description: "Learn the Single Responsibility Principle (SRP) in Java with real-world examples and refactoring steps to improve modularity, maintainability, and testability."
 keywords:
   - single responsibility principle java
