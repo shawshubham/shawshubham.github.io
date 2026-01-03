@@ -34,7 +34,7 @@ However, there is still an **important gap**.
 Even though behavior is abstracted, **creation responsibility still leaks into client code**.
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/factory/existing">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/factory/existing/MainClient.java">See Code in Git Repo</a>
 </div>
 
 ```java
@@ -75,7 +75,7 @@ Different context — **same design pressure**.
 ---
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/factory/naive">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/factory/naive/persistence/EmployeePersistenceFactory.java">See Code in Git Repo</a>
 </div>
 
 We begin with a simple factory.
@@ -120,7 +120,7 @@ This is a **good first step**, but not the final design.
 ---
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/factory/improved">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/factory/improved/persistence">See Code in Git Repo</a>
 </div>
 
 #### Step 1: Introduce a Strongly Typed Enum
@@ -169,7 +169,7 @@ But we still have a growing switch statement.
 To fully align with OCP, we remove conditional logic entirely.
 
 <div class="btn-row">
-    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/factory/finalrefactoredversion">See Code in Git Repo</a>
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/factory/finalrefactoredversion/persistence/EmployeePersistenceFactory.java">See Code in Git Repo</a>
 </div>
 
 ```java
