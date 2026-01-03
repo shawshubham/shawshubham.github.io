@@ -8,7 +8,7 @@ keywords:
   - object creation design
   - design patterns overview
   - low level design patterns
-weight: 1
+weight: 2
 date: 2025-12-20
 layout: "topic-content"
 ---

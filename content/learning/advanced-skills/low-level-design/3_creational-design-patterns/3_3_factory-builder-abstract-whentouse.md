@@ -7,7 +7,7 @@ keywords:
   - creational design patterns comparison
   - when to use builder pattern
   - design patterns decision guide
-weight: 2
+weight: 3
 date: 2025-12-21
 layout: "topic-content"
 ---
@@ -252,6 +252,6 @@ Choosing the right one is about **understanding the problem**, not knowing the p
 
 Now that you know _how to choose_, we’ll implement the first one in depth:
 
-👉 **Factory Method Pattern – Solving Type Explosion in a Real System**
+👉 **[Factory Method Pattern – Solving Type Explosion in a Real System →](/learning/advanced-skills/low-level-design/3_design-patterns/3_4_factory-pattern)**
 
 We’ll start with a broken design and refactor it step by step using the Employee Management System.
