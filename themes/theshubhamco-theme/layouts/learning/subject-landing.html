@@ -6,6 +6,27 @@
   </div>
 </section>
 
+<!-- =========================
+     Reset Learning Progress (scoped to this TOC page)
+     Key: tsc-visited:<this-page-relpermalink>
+========================== -->
+<section class="section toc-reset">
+  <div class="container">
+    <div class="toc-reset-bar">
+      <div class="toc-reset-text">
+        <strong>Visited links tracking</strong>
+        <span class="toc-reset-subtext">
+          This page remembers what you’ve opened on this device using your browser’s local storage.
+        </span>
+      </div>
+
+      <button type="button" class="btn nav-btn toc-reset-btn" id="toc-reset-btn">
+        Reset Progress
+      </button>
+    </div>
+  </div>
+</section>
+
 <section class="section toc-section">
   <div class="container">
     <h2>Table of Contents</h2>
@@ -30,4 +51,77 @@
     </ul>
   </div>
 </section>
+
+<script>
+  (function () {
+    // Scope storage to THIS TOC page only (so resets don't affect other tutorials)
+    const tocScope = "{{ .RelPermalink }}".toLowerCase();
+    const STORAGE_KEY = "tsc-visited:" + tocScope;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("toc-reset-btn");
+      const links = document.querySelectorAll(".toc-section a[href]");
+
+      // Use a map so we can store timestamps (extensible)
+      function loadVisitedMap() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const obj = raw ? JSON.parse(raw) : {};
+          return (obj && typeof obj === "object") ? obj : {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveVisitedMap(map) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+        } catch (e) {
+          // Ignore (storage might be blocked)
+        }
+      }
+
+      function applyVisitedStyles(visitedMap) {
+        links.forEach((a) => {
+          const href = a.getAttribute("href");
+          if (href && visitedMap[href]) {
+            a.classList.add("toc-visited");
+          }
+        });
+      }
+
+      const visitedMap = loadVisitedMap();
+      applyVisitedStyles(visitedMap);
+
+      // Mark as visited on click
+      links.forEach((a) => {
+        const href = a.getAttribute("href");
+        if (!href) return;
+
+        a.addEventListener("click", () => {
+          visitedMap[href] = Date.now();
+          saveVisitedMap(visitedMap);
+          // Navigation happens immediately; styling will appear when user returns
+        });
+      });
+
+      // Reset only this TOC
+      if (btn) {
+        btn.textContent = "Reset Progress";
+        btn.addEventListener("click", () => {
+          const confirmed = window.confirm(
+            "Reset progress for this Table of Contents on this device?\n\nOnly this tutorial will be reset. Other tutorials will remain unchanged."
+          );
+          if (!confirmed) return;
+
+          localStorage.removeItem(STORAGE_KEY);
+
+          // Remove visited styles immediately (no reload required)
+          document.querySelectorAll(".toc-section a.toc-visited")
+            .forEach(a => a.classList.remove("toc-visited"));
+        });
+      }
+    });
+  })();
+</script>
 {{ end }}
