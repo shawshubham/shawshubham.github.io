@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Embeddings Explained (How LLMs Represent Meaning)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Embeddings Explained (How LLMs Represent Meaning)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction</li>
+        
+        <li>2. What Is an Embedding?</li>
+        
+        <li>3. Why Text Needs to Become Numbers</li>
+        
+        <li>4. A Simple Intuition (Very Important)</li>
+        
+        <li>5. What Do Embeddings Actually Represent?</li>
+        
+        <li>6. How Embeddings Are Learned (High Level)</li>
+        
+        <li>7. Common Use Cases of Embeddings</li>
+        
+        <li>8. Embeddings vs Prompts (Key Difference)</li>
+        
+        <li>9. Common Misconceptions About Embeddings</li>
+        
+        <li>10. Why Embeddings Matter in Real Systems</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 17 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction">1. Introduction</h2>
+<hr>
+<p>So far, you’ve learned:</p>
+<ul>
+<li>how LLMs generate text</li>
+<li>how tokens and context windows limit what models can see</li>
+<li>how prompts guide behaviour</li>
+</ul>
+<p>The next question is:</p>
+<blockquote>
+<p><strong>How does a model understand that two pieces of text mean similar things, even if the words are different?</strong></p></blockquote>
+<p>The answer lies in <strong>embeddings</strong>.</p>
+<p>Embeddings are one of the most important — and most misunderstood — concepts in Generative AI.</p>
+<hr>
+<h2 id="2-what-is-an-embedding">2. What Is an Embedding?</h2>
+<hr>
+<p>An <strong>embedding</strong> is a numerical representation of text that captures its <strong>meaning</strong>.</p>
+<p>Instead of working with raw words, an LLM converts text into a list of numbers (a vector) such that:</p>
+<ul>
+<li>similar meanings → similar numbers</li>
+<li>different meanings → distant numbers</li>
+</ul>
+<blockquote>
+<p><strong>Embeddings turn meaning into math.</strong></p></blockquote>
+<hr>
+<h2 id="3-why-text-needs-to-become-numbers">3. Why Text Needs to Become Numbers</h2>
+<hr>
+<p>LLMs cannot work directly with text.</p>
+<p>Internally, everything must become numbers so the model can:</p>
+<ul>
+<li>compare</li>
+<li>measure similarity</li>
+<li>perform mathematical operations</li>
+</ul>
+<p>The flow looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Text → Tokens → Numbers → Meaningful relationships
+</span></span></code></pre></div><p>Embeddings are the <strong>numbers that represent meaning</strong>, not grammar or syntax.</p>
+<hr>
+<h2 id="4-a-simple-intuition-very-important">4. A Simple Intuition (Very Important)</h2>
+<hr>
+<p>Consider these two sentences:</p>
+<ul>
+<li>“I like apples”</li>
+<li>“I enjoy eating apples”</li>
+</ul>
+<p>Even though the words are different, the <strong>meaning is very similar</strong>.</p>
+<p>An embedding model places these sentences:</p>
+<ul>
+<li>close together in numerical space</li>
+</ul>
+<p>Now compare with:</p>
+<ul>
+<li>“The stock market crashed today”</li>
+</ul>
+<p>That sentence would be:</p>
+<ul>
+<li>far away in the same space</li>
+</ul>
+<blockquote>
+<p><strong>Distance between embeddings ≈ difference in meaning</strong></p></blockquote>
+<p>No dictionary lookup.
+No keyword matching.
+Just learned semantic relationships.</p>
+<hr>
+<h2 id="5-what-do-embeddings-actually-represent">5. What Do Embeddings Actually Represent?</h2>
+<hr>
+<p>An embedding captures:</p>
+<ul>
+<li>topic</li>
+<li>intent</li>
+<li>context</li>
+<li>semantic similarity</li>
+</ul>
+<p>It does <strong>not</strong> capture:</p>
+<ul>
+<li>exact facts</li>
+<li>truth</li>
+<li>correctness</li>
+</ul>
+<p>Embeddings answer:</p>
+<blockquote>
+<p>“How similar is this to that?”</p></blockquote>
+<p>They do <strong>not</strong> answer:</p>
+<blockquote>
+<p>“Is this statement true?”</p></blockquote>
+<hr>
+<h2 id="6-how-embeddings-are-learned-high-level">6. How Embeddings Are Learned (High Level)</h2>
+<hr>
+<p>During training:</p>
+<ul>
+<li>the model sees massive amounts of text</li>
+<li>it learns which pieces of text appear in similar contexts</li>
+<li>similar contexts → similar embeddings</li>
+</ul>
+<p>This is why:</p>
+<ul>
+<li>synonyms cluster together</li>
+<li>related concepts appear close</li>
+<li>unrelated topics are far apart</li>
+</ul>
+<p>Again, this is <strong>pattern learning</strong>, not understanding.</p>
+<hr>
+<h2 id="7-common-use-cases-of-embeddings">7. Common Use Cases of Embeddings</h2>
+<hr>
+<h3 id="71-semantic-search">7.1 Semantic Search</h3>
+<p>Instead of keyword search:</p>
+<ul>
+<li>query and documents are embedded</li>
+<li>results are ranked by meaning similarity</li>
+</ul>
+<p>This enables:</p>
+<ul>
+<li>better search results</li>
+<li>tolerance for wording differences</li>
+<li>intent-based matching</li>
+</ul>
+<hr>
+<h3 id="72-similarity--clustering">7.2 Similarity &amp; Clustering</h3>
+<p>Embeddings allow you to:</p>
+<ul>
+<li>group similar documents</li>
+<li>detect duplicates</li>
+<li>recommend related content</li>
+</ul>
+<hr>
+<h3 id="73-retrieval-augmented-generation-rag">7.3 Retrieval-Augmented Generation (RAG)</h3>
+<p>This is one of the most important applications.</p>
+<p>High-level flow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User Query → Create Embedding
+</span></span><span style="display:flex;"><span>→ Find Similar Stored Embeddings
+</span></span><span style="display:flex;"><span>→ Retrieve Relevant Content
+</span></span><span style="display:flex;"><span>→ Send to LLM as Context
+</span></span></code></pre></div><p>Embeddings act as the <strong>bridge</strong> between:</p>
+<ul>
+<li>your data</li>
+<li>the LLM’s generation capabilities</li>
+</ul>
+<hr>
+<h2 id="8-embeddings-vs-prompts-key-difference">8. Embeddings vs Prompts (Key Difference)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Prompts</th>
+          <th>Embeddings</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Purpose</td>
+          <td>Guide generation</td>
+          <td>Represent meaning</td>
+      </tr>
+      <tr>
+          <td>Used for</td>
+          <td>Behaviour control</td>
+          <td>Search &amp; retrieval</td>
+      </tr>
+      <tr>
+          <td>Output</td>
+          <td>Text</td>
+          <td>Numbers</td>
+      </tr>
+      <tr>
+          <td>Determinism</td>
+          <td>Low</td>
+          <td>High</td>
+      </tr>
+      <tr>
+          <td>Typical use</td>
+          <td>Asking questions</td>
+          <td>Finding related content</td>
+      </tr>
+  </tbody>
+</table>
+<p>Both are essential — but they solve <strong>different problems</strong>.</p>
+<hr>
+<h2 id="9-common-misconceptions-about-embeddings">9. Common Misconceptions About Embeddings</h2>
+<hr>
+<h3 id="-embeddings-store-facts">❌ “Embeddings store facts”</h3>
+<p>No — they store <strong>relationships</strong>, not knowledge.</p>
+<h3 id="-embeddings-understand-meaning">❌ “Embeddings understand meaning”</h3>
+<p>They encode <strong>statistical similarity</strong>, not comprehension.</p>
+<h3 id="-embeddings-replace-databases">❌ “Embeddings replace databases”</h3>
+<p>They complement databases; they don’t replace them.</p>
+<hr>
+<h2 id="10-why-embeddings-matter-in-real-systems">10. Why Embeddings Matter in Real Systems</h2>
+<hr>
+<p>In production systems, embeddings enable:</p>
+<ul>
+<li>scalable semantic search</li>
+<li>knowledge retrieval</li>
+<li>context injection into prompts</li>
+<li>reduced hallucinations</li>
+</ul>
+<p>Without embeddings:</p>
+<ul>
+<li>LLMs only know what you paste into the prompt</li>
+<li>long documents become impractical</li>
+<li>answers become less grounded</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Embeddings are how Large Language Models represent <strong>meaning as numbers</strong>.</p>
+<p>They allow systems to:</p>
+<ul>
+<li>compare text semantically</li>
+<li>retrieve relevant information</li>
+<li>ground LLM responses in external data</li>
+</ul>
+<p>If prompts control <strong>how</strong> a model responds,
+embeddings control <strong>what information the model sees</strong>.</p>
+<p>Understanding embeddings is essential before moving on to real-world architectures like RAG.</p>
+<hr>
+<h3 id="-whats-next">🔗 What&rsquo;s Next?</h3>
+<hr>
+<p><strong>👉 <a href="/learning/applied-emerging-skills/generative-ai/2_core-concepts/2_5_fine-tuning-vs-prompting">Fine-Tuning vs Prompting ➡ </a></strong><br>
+Learn when to customise a model, when not to, and why most systems rely on prompting and embeddings instead of training new models.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Key Takeaways</strong></p>
+<ul>
+<li>Embeddings are numerical representations of meaning</li>
+<li>Similar meanings result in similar embeddings</li>
+<li>Embeddings power semantic search and retrieval</li>
+<li>They complement prompts, not replace them</li>
+<li>Embeddings are foundational for RAG-based systems</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills/generative-ai/2_core-concepts/2_3_prompt-engineering-basics/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/applied-emerging-skills/generative-ai/" class="btn nav-btn">
+        Generative AI : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/applied-emerging-skills/generative-ai/2_core-concepts/2_4_emdeddings-explained/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

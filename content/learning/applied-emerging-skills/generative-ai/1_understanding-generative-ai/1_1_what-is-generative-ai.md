@@ -307,7 +307,7 @@ Now that you clearly understand **what Generative AI is**, the next logical ques
 
 ### Next Article:
 
-**👉 [How Is Generative AI Different from Traditional AI? ➡ ](/learning/applied-emerging-skills/generative-ai/1_understanding-generative-ai/1_2_gen-ai-vs-traditional-ai.md)**  
+**👉 [How Is Generative AI Different from Traditional AI? ➡ ](/learning/applied-emerging-skills/generative-ai/1_understanding-generative-ai/1_2_gen-ai-vs-traditional-ai)**  
 This comparison will solidify your mental model and remove most remaining confusion.
 
 ---

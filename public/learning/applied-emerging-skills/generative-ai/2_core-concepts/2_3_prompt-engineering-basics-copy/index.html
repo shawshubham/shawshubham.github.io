@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Basics</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Prompt Engineering Basics</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction</li>
+        
+        <li>2. What Is a Prompt?</li>
+        
+        <li>3. Why Prompt Engineering Exists at All</li>
+        
+        <li>4. Prompts Are Not Commands (Important Mental Model)</li>
+        
+        <li>5. Types of Prompts (Conceptual)</li>
+        
+        <li>6. System Prompts vs User Prompts (High Level)</li>
+        
+        <li>7. Why Prompt Wording Matters So Much</li>
+        
+        <li>8. Common Prompting Mistakes</li>
+        
+        <li>9. Prompt Engineering in Real Systems</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 17 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction">1. Introduction</h2>
+<hr>
+<p>Once you understand <strong>LLMs</strong>, <strong>tokens</strong>, and the <strong>context window</strong>, the next question naturally becomes:</p>
+<blockquote>
+<p><strong>How do I control what an LLM produces?</strong></p></blockquote>
+<p>The primary way we guide an LLM’s behaviour is through <strong>prompts</strong>.</p>
+<p>Prompt engineering is not about tricks or hacks — it is about <strong>communicating intent clearly</strong> to a probabilistic language model.</p>
+<hr>
+<h2 id="2-what-is-a-prompt">2. What Is a Prompt?</h2>
+<hr>
+<p>A <strong>prompt</strong> is the input text you provide to a Large Language Model to guide its response.</p>
+<p>This can include:</p>
+<ul>
+<li>instructions</li>
+<li>questions</li>
+<li>examples</li>
+<li>constraints</li>
+<li>context</li>
+</ul>
+<p>From the model’s perspective, a prompt is simply <strong>the text it must continue from</strong>.</p>
+<blockquote>
+<p><strong>The model does not know what you want — it only knows what you wrote.</strong></p></blockquote>
+<hr>
+<h2 id="3-why-prompt-engineering-exists-at-all">3. Why Prompt Engineering Exists at All</h2>
+<hr>
+<p>Prompt engineering exists because:</p>
+<ul>
+<li>LLMs generate text based on probabilities</li>
+<li>small wording changes alter token probabilities</li>
+<li>the model has no built-in goal awareness</li>
+</ul>
+<p>This means:</p>
+<ul>
+<li>vague prompts → vague outputs</li>
+<li>ambiguous prompts → inconsistent outputs</li>
+<li>clear prompts → more reliable outputs</li>
+</ul>
+<p>Prompt engineering is essentially <strong>probability steering</strong>.</p>
+<hr>
+<h2 id="4-prompts-are-not-commands-important-mental-model">4. Prompts Are Not Commands (Important Mental Model)</h2>
+<hr>
+<p>A common mistake is treating prompts like function calls or commands.</p>
+<p>LLMs do not:</p>
+<ul>
+<li>execute instructions</li>
+<li>follow rules deterministically</li>
+<li>understand intent the way humans do</li>
+</ul>
+<p>Instead, they:</p>
+<ul>
+<li>infer intent from language patterns</li>
+<li>generate what <em>usually follows</em> similar text</li>
+</ul>
+<blockquote>
+<p><strong>You are not commanding the model — you are shaping the continuation.</strong></p></blockquote>
+<p>This mental model prevents frustration.</p>
+<hr>
+<h2 id="5-types-of-prompts-conceptual">5. Types of Prompts (Conceptual)</h2>
+<hr>
+<h3 id="51-instruction-prompts">5.1 Instruction Prompts</h3>
+<p>Tell the model what you want it to do.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Explain Generative AI in simple terms.
+</span></span></code></pre></div><hr>
+<h3 id="52-contextual-prompts">5.2 Contextual Prompts</h3>
+<p>Provide background information.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>You are explaining Generative AI to a backend engineer with Java experience.
+</span></span></code></pre></div><hr>
+<h3 id="53-constraint-based-prompts">5.3 Constraint-Based Prompts</h3>
+<p>Limit the form of the output.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Explain Generative AI in under 150 words using bullet points.
+</span></span></code></pre></div><hr>
+<h3 id="54-example-based-prompts-few-shot">5.4 Example-Based Prompts (Few-Shot)</h3>
+<p>Show the model what a good answer looks like.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Q: What is REST?
+</span></span><span style="display:flex;"><span>A: REST is an architectural style for designing networked applications.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Q: What is Generative AI?
+</span></span><span style="display:flex;"><span>A:
+</span></span></code></pre></div><p>Each type nudges the model in a different way.</p>
+<hr>
+<h2 id="6-system-prompts-vs-user-prompts-high-level">6. System Prompts vs User Prompts (High Level)</h2>
+<hr>
+<p>In many applications, prompts are layered.</p>
+<h3 id="system-prompt">System Prompt</h3>
+<ul>
+<li>Sets overall behaviour</li>
+<li>Defines role, tone, and boundaries</li>
+<li>Usually hidden from end users</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>You are a helpful technical assistant that explains concepts clearly and concisely.
+</span></span></code></pre></div><hr>
+<h3 id="user-prompt">User Prompt</h3>
+<ul>
+<li>The actual user input</li>
+<li>Changes per interaction</li>
+</ul>
+<p>Understanding this separation is important when designing GenAI systems.</p>
+<hr>
+<h2 id="7-why-prompt-wording-matters-so-much">7. Why Prompt Wording Matters So Much</h2>
+<hr>
+<p>Because:</p>
+<ul>
+<li>prompts are converted into tokens</li>
+<li>tokens affect probabilities</li>
+<li>probabilities affect output</li>
+</ul>
+<p>Even small changes can:</p>
+<ul>
+<li>shift emphasis</li>
+<li>change tone</li>
+<li>alter depth</li>
+<li>affect completeness</li>
+</ul>
+<p>This is why:</p>
+<ul>
+<li>“Explain” ≠ “Summarise”</li>
+<li>“List” ≠ “Describe”</li>
+<li>“Why” ≠ “How”</li>
+</ul>
+<hr>
+<h2 id="8-common-prompting-mistakes">8. Common Prompting Mistakes</h2>
+<hr>
+<h3 id="81-being-too-vague">8.1 Being Too Vague</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Explain AI.
+</span></span></code></pre></div><hr>
+<h3 id="82-overloading-the-prompt">8.2 Overloading the Prompt</h3>
+<ul>
+<li>too many instructions</li>
+<li>conflicting constraints</li>
+<li>excessive context</li>
+</ul>
+<hr>
+<h3 id="83-expecting-guaranteed-correctness">8.3 Expecting Guaranteed Correctness</h3>
+<p>Prompts can improve clarity — not correctness.</p>
+<p>Validation is still required.</p>
+<hr>
+<h2 id="9-prompt-engineering-in-real-systems">9. Prompt Engineering in Real Systems</h2>
+<hr>
+<p>In production systems, prompt engineering influences:</p>
+<ul>
+<li>output consistency</li>
+<li>user experience</li>
+<li>cost and latency</li>
+<li>safety and reliability</li>
+</ul>
+<p>Prompts are often:</p>
+<ul>
+<li>versioned</li>
+<li>tested</li>
+<li>reviewed</li>
+<li>refined over time</li>
+</ul>
+<p>They are <strong>part of the system design</strong>, not an afterthought.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Prompt engineering is the practice of <strong>clearly expressing intent</strong> to a probabilistic language model.</p>
+<p>It works because:</p>
+<ul>
+<li>LLMs rely entirely on provided context</li>
+<li>language patterns influence output probabilities</li>
+<li>clarity reduces ambiguity</li>
+</ul>
+<p>Good prompts do not make models smarter —
+they make model behaviour <strong>more predictable</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What&rsquo;s Next?</h3>
+<hr>
+<p>➡ <strong>Embeddings Explained</strong>
+Learn how LLMs represent meaning numerically and why embeddings are critical for search, similarity, and retrieval-based systems.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Key Takeaways</strong></p>
+<ul>
+<li>A prompt is the text an LLM continues from</li>
+<li>Prompts guide behaviour through probabilities, not commands</li>
+<li>Clear, structured prompts produce more reliable outputs</li>
+<li>System and user prompts serve different roles</li>
+<li>Prompt engineering is a system design concern</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills/generative-ai/2_core-concepts/2_2_tokens-and-context-window/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/applied-emerging-skills/generative-ai/" class="btn nav-btn">
+        Generative AI : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/applied-emerging-skills/generative-ai/2_core-concepts/2_3_prompt-engineering-basics/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

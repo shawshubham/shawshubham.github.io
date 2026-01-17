@@ -266,16 +266,12 @@ The most effective real-world solutions often combine:
 
 ---
 
-Now that you understand how Generative AI differs from traditional AI, the next step is to learn the core building blocks that make Generative AI possible.
+Now that you understand how Generative AI differs from traditional AI, the next step is to place Generative AI within the broader AI landscape.
+
+Before diving into technical building blocks like LLMs and tokens, it’s important to clearly understand how **Artificial Intelligence, Machine Learning, and Deep Learning relate to each other**.
 
 Next Article:
-**👉 [Core Concepts & Terminologies in Generative AI ➡ ](/learning/applied-emerging-skills/generative-ai/1_understanding-generative-ai/1_3_core-concepts.md)**
-
-- Large Language Models (LLMs)
-- Prompt Engineering
-- Tokens and context windows
-- Embeddings
-- Fine-tuning vs prompting
+**👉 [AI vs Machine Learning vs Deep Learning (Where Does Generative AI Fit?) ➡ ](/learning/applied-emerging-skills/generative-ai/1_understanding-generative-ai/1_3_ai-vs-ml-vs-deep-learning)**
 
 ---
 
