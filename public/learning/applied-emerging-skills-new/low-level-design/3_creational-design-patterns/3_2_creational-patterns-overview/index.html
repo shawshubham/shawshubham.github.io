@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creational Design Patterns – Managing Object Creation</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Creational Design Patterns – Managing Object Creation</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why Object Creation Is Not as Simple as new</li>
+        
+        <li>2. The Real Problem: Creation Logic Leaks Everywhere</li>
+        
+        <li>3. What Creational Design Patterns Actually Solve</li>
+        
+        <li>4. Creational Patterns You’ll Learn (and Why They Exist)</li>
+        
+        <li>5. What Creational Patterns Are Not</li>
+        
+        <li>6. How This Connects to SOLID</li>
+        
+        <li>7. How We’ll Learn Creational Patterns Here</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 16 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-object-creation-is-not-as-simple-as-new">1. Why Object Creation Is Not as Simple as <code>new</code></h2>
+<hr>
+<p>At first glance, object creation looks trivial:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Employee emp <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Employee(...);
+</span></span></code></pre></div><p>So why do we need <strong>design patterns</strong> for this?</p>
+<p>Because in real systems, object creation is rarely just about creating an object.</p>
+<p>It often involves:</p>
+<ul>
+<li>deciding <strong>which concrete type</strong> to create</li>
+<li>enforcing <strong>construction rules</strong></li>
+<li>handling <strong>optional or complex configuration</strong></li>
+<li>ensuring <strong>consistency across the system</strong></li>
+<li>preventing <strong>invalid or incomplete objects</strong></li>
+<li>isolating clients from <strong>implementation details</strong></li>
+</ul>
+<p>As systems grow, object creation logic tends to spread, duplicate, and hard-code assumptions.</p>
+<p>That’s where creational design patterns come in.</p>
+<hr>
+<h2 id="2-the-real-problem-creation-logic-leaks-everywhere">2. The Real Problem: Creation Logic Leaks Everywhere</h2>
+<hr>
+<p>Without structure, object creation causes problems such as:</p>
+<h3 id="-tight-coupling">❌ Tight Coupling</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> FileEmployeeSaver(...)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> DatabaseEmployeeSaver(...)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> ApiEmployeeSaver(...)
+</span></span></code></pre></div><p>Client code becomes tightly coupled to <strong>concrete classes</strong>.</p>
+<p>Changing implementation means changing <strong>business logic</strong>.</p>
+<hr>
+<h3 id="-constructor-explosion">❌ Constructor Explosion</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> User(name)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> User(name, email)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> User(name, email, phone)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> User(name, email, phone, address)
+</span></span></code></pre></div><p>Constructors become unreadable and error-prone.</p>
+<hr>
+<h3 id="-invalid-or-partially-built-objects">❌ Invalid or Partially Built Objects</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Employee emp <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Employee();
+</span></span><span style="display:flex;"><span>emp.<span style="color:#a6e22e">setSalary</span>(...);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// forgot to set role</span>
+</span></span></code></pre></div><p>Objects exist in an invalid state.</p>
+<hr>
+<h3 id="-duplication-of-creation-rules">❌ Duplication of Creation Rules</h3>
+<p>The same construction logic appears in:</p>
+<ul>
+<li>services</li>
+<li>controllers</li>
+<li>tests</li>
+<li>background jobs</li>
+</ul>
+<p>Any change must be fixed <strong>everywhere</strong>.</p>
+<hr>
+<h2 id="3-what-creational-design-patterns-actually-solve">3. What Creational Design Patterns Actually Solve</h2>
+<hr>
+<p>Creational design patterns do <strong>not</strong> exist to add complexity.</p>
+<p>They exist to:</p>
+<ul>
+<li><strong>centralize object creation</strong></li>
+<li><strong>hide construction details</strong></li>
+<li><strong>enforce correctness</strong></li>
+<li><strong>decouple clients from concrete classes</strong></li>
+<li><strong>make creation logic extensible</strong></li>
+</ul>
+<p>In short:</p>
+<blockquote>
+<p><strong>They control <em>how</em> objects are created, <em>where</em> they are created, and <em>who</em> is allowed to create them.</strong></p></blockquote>
+<hr>
+<h2 id="4-creational-patterns-youll-learn-and-why-they-exist">4. Creational Patterns You’ll Learn (and Why They Exist)</h2>
+<hr>
+<p>In this section, we focus on the <strong>most practical and commonly used</strong> creational patterns.</p>
+<h3 id="41-singleton">4.1 Singleton</h3>
+<p><strong>Problem:</strong>
+Some objects must exist <strong>only once</strong> (config, cache, registry).</p>
+<p><strong>Goal:</strong>
+Ensure a single instance with controlled access.</p>
+<hr>
+<h3 id="42-factory-method">4.2 Factory Method</h3>
+<p><strong>Problem:</strong>
+Client code should not know <strong>which concrete class</strong> it is creating.</p>
+<p><strong>Goal:</strong>
+Encapsulate object creation behind a common interface.</p>
+<hr>
+<h3 id="43-abstract-factory">4.3 Abstract Factory</h3>
+<p><strong>Problem:</strong>
+You need to create <strong>families of related objects</strong> consistently.</p>
+<p><strong>Goal:</strong>
+Ensure compatible objects are created together.</p>
+<hr>
+<h3 id="44-builder">4.4 Builder</h3>
+<p><strong>Problem:</strong>
+Objects require many optional parameters or complex construction steps.</p>
+<p><strong>Goal:</strong>
+Construct objects step-by-step in a readable, safe way.</p>
+<hr>
+<blockquote>
+<p>📌 <strong>Note</strong>
+We intentionally skip rarely used or niche creational patterns here.
+Advanced patterns will be covered later as a bonus section.</p></blockquote>
+<hr>
+<h2 id="5-what-creational-patterns-are-not">5. What Creational Patterns Are <em>Not</em></h2>
+<hr>
+<p>Creational design patterns are <strong>not</strong>:</p>
+<ul>
+<li>replacements for constructors</li>
+<li>mandatory for every object</li>
+<li>excuses to over-engineer simple code</li>
+</ul>
+<p>A simple rule of thumb:</p>
+<blockquote>
+<p><strong>If <code>new</code> is simple and stable, keep it.
+Introduce patterns only when creation becomes complex or volatile.</strong></p></blockquote>
+<hr>
+<h2 id="6-how-this-connects-to-solid">6. How This Connects to SOLID</h2>
+<hr>
+<p>Creational patterns directly reinforce SOLID principles:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Principle</th>
+          <th>How Creational Patterns Help</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>SRP</td>
+          <td>Separate creation logic from usage</td>
+      </tr>
+      <tr>
+          <td>OCP</td>
+          <td>Add new types without modifying clients</td>
+      </tr>
+      <tr>
+          <td>LSP</td>
+          <td>Ensure correct object substitution</td>
+      </tr>
+      <tr>
+          <td>ISP</td>
+          <td>Avoid forcing clients to depend on construction details</td>
+      </tr>
+      <tr>
+          <td>DIP</td>
+          <td>Depend on abstractions, not concrete classes</td>
+      </tr>
+  </tbody>
+</table>
+<p>This is why design patterns naturally follow <strong>SOLID</strong>.</p>
+<hr>
+<h2 id="7-how-well-learn-creational-patterns-here">7. How We’ll Learn Creational Patterns Here</h2>
+<hr>
+<p>We’ll follow a consistent approach:</p>
+<ol>
+<li><strong>Start with the problem</strong></li>
+<li>See the <strong>naive / problematic implementation</strong></li>
+<li>Introduce the <strong>pattern</strong></li>
+<li>Apply it <strong>step by step</strong></li>
+<li>Revisit the <strong>Employee Management System (EMS)</strong> to see it in action</li>
+</ol>
+<p>No pattern will be introduced in isolation.</p>
+<p>Every pattern must justify its existence.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Creational design patterns exist because <strong>object creation is a design decision</strong>, not a trivial operation.</p>
+<p>When creation logic becomes complex, scattered, or fragile, patterns provide:</p>
+<ul>
+<li>structure</li>
+<li>safety</li>
+<li>flexibility</li>
+<li>clarity</li>
+</ul>
+<p>Used correctly, they <strong>simplify systems</strong> rather than complicate them.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Next, we’ll look at the <strong>big picture of creational patterns</strong>:</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_design-patterns/3_3_factory-builder-abstract-whentouse">Factory Method vs Builder vs Abstract Factory – When to Use What →</a></strong>
+We’ll compare these patterns side-by-side before diving into each one in detail.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills-new/low-level-design/3_creational-design-patterns/3_1_design-patterns-introduction/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+    
+    
+    <a href="/" class="btn nav-btn">
+        The Shubham Co : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/applied-emerging-skills-new/low-level-design/3_creational-design-patterns/3_3_factory-builder-abstract-whentouse/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

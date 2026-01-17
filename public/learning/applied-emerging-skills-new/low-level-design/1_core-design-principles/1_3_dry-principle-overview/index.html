@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DRY (Don&#39;t Repeat Yourself) - Avoiding code duplication</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">DRY (Don&#39;t Repeat Yourself) - Avoiding code duplication</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. What is the DRY Principle?</li>
+        
+        <li>2. Why is DRY Important?</li>
+        
+        <li>3. Violation Example ❌</li>
+        
+        <li>4. Refactored Design ✅</li>
+        
+        <li>5. How to Enforce DRY in Projects?</li>
+        
+        <li>6. DRY Beyond Code</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 16 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-what-is-the-dry-principle">1. What is the DRY Principle?</h2>
+<hr>
+<blockquote>
+<p><strong>Definition</strong>: <em>&ldquo;Every piece of knowledge must have a single, unambiguous, authoritative representation within a system.&rdquo;</em> — <strong>Andy Hunt &amp; Dave Thomas</strong>, <em>The Pragmatic Programmer</em></p></blockquote>
+<p>The <strong>DRY (Don&rsquo;t Repeat Yourself)</strong> principle is about <strong>eliminating duplication</strong> in your codebase — whether it&rsquo;s logic, configuration, data structures, or documentation. Every meaningful piece of logic should exist <strong>only once</strong>.</p>
+<h2 id="2-why-is-dry-important">2. Why is DRY Important?</h2>
+<hr>
+<p>Repetition may seem harmless initially, but as systems grow, it becomes a liability.</p>
+<p><strong>Benefits of DRY:</strong></p>
+<ul>
+<li>✅ <strong>Easier maintenance</strong> – Fixing or updating logic in one place.</li>
+<li>✅ <strong>Fewer bugs</strong> – Avoids inconsistency in business logic.</li>
+<li>✅ <strong>Increased readability</strong> – Code is concise and clear.</li>
+<li>✅ <strong>Improved reusability</strong> – Encourages modular, shareable components.</li>
+<li>✅ <strong>Faster development</strong> – Less time writing/testing similar code repeatedly.</li>
+</ul>
+<h2 id="3-violation-example-">3. Violation Example ❌</h2>
+<hr>
+<h3 id="-example-code-duplication-in-multiple-classes">🔴 Example: Code Duplication in Multiple Classes</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveUser</span>(String name, String email) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (email.<span style="color:#a6e22e">contains</span>(<span style="color:#e6db74">&#34;@&#34;</span>) <span style="color:#f92672">&amp;&amp;</span> name.<span style="color:#a6e22e">length</span>() <span style="color:#f92672">&gt;</span> 3) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Save user to database</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AdminService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveAdmin</span>(String name, String email) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (email.<span style="color:#a6e22e">contains</span>(<span style="color:#e6db74">&#34;@&#34;</span>) <span style="color:#f92672">&amp;&amp;</span> name.<span style="color:#a6e22e">length</span>() <span style="color:#f92672">&gt;</span> 3) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Save admin to database</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-problem">👉 Problem:</h3>
+<ul>
+<li>Email and name validation logic is duplicated.</li>
+<li>If the validation rule changes, we must update it in multiple places.</li>
+<li>Risk of logic drift if changes are not synced everywhere.</li>
+</ul>
+<h2 id="4-refactored-design-">4. Refactored Design ✅</h2>
+<hr>
+<h3 id="-apply-dry-with-a-utility-class">✅ Apply DRY with a Utility Class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ValidationUtil</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isValidEmail</span>(String email) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> email <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> email.<span style="color:#a6e22e">contains</span>(<span style="color:#e6db74">&#34;@&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isValidName</span>(String name) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> name <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> name.<span style="color:#a6e22e">length</span>() <span style="color:#f92672">&gt;</span> 3;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-updated-userservice--adminservice">✅ Updated UserService &amp; AdminService</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveUser</span>(String name, String email) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (ValidationUtil.<span style="color:#a6e22e">isValidEmail</span>(email) <span style="color:#f92672">&amp;&amp;</span> ValidationUtil.<span style="color:#a6e22e">isValidName</span>(name)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Save user to DB</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AdminService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">saveAdmin</span>(String name, String email) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (ValidationUtil.<span style="color:#a6e22e">isValidEmail</span>(email) <span style="color:#f92672">&amp;&amp;</span> ValidationUtil.<span style="color:#a6e22e">isValidName</span>(name)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Save admin to DB</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="-benefit">✅ Benefit:</h3>
+<ul>
+<li>Centralized validation logic.</li>
+<li>Any changes to rules are done in one place.</li>
+<li>Easier to test and maintain.</li>
+</ul>
+<h2 id="5-how-to-enforce-dry-in-projects">5. How to Enforce DRY in Projects?</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Technique</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Utility/Helper classes</td>
+          <td>Extract reusable logic like validation, formatting, parsing.</td>
+      </tr>
+      <tr>
+          <td>Abstraction (OOP)</td>
+          <td>Use interfaces, inheritance, or composition to share behavior.</td>
+      </tr>
+      <tr>
+          <td>Common configurations</td>
+          <td>Use config files, properties, or constants for repeated values.</td>
+      </tr>
+      <tr>
+          <td>Shared services/components</td>
+          <td>Centralize shared behavior (logging, error handling, DB access) across modules.</td>
+      </tr>
+      <tr>
+          <td>Templates and Generics</td>
+          <td>Use generic classes or method templates where appropriate.</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p>⚠️ Note: DRY doesn’t mean abstracting too early — if something is duplicated only once and might change differently later, it may not be worth extracting just yet. Use judgment.</p></blockquote>
+<h2 id="6-dry-beyond-code">6. DRY Beyond Code</h2>
+<hr>
+<p>The DRY principle also applies to:</p>
+<ul>
+<li>❌ Duplicated SQL queries or schema definitions</li>
+<li>❌ Repetitive API contract definitions</li>
+<li>❌ Repeated documentation or test cases</li>
+</ul>
+<p>✅ Use code generation tools, schema-first APIs, documentation templates, or shared libraries wherever possible.</p>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The <strong>DRY principle</strong> is about more than reducing lines of code — it’s about building systems that are <strong>cohesive, adaptable, and error-resistant</strong>.</p>
+<p>Always scan your codebase for repetition, especially in:</p>
+<ul>
+<li>✅ Business logic</li>
+<li>✅ Validation</li>
+<li>✅ Configuration</li>
+<li>✅ Infrastructure code (like logging, DB connections)</li>
+</ul>
+<p>And refactor where repetition leads to <strong>fragility or clutter</strong>.</p>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Let’s now explore the KISS Principle — another foundational mindset in designing simple, clean, and maintainable software.</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_4_KISS-principle-overview">KISS Principle →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>DRY = Don’t Repeat Yourself</li>
+<li>Duplicated logic → maintenance nightmare</li>
+<li>Extract shared logic into functions, classes, or modules</li>
+<li>Improves consistency, readability, and maintainability</li>
+<li>Don’t over-abstract — refactor when needed, not just because you can</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills-new/low-level-design/1_core-design-principles/1_2_solid-principles-overview/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+    
+    
+    <a href="/" class="btn nav-btn">
+        The Shubham Co : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/applied-emerging-skills-new/low-level-design/1_core-design-principles/1_4_kiss-principle-overview/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

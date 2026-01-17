@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LSP – Preventing Broken Inheritance in Employee Management</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">LSP – Preventing Broken Inheritance in Employee Management</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. New Requirement: Attendance-Based Deductions</li>
+        
+        <li>2. The Naive (Wrong) Implementation — LSP Violation ❌</li>
+        
+        <li>3. Fixing the Design: Making It LSP-Compliant ✅</li>
+        
+        <li>4. Introduce a Deduction Policy (Behavior Abstraction)</li>
+        
+        <li>5. Implement Deduction Policies Per Employee Type</li>
+        
+        <li>7. Subclasses Inject the Correct Policy</li>
+        
+        <li>8. EmployeeService Class - The orchestrator</li>
+        
+        <li>9. The MainClient class - Mimicking Client</li>
+        
+        <li>10. Why This Design Satisfies LSP</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 16 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-new-requirement-attendance-based-deductions">1. New Requirement: Attendance-Based Deductions</h2>
+<hr>
+<p>Our Employee Management System currently supports:</p>
+<ul>
+<li>Full-time employees (base + bonus)</li>
+<li>Contract employees (hourly rate × hours worked)</li>
+<li>Interns (fixed stipend)</li>
+</ul>
+<p>A new HR requirement arrives:</p>
+<blockquote>
+<p><strong>“We want attendance-based salary deductions and a new Employee Type”</strong></p></blockquote>
+<h3 id="final-requirement">Final Requirement</h3>
+<p>HR has added a new employee type: <strong>Commission-Based Employees (New)</strong></p>
+<ul>
+<li>Base pay</li>
+<li>Tiered commission (5%, 7%, 10%) depending on monthly sales</li>
+<li>Deductions are based on compliance penalties, not attendance</li>
+</ul>
+<h4 id="deduction-rules">Deduction Rules:</h4>
+<table>
+  <thead>
+      <tr>
+          <th>Employee Type</th>
+          <th>Rule</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Full-Time</strong></td>
+          <td>Deduction = daysAbsent × 50</td>
+      </tr>
+      <tr>
+          <td><strong>Contract</strong></td>
+          <td>Missing hours → pro-rated deduction</td>
+      </tr>
+      <tr>
+          <td><strong>Interns</strong></td>
+          <td>No deductions</td>
+      </tr>
+      <tr>
+          <td><strong>Commission-Based Employees (New)</strong></td>
+          <td>No attendance-based deduction — deductions are tied to <em>compliance penalties</em>, not absence</td>
+      </tr>
+  </tbody>
+</table>
+<p>This changing and inconsistent set of rules sets the perfect stage to demonstrate how a <strong>wrong abstraction</strong> can break the <strong>Liskov Substitution Principle (LSP)</strong>.</p>
+<h2 id="2-the-naive-wrong-implementation--lsp-violation-">2. The Naive (Wrong) Implementation — LSP Violation ❌</h2>
+<hr>
+<p>A developer attempts to “generalize” the requirement:</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/lsp/example1/bad">See Code in Git Repo</a>
+</div>
+<h3 id="-step-1-a-wrong-assumption-in-the-base-class">❌ Step 1: A Wrong Assumption in the Base Class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(String name) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> name;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> EmployeeType <span style="color:#a6e22e">getType</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ❌ Wrong assumption:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// All employees have attendance-based deductions</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">int</span> daysAbsent){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> daysAbsent <span style="color:#f92672">*</span> 50;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The base class now <strong>declares a behavioral contract</strong>:</p>
+<blockquote>
+<p><strong>“You can safely calculate attendance-based deductions for any Employee.”</strong></p></blockquote>
+<p>This assumption is <strong>not true for all employee types</strong>.</p>
+<h3 id="-step-2-employeetype-expansion">❌ Step 2: EmployeeType Expansion</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> EmployeeType {
+</span></span><span style="display:flex;"><span>    FULLTIME,
+</span></span><span style="display:flex;"><span>    CONTRACT,
+</span></span><span style="display:flex;"><span>    INTERN,
+</span></span><span style="display:flex;"><span>    COMMISSIONED
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>A new type — <strong>COMMISSIONED</strong> — is added.
+This does not break LSP by itself, but it clearly exposes an assumption in the base class that was already incorrect.</p>
+<h3 id="-step-3-subclasses-try-to-fix-the-problem">❌ Step 3: Subclasses Try to “Fix” the Problem</h3>
+<h4 id="1-full-time-employee-works-fine-as-this-subclass-happens-to-match-the-base-class-assumption">1. Full-Time Employee works fine as this subclass happens to match the base-class assumption.</h4>
+<h4 id="2-contract-employee-semantic-drift">2. Contract Employee (Semantic Drift)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">int</span> daysAbsent) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> missingHours <span style="color:#f92672">=</span> MAX_WORK_TIME <span style="color:#f92672">-</span> hoursWorked;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> missingHours <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">?</span> missingHours <span style="color:#f92672">*</span> 5 : 0;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li>Deduction is now <strong>hour-based</strong>, not attendance-based.</li>
+<li>The method name and contract no longer mean the same thing.</li>
+</ul>
+<p>⚠ This silently violates LSP.</p>
+<h4 id="3-intern-employee-hard-failure">3. Intern Employee (Hard Failure)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">int</span> daysAbsent) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> UnsupportedOperationException(<span style="color:#e6db74">&#34;Interns do not have deductions.&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This is a clear LSP violation.</p>
+<ul>
+<li>The base class promises a valid deduction calculation.</li>
+<li>The subclass crashes at runtime.</li>
+</ul>
+<h4 id="4-commissioned-employee-hidden-contract-violation">4. Commissioned Employee (Hidden Contract Violation)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">int</span> daysAbsent) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//assuming 10% number of compliance breach, ❌ ignoring the daysAbsent completely</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Math.<span style="color:#a6e22e">max</span>(0, complianceBreach <span style="color:#f92672">*</span> 0.<span style="color:#a6e22e">1</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This is even more dangerous:</p>
+<ul>
+<li>The method ignores attendance entirely.</li>
+<li>Client code believes deductions are attendance-based — but they are not.</li>
+</ul>
+<p>This breaks <strong>behavioral substitutability</strong> silently.</p>
+<h3 id="step-4-added-new-salary-calculation-strategy-for-commissioned-employee">Step 4. Added new Salary Calculation Strategy for COMMISSIONED Employee</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedSalaryStrategy</span> <span style="color:#66d9ef">implements</span> SalaryCalculationStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculate</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        CommissionedEmployee commissionedEmployee <span style="color:#f92672">=</span> (CommissionedEmployee) employee;
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//base salary + commission (5%, 7%, 10%)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">double</span> monthlySales <span style="color:#f92672">=</span> commissionedEmployee.<span style="color:#a6e22e">getMonthlySales</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">double</span> commission <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(monthlySales <span style="color:#f92672">&gt;=</span> 50000 <span style="color:#f92672">&amp;&amp;</span> monthlySales <span style="color:#f92672">&lt;</span> 75000) {
+</span></span><span style="display:flex;"><span>            commission <span style="color:#f92672">=</span>  monthlySales <span style="color:#f92672">*</span> 0.<span style="color:#a6e22e">05</span>;
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(monthlySales <span style="color:#f92672">&gt;=</span> 75000 <span style="color:#f92672">&amp;&amp;</span> monthlySales <span style="color:#f92672">&lt;</span> 100000) {
+</span></span><span style="display:flex;"><span>            commission <span style="color:#f92672">=</span>  monthlySales <span style="color:#f92672">*</span> 0.<span style="color:#a6e22e">07</span>;
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(monthlySales <span style="color:#f92672">&gt;=</span> 100000) {
+</span></span><span style="display:flex;"><span>            commission <span style="color:#f92672">=</span>  monthlySales <span style="color:#f92672">*</span> 0.<span style="color:#a6e22e">1</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> commissionedEmployee.<span style="color:#a6e22e">getBaseSalary</span>() <span style="color:#f92672">+</span> commission;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p><strong>Note:</strong><br>
+Salary calculation remains unchanged from the OCP example and is shown here only to keep the Employee Management System complete.<br>
+The LSP violation discussed in this section is <strong>strictly related to deduction logic</strong>, not salary calculation.</p></blockquote>
+<h3 id="step-5-updated-employeeservice-class-to-add-salarydeduction-service-method">Step 5. Updated EmployeeService class, to add SalaryDeduction service method.</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee, <span style="color:#66d9ef">int</span> daysAbsent){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> salaryDeduction <span style="color:#f92672">=</span> employee.<span style="color:#a6e22e">calculateDeduction</span>(daysAbsent);
+</span></span><span style="display:flex;"><span>    logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;Name: %s, Type: %s, Deductions: %s&#34;</span>, employee.<span style="color:#a6e22e">getName</span>(), employee.<span style="color:#a6e22e">getType</span>(), salaryDeduction));
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> salaryDeduction;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="step-6-the-mainclient">Step 6. The MainClient</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculating deduction...&#34;</span>);
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>, 4500, 3000), 2); <span style="color:#75715e">// ✅ Works</span>
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>, 11, 40), 0); <span style="color:#75715e">// ⚠ Different meaning</span>
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>, 1000), 0); <span style="color:#75715e">// ❌ Runtime exception</span>
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> CommissionedEmployee(<span style="color:#e6db74">&#34;Rakesh&#34;</span>, 3000, 50000, 2), 0); <span style="color:#75715e">// ❌ Incorrect logic</span>
+</span></span><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculated deduction&#34;</span>);
+</span></span></code></pre></div><h3 id="-this-is-the-lsp-violation">❗ This is the LSP violation</h3>
+<p>In short, a subtype cannot safely replace its base type without breaking program correctness.</p>
+<ul>
+<li>Not all subclasses can be safely substituted for Employee</li>
+<li>Client code must now know the concrete type</li>
+<li>The abstraction is no longer trustworthy</li>
+</ul>
+<h3 id="-lsp-violation-summary">🚨 LSP Violation Summary</h3>
+<p>Liskov Substitution Principle is broken because:</p>
+<ul>
+<li>The base class defines a behavior not applicable to all subclasses</li>
+<li>Some subclasses throw exceptions</li>
+<li>Others silently change the meaning of the method</li>
+<li>Client code written against the base type becomes unsafe</li>
+</ul>
+<p>This is not just “bad design” —
+this is a <strong>broken inheritance contract</strong>.</p>
+<h2 id="3-fixing-the-design-making-it-lsp-compliant-">3. Fixing the Design: Making It LSP-Compliant ✅</h2>
+<hr>
+<p>The problem in the previous design was <strong>not inheritance itself</strong>, but an abstraction that made promises not all subclasses could honor.</p>
+<p>The base <code>Employee</code> class assumed:</p>
+<blockquote>
+<p>“All employees support attendance-based deductions.”</p></blockquote>
+<p>But our business rules clearly showed that this assumption is false.</p>
+<p>To fix this, we must:</p>
+<ul>
+<li><strong>Remove deduction logic from the base class</strong></li>
+<li><strong>Model deduction behavior as a separate, replaceable policy</strong></li>
+<li><strong>Delegate behavior instead of forcing inheritance</strong></li>
+</ul>
+<p>This follows two key principles:</p>
+<ul>
+<li><strong>LSP</strong> — subclasses remain safely substitutable</li>
+<li><strong>Composition over inheritance</strong></li>
+</ul>
+<h2 id="4-introduce-a-deduction-policy-behavior-abstraction">4. Introduce a Deduction Policy (Behavior Abstraction)</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/lsp/example1/good">See Code in Git Repo</a>
+</div>
+<p>Instead of putting deduction logic in <code>Employee</code>, we introduce a dedicated policy:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">DeductionPolicy</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This interface represents how deductions are calculated, independent of employee identity.</p>
+<p>Each employee type can now have its own policy, without breaking any contracts.</p>
+<h2 id="5-implement-deduction-policies-per-employee-type">5. Implement Deduction Policies Per Employee Type</h2>
+<hr>
+<h3 id="51-full-time-deduction-policy">5.1 Full-Time Deduction Policy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FullTimeDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        FullTimeEmployee fullTimeEmployee <span style="color:#f92672">=</span> (FullTimeEmployee) employee;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> fullTimeEmployee.<span style="color:#a6e22e">getDaysAbsent</span>() <span style="color:#f92672">*</span> 50;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="52-contract-deduction-policy">5.2 Contract Deduction Policy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContractDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        ContractEmployee contractEmployee <span style="color:#f92672">=</span> (ContractEmployee) employee;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">double</span> missingHours <span style="color:#f92672">=</span> MAX_WORK_TIME <span style="color:#f92672">-</span> contractEmployee.<span style="color:#a6e22e">getHoursWorked</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> missingHours <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">?</span> missingHours <span style="color:#f92672">*</span> 5 : 0;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="53-intern-deduction-policy">5.3 Intern Deduction Policy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InternDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> 0; <span style="color:#75715e">// Interns never have deductions</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="54-commissioned-deduction-policy">5.4 Commissioned Deduction Policy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        CommissionedEmployee commissionedEmployee <span style="color:#f92672">=</span> (CommissionedEmployee) employee;
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//assuming 10% number of compliance breach, ignoring the daysAbsent</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Math.<span style="color:#a6e22e">max</span>(0, commissionedEmployee.<span style="color:#a6e22e">getComplianceBreach</span>() <span style="color:#f92672">*</span> 0.<span style="color:#a6e22e">1</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Notice:</p>
+<ul>
+<li>No exceptions</li>
+<li>No ignored parameters</li>
+<li>No broken assumptions</li>
+</ul>
+<p>Each policy fully honors its contract.</p>
+<h3 id="6-refactor-the-employee-class-composition-over-inheritance">6. Refactor the Employee Class (Composition Over Inheritance)</h3>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> DeductionPolicy deductionPolicy;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(String name, DeductionPolicy deductionPolicy) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deductionPolicy</span> <span style="color:#f92672">=</span> deductionPolicy;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> name;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> EmployeeType <span style="color:#a6e22e">getType</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> deductionPolicy.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">this</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>✅ What changed?</p>
+<ul>
+<li>Employee no longer defines deduction logic</li>
+<li>It simply delegates to a policy</li>
+<li>The contract is now safe for all subclasses</li>
+</ul>
+<h2 id="7-subclasses-inject-the-correct-policy">7. Subclasses Inject the Correct Policy</h2>
+<hr>
+<h3 id="71-full-time-employee-class">7.1 Full-Time Employee class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FullTimeEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> baseSalary;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> bonus;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> daysAbsent;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">FullTimeEmployee</span>(String name, <span style="color:#66d9ef">double</span> baseSalary, <span style="color:#66d9ef">double</span> bonus, <span style="color:#66d9ef">int</span> daysAbsent) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(name, <span style="color:#66d9ef">new</span> FullTimeDeductionPolicy());
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">baseSalary</span> <span style="color:#f92672">=</span> baseSalary;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">bonus</span> <span style="color:#f92672">=</span> bonus;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">daysAbsent</span> <span style="color:#f92672">=</span> daysAbsent;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> EmployeeType.<span style="color:#a6e22e">FULLTIME</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span>  <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getBaseSalary</span>() { <span style="color:#66d9ef">return</span> baseSalary; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getBonus</span>() { <span style="color:#66d9ef">return</span> bonus; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getDaysAbsent</span>() { <span style="color:#66d9ef">return</span> daysAbsent; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// You can later add methods like assignBonus(), manageTeam(), etc.</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="72-contract-employee-class">7.2 Contract Employee class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContractEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> hourlyRate;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> hoursWorked;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> MAX_WORK_TIME <span style="color:#f92672">=</span> 160; <span style="color:#75715e">//40 hours a week</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ContractEmployee</span>(String name, <span style="color:#66d9ef">double</span> hourlyRate, <span style="color:#66d9ef">double</span> hoursWorked) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(name, <span style="color:#66d9ef">new</span> ContractDeductionPolicy());
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">hourlyRate</span> <span style="color:#f92672">=</span> hourlyRate;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">hoursWorked</span> <span style="color:#f92672">=</span> hoursWorked;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> EmployeeType.<span style="color:#a6e22e">CONTRACT</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getHourlyRate</span>() { <span style="color:#66d9ef">return</span> hourlyRate; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getHoursWorked</span>() { <span style="color:#66d9ef">return</span> hoursWorked; }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="73-intern-employee-class">7.3 Intern Employee class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InternEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> stipend;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">InternEmployee</span>(String name, <span style="color:#66d9ef">double</span> stipend) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(name, <span style="color:#66d9ef">new</span> InternDeductionPolicy());
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">stipend</span> <span style="color:#f92672">=</span> stipend;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> EmployeeType.<span style="color:#a6e22e">INTERN</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getStipend</span>() { <span style="color:#66d9ef">return</span> stipend; }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="74-commissioned-employee-class">7.4 Commissioned Employee class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> baseSalary;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> monthlySales;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> complianceBreach;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CommissionedEmployee</span>(String name, <span style="color:#66d9ef">double</span> baseSalary, <span style="color:#66d9ef">double</span> monthlySales, <span style="color:#66d9ef">int</span> complianceBreach) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(name, <span style="color:#66d9ef">new</span> CommissionedDeductionPolicy());
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">baseSalary</span> <span style="color:#f92672">=</span> baseSalary;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">monthlySales</span> <span style="color:#f92672">=</span> monthlySales;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">complianceBreach</span> <span style="color:#f92672">=</span> complianceBreach;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> EmployeeType.<span style="color:#a6e22e">COMMISSIONED</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getBaseSalary</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> baseSalary;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getMonthlySales</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> monthlySales;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getComplianceBreach</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> complianceBreach;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>No subclass overrides calculateDeduction().
+No subclass violates expectations.</p>
+<h2 id="8-employeeservice-class---the-orchestrator">8. EmployeeService Class - The orchestrator</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> salaryDeduction <span style="color:#f92672">=</span> employee.<span style="color:#a6e22e">calculateDeduction</span>();
+</span></span><span style="display:flex;"><span>    logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;Name: %s, Type: %s, Deductions: %s&#34;</span>, employee.<span style="color:#a6e22e">getName</span>(), employee.<span style="color:#a6e22e">getType</span>(), salaryDeduction));
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> salaryDeduction;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="9-the-mainclient-class---mimicking-client">9. The MainClient class - Mimicking Client</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculating deduction...&#34;</span>);
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>, 4500, 3000, 5); <span style="color:#75715e">// ✅ Works</span>
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>, 11, 40); <span style="color:#75715e">// ✅ Works</span>
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>, 1000); <span style="color:#75715e">// ✅ Works</span>
+</span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> CommissionedEmployee(<span style="color:#e6db74">&#34;Rakesh&#34;</span>, 3000, 50000, 2); <span style="color:#75715e">// ✅ Works</span>
+</span></span><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculated deduction&#34;</span>);
+</span></span></code></pre></div><h2 id="10-why-this-design-satisfies-lsp">10. Why This Design Satisfies LSP</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Bad Design</th>
+          <th>Good Design</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Base class contract</td>
+          <td>Too strong, incorrect</td>
+          <td>Minimal, universally valid</td>
+      </tr>
+      <tr>
+          <td>Subclass behavior</td>
+          <td>Throws exceptions / changes meaning</td>
+          <td>Fully compliant</td>
+      </tr>
+      <tr>
+          <td>Substitutability</td>
+          <td>Broken</td>
+          <td>Guaranteed</td>
+      </tr>
+      <tr>
+          <td>Extensibility</td>
+          <td>Fragile</td>
+          <td>Easy to extend</td>
+      </tr>
+      <tr>
+          <td>Client code safety</td>
+          <td>Requires instanceof checks</td>
+          <td>Safe polymorphism</td>
+      </tr>
+  </tbody>
+</table>
+<p>Now, any Employee subtype can safely replace another.</p>
+<blockquote>
+<p><strong>💡 Design Insight (Optional Reading)</strong></p>
+<p>In this example, we applied the Strategy Pattern by injecting DeductionPolicy directly into the Employee model.</p>
+<p>In earlier examples (such as salary calculation), we placed strategies inside the service layer instead.</p>
+<p><strong>Both approaches are valid</strong> — the choice depends on <em>what the behavior represents</em>.</p>
+<ul>
+<li>
+<p><strong>When behavior is a core domain invariant</strong> (e.g., deduction rules that must never be violated),
+keeping the strategy inside the model ensures correctness and preserves LSP.</p>
+</li>
+<li>
+<p><strong>When behavior is a use-case or workflow concern</strong> (e.g., salary projections, reports, simulations),
+placing strategies in the service layer offers more flexibility.</p>
+</li>
+</ul>
+<p>In short:
+<strong>Domain invariants belong with the model.
+Use-case logic belongs in services.</strong></p>
+<p>We’ll revisit these design trade-offs in more detail later in the tutorial series,
+when we discuss design patterns and architectural decision-making.</p></blockquote>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The key lesson of LSP is:
+A base class should only define behavior that all subclasses can honor.</p>
+<p>Violations usually occur when:</p>
+<ul>
+<li>We force behavior into a base class</li>
+<li>Subclasses are forced to “opt out”</li>
+<li>Exceptions or silent logic changes appear</li>
+</ul>
+<p>The fix is almost always:</p>
+<ul>
+<li>Better abstraction</li>
+<li>Composition over inheritance</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>With LSP complete, we move to the fourth SOLID principle:</p>
+<ul>
+<li>Infrastructure changes (saving logic — Example 1)</li>
+<li>Business rule changes (salary logic — Example 2)</li>
+</ul>
+<p>Next, we move to the third SOLID principle:</p>
+<p><strong><a href="/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_8_isp-example1">Interface Segregation Principle (ISP) in action →</a></strong>
+Design small, focused interfaces that clients actually need.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>LSP is about behavioral correctness, not just type hierarchy</li>
+<li>Subclasses must honor the full contract of their base class</li>
+<li>Exceptions and silent behavior changes are both LSP violations</li>
+<li>Composition (policies) is the safest fix</li>
+<li>Correct abstractions make systems extensible and predictable</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills-new/low-level-design/2_solid-in-action/2_6_ocp-example2/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+    
+    
+    <a href="/" class="btn nav-btn">
+        The Shubham Co : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/applied-emerging-skills-new/low-level-design/2_solid-in-action/2_8_isp-example1/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

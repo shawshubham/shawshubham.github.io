@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder Pattern – Constructing Complex Objects Safely</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Builder Pattern – Constructing Complex Objects Safely</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why Builder Pattern Exists</li>
+        
+        <li>2. The Reporting Problem in EMS</li>
+        
+        <li>3. Naive Approach: Telescoping Constructors ❌</li>
+        
+        <li>4. Why Factory Is Not the Right Tool Here</li>
+        
+        <li>5. The Builder Pattern – Core Idea &amp;amp; Intent</li>
+        
+        <li>6. Applying Builder to EMS – EmployeeReport Example</li>
+        
+        <li>7. 💡 Design Insight: Why Builder Was NOT Used for Employee</li>
+        
+        <li>8. When NOT to Use Builder</li>
+        
+        <li>9. Interview Traps (Builder Pattern)</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 16 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-builder-pattern-exists">1. Why Builder Pattern Exists</h2>
+<hr>
+<p>So far in the <strong>Employee Management System (EMS)</strong>, we’ve focused on:</p>
+<ul>
+<li>Behavior Variation → Strategy Pattern</li>
+<li>Object Selection → Factory Method</li>
+</ul>
+<p>But there is a <strong>different creation problem</strong> that Factory does not solve:</p>
+<blockquote>
+<p><strong>How do we safely construct complex objects with many optional fields?</strong></p></blockquote>
+<p>This is <strong>not a behavior problem</strong><br>
+This is <strong>not a type-selection problem</strong></p>
+<p>This is a <strong>construction problem</strong> — and that’s where <strong>Builder Pattern</strong> fits.</p>
+<h3 id="the-core-problem">The Core Problem</h3>
+<p>As objects grow, they often gain:</p>
+<ul>
+<li>many optional fields</li>
+<li>configuration flags</li>
+<li>validation rules</li>
+<li>ordering constraints</li>
+<li>invariants that must never be violated</li>
+</ul>
+<p>Trying to manage this with constructors quickly leads to <strong>design decay</strong>.</p>
+<hr>
+<h2 id="2-the-reporting-problem-in-ems">2. The Reporting Problem in EMS</h2>
+<hr>
+<p>Originally, the reporting module exposed a very simple API:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportingOperations reportingOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ReportingClient</span>(ReportingOperations reportingOperations) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">reportingOperations</span> <span style="color:#f92672">=</span> reportingOperations;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// We are returning generic String</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">generateReport</span>(Employee employeeData) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> reportingOperations.<span style="color:#a6e22e">generateReport</span>(employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This worked initially, but as reporting requirements grew, problems appeared:</p>
+<ul>
+<li>Reports <strong>needed multiple optional sections</strong></li>
+<li>The return type (String) was too generic</li>
+<li>Construction logic became scattered and unclear</li>
+<li>Adding new report fields risked breaking callers</li>
+</ul>
+<h3 id="new-requirements">New Requirements</h3>
+<blockquote>
+<p>HR wants to generate a detailed Employee Report with:</p>
+<ul>
+<li>name</li>
+<li>employee type</li>
+<li>department</li>
+<li>salary</li>
+<li>deductions</li>
+<li>manager info (optional)</li>
+<li>joining date</li>
+<li>exit date (optional)</li>
+<li>remarks (optional)</li>
+</ul></blockquote>
+<p>This is a classic case of <strong>constructor explosion</strong>, where object construction becomes fragile and error-prone.</p>
+<h2 id="3-naive-approach-telescoping-constructors-">3. Naive Approach: Telescoping Constructors ❌</h2>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/builder/naive/">See Code in Git Repo</a>
+</div>
+<p>A naive implementation often looks like this:</p>
+<h4 id="step-1-introduce-a-new-model--employeereport">Step 1: Introduce a New Model – EmployeeReport</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeReport</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeType type;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Department department;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> salary;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> deductions;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String managerName;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> LocalDate joiningDate;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> LocalDate exitDate;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String remarks;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * If we have more fields, the constructor will keep on increasing in size, making it hard to manage
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * and read. This is a classic example of the telescoping constructor or constructor hell anti-pattern.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// All Args Constructor</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeReport</span>(
+</span></span><span style="display:flex;"><span>            String name,
+</span></span><span style="display:flex;"><span>            EmployeeType type,
+</span></span><span style="display:flex;"><span>            Department department,
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">double</span> salary,
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">double</span> deductions,
+</span></span><span style="display:flex;"><span>            String managerName,
+</span></span><span style="display:flex;"><span>            LocalDate joiningDate,
+</span></span><span style="display:flex;"><span>            LocalDate exitDate,
+</span></span><span style="display:flex;"><span>            String remarks
+</span></span><span style="display:flex;"><span>    ) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> type;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">department</span> <span style="color:#f92672">=</span> department;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> salary;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deductions</span> <span style="color:#f92672">=</span> deductions;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">managerName</span> <span style="color:#f92672">=</span> managerName;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">joiningDate</span> <span style="color:#f92672">=</span> joiningDate;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">exitDate</span> <span style="color:#f92672">=</span> exitDate;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">remarks</span> <span style="color:#f92672">=</span> remarks;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Few Args Constructor</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeReport</span>(
+</span></span><span style="display:flex;"><span>            String name,
+</span></span><span style="display:flex;"><span>            EmployeeType type,
+</span></span><span style="display:flex;"><span>            Department department,
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">double</span> salary,
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">double</span> deductions
+</span></span><span style="display:flex;"><span>    ) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> type;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">department</span> <span style="color:#f92672">=</span> department;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> salary;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deductions</span> <span style="color:#f92672">=</span> deductions;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Getters</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span>() { <span style="color:#66d9ef">return</span> name; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeType <span style="color:#a6e22e">getType</span>() { <span style="color:#66d9ef">return</span> type; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Department <span style="color:#a6e22e">getDepartment</span>() { <span style="color:#66d9ef">return</span> department; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getSalary</span>() { <span style="color:#66d9ef">return</span> salary; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getDeductions</span>() { <span style="color:#66d9ef">return</span> deductions; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getManagerName</span>() { <span style="color:#66d9ef">return</span> managerName; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> LocalDate <span style="color:#a6e22e">getJoiningDate</span>() { <span style="color:#66d9ef">return</span> joiningDate; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> LocalDate <span style="color:#a6e22e">getExitDate</span>() { <span style="color:#66d9ef">return</span> exitDate; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getRemarks</span>() { <span style="color:#66d9ef">return</span> remarks; }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="step-2-update-reportingclient-to-return-employeereport">Step 2: Update ReportingClient to Return EmployeeReport</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportingOperations reportingOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ReportingClient</span>(ReportingOperations reportingOperations) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">reportingOperations</span> <span style="color:#f92672">=</span> reportingOperations;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">generateReport</span>(Employee employeeData) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> reportingOperations.<span style="color:#a6e22e">generateReport</span>(employeeData);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="step-3-update-employeeservice-to-construct-employeereport">Step 3: Update EmployeeService to Construct EmployeeReport</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> <span style="color:#66d9ef">implements</span>
+</span></span><span style="display:flex;"><span>        HROperations,
+</span></span><span style="display:flex;"><span>        PayrollOperations,
+</span></span><span style="display:flex;"><span>        ITAdminOperations,
+</span></span><span style="display:flex;"><span>        ReportingOperations {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFormatter employeeFormatter;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeePersistenceStrategy persistenceStrategy;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> SalaryCalculator salaryCalculator;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeePersistenceStrategy persistenceStrategy,
+</span></span><span style="display:flex;"><span>                           SalaryCalculator salaryCalculator) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">persistenceStrategy</span> <span style="color:#f92672">=</span> persistenceStrategy;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salaryCalculator</span> <span style="color:#f92672">=</span> salaryCalculator;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">generateReport</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//generate report based on employee, returning dummy report for now</span>
+</span></span><span style="display:flex;"><span>        EmployeeReport report <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeReport(
+</span></span><span style="display:flex;"><span>                employee.<span style="color:#a6e22e">getName</span>(),
+</span></span><span style="display:flex;"><span>                employee.<span style="color:#a6e22e">getType</span>(),
+</span></span><span style="display:flex;"><span>                employee.<span style="color:#a6e22e">getDepartment</span>(),
+</span></span><span style="display:flex;"><span>                calculateSalary(employee),
+</span></span><span style="display:flex;"><span>                calculateDeduction(employee)
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> report;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// other methods...</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="step-4-emsapplication-calls-reportingclientgeneratereportemployee">Step 4: EMSApplication Calls reportingClient.generateReport(employee)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EMSApplication</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EMSApplication.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> String persistenceFileName <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;employees.txt&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) {
+</span></span><span style="display:flex;"><span>        Employee fullTimeEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>, Department.<span style="color:#a6e22e">ENGINEERING</span>,4500, 3000, 5);
+</span></span><span style="display:flex;"><span>        Employee contractEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>, 11, 40);
+</span></span><span style="display:flex;"><span>        Employee internEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>, 1000);
+</span></span><span style="display:flex;"><span>        Employee commissionedEmployee <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CommissionedEmployee(<span style="color:#e6db74">&#34;Rakesh&#34;</span>, 3000, 50000, 2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeFormatter formatter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFormatter();
+</span></span><span style="display:flex;"><span>        SalaryCalculator salaryCalculator <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SalaryCalculator();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeePersistenceFactory persistenceFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeePersistenceFactory(persistenceFileName);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeService employeeService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter,
+</span></span><span style="display:flex;"><span>                persistenceFactory.<span style="color:#a6e22e">create</span>(PersistenceType.<span style="color:#a6e22e">FILE</span>),
+</span></span><span style="display:flex;"><span>                salaryCalculator);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ReportingClient reportingClient <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReportingClient(employeeService);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Generating report</span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Generating EmployeeReport for the provided employee...&#34;</span>);
+</span></span><span style="display:flex;"><span>        reportingClient.<span style="color:#a6e22e">generateReport</span>(fullTimeEmployee);
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Done with EmployeeReport generation.&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="-problems-with-this-design">🚨 Problems with This Design</h4>
+<ul>
+<li>Constructor is unreadable</li>
+<li>Parameter order mistakes are easy</li>
+<li>Optional values are unclear</li>
+<li>Invalid combinations are possible</li>
+<li>Adding a new field breaks all callers</li>
+</ul>
+<p>This is called <strong>telescoping constructors or constructor hell</strong> — a known anti-pattern.</p>
+<hr>
+<h2 id="4-why-factory-is-not-the-right-tool-here">4. Why Factory Is Not the Right Tool Here</h2>
+<hr>
+<p>A common misconception:</p>
+<blockquote>
+<p><strong>“Can’t we just use a Factory?”</strong></p></blockquote>
+<p>Factories answer:</p>
+<blockquote>
+<p><strong>Which object should I create?</strong></p></blockquote>
+<p>They do not answer:</p>
+<blockquote>
+<p><strong>How should this object be assembled step-by-step?</strong></p></blockquote>
+<p>Builder and Factory solve different problems.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Pattern</th>
+          <th>Solves</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Factory</td>
+          <td>Object selection</td>
+      </tr>
+      <tr>
+          <td>Builder</td>
+          <td>Object construction</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="5-the-builder-pattern--core-idea--intent">5. The Builder Pattern – Core Idea &amp; Intent</h2>
+<hr>
+<p>The Builder Pattern separates:</p>
+<ul>
+<li>Object construction (step-by-step)</li>
+<li>Object representation (final immutable result)</li>
+</ul>
+<h4 id="core-characteristics">Core Characteristics</h4>
+<ul>
+<li><strong>Fluent API</strong> – Builder methods return <code>this</code>, enabling readable,
+intention-revealing chained calls that resemble natural language.</li>
+<li>Optional fields handled safely</li>
+<li>Final object is immutable</li>
+<li>Construction logic is readable and explicit</li>
+</ul>
+<hr>
+<h2 id="6-applying-builder-to-ems--employeereport-example">6. Applying Builder to EMS – EmployeeReport Example</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/builder/improved/">See Code in Git Repo</a>
+</div>
+<h4 id="step-1-make-the-product-immutable">Step 1: Make the Product Immutable</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeReport</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeType type;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Department department;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> salary;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> deductions;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String managerName;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> LocalDate joiningDate;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> LocalDate exitDate;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String remarks;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeReport</span>(Builder builder) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">name</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">type</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">department</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">department</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">salary</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deductions</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">deductions</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">managerName</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">managerName</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">joiningDate</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">joiningDate</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">exitDate</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">exitDate</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">remarks</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">remarks</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><h4 id="step-2-introduce-the-builder">Step 2: Introduce the Builder</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> String name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> EmployeeType type;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> Department department;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> salary;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> deductions;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> String managerName;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> LocalDate joiningDate;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> LocalDate exitDate;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">private</span> String remarks;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">name</span>(String name) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">type</span>(EmployeeType type) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> type;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">department</span>(Department department) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">department</span> <span style="color:#f92672">=</span> department;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">salary</span>(<span style="color:#66d9ef">double</span> salary) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> salary;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">deduction</span>(<span style="color:#66d9ef">double</span> deductions) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deductions</span> <span style="color:#f92672">=</span> deductions;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">managerName</span>(String managerName) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">managerName</span> <span style="color:#f92672">=</span> managerName;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">joiningDate</span>(LocalDate joiningDate) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">joiningDate</span> <span style="color:#f92672">=</span> joiningDate;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">exitDate</span>(LocalDate exitDate) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">exitDate</span> <span style="color:#f92672">=</span> exitDate;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">remarks</span>(String remarks) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">remarks</span> <span style="color:#f92672">=</span> remarks;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">build</span>() {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (name <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> type <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> department <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;Name, type, and department are mandatory&#34;</span>);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeReport(<span style="color:#66d9ef">this</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><h4 id="step-3-updated-employeeservice-implementation-of-generatereport">Step 3: Updated EmployeeService implementation of generateReport()</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> <span style="color:#66d9ef">implements</span>
+</span></span><span style="display:flex;"><span>        HROperations,
+</span></span><span style="display:flex;"><span>        PayrollOperations,
+</span></span><span style="display:flex;"><span>        ITAdminOperations,
+</span></span><span style="display:flex;"><span>        ReportingOperations {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFormatter employeeFormatter;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeePersistenceStrategy persistenceStrategy;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> SalaryCalculator salaryCalculator;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeService</span>(EmployeeFormatter employeeFormatter,
+</span></span><span style="display:flex;"><span>                           EmployeePersistenceStrategy persistenceStrategy,
+</span></span><span style="display:flex;"><span>                           SalaryCalculator salaryCalculator) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">employeeFormatter</span> <span style="color:#f92672">=</span> employeeFormatter;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">persistenceStrategy</span> <span style="color:#f92672">=</span> persistenceStrategy;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salaryCalculator</span> <span style="color:#f92672">=</span> salaryCalculator;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">generateReport</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//generate report based on employee, returning dummy report for now</span>
+</span></span><span style="display:flex;"><span>        EmployeeReport report <span style="color:#f92672">=</span>  <span style="color:#66d9ef">new</span> EmployeeReport.<span style="color:#a6e22e">Builder</span>()
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">name</span>(employee.<span style="color:#a6e22e">getName</span>())
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">type</span>(employee.<span style="color:#a6e22e">getType</span>())
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">department</span>(employee.<span style="color:#a6e22e">getDepartment</span>())
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">salary</span>(calculateSalary(employee))
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">deduction</span>(calculateDeduction(employee))
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">build</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> report;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// other methods...</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="benefits">Benefits</h4>
+<ul>
+<li>No ordering issues</li>
+<li>Optional fields are explicit</li>
+<li>Call site is readable</li>
+<li>Final object is immutable</li>
+</ul>
+<hr>
+<h2 id="7--design-insight-why-builder-was-not-used-for-employee">7. 💡 Design Insight: Why Builder Was NOT Used for Employee</h2>
+<hr>
+<p>A natural question is:</p>
+<blockquote>
+<p>Why not use Builder for Employee or its subclasses?</p></blockquote>
+<p>This is intentional.</p>
+<h4 id="1-employee-is-a-domain-entity">1. Employee Is a Domain Entity</h4>
+<ul>
+<li>Has identity</li>
+<li>Owns behavior</li>
+<li>Evolves over time</li>
+</ul>
+<p>Builders work best for value objects, not behavior-rich entities.
+while EmployeeReport is a <strong>value object</strong>:</p>
+<ul>
+<li>no identity</li>
+<li>immutable</li>
+<li>represents a snapshot of data</li>
+</ul>
+<h4 id="2-builder-would-centralize-subtype-rules">2. Builder Would Centralize Subtype Rules</h4>
+<p>A single Employee builder would need to know:</p>
+<ul>
+<li>which fields apply to which subtype</li>
+<li>which combinations are valid</li>
+</ul>
+<p>That would:</p>
+<ul>
+<li>reintroduce conditionals</li>
+<li>violate LSP</li>
+<li>duplicate polymorphic logic</li>
+</ul>
+<h4 id="3-ems-already-uses-better-patterns-for-entities">3. EMS Already Uses Better Patterns for Entities</h4>
+<table>
+  <thead>
+      <tr>
+          <th>Concern</th>
+          <th>Pattern Used</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Type behavior</td>
+          <td>Polymorphism</td>
+      </tr>
+      <tr>
+          <td>Salary logic</td>
+          <td>Strategy</td>
+      </tr>
+      <tr>
+          <td>Deduction logic</td>
+          <td>Strategy</td>
+      </tr>
+      <tr>
+          <td>Object selection</td>
+          <td>Factory</td>
+      </tr>
+  </tbody>
+</table>
+<p>Builder would add complexity without benefit.</p>
+<blockquote>
+<p>Builder assembles data.<br>
+Polymorphism models behavior.</p></blockquote>
+<hr>
+<h2 id="8-when-not-to-use-builder">8. When NOT to Use Builder</h2>
+<hr>
+<p>Avoid Builder when:</p>
+<ul>
+<li>Object has few mandatory fields</li>
+<li>Construction is trivial</li>
+<li>Object is mutable by design</li>
+<li>Domain rules drive lifecycle changes</li>
+</ul>
+<p>Patterns should respond to real pressure, not habit.</p>
+<hr>
+<h2 id="9-interview-traps-builder-pattern">9. Interview Traps (Builder Pattern)</h2>
+<hr>
+<h3 id="-why-not-just-use-setters">❓ “Why not just use setters?”</h3>
+<ul>
+<li>Setters allow invalid intermediate states</li>
+<li>Builder creates a valid object in one step</li>
+<li>Encourages immutability</li>
+</ul>
+<h3 id="-builder-vs-factory">❓ “Builder vs Factory?”</h3>
+<ul>
+<li>Factory → which object</li>
+<li>Builder → how to build it</li>
+</ul>
+<p>They often work together.</p>
+<h3 id="-should-domain-entities-use-builder">❓ “Should domain entities use Builder?”</h3>
+<p>Usually no.
+Entities have identity and behavior — builders fit value objects better.</p>
+<h3 id="-how-do-you-enforce-mandatory-fields">❓ “How do you enforce mandatory fields?”</h3>
+<ul>
+<li>Validate in build()</li>
+<li>Use staged builders only when absolutely necessary</li>
+</ul>
+<h3 id="-can-builder-be-mutable-internally">❓ “Can Builder be mutable internally?”</h3>
+<p>Yes.
+The <strong>builder is mutable</strong>, but the <strong>built object must be immutable</strong>.
+This separation is intentional and safe.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Builder Pattern solves construction complexity, not behavior or type selection.</p>
+<p>In EMS, we used Builder where it adds clarity:</p>
+<ul>
+<li>Complex</li>
+<li>Optional</li>
+<li>Immutable</li>
+<li>Data-centric objects (EmployeeReport)</li>
+</ul>
+<p>And avoided it where it would hurt design:</p>
+<ul>
+<li>Core domain entities</li>
+<li>Polymorphic hierarchies</li>
+</ul>
+<p>That distinction is design maturity.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now we move to a powerful — and often misused — pattern:</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_design-patterns/3_6_singleton-pattern">Singleton Pattern – Power, Pitfalls, and Trade-offs →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Builder solves complex object construction</li>
+<li>It complements Factory, not replaces it</li>
+<li>Best suited for value objects and DTOs</li>
+<li>Fluent APIs improve readability and safety</li>
+<li>Patterns should emerge from real design pressure</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills-new/generative-ai/3_creational-design-patterns/3_4_factory-pattern/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+    
+    
+    <a href="/" class="btn nav-btn">
+        The Shubham Co : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/applied-emerging-skills-new/generative-ai/3_creational-design-patterns/3_6_singleton-pattern/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

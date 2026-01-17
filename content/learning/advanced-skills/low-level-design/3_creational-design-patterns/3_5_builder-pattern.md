@@ -590,7 +590,7 @@ That distinction is design maturity.
 
 Now we move to a powerful — and often misused — pattern:
 
-👉 **[Singleton Pattern – Power, Pitfalls, and Trade-offs →](/learning/advanced-skills/low-level-design/3_design-patterns/3_5_builder-pattern)**
+👉 **[Singleton Pattern – Power, Pitfalls, and Trade-offs →](/learning/advanced-skills/low-level-design/3_design-patterns/3_6_singleton-pattern)**
 
 ---
 
