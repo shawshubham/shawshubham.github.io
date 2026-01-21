@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokens and Context Window in Large Language Models</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Tokens and Context Window in Large Language Models</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction</li>
+        
+        <li>2. What Is a Token?</li>
+        
+        <li>3. Why Do LLMs Use Tokens?</li>
+        
+        <li>4. How Tokens Affect Cost and Performance</li>
+        
+        <li>5. What Is a Context Window?</li>
+        
+        <li>6. Why Context Window Size Matters</li>
+        
+        <li>7. Common Context Window Pitfalls</li>
+        
+        <li>8. Tokens vs Context Window (Quick Comparison)</li>
+        
+        <li>9. Why This Matters in Real Systems</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 17 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction">1. Introduction</h2>
+<hr>
+<p>Once you understand what a Large Language Model is, the next natural question is:</p>
+<blockquote>
+<p><strong>How does an LLM actually read and remember text?</strong></p></blockquote>
+<p>LLMs do not read text the way humans do — character by character or word by word.<br>
+Instead, they operate using <strong>tokens</strong>, and they can only “see” a limited amount of text at any time, known as the <strong>context window</strong>.</p>
+<p>Understanding these two concepts explains:</p>
+<ul>
+<li>why prompts behave differently when reworded</li>
+<li>why responses get cut off</li>
+<li>why longer conversations cost more</li>
+<li>why models sometimes “forget” earlier information</li>
+</ul>
+<hr>
+<h2 id="2-what-is-a-token">2. What Is a Token?</h2>
+<hr>
+<p>A <strong>token</strong> is the basic unit of text that an LLM processes.</p>
+<p>Tokens are <strong>not exactly the same as words</strong>.</p>
+<p>Depending on the language and content, a token might be:</p>
+<ul>
+<li>a whole word</li>
+<li>part of a word</li>
+<li>punctuation</li>
+<li>a number</li>
+<li>a symbol</li>
+</ul>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&#34;Generative AI is powerful&#34;
+</span></span></code></pre></div><p>This sentence might be broken into tokens like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[&#34;Generative&#34;, &#34; AI&#34;, &#34; is&#34;, &#34; power&#34;, &#34;ful&#34;]
+</span></span></code></pre></div><p>The exact split depends on the model’s tokenizer, but the key idea is:</p>
+<blockquote>
+<p><strong>LLMs think in tokens, not words or characters.</strong></p></blockquote>
+<hr>
+<h2 id="3-why-do-llms-use-tokens">3. Why Do LLMs Use Tokens?</h2>
+<hr>
+<p>Tokens allow LLMs to:</p>
+<ul>
+<li>handle large vocabularies efficiently</li>
+<li>work across multiple languages</li>
+<li>represent text in a numerical form the model can process</li>
+</ul>
+<p>During training and inference:</p>
+<ul>
+<li>text → tokens</li>
+<li>tokens → numbers</li>
+<li>numbers → probabilities</li>
+</ul>
+<p>This token-based representation is fundamental to how LLMs work.</p>
+<hr>
+<h2 id="4-how-tokens-affect-cost-and-performance">4. How Tokens Affect Cost and Performance</h2>
+<hr>
+<p>In most real-world systems:</p>
+<ul>
+<li><strong>you pay per token</strong></li>
+<li><strong>models are limited by token count</strong></li>
+</ul>
+<p>Tokens matter because:</p>
+<ul>
+<li>longer prompts = more tokens</li>
+<li>longer responses = more tokens</li>
+<li>more tokens = higher cost and latency</li>
+</ul>
+<p>This is why:</p>
+<ul>
+<li>concise prompts are often better</li>
+<li>unnecessary verbosity increases cost</li>
+<li>summarising context can be important</li>
+</ul>
+<hr>
+<h2 id="5-what-is-a-context-window">5. What Is a Context Window?</h2>
+<hr>
+<p>The <strong>context window</strong> is the maximum number of tokens an LLM can consider at one time.</p>
+<p>It includes:</p>
+<ul>
+<li>your input prompt</li>
+<li>the conversation history</li>
+<li>the model’s generated response</li>
+</ul>
+<blockquote>
+<p><strong>Input tokens + output tokens must fit inside the context window.</strong></p></blockquote>
+<p>Once the limit is reached:</p>
+<ul>
+<li>older information is dropped</li>
+<li>the model can no longer “see” it</li>
+</ul>
+<hr>
+<h2 id="6-why-context-window-size-matters">6. Why Context Window Size Matters</h2>
+<hr>
+<p>Context window size directly impacts:</p>
+<h3 id="61-memory-within-a-conversation">6.1 Memory Within a Conversation</h3>
+<ul>
+<li>Larger context → longer conversations</li>
+<li>Smaller context → earlier messages forgotten</li>
+</ul>
+<h3 id="62-quality-of-responses">6.2 Quality of Responses</h3>
+<ul>
+<li>More context allows better reasoning</li>
+<li>Missing context leads to vague or incorrect responses</li>
+</ul>
+<h3 id="63-system-design-decisions">6.3 System Design Decisions</h3>
+<ul>
+<li>How much history to send</li>
+<li>Whether to summarise past messages</li>
+<li>Whether to retrieve external data dynamically</li>
+</ul>
+<hr>
+<h2 id="7-common-context-window-pitfalls">7. Common Context Window Pitfalls</h2>
+<hr>
+<h3 id="71-the-model-forgot-what-i-said-earlier">7.1 “The Model Forgot What I Said Earlier”</h3>
+<p>This usually happens because:</p>
+<ul>
+<li>earlier messages fell outside the context window</li>
+<li>they were not included in the prompt</li>
+</ul>
+<p>LLMs do not have memory beyond what you send them.</p>
+<hr>
+<h3 id="72-my-response-was-cut-off">7.2 “My Response Was Cut Off”</h3>
+<p>This happens when:</p>
+<ul>
+<li>the output tokens hit the context limit</li>
+<li>there was no space left for a full response</li>
+</ul>
+<hr>
+<h3 id="73-why-did-the-same-prompt-behave-differently">7.3 “Why Did the Same Prompt Behave Differently?”</h3>
+<p>Small wording changes:</p>
+<ul>
+<li>change token count</li>
+<li>change probability distributions</li>
+<li>alter what fits inside the context window</li>
+</ul>
+<p>This leads to different outputs.</p>
+<hr>
+<h2 id="8-tokens-vs-context-window-quick-comparison">8. Tokens vs Context Window (Quick Comparison)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Concept</th>
+          <th>Tokens</th>
+          <th>Context Window</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>What it is</td>
+          <td>Unit of text</td>
+          <td>Max tokens model can see</td>
+      </tr>
+      <tr>
+          <td>Affects cost</td>
+          <td>Yes</td>
+          <td>Indirectly</td>
+      </tr>
+      <tr>
+          <td>Affects memory</td>
+          <td>No</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Affects output quality</td>
+          <td>Yes</td>
+          <td>Yes</td>
+      </tr>
+  </tbody>
+</table>
+<p>Both must be understood together.</p>
+<hr>
+<h2 id="9-why-this-matters-in-real-systems">9. Why This Matters in Real Systems</h2>
+<hr>
+<p>In production systems, token and context limits influence:</p>
+<ul>
+<li>API design</li>
+<li>prompt structure</li>
+<li>conversation handling</li>
+<li>summarisation strategies</li>
+<li>retrieval-based approaches (like RAG)</li>
+</ul>
+<p>Ignoring these constraints often leads to:</p>
+<ul>
+<li>unpredictable behaviour</li>
+<li>higher costs</li>
+<li>poor user experience</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Tokens and context windows define <strong>how much an LLM can see and process at any moment</strong>.</p>
+<p>Tokens determine:</p>
+<ul>
+<li>how text is broken down</li>
+<li>how cost is calculated</li>
+</ul>
+<p>Context windows determine:</p>
+<ul>
+<li>how much information the model can use</li>
+<li>how long conversations remain coherent</li>
+</ul>
+<p>Understanding these constraints removes much of the mystery around LLM behaviour and is essential for building reliable GenAI systems.</p>
+<hr>
+<h3 id="-whats-next">🔗 What&rsquo;s Next?</h3>
+<hr>
+<p><strong>👉 <a href="/learning/applied-emerging-skills/generative-ai/2_core-concepts/2_3_prompt-engineering-basics">Prompt Engineering Basics ➡ </a></strong><br>
+Learn how to structure prompts effectively, guide model behaviour, and get consistent, high-quality outputs from LLMs.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Key Takeaways</strong></p>
+<ul>
+<li>LLMs process text as tokens, not words</li>
+<li>Tokens affect cost, latency, and behaviour</li>
+<li>Context window limits how much text the model can “see”</li>
+<li>Conversations must fit within the context window</li>
+<li>Understanding these limits is critical for system design</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills/generative-ai/3_core-concepts-copy/2_1_what-is-an-llm/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/applied-emerging-skills/generative-ai/" class="btn nav-btn">
+        Generative AI : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/applied-emerging-skills/generative-ai/3_core-concepts-copy/2_3_prompt-engineering-basics/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

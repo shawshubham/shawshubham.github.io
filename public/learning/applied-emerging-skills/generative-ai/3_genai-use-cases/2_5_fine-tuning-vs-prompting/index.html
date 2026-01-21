@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fine-Tuning vs Prompting in Generative AI</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Fine-Tuning vs Prompting in Generative AI</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction</li>
+        
+        <li>2. What Is Prompting?</li>
+        
+        <li>3. What Is Fine-Tuning?</li>
+        
+        <li>4. Key Difference at a Glance</li>
+        
+        <li>5. What Prompting Is Good At</li>
+        
+        <li>6. What Fine-Tuning Is Good At</li>
+        
+        <li>7. Why Most Systems Avoid Fine-Tuning</li>
+        
+        <li>8. Prompting &#43; Embeddings: The Preferred Pattern</li>
+        
+        <li>9. Common Misconceptions</li>
+        
+        <li>10. How to Decide (Practical Guidance)</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 17 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction">1. Introduction</h2>
+<hr>
+<p>Once you start building with Generative AI, a common question arises:</p>
+<blockquote>
+<p><strong>Should I fine-tune the model, or can I just use prompts?</strong></p></blockquote>
+<p>At first glance, fine-tuning may seem like the “advanced” or “better” option.<br>
+In reality, most production systems <strong>do not fine-tune models</strong>.</p>
+<p>This article explains:</p>
+<ul>
+<li>what prompting and fine-tuning actually do</li>
+<li>how they differ</li>
+<li>when each approach makes sense</li>
+<li>why fine-tuning is often unnecessary</li>
+</ul>
+<hr>
+<h2 id="2-what-is-prompting">2. What Is Prompting?</h2>
+<hr>
+<p><strong>Prompting</strong> means guiding a model’s behaviour <strong>only through the input text</strong> you provide.</p>
+<p>You do <strong>not</strong> change the model’s internal weights.<br>
+You simply influence its output by:</p>
+<ul>
+<li>giving instructions</li>
+<li>providing context</li>
+<li>adding examples</li>
+<li>applying constraints</li>
+</ul>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>You are a helpful backend engineering assistant.
+</span></span><span style="display:flex;"><span>Explain embeddings in simple terms using a real-world analogy.
+</span></span></code></pre></div><p>The model remains unchanged — only the <strong>context</strong> changes.</p>
+<hr>
+<h2 id="3-what-is-fine-tuning">3. What Is Fine-Tuning?</h2>
+<hr>
+<p><strong>Fine-tuning</strong> means <strong>training a pre-trained model further</strong> on a specific dataset so that its internal parameters are adjusted.</p>
+<p>In other words:</p>
+<ul>
+<li>prompting changes the <em>input</em></li>
+<li>fine-tuning changes the <em>model itself</em></li>
+</ul>
+<p>Fine-tuning typically involves:</p>
+<ul>
+<li>a curated dataset of examples</li>
+<li>additional training steps</li>
+<li>validation and evaluation</li>
+</ul>
+<p>After fine-tuning, the model behaves differently <strong>by default</strong>, even with simple prompts.</p>
+<hr>
+<h2 id="4-key-difference-at-a-glance">4. Key Difference at a Glance</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Prompting</th>
+          <th>Fine-Tuning</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Changes model weights</td>
+          <td>No</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Effort required</td>
+          <td>Low</td>
+          <td>High</td>
+      </tr>
+      <tr>
+          <td>Cost</td>
+          <td>Low</td>
+          <td>High</td>
+      </tr>
+      <tr>
+          <td>Flexibility</td>
+          <td>High</td>
+          <td>Low</td>
+      </tr>
+      <tr>
+          <td>Risk</td>
+          <td>Low</td>
+          <td>Higher</td>
+      </tr>
+      <tr>
+          <td>Typical use</td>
+          <td>Behaviour control</td>
+          <td>Specialised behaviour</td>
+      </tr>
+  </tbody>
+</table>
+<p>Prompting is <strong>dynamic and reversible</strong>.
+Fine-tuning is <strong>static and persistent</strong>.</p>
+<hr>
+<h2 id="5-what-prompting-is-good-at">5. What Prompting Is Good At</h2>
+<hr>
+<p>Prompting works well when you want to:</p>
+<ul>
+<li>control tone or style</li>
+<li>explain concepts differently</li>
+<li>adapt responses per user</li>
+<li>handle multiple use cases with one model</li>
+<li>iterate quickly</li>
+</ul>
+<p>Because prompts can change per request:</p>
+<ul>
+<li>behaviour can be customised on the fly</li>
+<li>experimentation is easy</li>
+<li>mistakes are cheap to fix</li>
+</ul>
+<p>This is why prompting is the <strong>default choice</strong>.</p>
+<hr>
+<h2 id="6-what-fine-tuning-is-good-at">6. What Fine-Tuning Is Good At</h2>
+<hr>
+<p>Fine-tuning makes sense when:</p>
+<ul>
+<li>you need highly consistent output</li>
+<li>the task is very narrow and specialised</li>
+<li>prompting alone cannot achieve the desired behaviour</li>
+<li>you have high-quality labelled data</li>
+</ul>
+<p>Examples include:</p>
+<ul>
+<li>domain-specific classification</li>
+<li>structured output formats that must be rigid</li>
+<li>adapting tone permanently across all outputs</li>
+</ul>
+<p>Even then, fine-tuning should be approached carefully.</p>
+<hr>
+<h2 id="7-why-most-systems-avoid-fine-tuning">7. Why Most Systems Avoid Fine-Tuning</h2>
+<hr>
+<p>In practice, fine-tuning has several downsides:</p>
+<ul>
+<li>requires large, clean datasets</li>
+<li>increases operational complexity</li>
+<li>makes behaviour harder to change</li>
+<li>can introduce new biases</li>
+<li>requires re-training when requirements change</li>
+</ul>
+<p>For many use cases, fine-tuning solves a problem that:</p>
+<ul>
+<li>prompting + embeddings already handle better</li>
+</ul>
+<hr>
+<h2 id="8-prompting--embeddings-the-preferred-pattern">8. Prompting + Embeddings: The Preferred Pattern</h2>
+<hr>
+<p>Modern GenAI systems typically rely on:</p>
+<ul>
+<li><strong>prompting</strong> for behaviour and instructions</li>
+<li><strong>embeddings</strong> for retrieving relevant data</li>
+</ul>
+<p>This approach:</p>
+<ul>
+<li>keeps the base model general</li>
+<li>allows dynamic context injection</li>
+<li>reduces hallucinations</li>
+<li>avoids retraining costs</li>
+</ul>
+<p>High-level flow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User Input
+</span></span><span style="display:flex;"><span>→ Retrieve relevant context using embeddings
+</span></span><span style="display:flex;"><span>→ Construct prompt
+</span></span><span style="display:flex;"><span>→ Generate response
+</span></span></code></pre></div><p>This pattern scales better than fine-tuning in most cases.</p>
+<hr>
+<h2 id="9-common-misconceptions">9. Common Misconceptions</h2>
+<hr>
+<h3 id="-fine-tuning-makes-the-model-smarter">❌ “Fine-tuning makes the model smarter”</h3>
+<p>No — it makes the model <strong>more specialised</strong>, not more intelligent.</p>
+<h3 id="-prompting-is-a-hack">❌ “Prompting is a hack”</h3>
+<p>Prompting is the <strong>intended interface</strong> for LLMs.</p>
+<h3 id="-fine-tuning-is-required-for-domain-knowledge">❌ “Fine-tuning is required for domain knowledge”</h3>
+<p>Domain knowledge is usually better handled via <strong>retrieval</strong>, not training.</p>
+<hr>
+<h2 id="10-how-to-decide-practical-guidance">10. How to Decide (Practical Guidance)</h2>
+<hr>
+<p>Ask these questions:</p>
+<ul>
+<li>Can I solve this with clearer prompts?</li>
+<li>Can embeddings provide the missing context?</li>
+<li>Do requirements change frequently?</li>
+<li>Do I need one model or many behaviours?</li>
+</ul>
+<p>If the answer to most of these is “yes”:
+👉 <strong>Use prompting, not fine-tuning</strong></p>
+<p>Fine-tuning should be the <strong>last option</strong>, not the first.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Prompting and fine-tuning are both tools for influencing model behaviour — but they operate at very different levels.</p>
+<p>Prompting:</p>
+<ul>
+<li>is flexible</li>
+<li>is cheap</li>
+<li>scales well</li>
+<li>suits most real-world applications</li>
+</ul>
+<p>Fine-tuning:</p>
+<ul>
+<li>is powerful</li>
+<li>but costly and rigid</li>
+<li>best reserved for specialised scenarios</li>
+</ul>
+<p>For most systems, the winning combination is:</p>
+<blockquote>
+<p><strong>Base model + good prompts + embeddings</strong></p></blockquote>
+<p>Understanding this distinction helps you avoid overengineering and build more maintainable GenAI systems.</p>
+<hr>
+<h3 id="-whats-next">🔗 What&rsquo;s Next?</h3>
+<hr>
+<p>With core concepts complete, the next step is to see <strong>how these pieces come together in real architectures</strong>.</p>
+<p>➡ <strong>GenAI Use Cases &amp; System Design Patterns</strong>
+This is where theory turns into practice.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Key Takeaways</strong></p>
+<ul>
+<li>Prompting changes input; fine-tuning changes the model</li>
+<li>Prompting is flexible and low-risk</li>
+<li>Fine-tuning is specialised and costly</li>
+<li>Most systems rely on prompting + embeddings</li>
+<li>Fine-tuning should be a last resort</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/applied-emerging-skills/generative-ai/3_genai-use-cases/2_4_emdeddings-explained/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/applied-emerging-skills/generative-ai/" class="btn nav-btn">
+        Generative AI : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -260,7 +260,7 @@ Understanding this distinction helps you avoid overengineering and build more ma
 
 With core concepts complete, the next step is to see **how these pieces come together in real architectures**.
 
-➡ **GenAI Use Cases & System Design Patterns**
+**👉 [GenAI Use Cases & System Design Patterns ➡ ](/learning/applied-emerging-skills/generative-ai/3_genai-use-cases/3_1_introduction)**  
 This is where theory turns into practice.
 
 ---
