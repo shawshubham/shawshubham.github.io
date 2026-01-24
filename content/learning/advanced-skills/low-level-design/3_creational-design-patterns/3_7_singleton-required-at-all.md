@@ -461,7 +461,7 @@ Now that we’ve seen:
 
 We move to **managing related object families**.
 
-👉 **[Abstract Factory Pattern – Managing Families of Related Objects →]**
+👉 **[Abstract Factory Pattern – When Good Designs Still Break (Part 1) →](/learning/advanced-skills/low-level-design/3_design-patterns/3_8_abstract-factory-pattern-part1)**
 
 ---
 

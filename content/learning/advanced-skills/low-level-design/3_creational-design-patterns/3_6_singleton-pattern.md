@@ -114,22 +114,55 @@ So we’ve solved accessibility, but **not uniqueness**.
 To ensure only one instance exists, we store it as a **private static field**.  
 This shifts full control of instance creation **inside the class itself**.
 
-- The **field** is private to prevent external access,
-- and **static** so it can be accessed from the static getInstance() method.
+- The **field is private** to prevent external access,
+- The **field is static** so it can be accessed from the static getInstance() method.
 
 This guarantees that all callers receive the same shared instance.
+
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/eager/">See Code in Git Repo</a>
+</div>
 
 ```java
 public class Singleton {
     private static Singleton instance = new Singleton();
     private Singleton() {
         // private constructor prevents external instantiation
+        // Imagine a heavy initialization (DB connection, Kafka client, etc.)
+        System.out.println("Creating Singleton Instance");
     }
 
     public static Singleton getInstance(){
         return instance;
     }
+
+    // Some dummy methods ...
+    public static void doSomething(){
+        System.out.println("Doing Something");
+    }
 }
+```
+
+```java
+public class SingletonDemo {
+    static void main(String[] args) {
+        System.out.println("Starting the main method");
+        Singleton.doSomething();
+
+        Singleton instance = Singleton.getInstance();
+        Singleton instance2 = Singleton.getInstance();
+
+        System.out.println(String.format("Both Instances are same: %b", instance == instance2));
+    }
+}
+```
+
+```text
+OUTPUT:
+Starting the main method
+Creating Singleton Instance
+Doing Something
+Both Instances are same: true
 ```
 
 This guarantees a single instance.
@@ -138,11 +171,35 @@ This approach is called **Eager Initialization**.
 
 ### 3.1 ⚠️ Drawback of Eager Initialization
 
-- Instance is created **as soon as the class is loaded**
-- Increases startup time if the Singleton is heavy
-- Instance may never even be used
+Although this implementation is simple and thread-safe, it has an important downside.
 
-To fix this, we introduce **Lazy Initialization**.
+> **The instance is created as soon as the class is loaded by the JVM.**
+
+A key JVM behavior to understand here:
+
+- The JVM typically loads classes **lazily**, when they are first referenced
+- However, **static fields are initialized during class loading**
+- That means the Singleton instance is created **even if it is never actually used**
+
+#### In the example above:
+
+- Calling _Singleton.doSomething()_ triggers class loading
+- The Singleton instance is created immediately
+- The heavy constructor runs **before we explicitly ask for the instance**
+
+This leads to real problems when:
+
+- The constructor performs expensive work
+- Application startup time matters
+- The Singleton is rarely or conditionally used
+
+#### Summary of the problem
+
+- ❌ Increased startup time
+- ❌ Unnecessary resource allocation
+- ❌ Work done even when the instance is never needed
+
+To address this, we introduce **Lazy Initialization**, where the instance is created **only when it is actually requested**.
 
 ---
 
@@ -151,6 +208,10 @@ To fix this, we introduce **Lazy Initialization**.
 ---
 
 This approach is commonly referred to as **lazy initialization** or the **lazy Singleton pattern**.
+
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/basic">See Code in Git Repo</a>
+</div>
 
 ```java
 public class Singleton {
@@ -177,6 +238,10 @@ But this version has **a serious flaw**.
 If two threads enter `getInstance()` at the same time, both may see `instance == null` and create **two objects**.
 
 Example race condition:
+
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/basic/multithreadproblem">See Code in Git Repo</a>
+</div>
 
 ```java
 public class CreatingSingleton implements Runnable {
@@ -212,6 +277,10 @@ So we must make it **thread-safe**.
 
 ### 5.1 Synchronized method (Simple but Costly)
 
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/synchronizemethod">See Code in Git Repo</a>
+</div>
+
 ```java
 public class Singleton {
     private static Singleton instance = null;
@@ -235,6 +304,10 @@ public class Singleton {
 ### 5.2 Synchronized Block (Thread-Safe but Inefficient)
 
 A common second attempt is to use a **synchronized block**.
+
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/synchronizeblock">See Code in Git Repo</a>
+</div>
 
 ```java
 public class Singleton {
@@ -282,6 +355,10 @@ This becomes a **performance bottleneck** in high-throughput systems.
 ### 5.3 Double-Checked Locking (Optimized and Correct)
 
 To avoid synchronizing every call, we refine the approach using **Double-Checked Locking (DCL)**.
+
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/doublecheckedlocking">See Code in Git Repo</a>
+</div>
 
 ```java
 public class Singleton {
@@ -358,6 +435,10 @@ That’s why modern Java strongly prefers the **Initialization-on-Demand Holder 
 
 This is the **most recommended approach.**
 
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/billpughsingleton">See Code in Git Repo</a>
+</div>
+
 ```java
 public class Singleton {
     private Singleton() {
@@ -390,6 +471,10 @@ public class Singleton {
 ### 5.5 Enum Singleton (JVM-Guaranteed, Not Truly Lazy)
 
 Java provides a **special, JVM-level guarantee** for enum types that makes them a powerful way to implement Singleton.
+
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/enumsingleton">See Code in Git Repo</a>
+</div>
 
 ```java
 public enum Singleton {
