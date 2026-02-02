@@ -440,15 +440,13 @@ public class EmployeeService implements
     @Override
     public EmployeeReport generateReport(Employee employee) {
         //generate report based on employee, returning dummy report for now
-        EmployeeReport report =  new EmployeeReport.Builder()
+        return new EmployeeReport.Builder()
                 .name(employee.getName())
                 .type(employee.getType())
                 .department(employee.getDepartment())
                 .salary(calculateSalary(employee))
                 .deduction(calculateDeduction(employee))
                 .build();
-
-        return report;
     }
 
     // other methods...
