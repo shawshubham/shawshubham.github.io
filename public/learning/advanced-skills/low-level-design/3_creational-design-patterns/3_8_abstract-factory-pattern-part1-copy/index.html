@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstract Factory Pattern – When Good Designs Still Break (Part 1)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Abstract Factory Pattern – When Good Designs Still Break (Part 1)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why This Topic Exists</li>
+        
+        <li>2. New Requirement: Multi-Format Employee Report Export</li>
+        
+        <li>3. First Design Decision: Breaking the God Service</li>
+        
+        <li>4. Decomposing the Export Workflow</li>
+        
+        <li>5. Strategy Axis 1: Report Export (Format-Specific)</li>
+        
+        <li>6. Strategy Axis 2: Delivery Channel</li>
+        
+        <li>7. Strategy Axis 3: Notification (Optional)</li>
+        
+        <li>8. Wiring Everything Together</li>
+        
+        <li>9. The Hidden Risk: Valid Parts, Invalid System ❌</li>
+        
+        <li>Pause Here (Important)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 24 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <hr>
+<h2 id="1-why-this-topic-exists">1. Why This Topic Exists</h2>
+<hr>
+<p>By now, in the Employee Management System (EMS), we have already used:</p>
+<ul>
+<li><strong>Strategy</strong> → to vary behavior safely</li>
+<li><strong>Factory Method</strong> → to decide which implementation to create</li>
+<li><strong>Builder</strong> → to construct complex objects</li>
+<li><strong>SOLID principles</strong> → to avoid god classes and tight coupling</li>
+</ul>
+<p>So a fair question is:</p>
+<blockquote>
+<p><strong>If Strategy and Factory are ‘correct’, why does the system still fail?</strong></p></blockquote>
+<p>The answer is subtle:</p>
+<blockquote>
+<p><strong>Sometimes designs that are correct in isolation still produce incorrect systems.</strong></p></blockquote>
+<p>This article focuses on that gap.</p>
+<p>Not the solution yet —<br>
+but the <strong>problem you must feel first</strong>.</p>
+<hr>
+<h2 id="2-new-requirement-multi-format-employee-report-export">2. New Requirement: Multi-Format Employee Report Export</h2>
+<hr>
+<p>The Reporting team introduces a new requirement:</p>
+<blockquote>
+<p>HR wants to export employee reports in different formats.</p></blockquote>
+<h3 id="functional-requirements">Functional requirements</h3>
+<ul>
+<li>Export employee report in:
+<ul>
+<li>PDF</li>
+<li>CSV</li>
+<li>HTML</li>
+</ul>
+</li>
+<li>Deliver the report via:
+<ul>
+<li>Email</li>
+<li>Download</li>
+</ul>
+</li>
+<li>Optionally notify the user via:
+<ul>
+<li>Email</li>
+<li>SMS</li>
+<li>Push notification</li>
+</ul>
+</li>
+</ul>
+<p>At first glance, this looks like a <strong>classic Strategy problem</strong>.</p>
+<p>And that instinct is not wrong.</p>
+<hr>
+<h2 id="3-first-design-decision-breaking-the-god-service">3. First Design Decision: Breaking the God Service</h2>
+<hr>
+<p>Earlier, <code>EmployeeService</code> was handling everything:</p>
+<ul>
+<li>HR logic</li>
+<li>Payroll logic</li>
+<li>IT admin logic</li>
+<li>Reporting logic</li>
+</ul>
+<p>This violates <strong>Single Responsibility Principle</strong>.</p>
+<p>So we refactor.</p>
+<h3 id="new-service-split">New service split</h3>
+<ul>
+<li><code>HROperationsService</code></li>
+<li><code>ITAdminOperationsService</code></li>
+<li><code>PayrollOperationsService</code></li>
+<li><code>ReportingOperationsService</code></li>
+</ul>
+<p>This is a <strong>good design move</strong>.</p>
+<p>No patterns yet — just responsibility clarity.</p>
+<hr>
+<h2 id="4-decomposing-the-export-workflow">4. Decomposing the Export Workflow</h2>
+<hr>
+<p>Before touching patterns, we decompose the problem:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Generate Report → Export → Deliver → Notify
+</span></span></code></pre></div><p>Each step varies independently.</p>
+<p>This naturally leads to <strong>Strategy + Factory</strong>.</p>
+<hr>
+<h2 id="5-strategy-axis-1-report-export-format-specific">5. Strategy Axis 1: Report Export (Format-Specific)</h2>
+<hr>
+<h3 id="domain-models">Domain models</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/naive/client/model">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> ExportFormat { PDF, CSV, HTML }
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExportedReport</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> payload;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String fileName;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String contentType;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// constructor + getters</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="strategy">Strategy</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/naive/export">See Code in Git Repo</a>
+</div>
+<p>Implementations:</p>
+<ul>
+<li>PdfReportExportStrategy</li>
+<li>CsvReportExportStrategy</li>
+<li>HtmlReportExportStrategy</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportExportStrategy</span> {
+</span></span><span style="display:flex;"><span>    ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PdfReportExportStrategy</span> <span style="color:#66d9ef">implements</span> ReportExportStrategy {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report) {
+</span></span><span style="display:flex;"><span>        String fileName <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;-report.pdf&#34;</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> payload <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;PDF_REPORT_FOR_&#34;</span> <span style="color:#f92672">+</span> report.<span style="color:#a6e22e">getName</span>()).<span style="color:#a6e22e">getBytes</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ExportedReport(payload, fileName, <span style="color:#e6db74">&#34;application/pdf&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CsvReportExportStrategy</span> <span style="color:#66d9ef">implements</span> ReportExportStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report) {
+</span></span><span style="display:flex;"><span>        String fileName <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;-report.csv&#34;</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> payload <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;CSV_REPORT_FOR_&#34;</span> <span style="color:#f92672">+</span> report.<span style="color:#a6e22e">getName</span>()).<span style="color:#a6e22e">getBytes</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ExportedReport(payload, fileName, <span style="color:#e6db74">&#34;application/csv&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HtmlReportExportStrategy</span> <span style="color:#66d9ef">implements</span> ReportExportStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report) {
+</span></span><span style="display:flex;"><span>        String fileName <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;-report.html&#34;</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> payload <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;HTML_REPORT_FOR_&#34;</span> <span style="color:#f92672">+</span> report.<span style="color:#a6e22e">getName</span>()).<span style="color:#a6e22e">getBytes</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ExportedReport(payload, fileName, <span style="color:#e6db74">&#34;application/html&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="factory">Factory</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportExportStrategyFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> ReportExportStrategy <span style="color:#a6e22e">getStrategy</span>(ExportFormat format) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (format) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> PDF: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PdfReportExportStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> CSV: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CsvReportExportStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> HTML: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HtmlReportExportStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span>: <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown format: &#34;</span> <span style="color:#f92672">+</span> format);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>✅ Clean
+✅ Open for extension
+✅ Closed for modification</p>
+<p>So far, so good.</p>
+<hr>
+<h2 id="6-strategy-axis-2-delivery-channel">6. Strategy Axis 2: Delivery Channel</h2>
+<hr>
+<h3 id="domain">Domain</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/naive/client/model">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> DeliveryChannel { EMAIL, DOWNLOAD }
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DeliveryResult</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> DeliveryChannel channel;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String reference; <span style="color:#75715e">// e.g. email id, download path, etc.</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">DeliveryResult</span>(DeliveryChannel channel, String reference) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">channel</span> <span style="color:#f92672">=</span> channel;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">reference</span> <span style="color:#f92672">=</span> reference;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DeliveryChannel <span style="color:#a6e22e">getChannel</span>() { <span style="color:#66d9ef">return</span> channel; }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getReference</span>() { <span style="color:#66d9ef">return</span> reference; }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="strategy-1">Strategy</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/naive/delivery">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">DeliveryStrategy</span> {
+</span></span><span style="display:flex;"><span>    DeliveryResult <span style="color:#a6e22e">deliver</span>(ExportedReport report, String destination);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="implementations">Implementations:</h4>
+<ul>
+<li>EmailDeliveryStrategy</li>
+<li>DownloadDeliveryStrategy</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailDeliveryStrategy</span> <span style="color:#66d9ef">implements</span> DeliveryStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DeliveryResult <span style="color:#a6e22e">deliver</span>(ExportedReport report, String destination) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// tutorial stub: “pretend sent”</span>
+</span></span><span style="display:flex;"><span>        String reference <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;email-to=&#34;</span> <span style="color:#f92672">+</span> destination <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, file=&#34;</span> <span style="color:#f92672">+</span> report.<span style="color:#a6e22e">getFileName</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> DeliveryResult(DeliveryChannel.<span style="color:#a6e22e">EMAIL</span>, reference);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DownloadDeliveryStrategy</span> <span style="color:#66d9ef">implements</span> DeliveryStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DeliveryResult <span style="color:#a6e22e">deliver</span>(ExportedReport report, String destination) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// tutorial stub: “pretend saved”</span>
+</span></span><span style="display:flex;"><span>        String reference <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;download-path=&#34;</span> <span style="color:#f92672">+</span> destination <span style="color:#f92672">+</span> report.<span style="color:#a6e22e">getFileName</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> DeliveryResult(DeliveryChannel.<span style="color:#a6e22e">DOWNLOAD</span>, reference);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="factory-1">Factory</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DeliverStrategyFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> DeliveryStrategy <span style="color:#a6e22e">getStrategy</span>(DeliveryChannel deliveryChannel){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (deliveryChannel) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> EMAIL: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmailDeliveryStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> DOWNLOAD: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> DownloadDeliveryStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span>: <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown delivery channel: &#34;</span> <span style="color:#f92672">+</span> deliveryChannel);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Again:</p>
+<p>✅ Reasonable
+✅ Extensible
+✅ Familiar pattern usage</p>
+<hr>
+<h2 id="7-strategy-axis-3-notification-optional">7. Strategy Axis 3: Notification (Optional)</h2>
+<hr>
+<h3 id="domain-1">Domain</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/naive/client/model">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> NotificationType { EMAIL, SMS, PUSH }
+</span></span></code></pre></div><h3 id="strategy-2">Strategy</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/naive/notification">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">NotificationStrategy</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">notifyUser</span>(DeliveryResult result, String target);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Implementations:</p>
+<ul>
+<li>EmailNotificationStrategy</li>
+<li>SmsNotificationStrategy</li>
+<li>PushNotificationStrategy</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailNotificationStrategy</span> <span style="color:#66d9ef">implements</span> NotificationStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">notifyUser</span>(DeliveryResult result, String target) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// tutorial stub</span>
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;EMAIL notification to &#34;</span> <span style="color:#f92672">+</span> target
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; for &#34;</span> <span style="color:#f92672">+</span> result.<span style="color:#a6e22e">getReference</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PushNotificationStrategy</span> <span style="color:#66d9ef">implements</span> NotificationStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">notifyUser</span>(DeliveryResult result, String target) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// tutorial stub</span>
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;PUSH notification to &#34;</span> <span style="color:#f92672">+</span> target
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; for &#34;</span> <span style="color:#f92672">+</span> result.<span style="color:#a6e22e">getReference</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SmsNotificationStrategy</span> <span style="color:#66d9ef">implements</span> NotificationStrategy{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">notifyUser</span>(DeliveryResult result, String target) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// tutorial stub</span>
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;SMS notification to &#34;</span> <span style="color:#f92672">+</span> target
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; for &#34;</span> <span style="color:#f92672">+</span> result.<span style="color:#a6e22e">getReference</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="factory-2">Factory</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NotificationStrategyFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> NotificationStrategy <span style="color:#a6e22e">getStrategy</span>(NotificationType type){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (type) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> EMAIL: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmailNotificationStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> SMS: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> SmsNotificationStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> PUSH: <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PushNotificationStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span>: <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown notification type: &#34;</span> <span style="color:#f92672">+</span> type);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="8-wiring-everything-together">8. Wiring Everything Together</h2>
+<hr>
+<p>Inside <code>ReportingOperationsService</code>:</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/naive/service/ReportingOperationsService.java">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employee, ExportReportRequest request) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 1) Generate Report (Domain)</span>
+</span></span><span style="display:flex;"><span>    EmployeeReport report <span style="color:#f92672">=</span> generateReport(employee);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 2 + 3) Layout/Template + Export (format-specific)</span>
+</span></span><span style="display:flex;"><span>    ReportExportStrategy exportStrategy <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>        ReportExportStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(request.<span style="color:#a6e22e">getFormat</span>());
+</span></span><span style="display:flex;"><span>    ExportedReport exportedReport <span style="color:#f92672">=</span> exportStrategy.<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 4) Delivery Channel-Specific Logic</span>
+</span></span><span style="display:flex;"><span>    DeliveryStrategy deliveryStrategy <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>        DeliveryStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(request.<span style="color:#a6e22e">getDeliveryChannel</span>());
+</span></span><span style="display:flex;"><span>    DeliveryResult deliveryResult <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>        deliveryStrategy.<span style="color:#a6e22e">deliver</span>(exportedReport, request.<span style="color:#a6e22e">getDeliveryAddress</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 5) Notification Logic (Optional)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (request.<span style="color:#a6e22e">getNotificationType</span>() <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        NotificationStrategy notificationStrategy <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            NotificationStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(request.<span style="color:#a6e22e">getNotificationType</span>());
+</span></span><span style="display:flex;"><span>        notificationStrategy.<span style="color:#a6e22e">notifyUser</span>(
+</span></span><span style="display:flex;"><span>            deliveryResult,
+</span></span><span style="display:flex;"><span>            request.<span style="color:#a6e22e">getNotificationTarget</span>()
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Pause here.<br>
+Everything compiles, all tests pass, and every class follows SOLID — yet something still feels off.</p>
+<p>This code is:</p>
+<ul>
+<li>readable</li>
+<li>modular</li>
+<li>testable</li>
+<li>extensible</li>
+<li>pattern-compliant</li>
+</ul>
+<p><strong>And still dangerous</strong>.</p>
+<hr>
+<h2 id="9-the-hidden-risk-valid-parts-invalid-system-">9. The Hidden Risk: Valid Parts, Invalid System ❌</h2>
+<hr>
+<p>Nothing in this design prevents the following combination:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExportFormat      = PDF
+</span></span><span style="display:flex;"><span>DeliveryChannel   = DOWNLOAD
+</span></span><span style="display:flex;"><span>NotificationType  = SMS
+</span></span></code></pre></div><p>On paper, each choice is valid.</p>
+<p>But when combined, the system may behave like this:</p>
+<blockquote>
+<p>The user downloads a PDF report,<br>
+and then receives an SMS saying <strong>“Your download is ready.”</strong></p></blockquote>
+<p>Now stop and think.</p>
+<ul>
+<li>Ready <strong>where?</strong></li>
+<li>Ready <strong>how?</strong></li>
+<li>Ready <strong>for whom?</strong></li>
+</ul>
+<p>There is no download link in the SMS.<br>
+There is no user intent to receive SMS notifications.<br>
+And there is no rule saying SMS is even allowed for downloads.</p>
+<p>Yet the system happily proceeds.</p>
+<h3 id="why-this-happens">Why This Happens</h3>
+<p>Each part of the system makes a <strong>locally correct decision</strong>:</p>
+<ul>
+<li>Export factory correctly creates a PDF exporter</li>
+<li>Delivery factory correctly handles a download</li>
+<li>Notification factory correctly sends an SMS</li>
+</ul>
+<p>But no component asks the more important question:</p>
+<blockquote>
+<p><strong>Do these choices make sense together?</strong></p></blockquote>
+<h3 id="the-core-problem">The Core Problem</h3>
+<p>This design allows:</p>
+<blockquote>
+<p><strong>Independent selection of components that must not vary independently.</strong></p></blockquote>
+<p>In other words:</p>
+<ul>
+<li>The strategies are correct</li>
+<li>The factories are correct</li>
+<li>The interactions between them are <strong>not protected</strong></li>
+</ul>
+<p>There is <strong>no single place</strong> that understands the full export workflow and its constraints.</p>
+<p>So correctness becomes:</p>
+<ul>
+<li>implicit</li>
+<li>undocumented</li>
+<li>enforced only by developer discipline</li>
+</ul>
+<p>That’s not a runtime bug.
+That’s a <strong>design-level failure.</strong></p>
+<h3 id="why-this-is-dangerous">Why This Is Dangerous</h3>
+<p>This kind of issue:</p>
+<ul>
+<li>passes code review</li>
+<li>passes unit tests</li>
+<li>appears only in production</li>
+<li>grows silently as new formats and channels are added</li>
+</ul>
+<p>Every new option increases the number of <strong>invalid combinations</strong> the system can produce.</p>
+<hr>
+<h2 id="pause-here-important">Pause Here (Important)</h2>
+<hr>
+<blockquote>
+<p>⚠️ <strong>Design Smell Alert</strong><br>
+<strong>If multiple factories must coordinate implicitly to produce a valid outcome,</strong><br>
+<strong>the design is missing a higher-level abstraction.</strong></p></blockquote>
+<p>We stop deliberately before solving the problem.</p>
+<p>Because once you <em>feel</em> this gap, the next pattern becomes obvious.</p>
+<p>👉 Part 2: Abstract Factory – Enforcing Compatible Object Families</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Strategy + Factory can still produce invalid systems</li>
+<li>Local correctness does not guarantee global correctness</li>
+<li>Some variations must change together</li>
+<li>We need a pattern that creates ecosystems, not instances</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_7_singleton-required-at-all/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_8_abstract-factory-pattern-part1/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=61538&amp;path=livereload" data-no-instant defer></script>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Singleton Pattern – Mechanics &amp; Correct Implementations</title>
@@ -112,7 +112,7 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 18 Jan, 2026
+            Last updated on: 2 Feb, 2026
           
         </p>
       </div>
@@ -190,33 +190,84 @@
 <p>To ensure only one instance exists, we store it as a <strong>private static field</strong>.<br>
 This shifts full control of instance creation <strong>inside the class itself</strong>.</p>
 <ul>
-<li>The <strong>field</strong> is private to prevent external access,</li>
-<li>and <strong>static</strong> so it can be accessed from the static getInstance() method.</li>
+<li>The <strong>field is private</strong> to prevent external access,</li>
+<li>The <strong>field is static</strong> so it can be accessed from the static getInstance() method.</li>
 </ul>
 <p>This guarantees that all callers receive the same shared instance.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/eager/">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton();
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// private constructor prevents external instantiation</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Imagine a heavy initialization (DB connection, Kafka client, etc.)</span>
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Creating Singleton Instance&#34;</span>);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span>(){
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> instance;
 </span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Some dummy methods ...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doSomething</span>(){
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Doing Something&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SingletonDemo</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) {
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Starting the main method&#34;</span>);
+</span></span><span style="display:flex;"><span>        Singleton.<span style="color:#a6e22e">doSomething</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Singleton instance <span style="color:#f92672">=</span> Singleton.<span style="color:#a6e22e">getInstance</span>();
+</span></span><span style="display:flex;"><span>        Singleton instance2 <span style="color:#f92672">=</span> Singleton.<span style="color:#a6e22e">getInstance</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;Both Instances are same: %b&#34;</span>, instance <span style="color:#f92672">==</span> instance2));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>OUTPUT:
+</span></span><span style="display:flex;"><span>Starting the main method
+</span></span><span style="display:flex;"><span>Creating Singleton Instance
+</span></span><span style="display:flex;"><span>Doing Something
+</span></span><span style="display:flex;"><span>Both Instances are same: true
 </span></span></code></pre></div><p>This guarantees a single instance.</p>
 <p>This approach is called <strong>Eager Initialization</strong>.</p>
 <h3 id="31--drawback-of-eager-initialization">3.1 ⚠️ Drawback of Eager Initialization</h3>
+<p>Although this implementation is simple and thread-safe, it has an important downside.</p>
+<blockquote>
+<p><strong>The instance is created as soon as the class is loaded by the JVM.</strong></p></blockquote>
+<p>A key JVM behavior to understand here:</p>
 <ul>
-<li>Instance is created <strong>as soon as the class is loaded</strong></li>
-<li>Increases startup time if the Singleton is heavy</li>
-<li>Instance may never even be used</li>
+<li>The JVM typically loads classes <strong>lazily</strong>, when they are first referenced</li>
+<li>However, <strong>static fields are initialized during class loading</strong></li>
+<li>That means the Singleton instance is created <strong>even if it is never actually used</strong></li>
 </ul>
-<p>To fix this, we introduce <strong>Lazy Initialization</strong>.</p>
+<h4 id="in-the-example-above">In the example above:</h4>
+<ul>
+<li>Calling <em>Singleton.doSomething()</em> triggers class loading</li>
+<li>The Singleton instance is created immediately</li>
+<li>The heavy constructor runs <strong>before we explicitly ask for the instance</strong></li>
+</ul>
+<p>This leads to real problems when:</p>
+<ul>
+<li>The constructor performs expensive work</li>
+<li>Application startup time matters</li>
+<li>The Singleton is rarely or conditionally used</li>
+</ul>
+<h4 id="summary-of-the-problem">Summary of the problem</h4>
+<ul>
+<li>❌ Increased startup time</li>
+<li>❌ Unnecessary resource allocation</li>
+<li>❌ Work done even when the instance is never needed</li>
+</ul>
+<p>To address this, we introduce <strong>Lazy Initialization</strong>, where the instance is created <strong>only when it is actually requested</strong>.</p>
 <hr>
 <h2 id="4-lazy-initialization-basic-version">4. Lazy Initialization (Basic Version)</h2>
 <hr>
 <p>This approach is commonly referred to as <strong>lazy initialization</strong> or the <strong>lazy Singleton pattern</strong>.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/basic">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span>() {
@@ -235,6 +286,9 @@ This shifts full control of instance creation <strong>inside the class itself</s
 <h3 id="41--the-multithreading-problem">4.1 ❗ The Multithreading Problem</h3>
 <p>If two threads enter <code>getInstance()</code> at the same time, both may see <code>instance == null</code> and create <strong>two objects</strong>.</p>
 <p>Example race condition:</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/basic/multithreadproblem">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CreatingSingleton</span> <span style="color:#66d9ef">implements</span> Runnable {
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span>(){
@@ -259,6 +313,9 @@ This shifts full control of instance creation <strong>inside the class itself</s
 <h2 id="5-making-singleton-thread-safe">5. Making Singleton Thread-Safe</h2>
 <hr>
 <h3 id="51-synchronized-method-simple-but-costly">5.1 Synchronized method (Simple but Costly)</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/synchronizemethod">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span>() {
@@ -277,6 +334,9 @@ This shifts full control of instance creation <strong>inside the class itself</s
 ❌ Performance bottleneck — every call is synchronized</p>
 <h3 id="52-synchronized-block-thread-safe-but-inefficient">5.2 Synchronized Block (Thread-Safe but Inefficient)</h3>
 <p>A common second attempt is to use a <strong>synchronized block</strong>.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/synchronizeblock">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span>() {
@@ -315,6 +375,9 @@ This shifts full control of instance creation <strong>inside the class itself</s
 <p>This becomes a <strong>performance bottleneck</strong> in high-throughput systems.</p>
 <h3 id="53-double-checked-locking-optimized-and-correct">5.3 Double-Checked Locking (Optimized and Correct)</h3>
 <p>To avoid synchronizing every call, we refine the approach using <strong>Double-Checked Locking (DCL)</strong>.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/doublecheckedlocking">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">volatile</span> Singleton instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
 </span></span><span style="display:flex;"><span>
@@ -376,6 +439,9 @@ required to prevent instruction reordering.</p></blockquote>
 <p>That’s why modern Java strongly prefers the <strong>Initialization-on-Demand Holder Idiom</strong>, which we’ll see next.</p>
 <h3 id="54-initialization-on-demand-holder-idiom-bill-pugh-singleton">5.4 Initialization-on-Demand Holder Idiom (Bill Pugh Singleton)</h3>
 <p>This is the <strong>most recommended approach.</strong></p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/billpughsingleton">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// private constructor</span>
@@ -404,6 +470,9 @@ required to prevent instruction reordering.</p></blockquote>
 </ul>
 <h3 id="55-enum-singleton-jvm-guaranteed-not-truly-lazy">5.5 Enum Singleton (JVM-Guaranteed, Not Truly Lazy)</h3>
 <p>Java provides a <strong>special, JVM-level guarantee</strong> for enum types that makes them a powerful way to implement Singleton.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/singleton/lazy/threadsafe/enumsingleton">See Code in Git Repo</a>
+</div>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> Singleton {
 </span></span><span style="display:flex;"><span>    INSTANCE;
 </span></span><span style="display:flex;"><span>
@@ -543,7 +612,7 @@ required to prevent instruction reordering.</p></blockquote>
 <blockquote>
 <p><strong>Should this class be a Singleton at all?</strong></p></blockquote>
 <p>That’s exactly what we’ll tackle next — using the <strong>Employee Management System</strong> to understand <strong>when Singleton is a design smell</strong> and when it is justified.</p>
-<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_design-patterns/3_7_singleton-required-at-all">Singleton : Should This Be a Singleton? →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_design-patterns/3_8_singleton-required-at-all">Singleton : Should This Be a Singleton? →</a></strong></p>
 
     </article>
   </div>
@@ -552,7 +621,7 @@ required to prevent instruction reordering.</p></blockquote>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_6_singleton-pattern/" class="btn nav-btn">&larr; Back</a>
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_6_builder-pattern-part2/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -583,6 +652,8 @@ required to prevent instruction reordering.</p></blockquote>
     </a>
     
 
+    
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_8_singleton-required-at-all/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

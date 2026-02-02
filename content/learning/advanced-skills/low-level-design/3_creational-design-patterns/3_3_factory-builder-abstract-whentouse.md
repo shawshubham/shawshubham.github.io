@@ -91,8 +91,8 @@ if (type == FILE) {
 - Supports OCP and DIP naturally
 - Keeps creation logic in one place
 
-📌 **Key insight**:
-Factory Method answers **“which object?”**, not **“how complex?”**
+> 📌 **Key insight**:  
+> Factory Method answers **“which object?”**, not **“how complex?”**
 
 ---
 
@@ -125,8 +125,8 @@ new User(name, email, phone, address, preferences, role, status, ...)
 - Improves readability
 - Makes object construction explicit and safe
 
-📌 **Key insight**:
-Builder answers **“how to build step by step?”**, not **“which type?”**
+> 📌 **Key insight**:  
+> Builder answers **“how to build step by step?”**, not **“which type?”**
 
 ---
 
@@ -158,8 +158,8 @@ Builder answers **“how to build step by step?”**, not **“which type?”**
 - Avoids mixing incompatible implementations
 - Scales better than multiple factories
 
-📌 **Key insight**:
-Abstract Factory answers **“which family of objects?”**
+> 📌 **Key insight**:  
+> Abstract Factory answers **“which family of objects?”**
 
 ---
 

@@ -17,7 +17,7 @@ layout: "topic-content"
 
 ---
 
-Now that we’ve broken down responsibilities in our `Employee` Management System using SRP, let's take the final steps to **make the code more robust and extensible**:
+Now that we’ve broken down responsibilities in our **Employee Management System** using SRP, let's take the final steps to **make the code more robust and extensible**:
 
 - Replace string-based `type` with a **Java Enum**
 - Replace `System.err` with **structured logging**
@@ -139,7 +139,7 @@ public class EmployeeFileSaver {
 
 ### ✅ 6. Use Structured Logging
 
-Instead of using System.out.println() or System.err.println() for debugging or error reporting, it’s a better practice to use a proper logging mechanism like Java’s built-in java.util.logging.Logger.
+Instead of using *System.out.println()* or *System.err.println()* for debugging or error reporting, it’s a better practice to use a proper logging mechanism like Java’s built-in **java.util.logging.Logger**.
 
 > **Why use Logger?**
 >
@@ -255,7 +255,7 @@ Here are red flags that your code might be violating SRP:
 #### 3. Too Many If/Else Chains
 
 - When a class/method handles behavior for multiple types
-- 📉 Indicates responsibilities are not delegated properly (e.g., Strategy Pattern may help)
+- 📉 Indicates that responsibilities are not properly delegated (this can be addressed using the _Strategy Pattern_, which we’ll explore shortly)
 
 #### 4. Tightly Coupled Code
 
@@ -282,7 +282,7 @@ This foundation sets the stage for applying the next SOLID principle — **Open/
 
 Now that you’ve understood in details Single Responsibility Principle, let’s deep-dive into the next principle OCP.
 
-👉 **[Open-Closed Principle (OCP) in action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_5_ocp-example1)**
+👉 **[Open-Closed Principle (OCP) in action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_5_ocp-example1)**  
 We’ll explore how to extend a system without modifying existing, working code — and refactor a business logic engine to apply OCP.
 
 ---

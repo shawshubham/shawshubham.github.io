@@ -412,12 +412,14 @@ By splitting interfaces based on roles and responsibilities, we create systems t
 
 ### 🔗 What’s Next?
 
-With ISP complete, we move to the final SOLID principle:
+With **ISP complete**, we now move to the **final SOLID principle**:
 
-Next, we move to the third SOLID principle:
+**[Dependency Inversion Principle (DIP) in action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_9_dip-example1)**  
+High-level modules should not depend on low-level modules.  
+**Both should depend on abstractions.**
 
-**[Dependency Inversion Principle (DIP) in action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_9_dip-example1)**
-High-level modules should not depend on low-level modules — both should depend on abstractions.
+In the next chapter, we’ll see how violating DIP leads to rigid, hard-to-test systems —  
+and how introducing proper abstractions (often via Dependency Injection) restores flexibility and control.
 
 ---
 

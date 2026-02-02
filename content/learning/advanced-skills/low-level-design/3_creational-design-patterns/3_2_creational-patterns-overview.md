@@ -193,17 +193,19 @@ A simple rule of thumb:
 
 ---
 
-Creational patterns directly reinforce SOLID principles:
+Creational patterns don’t replace SOLID principles —  
+they **enable them at object-creation time**.
 
-| Principle | How Creational Patterns Help                            |
-| --------- | ------------------------------------------------------- |
-| SRP       | Separate creation logic from usage                      |
-| OCP       | Add new types without modifying clients                 |
-| LSP       | Ensure correct object substitution                      |
-| ISP       | Avoid forcing clients to depend on construction details |
-| DIP       | Depend on abstractions, not concrete classes            |
+| Pattern          | SOLID Principles Reinforced | Key Contribution                                     |
+| ---------------- | --------------------------- | ---------------------------------------------------- |
+| Factory Method   | OCP, DIP                    | Decouples clients from concrete creation             |
+| Abstract Factory | OCP, LSP, DIP               | Enforces compatible object families                  |
+| Builder          | SRP, OCP                    | Separates construction from behavior                 |
+| Singleton        | ⚠️ Often violates DIP       | Centralizes lifecycle but introduces global coupling |
 
-This is why design patterns naturally follow **SOLID**.
+This is why **SOLID and Design Patterns are taught together**:
+SOLID defines the rules,  
+patterns provide the mechanics to follow them.
 
 ---
 

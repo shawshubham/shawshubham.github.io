@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Commands – Practical Reference Guide</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Kubernetes Commands – Practical Reference Guide</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>🚀 1. Getting Started with Kubectl</li>
+        
+        <li>🔄 2. Restarting Kubernetes Pods</li>
+        
+        <li>3. Common Kubernetes Commands</li>
+        
+        <li>4. Resource Monitoring – Metrics Query (Prometheus)</li>
+        
+        <li>✅ Next Steps</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 30 Jan, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="-1-getting-started-with-kubectl">🚀 1. Getting Started with Kubectl</h2>
+<hr>
+<p>To begin using Kubernetes via the command line, you&rsquo;ll need:</p>
+<ul>
+<li>Access to your cluster via <code>kubeconfig</code> or enterprise login (e.g., SSO or oc CLI).</li>
+<li>A namespace/project to operate in.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Log in to your cluster (company-specific methods may vary)</span>
+</span></span><span style="display:flex;"><span>kubectl config use-context &lt;cluster-context-name&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Alternatively, using OpenShift CLI (for OpenShift users)</span>
+</span></span><span style="display:flex;"><span>oc login &lt;cluster-url&gt;
+</span></span><span style="display:flex;"><span>oc project &lt;namespace-name&gt;
+</span></span></code></pre></div><blockquote>
+<p>If you’re unsure how to authenticate in your organization, consult internal platform team docs or your DevOps admin.</p></blockquote>
+<hr>
+<h2 id="-2-restarting-kubernetes-pods">🔄 2. Restarting Kubernetes Pods</h2>
+<hr>
+<p>You can restart a pod by deleting it. Kubernetes (via ReplicaSet/Deployment) will automatically recreate it.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl login &lt;cluster&gt; <span style="color:#75715e"># login to the cluster, may vary as per organisation usage</span>
+</span></span><span style="display:flex;"><span>oc project &lt;namespace&gt; <span style="color:#75715e"># get into the name space using the below command, may vary as per organisation usage</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 1: Switch to correct namespace</span>
+</span></span><span style="display:flex;"><span>kubectl config set-context --current --namespace<span style="color:#f92672">=</span>&lt;your-namespace&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 2: Get pod list</span>
+</span></span><span style="display:flex;"><span>kubectl get pods
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 3: Delete the specific pod (restarts it)</span>
+</span></span><span style="display:flex;"><span>kubectl delete pod &lt;pod-name&gt;
+</span></span></code></pre></div><blockquote>
+<p>💡 No need to restart the entire deployment — just delete the crashing pod.</p></blockquote>
+<hr>
+<h2 id="3-common-kubernetes-commands">3. Common Kubernetes Commands</h2>
+<hr>
+<p>A practical reference table of daily-use kubectl and oc commands:</p>
+<table>
+  <thead>
+      <tr>
+          <th>#</th>
+          <th>Command</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>1</td>
+          <td><code>kubectl config use-context &lt;context&gt;</code></td>
+          <td>Switches to the specified cluster context</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td><code>kubectl get namespaces</code></td>
+          <td>Lists all namespaces in the cluster</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td><code>oc project &lt;namespace&gt;</code></td>
+          <td>(OpenShift) Switches to a specific namespace/project</td>
+      </tr>
+      <tr>
+          <td>4</td>
+          <td><code>kubectl get pods</code></td>
+          <td>Lists all pods in the current namespace</td>
+      </tr>
+      <tr>
+          <td>5</td>
+          <td><code>kubectl get deployments</code></td>
+          <td>Lists all deployments in the namespace</td>
+      </tr>
+      <tr>
+          <td>6</td>
+          <td><code>kubectl get deployment &lt;name&gt; -o yaml</code></td>
+          <td>Retrieves detailed YAML configuration of a deployment</td>
+      </tr>
+      <tr>
+          <td>7</td>
+          <td><code>kubectl get configmaps</code></td>
+          <td>Lists all ConfigMaps in the namespace</td>
+      </tr>
+      <tr>
+          <td>8</td>
+          <td><code>kubectl describe deployment &lt;name&gt;</code></td>
+          <td>Detailed description of deployment, including events and image details</td>
+      </tr>
+      <tr>
+          <td>9</td>
+          <td><code>kubectl top pods --namespace &lt;namespace&gt;</code></td>
+          <td>Shows real-time CPU/memory usage of pods in the given namespace (metrics-server must be enabled)</td>
+      </tr>
+      <tr>
+          <td>10</td>
+          <td><code>kubectl describe resourcequotas -n &lt;namespace&gt;</code></td>
+          <td>Describes any enforced quota limits for that namespace</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="4-resource-monitoring--metrics-query-prometheus">4. Resource Monitoring – Metrics Query (Prometheus)</h2>
+<hr>
+<p>To get detailed memory usage across pods in a namespace using Prometheus:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-promql" data-lang="promql"><span style="display:flex;"><span><span style="color:#66d9ef">sum</span><span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>  container_memory_working_set_bytes{
+</span></span><span style="display:flex;"><span>    job<span style="color:#f92672">=</span>&#34;<span style="color:#e6db74">kubelet</span>&#34;,
+</span></span><span style="display:flex;"><span>    metrics_path<span style="color:#f92672">=</span>&#34;<span style="color:#e6db74">/metrics/cadvisor</span>&#34;,
+</span></span><span style="display:flex;"><span>    cluster<span style="color:#f92672">=</span>&#34;&#34;,
+</span></span><span style="display:flex;"><span>    namespace<span style="color:#f92672">=</span>&#34;<span style="color:#e6db74">d12345</span>&#34;,
+</span></span><span style="display:flex;"><span>    container<span style="color:#f92672">!=</span>&#34;&#34;,
+</span></span><span style="display:flex;"><span>    image<span style="color:#f92672">!=</span>&#34;&#34;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span><span style="color:#f92672">)</span> <span style="color:#66d9ef">by</span> <span style="color:#f92672">(</span>pod<span style="color:#f92672">)</span>
+</span></span></code></pre></div><blockquote>
+<p>🔎 This PromQL query aggregates memory usage (working_set_bytes) by pod in a given namespace.</p></blockquote>
+<h2 id="-next-steps">✅ Next Steps</h2>
+<ul>
+<li>Learn how to create deployments and services</li>
+<li>Explore Helm for package management</li>
+<li>Setup kubectl aliases for productivity</li>
+<li>Investigate ArgoCD for GitOps-based deployment</li>
+</ul>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/dev-ops-skills/kubernetes/" class="btn nav-btn">
+        Kubernetes : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/dev-ops-skills/kubernetes/1_introduction-to-orchestration/1_2_orchestration-introduction/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

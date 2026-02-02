@@ -44,7 +44,7 @@ HR has added a new employee type: **Commission-Based Employees (New)**
 | **Interns**                          | No deductions                                                                              |
 | **Commission-Based Employees (New)** | No attendance-based deduction — deductions are tied to _compliance penalties_, not absence |
 
-This changing and inconsistent set of rules sets the perfect stage to demonstrate how a **wrong abstraction** can break the **Liskov Substitution Principle (LSP)**.
+This changing and inconsistent set of rules sets the perfect stage to demonstrate how a **wrong abstraction** can break the **Liskov Substitution Principle (LSP)** which says **"Derived classes must be substitutable for their base classes without affecting the correctness of the program."**
 
 ## 2. The Naive (Wrong) Implementation — LSP Violation ❌
 
@@ -118,7 +118,7 @@ public double calculateDeduction(int daysAbsent) {
 - Deduction is now **hour-based**, not attendance-based.
 - The method name and contract no longer mean the same thing.
 
-⚠ This silently violates LSP.
+> ⚠ This silently violates LSP.
 
 #### 3. Intern Employee (Hard Failure)
 
@@ -550,15 +550,14 @@ The fix is almost always:
 
 ### 🔗 What’s Next?
 
-With LSP complete, we move to the fourth SOLID principle:
+Now that we’ve fixed a broken inheritance contract, the next problem shows up naturally:
 
-- Infrastructure changes (saving logic — Example 1)
-- Business rule changes (salary logic — Example 2)
+> Many classes start accumulating “fat” interfaces that clients don’t fully need.
 
-Next, we move to the third SOLID principle:
+That’s where the **Interface Segregation Principle (ISP)** helps.
 
-**[Interface Segregation Principle (ISP) in action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_8_isp-example1)**
-Design small, focused interfaces that clients actually need.
+👉 **[Interface Segregation Principle (ISP) in action →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_8_isp-example1)**  
+Design small, focused interfaces that clients actually use — and avoid forcing implementations to depend on unused methods.
 
 ---
 

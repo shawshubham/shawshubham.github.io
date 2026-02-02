@@ -422,7 +422,7 @@ it is about **who depends on whom**.
 
 Now that all five SOLID principles are applied, we step back and look at the bigger picture.
 
-**[SOLID in Action – How the Principles Work Together →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_10_how-solid-work-together)**
+**[SOLID in Action – How the Principles Work Together →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_10_how-solid-work-together)**  
 We’ll recap the entire Employee Management System and see how the principles reinforce each other.
 
 ---

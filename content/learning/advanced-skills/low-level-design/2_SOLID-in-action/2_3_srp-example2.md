@@ -85,7 +85,7 @@ public class ContractEmployee extends Employee {
     public ContractEmployee(String name) { super(name); }
     @Override public String getType() { return "Contract"; }
 
-    // You can later add methods like assignBonus(), manageTeam(), etc.
+    // You can later add methods like extendContract(), etc.
 }
 ```
 
@@ -94,7 +94,7 @@ public class InternEmployee extends Employee {
     public InternEmployee(String name) { super(name); }
     @Override public String getType() { return "Intern"; }
 
-    // You can later add methods like assignBonus(), manageTeam(), etc.
+    // You can later add methods like assignMentor(), etc.
 }
 ```
 

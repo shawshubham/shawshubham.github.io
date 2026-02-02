@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstract Factory Pattern – Enforcing Compatible Object Families (Part 2)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Abstract Factory Pattern – Enforcing Compatible Object Families (Part 2)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Recap: Where We Got Stuck</li>
+        
+        <li>2. The Core Insight: The Business Thinks in Workflows, Not Options</li>
+        
+        <li>3. Step 1: Stop Thinking in Options — Start Thinking in Bundles</li>
+        
+        <li>4. Defining Realistic Export Bundles</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 2 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <hr>
+<h2 id="1-recap-where-we-got-stuck">1. Recap: Where We Got Stuck</h2>
+<hr>
+<p>In <strong>Part 1</strong>, we designed a clean, extensible system using:</p>
+<ul>
+<li>Strategy (export / deliver / notify)</li>
+<li>Factory Method (format, channel, notification)</li>
+<li>SOLID principles (separation of concerns)</li>
+</ul>
+<p>And yet, we hit a wall.</p>
+<blockquote>
+<p><strong>All parts were valid.</strong><br>
+<strong>The system was invalid.</strong></p></blockquote>
+<p>We allowed independent selection of:</p>
+<ul>
+<li>export format</li>
+<li>delivery channel</li>
+<li>notification type</li>
+</ul>
+<p>Nothing prevented nonsensical combinations.</p>
+<p>This is where Abstract Factory enters — <strong>not as a refactor, but as a correction in thinking.</strong></p>
+<hr>
+<h2 id="2-the-core-insight-the-business-thinks-in-workflows-not-options">2. The Core Insight: The Business Thinks in Workflows, Not Options</h2>
+<hr>
+<p>Our earlier design asked callers to choose options:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>format + delivery + notification
+</span></span></code></pre></div><p>But the business never thinks this way.</p>
+<p>The business thinks in <strong>intent-driven workflows</strong>:</p>
+<ul>
+<li>“Download my report”</li>
+<li>“Email me the report”</li>
+<li>“Send me a link”</li>
+</ul>
+<p>These are <strong>bundles</strong>, not combinations.</p>
+<p>Before touching code, we must fix the model.</p>
+<hr>
+<h2 id="3-step-1-stop-thinking-in-options--start-thinking-in-bundles">3. Step 1: Stop Thinking in Options — Start Thinking in Bundles</h2>
+<hr>
+<h3 id="31-why-option-based-design-breaks-down">3.1 Why “Option-Based Design” Breaks Down</h3>
+<p>An option-based API encourages callers to assemble behavior themselves:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExportFormat = PDF
+</span></span><span style="display:flex;"><span>Delivery     = DOWNLOAD
+</span></span><span style="display:flex;"><span>Notification = SMS
+</span></span></code></pre></div><p>This compiles.<br>
+It passes tests.<br>
+It is still wrong.</p>
+<blockquote>
+<p>The user never asked for “SMS + download”.</p></blockquote>
+<p>This is the design smell:</p>
+<blockquote>
+<p><strong>Correct parts, incorrect system.</strong></p></blockquote>
+<h3 id="32-the-mental-shift-from-combinations-to-capabilities">3.2 The Mental Shift: From Combinations to Capabilities</h3>
+<p>Instead of asking:</p>
+<blockquote>
+<p>“Which format, which delivery, which notification?”</p></blockquote>
+<p>We should be asking:</p>
+<blockquote>
+<p><strong>“What kind of report experience is this?”</strong></p></blockquote>
+<p>Each experience:</p>
+<ul>
+<li>has a clear intent</li>
+<li>enforces compatible choices</li>
+<li>forbids invalid ones</li>
+</ul>
+<p>These experiences are <strong>bundles</strong>.</p>
+<hr>
+<h2 id="4-defining-realistic-export-bundles">4. Defining Realistic Export Bundles</h2>
+<hr>
+<p>Let’s define a <strong>small, realistic set of workflows</strong>.</p>
+<p>These are not technical permutations.
+They are <strong>business capabilities</strong>.</p>
+<h3 id="41-bundle-1-portal-download--portal_download">4.1 Bundle 1: Portal Download : PORTAL_DOWNLOAD</h3>
+<h4 id="intent">Intent</h4>
+<blockquote>
+<p>“Generate a report and let me download it.”</p></blockquote>
+<h4 id="rules">Rules</h4>
+<ul>
+<li>Delivery: DOWNLOAD</li>
+<li>Formats: PDF, CSV, HTML</li>
+<li>Notification: optional PUSH only</li>
+</ul>
+<h3 id="42-bundle-2-email-attachment--email_attachment">4.2 Bundle 2: Email Attachment : EMAIL_ATTACHMENT</h3>
+<h4 id="intent-1">Intent</h4>
+<blockquote>
+<p>“Send me the report as an email attachment.”</p></blockquote>
+<h4 id="rules-1">Rules</h4>
+<ul>
+<li>Delivery: EMAIL (attachment)</li>
+<li>Formats: PDF only</li>
+<li>Notification: none (email is the notification)</li>
+</ul>
+<h3 id="43-bundle-3-email-link--email_link">4.3 Bundle 3: Email Link : EMAIL_LINK</h3>
+<h4 id="intent-2">Intent</h4>
+<blockquote>
+<p>“Email me a secure link to download the report.”</p></blockquote>
+<h4 id="rules-2">Rules</h4>
+<ul>
+<li>Delivery: EMAIL (link)</li>
+<li>Formats: PDF, HTML</li>
+<li>Notification: optional SMS (“link sent”)</li>
+</ul>
+<h3 id="44-what-bundles-give-us">4.4 What Bundles Give Us</h3>
+<p>Each bundle:</p>
+<ul>
+<li>encodes <strong>business intent</strong></li>
+<li>enforces <strong>valid combinations</strong></li>
+<li>eliminates invalid states by design</li>
+<li>removes decision-making from callers</li>
+</ul>
+<p>Now we have the real problem statement:</p>
+<blockquote>
+<p><strong>How do we create a compatible family of objects for each bundle?</strong></p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_9_abstract-factory-pattern-part1/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

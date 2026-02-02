@@ -316,7 +316,7 @@ It is about writing **code that survives change**.
 
 Now that you’ve seen **how all five SOLID principles work together**, the next step is to strengthen **design judgment**.
 
-👉 **[Interview & Design Insights on SOLID →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_11_design-intervew-insights)**
+👉 **[Interview & Design Insights on SOLID →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_11_design-intervew-insights)**  
 We’ll cover sharp, real interview-style questions and practical trade-offs—so SOLID becomes a thinking tool, not a checklist.
 
 After that, we’ll move into **Design Patterns**, where patterns emerge naturally from the principles you’ve already learned.

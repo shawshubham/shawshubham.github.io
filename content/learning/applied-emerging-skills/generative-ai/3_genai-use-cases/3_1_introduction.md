@@ -1,5 +1,5 @@
 ---
-title: "Generative AI Use Cases Across Industries"
+title: Generative AI Use Cases Across Industries
 description: "Explore how Generative AI is used across industries such as software development, customer support, marketing, and enterprise systems, with a focus on practical value and system design considerations."
 weight: 3
 layout: "topic-content"

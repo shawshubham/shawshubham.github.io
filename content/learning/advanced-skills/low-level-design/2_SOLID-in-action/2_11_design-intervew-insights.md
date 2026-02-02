@@ -197,7 +197,7 @@ With SOLID principles understood in depth and with judgment, we’re ready to mo
 
 Next, we begin Design Patterns — not as isolated recipes, but as natural solutions that emerge from SOLID design.
 
-👉 **[Design Patterns – From Principles to Practice →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/3_1_design-patterns-introduction)**
+👉 **[Design Patterns – From Principles to Practice →](/learning/advanced-skills/low-level-design/2_SOLID-in-action/3_1_design-patterns-introduction)**  
 You’ll see patterns like Strategy, Factory, Decorator, and others grow directly out of the problems we’ve already solved in the Employee Management System.
 
 ---

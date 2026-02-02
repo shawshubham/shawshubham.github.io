@@ -215,7 +215,7 @@ public class MainClient {
 
 | Problem        | Why It’s Bad                                  |
 | -------------- | --------------------------------------------- |
-| Breaks OCP     | New employee type → must modify this class    |
+| Breaks OCP     | New employee type → must modify `SalaryCalculator` class    |
 | Scaling issues | Switch grows forever                          |
 | Fragile        | One mistake here breaks salary for all types  |
 | SRP violation  | SalaryCalculator now knows all business rules |
@@ -227,10 +227,9 @@ This code works today but does not survive change.
 
 ---
 
-💡 Key Insight
-
-Instead of one “god” calculator deciding salary for all types,
-each employee type gets its own salary calculation strategy.
+> 💡 **Key Insight**  
+> Instead of one “god” calculator deciding salary for all types,  
+> each employee type gets its own salary calculation strategy.
 
 We begin by introducing a strategy interface.
 
