@@ -101,6 +101,22 @@
         
         <li>4. Defining Realistic Export Bundles</li>
         
+        <li>5. Step 2: Identify the “Family” That Must Change Together</li>
+        
+        <li>6. The Abstract Factory Contract</li>
+        
+        <li>7. Concrete Factories (One per Bundle)</li>
+        
+        <li>8. Using the Abstract Factory in ReportingOperationsService</li>
+        
+        <li>9. Why Abstract Factory Was the Missing Piece</li>
+        
+        <li>10. Strategy vs Factory Method vs Abstract Factory (Interview Gold)</li>
+        
+        <li>11. When You Actually Need Abstract Factory (Notes)</li>
+        
+        <li>Conclusion</li>
+        
       </ul>
     </div>
   
@@ -108,7 +124,7 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 2 Feb, 2026
+            Last updated on: 3 Feb, 2026
           
         </p>
       </div>
@@ -227,6 +243,314 @@ They are <strong>business capabilities</strong>.</p>
 <p>Now we have the real problem statement:</p>
 <blockquote>
 <p><strong>How do we create a compatible family of objects for each bundle?</strong></p></blockquote>
+<hr>
+<h2 id="5-step-2-identify-the-family-that-must-change-together">5. Step 2: Identify the “Family” That Must Change Together</h2>
+<hr>
+<p>From the bundles, we can see a pattern:</p>
+<p>Each bundle always creates the <strong>same family of objects</strong>:</p>
+<ul>
+<li>a <strong>ReportExportStrategy</strong></li>
+<li>a <strong>DeliveryStrategy</strong></li>
+<li>optionally, a <strong>NotificationStrategy</strong></li>
+</ul>
+<p>These objects:</p>
+<ul>
+<li>must be compatible</li>
+<li>must be created together</li>
+<li>must not be mixed with objects from other bundles</li>
+</ul>
+<p>This is the textbook definition of <strong>Abstract Factory</strong>:</p>
+<blockquote>
+<p><strong>Create families of related or dependent objects without specifying their concrete classes.</strong></p></blockquote>
+<p>The key word is <strong>family</strong> — not “object”, not “strategy”.</p>
+<hr>
+<h2 id="6-the-abstract-factory-contract">6. The Abstract Factory Contract</h2>
+<hr>
+<p>We define a factory that creates <strong>a complete bundle</strong>, not individual parts.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportBundleFactory</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    DeliveryStrategy <span style="color:#a6e22e">createDeliveryStrategy</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Optional<span style="color:#f92672">&lt;</span>NotificationStrategy<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createNotificationStrategy</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="why-this-interface-matters">Why this interface matters</h3>
+<ul>
+<li>Callers cannot mix and match</li>
+<li>Compatibility is enforced at construction time</li>
+<li>Each factory represents <strong>one business workflow</strong></li>
+</ul>
+<p>This is the <strong>missing abstraction</strong> from Part 1.</p>
+<hr>
+<h2 id="7-concrete-factories-one-per-bundle">7. Concrete Factories (One per Bundle)</h2>
+<hr>
+<h3 id="71-portal-download-bundle-factory">7.1 Portal Download Bundle Factory</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PortalDownloadBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExportFormat format;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PortalDownloadBundleFactory</span>(ExportFormat format) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">format</span> <span style="color:#f92672">=</span> format;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ReportExportStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(format);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DeliveryStrategy <span style="color:#a6e22e">createDeliveryStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> DownloadDeliveryStrategy();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Optional<span style="color:#f92672">&lt;</span>NotificationStrategy<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createNotificationStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Optional.<span style="color:#a6e22e">of</span>(<span style="color:#66d9ef">new</span> PushNotificationStrategy());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="what-this-enforces">What this enforces:</h4>
+<ul>
+<li>Only DOWNLOAD delivery</li>
+<li>Only PUSH notification</li>
+<li>Format constrained by constructor, not caller freedom</li>
+</ul>
+<h3 id="72-email-attachment-bundle-factory">7.2 Email Attachment Bundle Factory</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailAttachmentBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PdfReportExportStrategy();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DeliveryStrategy <span style="color:#a6e22e">createDeliveryStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmailAttachmentDeliveryStrategy();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Optional<span style="color:#f92672">&lt;</span>NotificationStrategy<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createNotificationStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Optional.<span style="color:#a6e22e">empty</span>(); <span style="color:#75715e">// email is the notification</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="what-this-enforces-1">What this enforces:</h4>
+<ul>
+<li>PDF only</li>
+<li>Email attachment only</li>
+<li>No secondary notification possible</li>
+</ul>
+<p>This was <strong>impossible</strong> to enforce cleanly in Part 1.</p>
+<h3 id="73-email-link-bundle-factory">7.3 Email Link Bundle Factory</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailLinkBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PdfReportExportStrategy();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DeliveryStrategy <span style="color:#a6e22e">createDeliveryStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmailLinkDeliveryStrategy();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Optional<span style="color:#f92672">&lt;</span>NotificationStrategy<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createNotificationStrategy</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Optional.<span style="color:#a6e22e">of</span>(<span style="color:#66d9ef">new</span> SmsNotificationStrategy());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="what-this-enforces-2">What this enforces:</h4>
+<ul>
+<li>Secure link workflow</li>
+<li>SMS is allowed only as a side notification</li>
+<li>No accidental “download + SMS” combinations</li>
+</ul>
+<hr>
+<h2 id="8-using-the-abstract-factory-in-reportingoperationsservice">8. Using the Abstract Factory in ReportingOperationsService</h2>
+<hr>
+<p>The service no longer assembles behavior.</p>
+<p>It <strong>executes a bundle.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employee, ReportBundleFactory bundleFactory) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 1. Generate domain report</span>
+</span></span><span style="display:flex;"><span>    EmployeeReport report <span style="color:#f92672">=</span> generateReport(employee);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 2. Export</span>
+</span></span><span style="display:flex;"><span>    ExportedReport exported <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>        bundleFactory.<span style="color:#a6e22e">createExportStrategy</span>().<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 3. Deliver</span>
+</span></span><span style="display:flex;"><span>    DeliveryResult result <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>        bundleFactory.<span style="color:#a6e22e">createDeliveryStrategy</span>()
+</span></span><span style="display:flex;"><span>            .<span style="color:#a6e22e">deliver</span>(exported, employee.<span style="color:#a6e22e">getEmail</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 4. Notify (if applicable)</span>
+</span></span><span style="display:flex;"><span>    bundleFactory.<span style="color:#a6e22e">createNotificationStrategy</span>()
+</span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">ifPresent</span>(strategy <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>            strategy.<span style="color:#a6e22e">notifyUser</span>(result, employee.<span style="color:#a6e22e">getContact</span>()));
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="what-disappeared-this-is-important">What disappeared (this is important)</h3>
+<ul>
+<li>❌ No switch statements</li>
+<li>❌ No combinatorial logic</li>
+<li>❌ No “if notification != null”</li>
+<li>❌ No invalid states</li>
+</ul>
+<p>The <strong>system is correct by construction</strong>.</p>
+<hr>
+<h2 id="9-why-abstract-factory-was-the-missing-piece">9. Why Abstract Factory Was the Missing Piece</h2>
+<hr>
+<p>Let’s compare designs.</p>
+<h3 id="part-1-factory--strategy">Part 1 (Factory + Strategy)</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Result</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Extensibility</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>Testability</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>Local correctness</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>Global correctness</td>
+          <td>❌</td>
+      </tr>
+      <tr>
+          <td>Invalid combinations</td>
+          <td>❌ allowed</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="part-2-abstract-factory">Part 2 (Abstract Factory)</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Result</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Extensibility</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>Testability</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>Global correctness</td>
+          <td>✅</td>
+      </tr>
+      <tr>
+          <td>Invalid combinations</td>
+          <td>❌ impossible</td>
+      </tr>
+      <tr>
+          <td>Business intent</td>
+          <td>✅ explicit</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="10-strategy-vs-factory-method-vs-abstract-factory-interview-gold">10. Strategy vs Factory Method vs Abstract Factory (Interview Gold)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Pattern</th>
+          <th>Solves</th>
+          <th>EMS Example</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Strategy</td>
+          <td>Vary behavior</td>
+          <td>PDF vs CSV export</td>
+      </tr>
+      <tr>
+          <td>Factory Method</td>
+          <td>Choose one implementation</td>
+          <td>ExportStrategyFactory</td>
+      </tr>
+      <tr>
+          <td><strong>Abstract Factory</strong></td>
+          <td>Create compatible families</td>
+          <td>ReportBundleFactory</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<h4 id="key-interview-line">Key interview line:</h4>
+<p>Strategy varies behavior.<br>
+Factory Method chooses implementations.<br>
+Abstract Factory enforces which variations are allowed together.</p></blockquote>
+<hr>
+<h2 id="11-when-you-actually-need-abstract-factory-notes">11. When You Actually Need Abstract Factory (Notes)</h2>
+<hr>
+<h3 id="use-abstract-factory-when">Use Abstract Factory when:</h3>
+<ul>
+<li>Objects must be created <strong>together</strong></li>
+<li>Combinations are <strong>not independent</strong></li>
+<li>Business rules define <strong>allowed ecosystems</strong></li>
+<li>Invalid states must be <strong>unrepresentable</strong></li>
+</ul>
+<h3 id="do-not-use-abstract-factory-when">Do NOT use Abstract Factory when:</h3>
+<ul>
+<li>Objects vary independently</li>
+<li>You only need one object</li>
+<li>You’re solving a simple selection problem</li>
+<li>You’re prematurely abstracting</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Abstract Factory is not “another factory”.</p>
+<p>It exists to solve a very specific problem:</p>
+<blockquote>
+<p><strong>Valid parts forming an invalid system.</strong></p></blockquote>
+<p>In EMS:</p>
+<ul>
+<li>Strategy gave flexibility</li>
+<li>Factory Method gave selection</li>
+<li>Abstract Factory enforced correctness</li>
+</ul>
+<p>By creating <strong>compatible object families</strong>, Abstract Factory moves business rules<br>
+from runtime checks into <strong>object creation itself</strong>.</p>
+<p>That’s why it matters.</p>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>With this article, we intentionally <strong>close Creational Design Patterns</strong>.</p>
+<p>So far, we’ve covered the patterns that matter most in real systems:</p>
+<ul>
+<li><strong>Builder</strong> → safe construction</li>
+<li><strong>Factory Method</strong> → implementation selection</li>
+<li><strong>Abstract Factory</strong> → compatible object families</li>
+</ul>
+<p>Together, these handle <strong>most real-world creation problems</strong>.</p>
+<p>Next, we move to <strong>Structural Design Patterns</strong>, where the focus shifts from:</p>
+<blockquote>
+<p>“How objects are created”<br>
+to<br>
+“How objects are composed to form larger systems.”</p></blockquote>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview">Up next: Introduction to Structural Design Patterns →</a></strong></p>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Abstract Factory enforces allowed combinations</li>
+<li>It protects system correctness at creation time</li>
+<li>Use it when options are valid individually but not together</li>
+</ul></blockquote>
 
     </article>
   </div>

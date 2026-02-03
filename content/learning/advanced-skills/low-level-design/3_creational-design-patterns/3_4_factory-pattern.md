@@ -367,7 +367,7 @@ This is how real systems evolve — incrementally and intentionally.
 
 Now that we’ve handled type selection, we move to a different creation problem:
 
-👉 **[Builder Pattern – Constructing Complex Objects Safely →](/learning/advanced-skills/low-level-design/3_design-patterns/3_5_builder-pattern-part1)**
+👉 **[Builder Pattern – Constructing Complex Objects Safely →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_5_builder-pattern-part1)**
 
 Where Factory answers “which object?”,
 Builder answers “how do we build it correctly?”

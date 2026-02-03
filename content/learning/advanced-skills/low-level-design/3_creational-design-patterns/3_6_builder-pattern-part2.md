@@ -199,6 +199,15 @@ private static final class Builder implements NameStep, TypeStep, DepartmentStep
 
 ### 2.5 Usage
 
+Notice a subtle but important change here.  
+Instead of exposing the internal Builder class directly, we invoke the builder() method, which returns a **staged interface**.
+
+> In this design, the builder is composed of multiple steps:  
+> **NameStep → TypeStep → DepartmentStep → OptionalStep**
+
+Each step exposes **only the next valid method**, forcing the client to follow the correct construction order.  
+For example, after calling **name()**, the only available method is **type()**.
+
 ```java
 EmployeeReport report = EmployeeReport.builder()
     .name(employee.getName())
@@ -209,7 +218,12 @@ EmployeeReport report = EmployeeReport.builder()
     .build();
 ```
 
-If you try to call .salary() before .department(), it won’t compile.
+Because of this staged design:
+
+- Calling .salary() before .department() is **not possible**
+- The code **fails at compile time**, not at runtime
+
+This ensures that all mandatory fields are set in the correct order before the object can be built.
 
 ### 2.6 Trade-offs (why staged builders are rare)
 
@@ -389,7 +403,7 @@ EmployeeReport updated = report.toBuilder()
 
 Now we move to a powerful — and often misused — pattern:
 
-👉 **[Singleton Pattern – Power, Pitfalls, and Trade-offs →](/learning/advanced-skills/low-level-design/3_design-patterns/3_7_singleton-pattern)**
+👉 **[Singleton Pattern – Power, Pitfalls, and Trade-offs →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_7_singleton-pattern)**
 
 ---
 

@@ -206,15 +206,13 @@ public class EmployeeService implements
     @Override
     public EmployeeReport generateReport(Employee employee) {
         //generate report based on employee, returning dummy report for now
-        EmployeeReport report = new EmployeeReport(
+        return new EmployeeReport(
                 employee.getName(),
                 employee.getType(),
                 employee.getDepartment(),
                 calculateSalary(employee),
                 calculateDeduction(employee)
         );
-
-        return report;
     }
 
     // other methods...
@@ -554,7 +552,7 @@ Entities have identity and behavior — builders fit value objects better.
 ### ❓ “How do you enforce mandatory fields?”
 
 - Validate in build()
-- Use staged builders only when absolutely necessary
+- Use staged builders only when absolutely necessary **(criteria and examples are covered in the next article)**
 
 ### ❓ “Can Builder be mutable internally?”
 
@@ -590,14 +588,14 @@ That distinction is design maturity.
 
 If you want stronger guarantees and advanced ergonomics, continue here:
 
-👉 **[Builder Pattern – Advanced Enhancements (Part 2) →](/learning/advanced-skills/low-level-design/3_design-patterns/3_6_builder-pattern-part2)**
+👉 **[Builder Pattern – Advanced Enhancements (Part 2) →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_6_builder-pattern-part2)**
 
 - Staged Builder (compile-time enforcement)
 - Copy Builder / toBuilder (safe evolution of immutable objects)
 
 Or move forward in the creational series:
 
-👉 **[Singleton Pattern – Power, Pitfalls, and Trade-offs →](/learning/advanced-skills/low-level-design/3_design-patterns/3_7_singleton-pattern)**
+👉 **[Singleton Pattern – Power, Pitfalls, and Trade-offs →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_7_singleton-pattern)**
 
 ---
 

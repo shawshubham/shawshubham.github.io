@@ -201,8 +201,8 @@ public class ReportExportStrategyFactory {
 }
 ```
 
-✅ Clean
-✅ Open for extension
+✅ Clean  
+✅ Open for extension  
 ✅ Closed for modification
 
 So far, so good.
@@ -296,8 +296,8 @@ public class DeliverStrategyFactory {
 
 Again:
 
-✅ Reasonable
-✅ Extensible
+✅ Reasonable  
+✅ Extensible  
 ✅ Familiar pattern usage
 
 ---
@@ -529,7 +529,7 @@ We stop deliberately before solving the problem.
 
 Because once you _feel_ this gap, the next pattern becomes obvious.
 
-👉 **[Abstract Factory – Enforcing Compatible Object Families (Part 2) →](/learning/advanced-skills/low-level-design/3_design-patterns/3_10_abstract-factory-pattern-part2)**
+👉 **[Abstract Factory – Enforcing Compatible Object Families (Part 2) →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_10_abstract-factory-pattern-part2)**
 
 ---
 

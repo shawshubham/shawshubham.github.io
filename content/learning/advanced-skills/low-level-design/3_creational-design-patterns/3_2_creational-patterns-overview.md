@@ -248,5 +248,5 @@ Used correctly, they **simplify systems** rather than complicate them.
 
 Next, we’ll look at the **big picture of creational patterns**:
 
-👉 **[Factory Method vs Builder vs Abstract Factory – When to Use What →](/learning/advanced-skills/low-level-design/3_design-patterns/3_3_factory-builder-abstract-whentouse)**
+👉 **[Factory Method vs Builder vs Abstract Factory – When to Use What →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_3_factory-builder-abstract-whentouse)**  
 We’ll compare these patterns side-by-side before diving into each one in detail.

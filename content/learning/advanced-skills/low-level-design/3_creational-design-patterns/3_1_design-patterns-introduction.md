@@ -261,7 +261,7 @@ We begin with **Creational Design Patterns**, starting with the most fundamental
 
 > _How should objects be created when creation itself becomes a problem?_
 
-👉 **[Creational Design Patterns – Managing Object Creation →](/learning/advanced-skills/low-level-design/3_design-patterns/3_2_creational-patterns-overview)**
+👉 **[Creational Design Patterns – Managing Object Creation →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_2_creational-patterns-overview)**
 
 ---
 

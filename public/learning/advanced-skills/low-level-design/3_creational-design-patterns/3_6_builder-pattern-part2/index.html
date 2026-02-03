@@ -110,7 +110,7 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 2 Feb, 2026
+            Last updated on: 3 Feb, 2026
           
         </p>
       </div>
@@ -275,6 +275,13 @@ Only the step interfaces are exposed publicly.</p></blockquote>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="25-usage">2.5 Usage</h3>
+<p>Notice a subtle but important change here.<br>
+Instead of exposing the internal Builder class directly, we invoke the builder() method, which returns a <strong>staged interface</strong>.</p>
+<blockquote>
+<p>In this design, the builder is composed of multiple steps:<br>
+<strong>NameStep → TypeStep → DepartmentStep → OptionalStep</strong></p></blockquote>
+<p>Each step exposes <strong>only the next valid method</strong>, forcing the client to follow the correct construction order.<br>
+For example, after calling <strong>name()</strong>, the only available method is <strong>type()</strong>.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeeReport report <span style="color:#f92672">=</span> EmployeeReport.<span style="color:#a6e22e">builder</span>()
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">name</span>(employee.<span style="color:#a6e22e">getName</span>())
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">type</span>(employee.<span style="color:#a6e22e">getType</span>())
@@ -282,7 +289,12 @@ Only the step interfaces are exposed publicly.</p></blockquote>
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">salary</span>(calculateSalary(employee))
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">deductions</span>(calculateDeduction(employee))
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">build</span>();
-</span></span></code></pre></div><p>If you try to call .salary() before .department(), it won’t compile.</p>
+</span></span></code></pre></div><p>Because of this staged design:</p>
+<ul>
+<li>Calling .salary() before .department() is <strong>not possible</strong></li>
+<li>The code <strong>fails at compile time</strong>, not at runtime</li>
+</ul>
+<p>This ensures that all mandatory fields are set in the correct order before the object can be built.</p>
 <h3 id="26-trade-offs-why-staged-builders-are-rare">2.6 Trade-offs (why staged builders are rare)</h3>
 <p>Staged builders increase compile-time safety, but they come with real costs:</p>
 <ul>
@@ -415,7 +427,7 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>Now we move to a powerful — and often misused — pattern:</p>
-<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_design-patterns/3_7_singleton-pattern">Singleton Pattern – Power, Pitfalls, and Trade-offs →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_7_singleton-pattern">Singleton Pattern – Power, Pitfalls, and Trade-offs →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong></p>

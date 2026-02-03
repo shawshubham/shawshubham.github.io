@@ -442,7 +442,7 @@ Modern design prefers:
 
 - explicit dependencies
 - composition roots
-- DI containers
+- DI containers (Spring, Guice, Dagger, Micronaut)
 - testability over convenience
 
 > **Singleton should be your last resort, not your default.**
@@ -462,7 +462,7 @@ Now that we’ve seen:
 
 We move to **managing related object families**.
 
-👉 **[Abstract Factory Pattern – When Good Designs Still Break (Part 1) →](/learning/advanced-skills/low-level-design/3_design-patterns/3_9_abstract-factory-pattern-part1)**
+👉 **[Abstract Factory Pattern – When Good Designs Still Break (Part 1) →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_9_abstract-factory-pattern-part1)**
 
 ---
 

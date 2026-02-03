@@ -602,4 +602,4 @@ The real design question is:
 
 That’s exactly what we’ll tackle next — using the **Employee Management System** to understand **when Singleton is a design smell** and when it is justified.
 
-👉 **[Singleton : Should This Be a Singleton? →](/learning/advanced-skills/low-level-design/3_design-patterns/3_8_singleton-required-at-all)**
+👉 **[Singleton : Should This Be a Singleton? →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_8_singleton-required-at-all)**
