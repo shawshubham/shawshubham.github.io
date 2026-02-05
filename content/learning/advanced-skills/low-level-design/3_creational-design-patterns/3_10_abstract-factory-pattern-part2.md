@@ -21,24 +21,20 @@ layout: "topic-content"
 
 In **Part 1**, we designed a clean, extensible system using:
 
-- Strategy (export / deliver / notify)
-- Factory Method (format, channel, notification)
-- SOLID principles (separation of concerns)
+- **Strategy** (export / delivery / notification)
+- **Factory Method** (export format, delivery channel, notification type)
+- **SOLID principles** (separation of concerns)
 
-And yet, we hit a wall.
+Every individual component was correct.
+
+And yet, the system allowed this:
 
 > **All parts were valid.**  
 > **The system was invalid.**
 
-We allowed independent selection of:
+Export format, delivery channel, and notification type could be chosen independently—allowing combinations that made no business sense.
 
-- export format
-- delivery channel
-- notification type
-
-Nothing prevented nonsensical combinations.
-
-This is where Abstract Factory enters — **not as a refactor, but as a correction in thinking.**
+This is where **Abstract Factory** enters—not as a refactor, but as a **correction in how we model the problem**.
 
 ---
 
@@ -52,7 +48,7 @@ Our earlier design asked callers to choose options:
 format + delivery + notification
 ```
 
-But the business never thinks this way.
+But this is not how the business thinks.
 
 The business thinks in **intent-driven workflows**:
 
@@ -62,11 +58,11 @@ The business thinks in **intent-driven workflows**:
 
 These are **bundles**, not combinations.
 
-Before touching code, we must fix the model.
+Before touching code, we must fix the mental model.
 
 ---
 
-## 3. Step 1: Stop Thinking in Options — Start Thinking in Bundles
+## 3. From Options to Bundles
 
 ---
 
@@ -88,9 +84,9 @@ It is still wrong.
 
 This is the design smell:
 
-> **Correct parts, incorrect system.**
+> **Locally correct parts forming a globally incorrect system.**
 
-### 3.2 The Mental Shift: From Combinations to Capabilities
+### 3.2 The Shift: From Combinations to Capabilities
 
 Instead of asking:
 
@@ -102,9 +98,9 @@ We should be asking:
 
 Each experience:
 
-- has a clear intent
-- enforces compatible choices
-- forbids invalid ones
+- represents clear intent
+- enforces compatible behavior
+- forbids invalid states by design
 
 These experiences are **bundles**.
 
@@ -116,7 +112,7 @@ These experiences are **bundles**.
 
 Let’s define a **small, realistic set of workflows**.
 
-These are not technical permutations.
+These are not technical permutations.  
 They are **business capabilities**.
 
 ### 4.1 Bundle 1: Portal Download : PORTAL_DOWNLOAD
@@ -170,7 +166,7 @@ Now we have the real problem statement:
 
 ---
 
-## 5. Step 2: Identify the “Family” That Must Change Together
+## 5. Identify the “Family” That Must Change Together
 
 ---
 
@@ -202,6 +198,10 @@ The key word is **family** — not “object”, not “strategy”.
 
 We define a factory that creates **a complete bundle**, not individual parts.
 
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/improved/ems/">See Code in Git Repo</a>
+</div>
+
 ```java
 public interface ReportBundleFactory {
 
@@ -223,15 +223,14 @@ This is the **missing abstraction** from Part 1.
 
 ---
 
-## 7. Concrete Factories (One per Bundle)
+## 7. Concrete Bundle Factories (One per Bundle)
 
 ---
 
 ### 7.1 Portal Download Bundle Factory
 
 ```java
-public class PortalDownloadBundleFactory implements ReportBundleFactory {
-
+public class PortalDownloadBundleFactory implements ReportBundleFactory{
     private final ExportFormat format;
 
     public PortalDownloadBundleFactory(ExportFormat format) {
@@ -245,40 +244,39 @@ public class PortalDownloadBundleFactory implements ReportBundleFactory {
 
     @Override
     public DeliveryStrategy createDeliveryStrategy() {
-        return new DownloadDeliveryStrategy();
+        return DeliveryStrategyFactory.getStrategy(DeliveryChannel.DOWNLOAD);
     }
 
     @Override
     public Optional<NotificationStrategy> createNotificationStrategy() {
-        return Optional.of(new PushNotificationStrategy());
+        return Optional.of(NotificationStrategyFactory.getStrategy(NotificationType.PUSH));
     }
 }
 ```
 
 #### What this enforces:
 
-- Only DOWNLOAD delivery
-- Only PUSH notification
-- Format constrained by constructor, not caller freedom
+- DOWNLOAD only
+- PUSH only
+- Format constrained by constructor
 
 ### 7.2 Email Attachment Bundle Factory
 
 ```java
 public class EmailAttachmentBundleFactory implements ReportBundleFactory {
-
     @Override
     public ReportExportStrategy createExportStrategy() {
-        return new PdfReportExportStrategy();
+        return ReportExportStrategyFactory.getStrategy(ExportFormat.PDF);
     }
 
     @Override
     public DeliveryStrategy createDeliveryStrategy() {
-        return new EmailAttachmentDeliveryStrategy();
+        return DeliveryStrategyFactory.getStrategy(DeliveryChannel.EMAIL_ATTACHMENT);
     }
 
     @Override
     public Optional<NotificationStrategy> createNotificationStrategy() {
-        return Optional.empty(); // email is the notification
+        return Optional.empty();
     }
 }
 ```
@@ -295,20 +293,19 @@ This was **impossible** to enforce cleanly in Part 1.
 
 ```java
 public class EmailLinkBundleFactory implements ReportBundleFactory {
-
     @Override
     public ReportExportStrategy createExportStrategy() {
-        return new PdfReportExportStrategy();
+        return ReportExportStrategyFactory.getStrategy(ExportFormat.PDF);
     }
 
     @Override
     public DeliveryStrategy createDeliveryStrategy() {
-        return new EmailLinkDeliveryStrategy();
+        return DeliveryStrategyFactory.getStrategy(DeliveryChannel.EMAIL_LINK);
     }
 
     @Override
     public Optional<NotificationStrategy> createNotificationStrategy() {
-        return Optional.of(new SmsNotificationStrategy());
+        return Optional.of(NotificationStrategyFactory.getStrategy(NotificationType.SMS));
     }
 }
 ```
@@ -318,6 +315,107 @@ public class EmailLinkBundleFactory implements ReportBundleFactory {
 - Secure link workflow
 - SMS is allowed only as a side notification
 - No accidental “download + SMS” combinations
+
+### 7.4 Bundle Selection: Introducing ReportBundleType
+
+At this stage, we need a way for the client to express **which workflow it wants**, without assembling the bundle manually.
+
+The simplest and most readable option is an explicit **bundle identifier**.
+
+```java
+public enum ReportBundleType {
+    PORTAL_DOWNLOAD,
+    EMAIL_ATTACHMENT,
+    EMAIL_LINK
+}
+```
+
+This enum represents **business intent**, not technical configuration.
+
+- It is not about formats
+- It is not about channels
+- It is about **which report experience the user wants**
+
+This keeps the client API expressive and intention-revealing.
+
+### 7.5 ReportBundleFactoryProvider: Centralizing Bundle Creation
+
+Next, we introduce a small but important component: **a bundle factory provider**.
+
+```java
+public class ReportBundleFactoryProvider {
+
+    public static ReportBundleFactory getBundleFactory(ExportReportRequest request) {
+        return switch (request.getBundleType()) {
+            case PORTAL_DOWNLOAD -> new PortalDownloadBundleFactory(request.getFormat());
+            case EMAIL_ATTACHMENT -> new EmailAttachmentBundleFactory();
+            case EMAIL_LINK -> new EmailLinkBundleFactory();
+        };
+    }
+}
+```
+
+#### Why a switch here is acceptable (and intentional)
+
+At first glance, this looks like something we tried to avoid earlier.
+
+But there is an important distinction:
+
+- ❌ **Switching on behavior** → bad
+- ✅ **Switching on business intent at the boundary** → acceptable
+
+This switch exists at a **composition boundary**, not inside domain logic.
+
+Its responsibility is limited and clear:
+
+> “Given a requested workflow, return the correct bundle.”
+
+This is a **single, centralized decision point**, not scattered conditional logic.
+
+### 7.6 ExportReportRequest: A Practical First Cut
+
+To support this, we introduce a request object that carries:
+
+- the selected bundle
+- destinations needed for delivery/notification
+- bundle-specific configuration (like format)
+
+```java
+public class ExportReportRequest {
+    private final ReportBundleType bundleType;
+
+    // destinations (used by some bundles)
+    private final String deliveryAddress; // email OR download path
+    private final String notificationTarget; // phone / email /push token
+
+    // bundle-specific config
+    private final ExportFormat format;
+
+    // All args constructor, getters ...
+}
+```
+
+#### Why this design is acceptable for now
+
+This request object is **not perfect**.
+
+It allows:
+
+- unused fields for some bundles
+- values that may be ignored depending on workflow
+
+However, at this stage it gives us:
+
+- a **clear client API**
+- a **single request object**
+- a **simple mental model**
+- no premature abstraction
+
+This aligns with **YAGNI**:
+
+> Solve today’s problem cleanly before optimizing tomorrow’s model.
+
+We’ll deliberately revisit this design later.
 
 ---
 
@@ -330,39 +428,99 @@ The service no longer assembles behavior.
 It **executes a bundle.**
 
 ```java
-public void exportReport(Employee employee, ReportBundleFactory bundleFactory) {
+public void exportReport(Employee employeeData, ExportReportRequest request) {
+  logger.info("Exporting report for " + employeeData.getName());
+  ReportBundleFactory bundleFactory = ReportBundleFactoryProvider.getBundleFactory(request);
 
-    // 1. Generate domain report
-    EmployeeReport report = generateReport(employee);
+  // 1) Generate Report (Domain)
+  EmployeeReport report = generateReport(employeeData);
 
-    // 2. Export
-    ExportedReport exported =
-        bundleFactory.createExportStrategy().export(report);
+  // 2 + 3) Layout/Template + Export (format-specific)
+  ExportedReport exportedReport =  bundleFactory.getExportStrategy().export(report);
 
-    // 3. Deliver
-    DeliveryResult result =
-        bundleFactory.createDeliveryStrategy()
-            .deliver(exported, employee.getEmail());
+  // 4) Delivery Channel-Specific Logic
+  DeliveryResult deliveryResult = bundleFactory.getDeliveryStrategy().deliver(exportedReport, request.getDeliveryAddress());
 
-    // 4. Notify (if applicable)
-    bundleFactory.createNotificationStrategy()
-        .ifPresent(strategy ->
-            strategy.notifyUser(result, employee.getContact()));
+  // 5) Notification Logic (Optional)
+  bundleFactory.getNotificationStrategy()
+      .ifPresent(strategy ->
+              strategy.notifyUser(deliveryResult, request.getNotificationTarget()));
+
+  logger.info("Report exported successfully");
 }
 ```
 
 ### What disappeared (this is important)
 
-- ❌ No switch statements
 - ❌ No combinatorial logic
-- ❌ No “if notification != null”
-- ❌ No invalid states
+- ❌ No conditional checks per bundle
+- ❌ No invalid combinations
+- ❌ No “if this then that” chains
 
 The **system is correct by construction**.
 
 ---
 
-## 9. Why Abstract Factory Was the Missing Piece
+## 9. Client Usage: Expressing Intent, Not Assembly
+
+---
+
+```java
+public class EMSApplication {
+    private static final Logger logger = Logger.getLogger(EMSApplication.class.getName());
+    private static final String persistenceFileName = "employees.txt";
+
+    public static void main(String args[]) {
+        Employee fullTimeEmployee = new FullTimeEmployee("Shubham", Department.ENGINEERING,4500, 3000, 5);
+        ReportingOperationsService reportingOperationsService = new ReportingOperationsService(salaryCalculator);
+        ReportingClient reportingClient = new ReportingClient(reportingOperationsService);
+
+        logger.log(Level.INFO, "Client asking to export report of the provided employee...");
+        reportingClient.exportReport(fullTimeEmployee,
+                new ExportReportRequest(
+                        ReportBundleType.EMAIL_ATTACHMENT,
+                        ExportFormat.PDF,
+                        "receiver@gmail.com",
+                        null)); // This null is a smell we fix in Part 3
+        logger.log(Level.INFO, "Report exported successfully.");
+    }
+}
+```
+
+The client:
+
+- does **not** choose strategies
+- does **not** assemble workflows
+- does **not** worry about compatibility
+
+It states **what it wants**, and the system ensures correctness.
+
+> ### ⚠️ Design Note: A Modeling Smell (Intentionally Deferred)
+>
+> At this point, the system is **globally correct**.
+>
+> However, there is still a **modeling smell**:
+>
+> - ExportReportRequest contains fields that are meaningful only for some bundles
+> - nothing prevents a client from passing unused or irrelevant values
+>
+> This is **not a pattern problem**.
+>
+> It is a **type modeling problem**.
+>
+> We will intentionally **defer fixing** this until the next article, where we’ll explore:
+>
+> - how to make invalid requests unrepresentable
+> - how sealed interfaces and records help
+> - how this improves correctness before the factory is even involved
+>
+> For now, the focus of this article is complete:
+>
+> **Abstract Factory has moved system correctness into object creation.**
+
+---
+
+## 10. Why Abstract Factory Was the Missing Piece
 
 ---
 
@@ -390,7 +548,7 @@ Let’s compare designs.
 
 ---
 
-## 10. Strategy vs Factory Method vs Abstract Factory (Interview Gold)
+## 11. Strategy vs Factory Method vs Abstract Factory (Interview Gold)
 
 ---
 
@@ -408,7 +566,7 @@ Let’s compare designs.
 
 ---
 
-## 11. When You Actually Need Abstract Factory (Notes)
+## 12. When You Actually Need Abstract Factory (Notes)
 
 ---
 
@@ -432,42 +590,30 @@ Let’s compare designs.
 
 ---
 
-Abstract Factory is not “another factory”.
+Abstract Factory is not “just another factory”.
 
-It exists to solve a very specific problem:
+It solves a very specific failure mode:
 
-> **Valid parts forming an invalid system.**
+> **Individually valid choices forming a globally invalid system.**
 
-In EMS:
+By modeling **workflows as bundles**, we enforced compatibility at creation time:
 
-- Strategy gave flexibility
-- Factory Method gave selection
-- Abstract Factory enforced correctness
+- callers express **intent** (PORTAL_DOWNLOAD, EMAIL_ATTACHMENT, EMAIL_LINK)
+- the system constructs a **compatible family** of export + delivery + notification strategies
+- invalid combinations become **impossible by design**
 
-By creating **compatible object families**, Abstract Factory moves business rules  
-from runtime checks into **object creation itself**.
-
-That’s why it matters.
+That’s the real value: **correctness moves from runtime checks to object creation**.
 
 ### 🔗 What’s Next?
 
-With this article, we intentionally **close Creational Design Patterns**.
+We intentionally stopped at a _practical first cut: ExportReportRequest_ is simple, but slightly “leaky” (it can carry irrelevant fields for some bundles).
 
-So far, we’ve covered the patterns that matter most in real systems:
+Next, we’ll tighten the API using **type-driven modeling**:
 
-- **Builder** → safe construction
-- **Factory Method** → implementation selection
-- **Abstract Factory** → compatible object families
+👉
+👉 **[Part 3: Making Requests Unrepresentable (sealed interface + records) →](/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_11_abstract-factory-pattern-part3)**
 
-Together, these handle **most real-world creation problems**.
-
-Next, we move to **Structural Design Patterns**, where the focus shifts from:
-
-> “How objects are created”  
-> to  
-> “How objects are composed to form larger systems.”
-
-👉 **[Up next: Introduction to Structural Design Patterns →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview)**
+You’ll see how to replace “generic requests + optional fields” with **bundle-specific request types**, so invalid input becomes impossible _before_ we even choose a factory.
 
 > 📝 **Takeaway**
 >
