@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstract Factory Pattern – Making Invalid Requests Unrepresentable (Part 3)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Abstract Factory Pattern – Making Invalid Requests Unrepresentable (Part 3)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why This Part Exists</li>
+        
+        <li>2. The Remaining Smell: “Valid System, Weak Input Model”</li>
+        
+        <li>3. This Is NOT an Abstract Factory Problem</li>
+        
+        <li>4. The Core Idea: One Request Type per Bundle</li>
+        
+        <li>5. Sealed Interface: The Right Tool for the Job</li>
+        
+        <li>6. Bundle-Specific Request Types (Records)</li>
+        
+        <li>7. Updating the Bundle Factory Provider</li>
+        
+        <li>8. Updating the Service Logic (Safely)</li>
+        
+        <li>9. Client Code Becomes Self-Documenting</li>
+        
+        <li>10. What We Achieved Across Parts 1–3</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <hr>
+<h2 id="1-why-this-part-exists">1. Why This Part Exists</h2>
+<hr>
+<p>By the end of <strong>Part 2</strong>, we achieved something important:</p>
+<ul>
+<li>✅ The <strong>system was globally correct</strong></li>
+<li>✅ Invalid combinations were impossible</li>
+<li>✅ Business intent was explicit</li>
+</ul>
+<p>But one design smell remained.</p>
+<blockquote>
+<p>The system was correct —<br>
+but the <strong>API still allowed invalid input</strong>.</p></blockquote>
+<p>This part fixes that.</p>
+<hr>
+<h2 id="2-the-remaining-smell-valid-system-weak-input-model">2. The Remaining Smell: “Valid System, Weak Input Model”</h2>
+<hr>
+<p>Recall the request model from Part 2:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExportReportRequest</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportBundleType bundleType;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String deliveryAddress;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String notificationTarget;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExportFormat format;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="whats-wrong-here">What’s wrong here?</h3>
+<ul>
+<li>Some fields are <strong>irrelevant</strong> for certain bundles</li>
+<li>Nothing prevents passing:
+<ul>
+<li>a phone for EMAIL_ATTACHMENT</li>
+<li>a downloadPath for EMAIL_LINK</li>
+</ul>
+</li>
+<li>The compiler cannot help us</li>
+</ul>
+<p>The system is correct <strong>after</strong> the request is processed —<br>
+but the request itself can still be nonsensical.</p>
+<p>This violates a powerful design rule:</p>
+<blockquote>
+<p><strong>If something is invalid, it should be unrepresentable.</strong></p></blockquote>
+<hr>
+<h2 id="3-this-is-not-an-abstract-factory-problem">3. This Is NOT an Abstract Factory Problem</h2>
+<hr>
+<p>Important clarification:</p>
+<p>This is <strong>not</strong> a failure of Abstract Factory.</p>
+<p>Abstract Factory already guarantees:</p>
+<ul>
+<li>compatible object families</li>
+<li>correct construction</li>
+<li>correct execution</li>
+</ul>
+<p>The problem now is <strong>type modeling</strong>.</p>
+<p>So we fix it using <strong>types</strong>, not patterns.</p>
+<hr>
+<h2 id="4-the-core-idea-one-request-type-per-bundle">4. The Core Idea: One Request Type per Bundle</h2>
+<hr>
+<p>Instead of:</p>
+<blockquote>
+<p>“One request + a bundle type enum”</p></blockquote>
+<p>We move to:</p>
+<blockquote>
+<p><strong>One request type per workflow</strong></p></blockquote>
+<p>Each request:</p>
+<ul>
+<li>represents exactly one business intent</li>
+<li>contains only the fields that make sense</li>
+<li>cannot be misused accidentally</li>
+</ul>
+<hr>
+<h2 id="5-sealed-interface-the-right-tool-for-the-job">5. Sealed Interface: The Right Tool for the Job</h2>
+<hr>
+<p>Java gives us exactly what we need:</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/finalversion/ems">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">sealed</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ExportReportRequest</span>
+</span></span><span style="display:flex;"><span>        permits PortalDownloadRequest,
+</span></span><span style="display:flex;"><span>                EmailAttachmentRequest,
+</span></span><span style="display:flex;"><span>                EmailLinkRequest {
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="why-sealed">Why sealed?</h3>
+<ul>
+<li>The set of workflows is <strong>closed</strong></li>
+<li>The compiler knows <strong>all possible request types</strong></li>
+<li>switch becomes <strong>exhaustive and safe</strong></li>
+</ul>
+<p>This models the business <strong>as it actually exists</strong>.</p>
+<hr>
+<h2 id="6-bundle-specific-request-types-records">6. Bundle-Specific Request Types (Records)</h2>
+<hr>
+<h3 id="61-portal-download-request">6.1 Portal Download Request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">PortalDownloadRequest</span>(
+</span></span><span style="display:flex;"><span>        ExportFormat format,
+</span></span><span style="display:flex;"><span>        String downloadPath,
+</span></span><span style="display:flex;"><span>        String pushToken
+</span></span><span style="display:flex;"><span>) <span style="color:#66d9ef">implements</span> ExportReportRequest { }
+</span></span></code></pre></div><ul>
+<li>✔ Can download</li>
+<li>✔ Can push notify</li>
+<li>❌ Cannot email</li>
+<li>❌ Cannot SMS</li>
+</ul>
+<h3 id="62-email-attachment-request">6.2 Email Attachment Request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">EmailAttachmentRequest</span>( String email ) <span style="color:#66d9ef">implements</span> ExportReportRequest { }
+</span></span></code></pre></div><ul>
+<li>✔ Can email</li>
+<li>❌ Cannot push</li>
+<li>❌ Cannot SMS</li>
+<li>❌ Cannot download</li>
+</ul>
+<h3 id="63-email-link-request">6.3 Email Link Request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">EmailLinkRequest</span>(
+</span></span><span style="display:flex;"><span>        String email,
+</span></span><span style="display:flex;"><span>        String phone
+</span></span><span style="display:flex;"><span>) <span style="color:#66d9ef">implements</span> ExportReportRequest { }
+</span></span></code></pre></div><ul>
+<li>✔ Can email</li>
+<li>✔ Can SMS</li>
+<li>❌ Cannot download</li>
+</ul>
+<hr>
+<h2 id="7-updating-the-bundle-factory-provider">7. Updating the Bundle Factory Provider</h2>
+<hr>
+<p>Now the provider becomes <strong>type-driven</strong>, not enum-driven:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportBundleFactoryProvider</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> ReportBundleFactory <span style="color:#a6e22e">getBundleFactory</span>(ExportReportRequest request) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">switch</span> (request) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> PortalDownloadRequest r <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> PortalDownloadBundleFactory(r.<span style="color:#a6e22e">format</span>());
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> EmailAttachmentRequest r <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> EmailAttachmentBundleFactory();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> EmailLinkRequest r <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> EmailLinkBundleFactory();
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="why-this-is-clean">Why this is clean</h3>
+<ul>
+<li>No default case</li>
+<li>Compiler enforces completeness</li>
+<li>Adding a new bundle forces updates in one place</li>
+</ul>
+<p>This is <strong>controlled evolution</strong>, not accidental complexity.</p>
+<hr>
+<h2 id="8-updating-the-service-logic-safely">8. Updating the Service Logic (Safely)</h2>
+<hr>
+<p>The service now extracts only what each request actually supports:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employeeData, ExportReportRequest request) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Exporting report for &#34;</span> <span style="color:#f92672">+</span> employeeData.<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>        ReportBundleFactory bundle <span style="color:#f92672">=</span> ReportBundleFactoryProvider.<span style="color:#a6e22e">getBundleFactory</span>(request);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 1) Generate Report (Domain)</span>
+</span></span><span style="display:flex;"><span>        EmployeeReport report <span style="color:#f92672">=</span> generateReport(employeeData);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 2 + 3) Layout/Template + Export (format-specific)</span>
+</span></span><span style="display:flex;"><span>        ExportedReport exportedReport <span style="color:#f92672">=</span>  bundle.<span style="color:#a6e22e">createExportStrategy</span>().<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 4) Delivery Channel-Specific Logic</span>
+</span></span><span style="display:flex;"><span>        DeliveryResult deliveryResult <span style="color:#f92672">=</span> <span style="color:#66d9ef">switch</span> (request) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> PortalDownloadRequest r <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                bundle.<span style="color:#a6e22e">createDeliveryStrategy</span>().<span style="color:#a6e22e">deliver</span>(exportedReport, r.<span style="color:#a6e22e">downloadPath</span>());
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> EmailAttachmentRequest r <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                bundle.<span style="color:#a6e22e">createDeliveryStrategy</span>().<span style="color:#a6e22e">deliver</span>(exportedReport, r.<span style="color:#a6e22e">email</span>());
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> EmailLinkRequest r <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                bundle.<span style="color:#a6e22e">createDeliveryStrategy</span>().<span style="color:#a6e22e">deliver</span>(exportedReport, r.<span style="color:#a6e22e">email</span>());
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 5) Notification Logic (Optional)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (request) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> EmailLinkRequest r <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                    bundle.<span style="color:#a6e22e">createNotificationStrategy</span>()
+</span></span><span style="display:flex;"><span>                            .<span style="color:#a6e22e">ifPresent</span>(strategy <span style="color:#f92672">-&gt;</span> strategy.<span style="color:#a6e22e">notifyUser</span>(deliveryResult, r.<span style="color:#a6e22e">phone</span>()));
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span> <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                bundle.<span style="color:#a6e22e">createNotificationStrategy</span>()
+</span></span><span style="display:flex;"><span>                        .<span style="color:#a6e22e">ifPresent</span>(strategy <span style="color:#f92672">-&gt;</span> strategy.<span style="color:#a6e22e">notifyUser</span>(deliveryResult, <span style="color:#66d9ef">null</span>));
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Report exported successfully&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><h3 id="what-changed">What changed?</h3>
+<ul>
+<li>No null checks</li>
+<li>No “maybe-used” fields</li>
+<li>No accidental misuse</li>
+</ul>
+<p>The compiler now <strong>guards correctness</strong>.</p>
+<hr>
+<h2 id="9-client-code-becomes-self-documenting">9. Client Code Becomes Self-Documenting</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>reportingClient.<span style="color:#a6e22e">exportReport</span>(fullTimeEmployee,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> EmailAttachmentRequest(<span style="color:#e6db74">&#34;receiver@gmail.com&#34;</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>reportingClient.<span style="color:#a6e22e">exportReport</span>(fullTimeEmployee,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> PortalDownloadRequest(ExportFormat.<span style="color:#a6e22e">PDF</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;/path/to/downloads/&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;pushtoken&#34;</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>reportingClient.<span style="color:#a6e22e">exportReport</span>(fullTimeEmployee,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> EmailLinkRequest(<span style="color:#e6db74">&#34;receiver@email.com&#34;</span>, <span style="color:#e6db74">&#34;+44 1234567890&#34;</span>));
+</span></span></code></pre></div><p>This client request alone tells you:</p>
+<ul>
+<li>delivery method</li>
+<li>notification behavior</li>
+<li>allowed configuration</li>
+</ul>
+<p>No enums.<br>
+No guessing.<br>
+No misuse.</p>
+<hr>
+<h2 id="10-what-we-achieved-across-parts-13">10. What We Achieved Across Parts 1–3</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Layer</th>
+          <th>Before</th>
+          <th>After</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Behavior</td>
+          <td>Correct</td>
+          <td>Correct</td>
+      </tr>
+      <tr>
+          <td>Construction</td>
+          <td>Correct</td>
+          <td>Correct</td>
+      </tr>
+      <tr>
+          <td>Input Modeling</td>
+          <td>Weak</td>
+          <td><strong>Strong</strong></td>
+      </tr>
+      <tr>
+          <td>Invalid States</td>
+          <td>Possible</td>
+          <td><strong>Unrepresentable</strong></td>
+      </tr>
+      <tr>
+          <td>Compiler Help</td>
+          <td>Minimal</td>
+          <td><strong>High</strong></td>
+      </tr>
+  </tbody>
+</table>
+<p>This is <strong>design maturity</strong>.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Abstract Factory solved <strong>system correctness</strong>.</p>
+<p>Sealed request types solved <strong>input correctness</strong>.</p>
+<p>Together, they demonstrate a powerful idea:</p>
+<blockquote>
+<p><strong>Design is not about patterns.</strong><br>
+<strong>It’s about choosing where correctness lives.</strong></p></blockquote>
+<p>In this system, correctness lives:</p>
+<ul>
+<li>in types</li>
+<li>in construction</li>
+<li>before runtime</li>
+</ul>
+<p>That’s professional-grade design.</p>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>With this article, we intentionally <strong>close Creational Design Patterns</strong>.</p>
+<p>So far, we’ve covered the patterns that matter most in real systems:</p>
+<ul>
+<li><strong>Builder</strong> → safe construction</li>
+<li><strong>Factory Method</strong> → implementation selection</li>
+<li><strong>Abstract Factory</strong> → compatible object families</li>
+</ul>
+<p>Together, these handle <strong>most real-world creation problems</strong>.</p>
+<p>Next, we move to <strong>Structural Design Patterns</strong>, where the focus shifts from:</p>
+<blockquote>
+<p>“How objects are created”<br>
+to<br>
+“How objects are composed to form larger systems.”</p></blockquote>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview">Up next: Introduction to Structural Design Patterns →</a></strong></p>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Abstract Factory enforces compatible families</li>
+<li>Sealed types enforce valid intent</li>
+<li>The best designs make wrong code impossible</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns-copy/3_10_abstract-factory-pattern-part2/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

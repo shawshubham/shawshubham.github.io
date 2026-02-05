@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singleton Pattern – Should This Be a Singleton at All?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Singleton Pattern – Should This Be a Singleton at All?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why This Question Matters More Than Implementation</li>
+        
+        <li>2. The Core Smell: Hidden Global State (Why Singleton Raises Red Flags)</li>
+        
+        <li>3. Singleton vs Dependency Injection (The Modern Shift)</li>
+        
+        <li>4. EMS Case Study: What We Did Not Make Singleton</li>
+        
+        <li>5. When the Singleton Pattern Is Actually Justified (Rare, but Real)</li>
+        
+        <li>6. Interview Traps Around Singleton</li>
+        
+        <li>7. Final Rule of Thumb</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <hr>
+<h2 id="1-why-this-question-matters-more-than-implementation">1. Why This Question Matters More Than Implementation</h2>
+<hr>
+<p>Most engineers learn <strong>how</strong> to implement Singleton.</p>
+<p>Few learn <strong>when not to use it</strong>.</p>
+<p>In real systems, Singleton is:</p>
+<ul>
+<li>one of the <strong>most misused patterns</strong></li>
+<li>a frequent <strong>source of hidden bugs</strong></li>
+<li>often replaced by <strong>Dependency Injection (DI)</strong></li>
+</ul>
+<p>That’s why this question matters more than mechanics:</p>
+<blockquote>
+<p><strong>Should this class be a Singleton at all?</strong></p></blockquote>
+<hr>
+<h2 id="2-the-core-smell-hidden-global-state-why-singleton-raises-red-flags">2. The Core Smell: Hidden Global State (Why Singleton Raises Red Flags)</h2>
+<hr>
+<p>Before we compare Singleton with Dependency Injection, we need to understand <strong>why Singleton is controversial at all</strong>.</p>
+<p>At a design level, a Singleton is essentially:</p>
+<blockquote>
+<p><strong>Global state with a controlled access point</strong></p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Singleton.<span style="color:#a6e22e">getInstance</span>().<span style="color:#a6e22e">doSomething</span>();
+</span></span></code></pre></div><p>From the call site, notice what’s missing:</p>
+<ul>
+<li>No constructor dependency</li>
+<li>No interface</li>
+<li>No explicit contract</li>
+</ul>
+<p>This creates a design <em>smell</em> known as <strong>hidden global state</strong>.</p>
+<h3 id="21-why-hidden-global-state-is-dangerous">2.1 Why Hidden Global State Is Dangerous</h3>
+<p>Hidden global state causes problems because:</p>
+<ul>
+<li>Dependencies are invisible</li>
+<li>Behavior is hard-wired</li>
+<li>Substitution is difficult</li>
+<li>Tests become coupled and brittle</li>
+</ul>
+<p>This often leads to violations of core design principles:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Design Concern</th>
+          <th>Impact</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Dependency clarity</td>
+          <td>Dependencies are not declared</td>
+      </tr>
+      <tr>
+          <td>Testability</td>
+          <td>Hard to mock or replace</td>
+      </tr>
+      <tr>
+          <td>DIP</td>
+          <td>High-level code depends on concrete globals</td>
+      </tr>
+      <tr>
+          <td>Reasoning</td>
+          <td>Behavior depends on hidden state</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p>The problem is not “one instance”.<br>
+The problem is <strong>global access without explicit dependency</strong>.</p></blockquote>
+<p>This section exists to teach you <strong>how to recognize the smell</strong> —<br>
+not yet how to fix it.</p>
+<hr>
+<h2 id="3-singleton-vs-dependency-injection-the-modern-shift">3. Singleton vs Dependency Injection (The Modern Shift)</h2>
+<hr>
+<p>Once you recognize the smell, the natural question is:</p>
+<blockquote>
+<p><strong>What replaces Singleton in modern systems?</strong></p></blockquote>
+<p>The answer is <strong>Dependency Injection</strong> — not because it creates more objects,<br>
+but because it <strong>changes who controls them</strong>.</p>
+<h3 id="31-the-critical-confusion">3.1 The Critical Confusion</h3>
+<p>Most Singleton misuse comes from confusing two ideas:</p>
+<blockquote>
+<p>“I need only one instance”<br>
+vs<br>
+“I need global access”</p></blockquote>
+<p>Singleton solves <strong>both</strong>.<br>
+DI solves <strong>only the first</strong> — intentionally.</p>
+<p>And that difference matters.</p>
+<h3 id="32-what-singleton-really-gives-you">3.2 What Singleton Really Gives You</h3>
+<p>Singleton guarantees:</p>
+<ol>
+<li>A single instance</li>
+<li>Global access to it</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayrollService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">process</span>() {
+</span></span><span style="display:flex;"><span>        Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getInstance</span>(); <span style="color:#75715e">//Single instance</span>
+</span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Processing payroll&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This feels convenient — until you realize:</p>
+<ul>
+<li>Does PayrollService depend on Logger? → <strong>Yes</strong></li>
+<li>Is that dependency visible in the constructor? → <strong>No</strong></li>
+<li>Can we replace Logger for testing? → <strong>Hard</strong></li>
+<li>Can we change its behavior per environment? → <strong>Not easily</strong></li>
+</ul>
+<h3 id="33-what-dependency-injection-changes">3.3 What Dependency Injection Changes</h3>
+<p>Dependency Injection shifts responsibility outward:</p>
+<blockquote>
+<p><strong>Objects no longer find their dependencies — they receive them.</strong></p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayrollService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Logger logger;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PayrollService</span>(Logger logger) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">logger</span> <span style="color:#f92672">=</span> logger;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Now:</p>
+<ul>
+<li>Dependencies are explicit</li>
+<li>Behavior is replaceable</li>
+<li>Lifecycle is controlled by a composition root</li>
+</ul>
+<p>Nothing prevents Logger from being a <strong>single instance</strong>.</p>
+<p>The difference is <strong>visibility and control</strong>.</p>
+<h3 id="34-the-key-mental-shift">3.4 The Key Mental Shift</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Question</th>
+          <th>Singleton</th>
+          <th>Dependency Injection</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Who creates the object?</td>
+          <td>The class itself</td>
+          <td>A composition root</td>
+      </tr>
+      <tr>
+          <td>How is it accessed?</td>
+          <td>Globally</td>
+          <td>Passed explicitly</td>
+      </tr>
+      <tr>
+          <td>Are dependencies visible?</td>
+          <td>❌ No</td>
+          <td>✅ Yes</td>
+      </tr>
+      <tr>
+          <td>Easy to test?</td>
+          <td>❌ Hard</td>
+          <td>✅ Easy</td>
+      </tr>
+      <tr>
+          <td>Lifecycle control</td>
+          <td>Inside class</td>
+          <td>Outside class</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p><strong>DI gives you singleton behavior without singleton coupling.</strong></p></blockquote>
+<p>This is the real evolution in modern design.</p>
+<h3 id="35-why-modern-systems-avoid-manual-singleton">3.5 Why Modern Systems Avoid Manual Singleton</h3>
+<p>In real systems:</p>
+<ul>
+<li>We still want <strong>one instance</strong></li>
+<li>But we don’t want <strong>global access</strong></li>
+<li>And we don’t want <strong>hidden state</strong></li>
+</ul>
+<p>That’s why frameworks exist.</p>
+<p>Example (conceptually):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Logger logger <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Logger();   <span style="color:#75715e">// one instance</span>
+</span></span><span style="display:flex;"><span>PayrollService service <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PayrollService(logger);
+</span></span></code></pre></div><p>There is still <strong>one Logger</strong> —<br>
+but no class assumes that fact.</p>
+<h3 id="36-spring-clarification-important-interview-point">3.6 Spring Clarification (Important Interview Point)</h3>
+<p>When people say:</p>
+<blockquote>
+<p>“Spring beans are singletons”</p></blockquote>
+<p>What they really mean is:</p>
+<ul>
+<li>One instance per container</li>
+<li>Injected, not globally accessed</li>
+<li>Replaceable and mockable</li>
+</ul>
+<p>This is <strong>not the Singleton pattern</strong>.</p>
+<p>It is <strong>DI-managed lifecycle</strong>.</p>
+<blockquote>
+<p>Singleton pattern = global access</p>
+<p>Spring singleton = scoped instance</p></blockquote>
+<p>Interviewers love this distinction.</p>
+<h3 id="37-rule-of-thumb">3.7 Rule of Thumb</h3>
+<p>Before writing a Singleton, ask:</p>
+<blockquote>
+<p><strong>Can I pass this as a dependency instead?</strong></p></blockquote>
+<ul>
+<li>If yes → use DI</li>
+<li>If no → document why Singleton is required</li>
+</ul>
+<p>Singleton should be <strong>a last resort</strong>, not a default.</p>
+<blockquote>
+<h3 id="one-line-takeaway">One-Line Takeaway</h3>
+<p><strong>Singleton solves “how many instances”.</strong><br>
+<strong>Dependency Injection solves “who controls dependencies”.</strong></p></blockquote>
+<p>Once you understand this shift,<br>
+most Singleton use cases disappear naturally.</p>
+<hr>
+<h2 id="4-ems-case-study-what-we-did-not-make-singleton">4. EMS Case Study: What We Did <em>Not</em> Make Singleton</h2>
+<hr>
+<p>In the Employee Management System, we deliberately avoided Singleton for:</p>
+<ul>
+<li><code>EmployeeService</code></li>
+<li><code>SalaryCalculator</code></li>
+<li><code>EmployeePersistenceStrategy</code></li>
+<li><code>DeductionPolicy</code></li>
+</ul>
+<p>Why?</p>
+<p>Because these classes:</p>
+<ul>
+<li>contain business logic</li>
+<li>may evolve</li>
+<li>need testing flexibility</li>
+<li>should not hide dependencies</li>
+</ul>
+<p>Even if there is <strong>only one instance at runtime</strong>,<br>
+we still <strong>do not model them as Singletons</strong>.</p>
+<blockquote>
+<p><strong>“Single instance in practice” ≠ “Singleton pattern”</strong></p></blockquote>
+<hr>
+<h2 id="5-when-the-singleton-pattern-is-actually-justified-rare-but-real">5. When the Singleton Pattern Is Actually Justified (Rare, but Real)</h2>
+<hr>
+<p>Most application code <strong>should never use the Singleton pattern</strong>.</p>
+<p>However, there <em>are</em> a few cases where Singleton is not just acceptable —<br>
+it is the <strong>correct model of reality</strong>.</p>
+<p>The key question is not:</p>
+<blockquote>
+<p>“Do I want only one instance?”</p></blockquote>
+<p>The real question is:</p>
+<blockquote>
+<p><strong>“Does the system itself have only one of this thing?”</strong></p></blockquote>
+<hr>
+<h3 id="51-what-a-true-singleton-represents">5.1 What a <em>True</em> Singleton Represents</h3>
+<p>A legitimate Singleton represents something that is:</p>
+<ul>
+<li><strong>inherently unique</strong></li>
+<li><strong>owned by the JVM or the operating system</strong></li>
+<li><strong>incorrect to duplicate</strong>, not just inefficient</li>
+</ul>
+<p>In other words:</p>
+<blockquote>
+<p>Creating a second instance would break correctness, not performance.</p></blockquote>
+<hr>
+<h3 id="52-concrete-examples-what-they-actually-mean">5.2 Concrete Examples (What They Actually Mean)</h3>
+<h3 id="example-1-jvm-runtime-runtimegetruntime">Example 1: JVM Runtime (<code>Runtime.getRuntime()</code>)</h3>
+<p>There is exactly <strong>one JVM process</strong>.</p>
+<p>The <code>Runtime</code> object represents:</p>
+<ul>
+<li>memory access</li>
+<li>process execution</li>
+<li>shutdown hooks</li>
+</ul>
+<p>Creating multiple <code>Runtime</code> objects would make no sense —<br>
+there is still only <strong>one JVM underneath</strong>.</p>
+<blockquote>
+<p>👉 Singleton here models a <strong>real-world singular system resource</strong>.</p></blockquote>
+<h3 id="example-2-system-clock--time-source">Example 2: System Clock / Time Source</h3>
+<p>Some systems expose a global clock abstraction:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>SystemClock.<span style="color:#a6e22e">now</span>()
+</span></span></code></pre></div><p>Why Singleton-like?</p>
+<ul>
+<li>There is one notion of “current time”</li>
+<li>Multiple clocks would give inconsistent results</li>
+<li>The system depends on a single time source</li>
+</ul>
+<p>Here, Singleton enforces consistency, not convenience.</p>
+<h3 id="example-3-jvm-level-metrics-registry">Example 3: JVM-Level Metrics Registry</h3>
+<p>A metrics registry collects:</p>
+<ul>
+<li>counters</li>
+<li>gauges</li>
+<li>timers</li>
+</ul>
+<p>If multiple registries exist:</p>
+<ul>
+<li>metrics get split</li>
+<li>monitoring becomes incorrect</li>
+<li>observability breaks</li>
+</ul>
+<p>There must be <strong>one central registry</strong> that everything reports to.</p>
+<blockquote>
+<p>👉 This is a coordination point, not business logic.</p></blockquote>
+<h3 id="53-why-these-are-not-application-services">5.3 Why These Are NOT Application Services</h3>
+<p>Notice what these examples have in common:</p>
+<ul>
+<li>They are <strong>infrastructure-level</strong></li>
+<li>They do <strong>not contain business rules</strong></li>
+<li>They model <strong>system-wide reality</strong></li>
+<li>They are <strong>not mocked per test case</strong></li>
+</ul>
+<p>That’s why Singleton fits here.</p>
+<h3 id="54-when-singleton-is-a-design-smell-most-code">5.4 When Singleton Is a Design Smell (Most Code)</h3>
+<p>If a class:</p>
+<ul>
+<li>contains business logic</li>
+<li>varies by environment</li>
+<li>needs different behavior in tests</li>
+<li>belongs to your domain or service layer</li>
+</ul>
+<p>Then making it a Singleton is a <strong>design smell</strong>.</p>
+<p>Even if:</p>
+<ul>
+<li>only one instance exists at runtime</li>
+<li>performance is fine</li>
+</ul>
+<p>If you can reasonably pass it as a dependency —<br>
+it should <strong>not</strong> be a Singleton.</p>
+<blockquote>
+<h3 id="the-only-rule-you-actually-need">The Only Rule You Actually Need</h3>
+<p><strong>If duplicating the object would be logically wrong, Singleton may be valid.</strong><br>
+<strong>If duplicating it would only be inconvenient, Singleton is wrong.</strong></p></blockquote>
+<hr>
+<h2 id="6-interview-traps-around-singleton">6. Interview Traps Around Singleton</h2>
+<hr>
+<h3 id="-isnt-singleton-just-an-object-with-one-instance">❓ “Isn’t Singleton just an object with one instance?”</h3>
+<p>❌ No.
+It’s a <strong>global access pattern with lifecycle control</strong>.</p>
+<hr>
+<h3 id="-spring-beans-are-singletons--so-singleton-is-good-right">❓ “Spring beans are singletons — so Singleton is good, right?”</h3>
+<p>⚠️ Careful.</p>
+<p>Spring beans are:</p>
+<ul>
+<li>container-managed</li>
+<li>dependency-injected</li>
+<li>replaceable</li>
+</ul>
+<p>That is <strong>not</strong> the Singleton <em>pattern</em>.</p>
+<hr>
+<h3 id="-should-services-be-singleton">❓ “Should services be Singleton?”</h3>
+<p>❌ No.</p>
+<p>Services should be:</p>
+<ul>
+<li>stateless</li>
+<li>injected</li>
+<li>lifecycle-managed by the framework</li>
+</ul>
+<hr>
+<h2 id="7-final-rule-of-thumb">7. Final Rule of Thumb</h2>
+<hr>
+<p>Before using Singleton, ask:</p>
+<blockquote>
+<p>Can I pass this as a dependency instead?</p></blockquote>
+<p>If the answer is yes → <strong>do not use Singleton</strong>.</p>
+<p>If the answer is no → document <em>why</em>.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Singleton is easy to write and easy to misuse.</p>
+<p>Modern design prefers:</p>
+<ul>
+<li>explicit dependencies</li>
+<li>composition roots</li>
+<li>DI containers (Spring, Guice, Dagger, Micronaut)</li>
+<li>testability over convenience</li>
+</ul>
+<blockquote>
+<p><strong>Singleton should be your last resort, not your default.</strong></p></blockquote>
+<p>You now understand not just <em>how</em> to build Singleton —
+but <strong>when to walk away from it</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we’ve seen:</p>
+<ul>
+<li>object creation (Factory)</li>
+<li>object construction (Builder)</li>
+<li>object lifecycle (Singleton)</li>
+</ul>
+<p>We move to <strong>managing related object families</strong>.</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_9_abstract-factory-pattern-part1">Abstract Factory Pattern – When Good Designs Still Break (Part 1) →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Singleton ≠ single instance</li>
+<li>Global access is the real cost</li>
+<li>DI replaces most Singleton use cases</li>
+<li>Avoid Singleton in domain logic</li>
+<li>Use it only with strong justification</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/3_7_singleton-pattern/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/3_9_abstract-factory-pattern-part1/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

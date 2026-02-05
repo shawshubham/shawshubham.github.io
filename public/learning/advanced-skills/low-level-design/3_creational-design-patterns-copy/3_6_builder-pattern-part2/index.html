@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder Pattern – Advanced Enhancements (Staged Builder &#43; toBuilder) (Part 2)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Builder Pattern – Advanced Enhancements (Staged Builder &#43; toBuilder) (Part 2)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why This Part Exists</li>
+        
+        <li>2. Enhancement 1: Staged Builder (Compile-Time Enforcement)</li>
+        
+        <li>3. Enhancement 2: Copy Builder (toBuilder) – Safe Evolution of Immutable Objects</li>
+        
+        <li>4. Lombok @Builder(toBuilder = true) (Quick Note)</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-this-part-exists">1. Why This Part Exists</h2>
+<hr>
+<p>In Part 1, we solved the core problem:</p>
+<blockquote>
+<p><strong>Construct complex objects safely without telescoping constructors.</strong></p></blockquote>
+<p>For most business systems, that is enough.</p>
+<p>However, two “advanced” enhancements sometimes appear in real codebases:</p>
+<ol>
+<li><strong>Staged Builder</strong> – enforce <em>mandatory fields + ordering</em> at <strong>compile time</strong></li>
+<li><strong>Copy Builder (toBuilder)</strong> – safely evolve an <strong>immutable object</strong> without rebuilding everything manually</li>
+</ol>
+<p>These are not defaults.
+They exist for <strong>specific design pressure</strong>, not everyday use.</p>
+<hr>
+<h2 id="2-enhancement-1-staged-builder-compile-time-enforcement">2. Enhancement 1: Staged Builder (Compile-Time Enforcement)</h2>
+<hr>
+<h3 id="21-what-problem-does-it-solve">2.1 What problem does it solve?</h3>
+<p>In some designs, <strong>certain fields must be provided in a strict order</strong>, and creating the object without them should be <strong>impossible at compile time</strong>, not runtime.</p>
+<p>Example requirement:</p>
+<blockquote>
+<p>“An EmployeeReport <strong>must</strong> have:</p>
+<ul>
+<li>name</li>
+<li>type</li>
+<li>department</li>
+</ul>
+<p>before anything else can be set.”</p></blockquote>
+<p>With a normal builder, this is enforced at runtime:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">build</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (name <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> type <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> department <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;Name, type, and department are mandatory&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeReport(<span style="color:#66d9ef">this</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This is <strong>usually sufficient</strong>.</p>
+<p>But sometimes, teams want <strong>stronger guarantees</strong>.</p>
+<h3 id="22-what-is-a-staged-builder">2.2 What Is a Staged Builder?</h3>
+<p>A staged builder uses <strong>interfaces to represent each construction step</strong>.</p>
+<ul>
+<li>Each step returns the <strong>next allowed step</strong></li>
+<li>The caller cannot “skip ahead”</li>
+<li>The compiler enforces the construction flow</li>
+</ul>
+<h3 id="23-step-interfaces-construction-stages">2.3 Step interfaces (construction stages)</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/builder/stagedbuilder/">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">NameStep</span> {
+</span></span><span style="display:flex;"><span>    TypeStep <span style="color:#a6e22e">name</span>(String name);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">TypeStep</span> {
+</span></span><span style="display:flex;"><span>    DepartmentStep <span style="color:#a6e22e">type</span>(EmployeeType type);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">DepartmentStep</span> {
+</span></span><span style="display:flex;"><span>    OptionalFieldStep <span style="color:#a6e22e">department</span>(Department department);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">OptionalFieldStep</span> {
+</span></span><span style="display:flex;"><span>    OptionalFieldStep <span style="color:#a6e22e">salary</span>(<span style="color:#66d9ef">double</span> salary);
+</span></span><span style="display:flex;"><span>    OptionalFieldStep <span style="color:#a6e22e">deductions</span>(<span style="color:#66d9ef">double</span> deductions);
+</span></span><span style="display:flex;"><span>    OptionalFieldStep <span style="color:#a6e22e">managerName</span>(String managerName);
+</span></span><span style="display:flex;"><span>    OptionalFieldStep <span style="color:#a6e22e">joiningDate</span>(LocalDate joiningDate);
+</span></span><span style="display:flex;"><span>    OptionalFieldStep <span style="color:#a6e22e">exitDate</span>(LocalDate exitDate);
+</span></span><span style="display:flex;"><span>    OptionalFieldStep <span style="color:#a6e22e">remarks</span>(String remarks);
+</span></span><span style="display:flex;"><span>    EmployeeReport <span style="color:#a6e22e">build</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> NameStep <span style="color:#a6e22e">builder</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Builder();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="24-implementation-builder-that-implements-all-steps">2.4 Implementation (Builder that implements all steps)</h3>
+<blockquote>
+<p><strong>Note:</strong><br>
+The Builder stays private.
+Only the step interfaces are exposed publicly.</p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> <span style="color:#66d9ef">implements</span> NameStep, TypeStep, DepartmentStep, OptionalFieldStep {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeType type;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Department department;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> salary;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> deductions;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String managerName;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> LocalDate joiningDate;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> LocalDate exitDate;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String remarks;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> TypeStep <span style="color:#a6e22e">name</span>(String name) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DepartmentStep <span style="color:#a6e22e">type</span>(EmployeeType type) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> type;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> OptionalFieldStep <span style="color:#a6e22e">department</span>(Department department) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">department</span> <span style="color:#f92672">=</span> department;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> OptionalFieldStep <span style="color:#a6e22e">salary</span>(<span style="color:#66d9ef">double</span> salary) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> salary;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> OptionalFieldStep <span style="color:#a6e22e">deductions</span>(<span style="color:#66d9ef">double</span> deductions) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deductions</span> <span style="color:#f92672">=</span> deductions;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> OptionalFieldStep <span style="color:#a6e22e">managerName</span>(String managerName) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">managerName</span> <span style="color:#f92672">=</span> managerName;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> OptionalFieldStep <span style="color:#a6e22e">joiningDate</span>(LocalDate joiningDate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">joiningDate</span> <span style="color:#f92672">=</span> joiningDate;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> OptionalFieldStep <span style="color:#a6e22e">exitDate</span>(LocalDate exitDate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">exitDate</span> <span style="color:#f92672">=</span> exitDate;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> OptionalFieldStep <span style="color:#a6e22e">remarks</span>(String remarks) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">remarks</span> <span style="color:#f92672">=</span> remarks;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">build</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// You still keep runtime checks for invariants that are not about ordering</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (name <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> name.<span style="color:#a6e22e">isBlank</span>()) { <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;name is mandatory&#34;</span>);}
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (type <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) { <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;type is mandatory&#34;</span>); }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (department <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) { <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;department is mandatory&#34;</span>); }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (joiningDate <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> exitDate <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> exitDate.<span style="color:#a6e22e">isBefore</span>(joiningDate)) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;exitDate cannot be before joiningDate&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (salary <span style="color:#f92672">&lt;</span> 0) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;salary cannot be negative&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (deductions <span style="color:#f92672">&lt;</span> 0) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;deductions cannot be negative&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeReport(<span style="color:#66d9ef">this</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="25-usage">2.5 Usage</h3>
+<p>Notice a subtle but important change here.<br>
+Instead of exposing the internal Builder class directly, we invoke the builder() method, which returns a <strong>staged interface</strong>.</p>
+<blockquote>
+<p>In this design, the builder is composed of multiple steps:<br>
+<strong>NameStep → TypeStep → DepartmentStep → OptionalStep</strong></p></blockquote>
+<p>Each step exposes <strong>only the next valid method</strong>, forcing the client to follow the correct construction order.<br>
+For example, after calling <strong>name()</strong>, the only available method is <strong>type()</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeeReport report <span style="color:#f92672">=</span> EmployeeReport.<span style="color:#a6e22e">builder</span>()
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">name</span>(employee.<span style="color:#a6e22e">getName</span>())
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">type</span>(employee.<span style="color:#a6e22e">getType</span>())
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">department</span>(employee.<span style="color:#a6e22e">getDepartment</span>())
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">salary</span>(calculateSalary(employee))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">deductions</span>(calculateDeduction(employee))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">build</span>();
+</span></span></code></pre></div><p>Because of this staged design:</p>
+<ul>
+<li>Calling .salary() before .department() is <strong>not possible</strong></li>
+<li>The code <strong>fails at compile time</strong>, not at runtime</li>
+</ul>
+<p>This ensures that all mandatory fields are set in the correct order before the object can be built.</p>
+<h3 id="26-trade-offs-why-staged-builders-are-rare">2.6 Trade-offs (why staged builders are rare)</h3>
+<p>Staged builders increase compile-time safety, but they come with real costs:</p>
+<ul>
+<li>many interfaces</li>
+<li>harder to read/teach</li>
+<li>harder to evolve when requirements change</li>
+<li>awkward for optional “mandatory” fields (e.g., mandatory only for some scenarios)</li>
+</ul>
+<blockquote>
+<p>📌 <strong>Rule of Thumb</strong></p>
+<p>Use staged builders only when invalid construction must be impossible at compile time<br>
+(protocol handshakes, DSLs, security tokens, strict workflows).<br>
+For business DTOs, runtime validation is usually the better trade-off.</p></blockquote>
+<p>For most business systems, <strong>simple builders are better</strong>.</p>
+<h2 id="3-enhancement-2-copy-builder-tobuilder--safe-evolution-of-immutable-objects">3. Enhancement 2: Copy Builder (toBuilder) – Safe Evolution of Immutable Objects</h2>
+<h3 id="31-the-problem-it-solves">3.1 The problem it solves</h3>
+<p>Builder works great for creation.
+But what if you want to <strong>modify an immutable object slightly</strong>?</p>
+<p>Without a copy builder, you often end up doing this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// ❌ Must rebuild everything again</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> EmployeeReport.<span style="color:#a6e22e">Builder</span>()
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">name</span>(old.<span style="color:#a6e22e">getName</span>())
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">type</span>(old.<span style="color:#a6e22e">getType</span>())
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">department</span>(old.<span style="color:#a6e22e">getDepartment</span>())
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">salary</span>(old.<span style="color:#a6e22e">getSalary</span>())
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">remarks</span>(<span style="color:#e6db74">&#34;Updated&#34;</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">build</span>();
+</span></span></code></pre></div><p>This is verbose and error-prone.</p>
+<h3 id="32-what-is-tobuilder">3.2 What is toBuilder()?</h3>
+<p>A <strong>copy builder</strong> creates a builder <strong>pre-populated with existing values</strong>.</p>
+<h3 id="33-implementation-recommended-shape">3.3 Implementation (recommended shape)</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/builder/tobuilderexample/">See Code in Git Repo</a>
+</div>
+<h4 id="step-1-add-tobuilder-in-the-immutable-class-employeereport">Step 1: Add toBuilder() in the immutable class (EmployeeReport)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">toBuilder</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Builder(<span style="color:#66d9ef">this</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="step-2-add-a-copy-constructor-inside-builder">Step 2: Add a “copy constructor” inside Builder</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Added public no-arg constructor and a private all-args constructor for toBuilder() feature</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Builder</span>() {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Builder</span>(EmployeeReport report) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">name</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">type</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">type</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">department</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">department</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">salary</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deductions</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">deductions</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">managerName</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">managerName</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">joiningDate</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">joiningDate</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">exitDate</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">exitDate</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">remarks</span> <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">remarks</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fluent setters + build() stay the same</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="34-usage">3.4 Usage</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// For some reason we need to modify it later</span>
+</span></span><span style="display:flex;"><span>report <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">toBuilder</span>()
+</span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">remarks</span>(<span style="color:#e6db74">&#34;Updated Remarks&#34;</span>)
+</span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">build</span>();
+</span></span></code></pre></div><p>You reuse the same validation logic in build() and keep the final object immutable.</p>
+<h3 id="35-why-staged-builder-and-tobuilder-dont-mix-well">3.5 Why staged builder and toBuilder don’t mix well</h3>
+<p>Staged builders enforce a <strong>construction journey</strong>.</p>
+<p>Copy builders assume:</p>
+<ul>
+<li>the object is already valid</li>
+<li>you want to modify just a small part</li>
+</ul>
+<p>These goals conflict.</p>
+<p>To support toBuilder() cleanly, you would need to expose some builder-like type publicly (or provide a special “copy stage” entry point), which often undermines what staged builders are trying to enforce.</p>
+<blockquote>
+<p>✅ Practical guideline</p>
+<ul>
+<li>Use staged builders when compile-time ordering is the priority</li>
+<li>Use copy builders when immutable evolution is the priority</li>
+<li>Don’t force both unless you genuinely need both</li>
+</ul></blockquote>
+<hr>
+<h2 id="4-lombok-buildertobuilder--true-quick-note">4. Lombok @Builder(toBuilder = true) (Quick Note)</h2>
+<hr>
+<blockquote>
+<p>Lombok is a <strong>compile-time code generation library for Java</strong> that reduces boilerplate using annotations.</p>
+<p>It works by modifying the <strong>abstract syntax tree (AST)</strong> during compilation:</p>
+<ul>
+<li>No runtime reflection</li>
+<li>No performance overhead</li>
+<li>No generated source files checked into Git</li>
+</ul>
+<p>Common boilerplate Lombok eliminates:</p>
+<ul>
+<li>getters / setters</li>
+<li>constructors</li>
+<li>equals() / hashCode()</li>
+<li>toString()</li>
+<li>builders</li>
+</ul></blockquote>
+<p>This feature comes from <strong>Lombok</strong>, not Spring.</p>
+<ul>
+<li>@Builder generates a builder automatically.</li>
+<li>@Builder(toBuilder = true) also generates a toBuilder() method that returns a builder pre-filled from the current object.</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Builder</span>(toBuilder <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeReport</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeType type;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Department department;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ...</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Then you can do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeeReport updated <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">toBuilder</span>()
+</span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">remarks</span>(<span style="color:#e6db74">&#34;Updated&#34;</span>)
+</span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">build</span>();
+</span></span></code></pre></div><blockquote>
+<p>⚠️ Lombok is convenient, but always ensure:</p>
+<ul>
+<li>your invariants are still enforced (via validation in constructor/build)</li>
+<li>you’re not accidentally encouraging “wide mutable configuration” in the wrong places</li>
+</ul></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<ul>
+<li>Staged Builder gives compile-time safety, but adds ceremony and reduces flexibility.</li>
+<li>toBuilder() makes immutable objects ergonomic to evolve without re-typing everything.</li>
+<li>Both are valid tools — but only when real design pressure exists.</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now we move to a powerful — and often misused — pattern:</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_7_singleton-pattern">Singleton Pattern – Power, Pitfalls, and Trade-offs →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Prefer the classic builder by default</li>
+<li>Use staged builder for strict compile-time construction flows</li>
+<li>Use toBuilder for safe evolution of immutable value objects</li>
+<li>Lombok’s @Builder(toBuilder = true) is a shortcut, not a replacement for thinking</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns-copy/3_5_builder-pattern-part1/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns-copy/3_7_singleton-pattern/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

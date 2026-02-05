@@ -192,6 +192,53 @@ The key word is **family** — not “object”, not “strategy”.
 
 ---
 
+> ### 📦 _Design Evolution Note: Package Structure Refactor_
+>
+> As this example evolved from **independent strategies** to **workflow-based bundles**, the original package structure started to break down.
+>
+> Earlier, the code was organized mainly by **technical concerns**:
+>
+> ```text
+> export / delivery / notification / factory
+> ```
+>
+> This worked when behaviors were independent.
+>
+> However, once **Abstract Factory** was introduced:
+>
+> - bundle-specific logic became scattered
+> - adding a new workflow required touching many packages
+> - package boundaries no longer matched business intent
+>
+> This is a subtle **SRP violation at the package level**.
+>
+> To fix this, we reorganized the code around **reporting workflows (bundles)** instead of isolated mechanisms:
+>
+> ```text
+> reporting/
+>  ├── bundle/
+>  ├── export/
+>  ├── delivery/
+>  ├── notification/
+>  └── service/
+> ```
+>
+> ### Why this matters
+>
+> - Each bundle now has a single reason to change
+> - New workflows can be added cleanly
+> - The structure reflects how the business thinks
+>
+> Abstract Factory didn’t just change object creation —  
+> it forced us to realign the **module structure**.
+>
+> #### 💡 Takeaway
+>
+> When design patterns evolve, **package structure must evolve too**.  
+> Resistance in structure is often a **design signal**, not a code smell.
+
+---
+
 ## 6. The Abstract Factory Contract
 
 ---
