@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adapter Pattern – Object vs Class Adapter and Design Trade-offs (Part 2)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Adapter Pattern – Object vs Class Adapter and Design Trade-offs (Part 2)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Recap: What Adapter Actually Solves</li>
+        
+        <li>2. Two Variants of Adapter (Often Confused)</li>
+        
+        <li>3. Object Adapter (Preferred in Practice)</li>
+        
+        <li>4. Class Adapter (Rare, but Interview-Relevant)</li>
+        
+        <li>5. Object Adapter vs Class Adapter (Comparison)</li>
+        
+        <li>6. Adapter Placement in Package Structure</li>
+        
+        <li>7. Adapter and SOLID Principles</li>
+        
+        <li>8. Adapter vs Facade (Common Interview Trap)</li>
+        
+        <li>9. Adapter vs Anti-Corruption Layer (ACL)</li>
+        
+        <li>10. When Adapter Is a Smell</li>
+        
+        <li>11. Interview-Grade Summary</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 6 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-recap-what-adapter-actually-solves">1. Recap: What Adapter Actually Solves</h2>
+<hr>
+<p>In <strong>Part 1</strong>, we established a key reality:</p>
+<blockquote>
+<p>Adapter exists because <strong>systems evolve independently</strong>.</p></blockquote>
+<p>Adapter is not about elegance.
+It is about <strong>integration without damage</strong>.</p>
+<p>You use it when:</p>
+<ul>
+<li>interfaces don’t match</li>
+<li>contracts cannot change</li>
+<li>refactoring is risky or impossible</li>
+</ul>
+<p>Now we go deeper.</p>
+<hr>
+<h2 id="2-two-variants-of-adapter-often-confused">2. Two Variants of Adapter (Often Confused)</h2>
+<hr>
+<p>There are <strong>two legitimate forms</strong> of Adapter:</p>
+<ol>
+<li><strong>Object Adapter</strong> (composition-based)</li>
+<li><strong>Class Adapter</strong> (inheritance-based)</li>
+</ol>
+<p>Most engineers know only one.
+Interviewers expect you to know <strong>why one is preferred</strong>.</p>
+<hr>
+<h2 id="3-object-adapter-preferred-in-practice">3. Object Adapter (Preferred in Practice)</h2>
+<hr>
+<h3 id="31-structure">3.1 Structure</h3>
+<ul>
+<li>Adapter implements the target interface</li>
+<li>Adapter wraps the adaptee</li>
+<li>Uses composition</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExternalHRClient externalHRClient;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span>(ExternalHRClient externalHRClient) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">externalHRClient</span> <span style="color:#f92672">=</span> externalHRClient;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        HRUserRecord record <span style="color:#f92672">=</span> map(employee);
+</span></span><span style="display:flex;"><span>        externalHRClient.<span style="color:#a6e22e">persistEmployeeData</span>(record);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="32-why-object-adapter-is-preferred">3.2 Why Object Adapter Is Preferred</h3>
+<ul>
+<li>Works with <strong>final classes</strong></li>
+<li>Works with <strong>third-party libraries</strong></li>
+<li>Respects <strong>composition over inheritance</strong></li>
+<li>Easy to test and mock</li>
+<li>No inheritance constraints</li>
+</ul>
+<blockquote>
+<p>This is the version you should default to.</p></blockquote>
+<hr>
+<h2 id="4-class-adapter-rare-but-interview-relevant">4. Class Adapter (Rare, but Interview-Relevant)</h2>
+<hr>
+<h3 id="41-structure">4.1 Structure</h3>
+<ul>
+<li>Adapter inherits from adaptee</li>
+<li>Adapter implements target interface</li>
+<li>Uses inheritance</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRClassAdapter</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ExternalHRClient
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        HRUserRecord record <span style="color:#f92672">=</span> map(employee);
+</span></span><span style="display:flex;"><span>        persistEmployeeData(record);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="42-limitations">4.2 Limitations</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Limitation</th>
+          <th>Why it matters</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Single inheritance</td>
+          <td>Cannot extend another class</td>
+      </tr>
+      <tr>
+          <td>Tight coupling</td>
+          <td>Bound to concrete implementation</td>
+      </tr>
+      <tr>
+          <td>Not always possible</td>
+          <td>Adaptee may be final</td>
+      </tr>
+      <tr>
+          <td>Less flexible</td>
+          <td>Harder to evolve</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="5-object-adapter-vs-class-adapter-comparison">5. Object Adapter vs Class Adapter (Comparison)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Object Adapter</th>
+          <th>Class Adapter</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Technique</td>
+          <td>Composition</td>
+          <td>Inheritance</td>
+      </tr>
+      <tr>
+          <td>Flexibility</td>
+          <td>High</td>
+          <td>Low</td>
+      </tr>
+      <tr>
+          <td>Works with final classes</td>
+          <td>✅</td>
+          <td>❌</td>
+      </tr>
+      <tr>
+          <td>Multiple adapters</td>
+          <td>Easy</td>
+          <td>Hard</td>
+      </tr>
+      <tr>
+          <td>Real-world usage</td>
+          <td>✅ Common</td>
+          <td>❌ Rare</td>
+      </tr>
+      <tr>
+          <td>Interview relevance</td>
+          <td>✅</td>
+          <td>✅</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p><strong>Interview rule:</strong><br>
+Mention class adapter, but recommend object adapter.</p></blockquote>
+<hr>
+<h2 id="6-adapter-placement-in-package-structure">6. Adapter Placement in Package Structure</h2>
+<hr>
+<p>A subtle but important design point.</p>
+<h3 id="-where-adapters-should-not-live">❌ Where adapters should NOT live</h3>
+<ul>
+<li>inside domain models</li>
+<li>inside strategy implementations</li>
+<li>mixed with core business logic</li>
+</ul>
+<h3 id="-correct-placement">✅ Correct placement</h3>
+<p>Adapters belong at <strong>integration boundaries</strong>.</p>
+<p>Typical locations:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>integration/
+</span></span><span style="display:flex;"><span>adapters/
+</span></span><span style="display:flex;"><span>external/
+</span></span><span style="display:flex;"><span>infrastructure/
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>persistence/
+</span></span><span style="display:flex;"><span>  ├── EmployeePersistenceStrategy
+</span></span><span style="display:flex;"><span>  ├── EmployeeDBPersistenceStrategy
+</span></span><span style="display:flex;"><span>  ├── EmployeeFilePersistenceStrategy
+</span></span><span style="display:flex;"><span>  └── adapter/
+</span></span><span style="display:flex;"><span>       └── ExternalHRPersistenceAdapter
+</span></span></code></pre></div><blockquote>
+<p>Adapter is <strong>not domain logic</strong>.<br>
+It is <strong>translation logic</strong>.</p></blockquote>
+<hr>
+<h2 id="7-adapter-and-solid-principles">7. Adapter and SOLID Principles</h2>
+<hr>
+<p>Adapter is a <strong>SOLID enabler</strong>, not a violation.</p>
+<h4 id="single-responsibility-principle-srp">Single Responsibility Principle (SRP)</h4>
+<p>✔ Adapter has exactly one reason to change:</p>
+<blockquote>
+<p>external API changes</p></blockquote>
+<h4 id="openclosed-principle-ocp">Open/Closed Principle (OCP)</h4>
+<p>✔ New integrations added without modifying existing code</p>
+<h4 id="dependency-inversion-principle-dip">Dependency Inversion Principle (DIP)</h4>
+<p>✔ High-level modules depend on abstractions<br>
+✔ Adapter depends on concrete external APIs</p>
+<hr>
+<h2 id="8-adapter-vs-facade-common-interview-trap">8. Adapter vs Facade (Common Interview Trap)</h2>
+<hr>
+<p>These two are often confused.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Adapter</th>
+          <th>Facade</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Fixes incompatibility</td>
+          <td>Simplifies complexity</td>
+      </tr>
+      <tr>
+          <td>Interface translation</td>
+          <td>Interface simplification</td>
+      </tr>
+      <tr>
+          <td>One-to-one</td>
+          <td>One-to-many</td>
+      </tr>
+      <tr>
+          <td>Structural mismatch</td>
+          <td>Usability improvement</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p><strong>Key line:</strong><br>
+Adapter makes things fit.<br>
+Facade makes things easy.</p></blockquote>
+<hr>
+<h2 id="9-adapter-vs-anti-corruption-layer-acl">9. Adapter vs Anti-Corruption Layer (ACL)</h2>
+<hr>
+<p>Adapter is often a <strong>building block</strong> of ACL.</p>
+<ul>
+<li>Adapter → technical translation</li>
+<li>ACL → boundary protecting your domain model</li>
+</ul>
+<p>In large systems:</p>
+<blockquote>
+<p>Multiple adapters may live inside a single anti-corruption layer.</p></blockquote>
+<hr>
+<h2 id="10-when-adapter-is-a-smell">10. When Adapter Is a Smell</h2>
+<hr>
+<p>Adapter can hide <strong>bad modeling</strong>.</p>
+<p>🚫 Red flags</p>
+<ul>
+<li>Adapters inside domain entities</li>
+<li>Adapters doing business logic</li>
+<li>Adapter chains growing uncontrollably</li>
+<li>Adapter used to “fix” poor abstractions</li>
+</ul>
+<p>If you see this, stop and ask:</p>
+<blockquote>
+<p>Is the interface wrong, or is integration genuinely required?</p></blockquote>
+<hr>
+<h2 id="11-interview-grade-summary">11. Interview-Grade Summary</h2>
+<hr>
+<p><strong>If asked:</strong></p>
+<blockquote>
+<p>“Why Adapter and not refactor?”</p></blockquote>
+<p><strong>Strong answer:</strong></p>
+<blockquote>
+<p>Because contracts represent stability boundaries.<br>
+Adapter allows evolution without breaking those boundaries.</p></blockquote>
+<p><strong>If asked:</strong></p>
+<blockquote>
+<p>“Which adapter should I use?”</p></blockquote>
+<p><strong>Strong answer:</strong></p>
+<blockquote>
+<p>Object Adapter by default.<br>
+Class Adapter only when inheritance is unavoidable and safe.</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Adapter Pattern is not optional in real systems.</p>
+<p>It is how:</p>
+<ul>
+<li>legacy meets modern</li>
+<li>third-party meets clean architecture</li>
+<li>evolution happens without breakage</li>
+</ul>
+<p>If you understand Adapter deeply, you understand <strong>real software</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>With <strong>Part 1 and Part 2</strong>, the Adapter Pattern is <strong>conceptually complete</strong>.</p>
+<p>If you’re feeling a gap at this point, that’s expected.
+You understand how the pattern works — now you need to recognize <strong>where it already exists in real systems</strong>.</p>
+<p>The natural next step is not more theory or UML.</p>
+<p>It’s pattern recognition.</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_4_adapter-patterns-part3">Part 3: Real-World Adapter Pattern Applications →</a></strong><br>
+A hands-on walkthrough of Adapter in libraries, platforms, aggregators, and systems you already use — the “oh… I’ve seen this before” moments.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Adapter fixes incompatibility, not complexity</li>
+<li>Prefer object adapters</li>
+<li>Place adapters at boundaries</li>
+<li>Adapters protect clean architecture, not pollute it</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-patterns-part1/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-patterns-part2/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>
