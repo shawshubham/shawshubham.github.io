@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sliding Window – Managing Ranges Efficiently</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1770643196">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Sliding Window – Managing Ranges Efficiently</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why the Sliding Window Pattern Matters</li>
+        
+        <li>2. What Is the Sliding Window Pattern?</li>
+        
+        <li>3. When Should You Think of Sliding Window?</li>
+        
+        <li>4. Fixed Window vs Variable Window</li>
+        
+        <li>5. A Minimal Example to Build Intuition</li>
+        
+        <li>6. Why the Pattern Works</li>
+        
+        <li>7. Common Mistakes to Avoid</li>
+        
+        <li>8. How Interviewers Evaluate Sliding Window Usage</li>
+        
+        <li>9. How This Pattern Fits the Universal Framework</li>
+        
+        <li>10. When Sliding Window Is the Wrong Choice</li>
+        
+        <li>🔗 Practice Problems (CoderPad Style)</li>
+        
+        <li>Key Takeaway</li>
+        
+        <li>🔗 What’s Next?</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 9 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h1 id="sliding-window--managing-ranges-efficiently">Sliding Window – Managing Ranges Efficiently</h1>
+<h2 id="1-why-the-sliding-window-pattern-matters">1. Why the Sliding Window Pattern Matters</h2>
+<p>Many interview problems involve <strong>contiguous ranges</strong> within arrays or strings.</p>
+<p>Naively, these problems tempt you to:</p>
+<ul>
+<li>generate all possible subarrays or substrings,</li>
+<li>recompute results repeatedly,</li>
+<li>and accept quadratic time complexity.</li>
+</ul>
+<p>The Sliding Window pattern exists to eliminate that waste.</p>
+<p>When applied correctly, it lets you:</p>
+<ul>
+<li>process ranges in linear time,</li>
+<li>reuse previously computed information,</li>
+<li>and reason clearly about boundaries.</li>
+</ul>
+<hr>
+<h2 id="2-what-is-the-sliding-window-pattern">2. What Is the Sliding Window Pattern?</h2>
+<hr>
+<p>The Sliding Window pattern maintains a <strong>contiguous window</strong> over the input using two pointers:</p>
+<ul>
+<li>a <strong>left pointer</strong> marking the window start,</li>
+<li>a <strong>right pointer</strong> expanding or moving the window forward.</li>
+</ul>
+<p>Instead of recomputing results for every range, you:</p>
+<ul>
+<li>update the window incrementally,</li>
+<li>adjust state as elements enter or leave the window,</li>
+<li>and maintain correctness with minimal work.</li>
+</ul>
+<p>The key idea is <strong>reuse, not recomputation</strong>.</p>
+<hr>
+<h2 id="3-when-should-you-think-of-sliding-window">3. When Should You Think of Sliding Window?</h2>
+<hr>
+<p>Sliding Window is a strong candidate when:</p>
+<ul>
+<li>the input is an <strong>array or string</strong></li>
+<li>the problem involves <strong>contiguous subarrays / substrings</strong></li>
+<li>you are asked for:
+<ul>
+<li>longest / shortest window</li>
+<li>maximum / minimum within a range</li>
+<li>count or frequency within a range</li>
+</ul>
+</li>
+<li>brute force would involve nested loops over ranges</li>
+</ul>
+<p>Common interview trigger phrases:</p>
+<ul>
+<li>“subarray” / “substring”</li>
+<li>“contiguous”</li>
+<li>“longest / shortest”</li>
+<li>“at most / at least K”</li>
+<li>“window of size K”</li>
+</ul>
+<hr>
+<h2 id="4-fixed-window-vs-variable-window">4. Fixed Window vs Variable Window</h2>
+<hr>
+<p>Understanding this distinction is crucial.</p>
+<h3 id="41-fixed-sliding-window">4.1 Fixed Sliding Window</h3>
+<p>The window size is <strong>constant</strong>.</p>
+<p>Typical use cases:</p>
+<ul>
+<li>average or sum of every K elements</li>
+<li>maximum in a window of size K</li>
+<li>rolling statistics</li>
+</ul>
+<p><strong>Mental model</strong></p>
+<ul>
+<li>expand right pointer until window size = K</li>
+<li>process the window</li>
+<li>slide both pointers forward together</li>
+</ul>
+<p>The window never grows or shrinks — it only <strong>moves</strong>.</p>
+<h3 id="42-variable-sliding-window">4.2 Variable Sliding Window</h3>
+<p>The window size <strong>changes dynamically</strong> based on constraints.</p>
+<p>Typical use cases:</p>
+<ul>
+<li>longest substring without repeating characters</li>
+<li>smallest subarray with sum ≥ target</li>
+<li>subarrays satisfying frequency or uniqueness constraints</li>
+</ul>
+<p><strong>Mental model</strong></p>
+<ul>
+<li>expand the right pointer to include new elements</li>
+<li>shrink the left pointer when constraints are violated</li>
+<li>track the best valid window seen so far</li>
+</ul>
+<p>This variant requires careful state management.</p>
+<hr>
+<h2 id="5-a-minimal-example-to-build-intuition">5. A Minimal Example to Build Intuition</h2>
+<hr>
+<p>Consider this problem shape:</p>
+<blockquote>
+<p>Given a string, find the <strong>length of the longest substring</strong> that satisfies a condition.</p></blockquote>
+<p>Why this suggests Sliding Window:</p>
+<ul>
+<li>substrings are <strong>contiguous</strong></li>
+<li>we are optimizing for <strong>longest</strong></li>
+<li>brute force would try all substrings</li>
+</ul>
+<h3 id="51-intuition-without-code">5.1 Intuition (Without Code)</h3>
+<ul>
+<li>Start with both pointers at the beginning.</li>
+<li>Expand the right pointer to include characters.</li>
+<li>Maintain state (for example, character counts).</li>
+<li>If the condition breaks:
+<ul>
+<li>move the left pointer forward,</li>
+<li>update state accordingly.</li>
+</ul>
+</li>
+<li>Track the best valid window during traversal.</li>
+</ul>
+<p>Each character enters and leaves the window at most once.</p>
+<p>This guarantees <strong>linear time complexity</strong>.</p>
+<hr>
+<h2 id="6-why-the-pattern-works">6. Why the Pattern Works</h2>
+<hr>
+<p>Sliding Window works because:</p>
+<ul>
+<li>pointer movement is <strong>monotonic</strong></li>
+<li>state is updated incrementally</li>
+<li>repeated work is eliminated</li>
+<li>window boundaries enforce contiguity</li>
+</ul>
+<p>The algorithm never revisits the same range twice.</p>
+<p>That is the core efficiency gain.</p>
+<hr>
+<h2 id="7-common-mistakes-to-avoid">7. Common Mistakes to Avoid</h2>
+<hr>
+<p>Sliding Window problems fail most often due to:</p>
+<ul>
+<li>recomputing state instead of updating it</li>
+<li>shrinking or expanding the window incorrectly</li>
+<li>forgetting to update the result at the right time</li>
+<li>mixing fixed and variable window logic</li>
+<li>unclear window validity conditions</li>
+</ul>
+<blockquote>
+<p>📌 If your window rules are unclear, the solution will be fragile.</p></blockquote>
+<hr>
+<h2 id="8-how-interviewers-evaluate-sliding-window-usage">8. How Interviewers Evaluate Sliding Window Usage</h2>
+<hr>
+<p>Interviewers look for:</p>
+<ul>
+<li>correct identification of contiguity</li>
+<li>clear explanation of window expansion and contraction</li>
+<li>correct state maintenance</li>
+<li>clean termination logic</li>
+<li>handling of edge cases (empty input, small size)</li>
+</ul>
+<p>Naming the pattern is optional —<br>
+demonstrating the logic is not.</p>
+<hr>
+<h2 id="9-how-this-pattern-fits-the-universal-framework">9. How This Pattern Fits the Universal Framework</h2>
+<hr>
+<p>Sliding Window is typically chosen at:</p>
+<p><strong>Step 4 – Choose the Right Pattern</strong></p>
+<p>After:</p>
+<ul>
+<li>understanding the problem,</li>
+<li>identifying constraints,</li>
+<li>choosing appropriate data structures for state.</li>
+</ul>
+<p>The pattern dictates <strong>how the range moves</strong>, not what data is stored.</p>
+<hr>
+<h2 id="10-when-sliding-window-is-the-wrong-choice">10. When Sliding Window Is the Wrong Choice</h2>
+<hr>
+<p>Do <strong>not</strong> force this pattern when:</p>
+<ul>
+<li>the problem is not contiguous</li>
+<li>global reordering is required</li>
+<li>multiple independent ranges must be considered</li>
+<li>overlapping subproblems dominate (consider DP)</li>
+</ul>
+<p>Pattern misuse leads to subtle bugs.</p>
+<hr>
+<h2 id="-practice-problems-coderpad-style">🔗 Practice Problems (CoderPad Style)</h2>
+<p>To apply this pattern under interview conditions, explore tagged problems:</p>
+<p><strong>👉 <a href="/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems">Sliding Window – Practice Problems</a></strong><br>
+<em>(CoderPad Practice → Filter by “Sliding Window”)</em></p>
+<p>Each problem follows the standard structure:</p>
+<ul>
+<li>problem understanding</li>
+<li>constraints &amp; edge cases</li>
+<li>brute force idea</li>
+<li>optimized sliding window approach</li>
+<li>final code</li>
+<li>interview-style explanation</li>
+</ul>
+<hr>
+<h2 id="key-takeaway">Key Takeaway</h2>
+<blockquote>
+<p>Sliding Window is not about two pointers —<br>
+it is about <strong>managing a moving range efficiently</strong>.</p></blockquote>
+<p>Once you learn to control window boundaries and state,<br>
+entire classes of problems collapse into linear-time solutions.</p>
+<hr>
+<h2 id="-whats-next">🔗 What’s Next?</h2>
+<p>The next pattern builds on managing <strong>state transitions explicitly</strong>.</p>
+<p>Up next:<br>
+<strong>👉 Stack-Based Patterns – Managing Order and Constraints</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/intermediate-skills/problem-solving/2_problem-solving-core-patterns/2_2_two-pointer-pattern/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/problem-solving/" class="btn nav-btn">
+        Problem Solving : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>
