@@ -298,7 +298,7 @@ Now that we can **translate** incompatible systems, the next question is:
 
 What if we want to hide complexity, not just translate interfaces?
 
-👉 **[Next: Facade Pattern – Simplifying Complex Subsystems →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_5_facade-patterns)**
+👉 **[Next: Facade Pattern – Simplifying Complex Subsystems →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_5_facade-pattern-part1)**
 
 ---
 

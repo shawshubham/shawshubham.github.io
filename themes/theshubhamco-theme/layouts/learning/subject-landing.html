@@ -38,7 +38,8 @@
       <li>
         <h2>{{ $secNum }}. {{ $dir.Title }}</h2>
         <ul class="toc-inner-list">
-          {{ range $j, $p := $dir.RegularPages.ByWeight }}
+          {{ $pages := where $dir.RegularPages "Params.toc_hide" "!=" true }}
+          {{ range $j, $p := $pages.ByWeight }}
           <li>
             <a href="{{ $p.RelPermalink }}">
               {{ printf "%d.%d" $secNum (add $j 1) }} {{ $p.Title }}

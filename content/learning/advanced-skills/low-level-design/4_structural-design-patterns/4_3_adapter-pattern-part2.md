@@ -307,7 +307,7 @@ The natural next step is not more theory or UML.
 
 It’s pattern recognition.
 
-👉 **[Part 3: Real-World Adapter Pattern Applications →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_4_adapter-patterns-part3)**  
+👉 **[Part 3: Real-World Adapter Pattern Applications →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_4_adapter-pattern-part3)**  
 A hands-on walkthrough of Adapter in libraries, platforms, aggregators, and systems you already use — the “oh… I’ve seen this before” moments.
 
 ---

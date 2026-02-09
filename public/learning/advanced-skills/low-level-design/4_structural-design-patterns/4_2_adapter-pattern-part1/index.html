@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why Structural Patterns Start with Adapter</li>
+        
+        <li>2. The Problem: Clean Code Meets Reality</li>
+        
+        <li>3. A Concrete EMS Scenario</li>
+        
+        <li>4. Naive Solutions (and Why They’re Wrong)</li>
+        
+        <li>5. The Adapter Insight</li>
+        
+        <li>6. Adapter Pattern Definition (Practical)</li>
+        
+        <li>7. Adapter Implementation (EMS Example)</li>
+        
+        <li>8. Why Adapter Is a Structural Pattern</li>
+        
+        <li>9. Adapter vs “Just a Wrapper” (Interview Trap)</li>
+        
+        <li>10. When You Should Use Adapter</li>
+        
+        <li>11. Interview Perspective</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 7 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-structural-patterns-start-with-adapter">1. Why Structural Patterns Start with Adapter</h2>
+<hr>
+<p>In the previous phase, we focused on <strong>creating objects correctly</strong>:</p>
+<ul>
+<li>Builder → safe construction</li>
+<li>Factory Method → implementation selection</li>
+<li>Abstract Factory → compatible object families</li>
+</ul>
+<p>Now a different problem appears:</p>
+<blockquote>
+<p><strong>Objects already exist — but they don’t fit together.</strong></p></blockquote>
+<p>This is where <strong>Structural Design Patterns</strong> begin.</p>
+<p>And the first, most fundamental one is <strong>Adapter</strong>.</p>
+<hr>
+<h2 id="2-the-problem-clean-code-meets-reality">2. The Problem: Clean Code Meets Reality</h2>
+<hr>
+<p>In textbooks, systems are designed end-to-end.</p>
+<p>In real systems:</p>
+<ul>
+<li>APIs already exist</li>
+<li>libraries evolve independently</li>
+<li>legacy code cannot be rewritten</li>
+<li>third-party contracts are fixed</li>
+</ul>
+<p>You often face this situation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Your system expects: Interface A
+</span></span><span style="display:flex;"><span>The dependency provides: Interface B
+</span></span><span style="display:flex;"><span>You cannot change either
+</span></span></code></pre></div><p>Yet… they must work together.</p>
+<p>This is not a failure of design.<br>
+It is <strong>normal system evolution</strong>.</p>
+<hr>
+<h2 id="3-a-concrete-ems-scenario">3. A Concrete EMS Scenario</h2>
+<hr>
+<p>In EMS, suppose we already have this clean abstraction:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And our system uses it everywhere:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>persistenceStrategy.<span style="color:#a6e22e">save</span>(employee);
+</span></span></code></pre></div><p>Now a new requirement arrives:</p>
+<blockquote>
+<p><strong>“We must integrate with an external HR system.</strong><br>
+<strong>They provide an API client we cannot modify.”</strong></p></blockquote>
+<p>That external client looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">persistEmployeeData</span>(HRUserRecord record) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// calls external system</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="the-mismatch">The mismatch</h4>
+<table>
+  <thead>
+      <tr>
+          <th>Our System Expects</th>
+          <th>External System Provides</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Employee</td>
+          <td>HRUserRecord</td>
+      </tr>
+      <tr>
+          <td>save()</td>
+          <td>persistEmployeeData()</td>
+      </tr>
+      <tr>
+          <td>Strategy contract</td>
+          <td>Concrete API client</td>
+      </tr>
+  </tbody>
+</table>
+<p>They are <strong>conceptually compatible</strong>, but <strong>technically incompatible</strong>.</p>
+<hr>
+<h2 id="4-naive-solutions-and-why-theyre-wrong">4. Naive Solutions (and Why They’re Wrong)</h2>
+<hr>
+<h3 id="-option-1-modify-the-existing-interface">❌ Option 1: Modify the existing interface</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee, ExternalHRClient client);
+</span></span></code></pre></div><p>This breaks:</p>
+<ul>
+<li>SRP</li>
+<li>OCP</li>
+<li>every existing implementation</li>
+</ul>
+<h3 id="-option-2-add-conditionals-everywhere">❌ Option 2: Add conditionals everywhere</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (type <span style="color:#f92672">==</span> EXTERNAL_HR) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// call ExternalHRClient</span>
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// normal save</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This introduces:</p>
+<ul>
+<li>branching logic</li>
+<li>tight coupling</li>
+<li>cascading changes</li>
+</ul>
+<h3 id="-option-3-rewrite-the-external-client">❌ Option 3: Rewrite the external client</h3>
+<p>Not possible.<br>
+Not allowed.<br>
+Not realistic.</p>
+<hr>
+<h2 id="5-the-adapter-insight">5. The Adapter Insight</h2>
+<hr>
+<p>The core insight of Adapter is simple:</p>
+<blockquote>
+<p><strong>Don’t change either side. Translate between them.</strong></p></blockquote>
+<p>The adapter:</p>
+<ul>
+<li>implements your expected interface</li>
+<li>internally delegates to the incompatible API</li>
+<li>performs any required translation</li>
+</ul>
+<hr>
+<h2 id="6-adapter-pattern-definition-practical">6. Adapter Pattern Definition (Practical)</h2>
+<hr>
+<blockquote>
+<p><strong>Adapter Pattern</strong> converts the interface of a class into another interface the client expects.</p></blockquote>
+<p>Key idea:</p>
+<ul>
+<li>Client code stays unchanged</li>
+<li>Existing abstractions stay intact</li>
+<li>Integration logic is isolated</li>
+</ul>
+<hr>
+<h2 id="7-adapter-implementation-ems-example">7. Adapter Implementation (EMS Example)</h2>
+<hr>
+<h3 id="step-1-keep-your-abstraction-unchanged">Step 1: Keep your abstraction unchanged</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="step-2-create-an-adapter">Step 2: Create an Adapter</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span> <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExternalHRClient externalHRClient;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span>(ExternalHRClient externalHRClient) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">externalHRClient</span> <span style="color:#f92672">=</span> externalHRClient;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        HRUserRecord record <span style="color:#f92672">=</span> mapToHRRecord(employee);
+</span></span><span style="display:flex;"><span>        externalHRClient.<span style="color:#a6e22e">persistEmployeeData</span>(record);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> HRUserRecord <span style="color:#a6e22e">mapToHRRecord</span>(Employee employee) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HRUserRecord(
+</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getId</span>(),
+</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getName</span>(),
+</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getDepartment</span>().<span style="color:#a6e22e">name</span>()
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="step-3-use-it-like-any-other-strategy">Step 3: Use it like any other strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeePersistenceStrategy strategy <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> ExternalHRPersistenceAdapter(<span style="color:#66d9ef">new</span> ExternalHRClient());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>strategy.<span style="color:#a6e22e">save</span>(employee);
+</span></span></code></pre></div><p>No caller knows — or cares — that an external system is involved.</p>
+<hr>
+<h2 id="8-why-adapter-is-a-structural-pattern">8. Why Adapter Is a Structural Pattern</h2>
+<hr>
+<p>Adapter does <strong>not</strong>:</p>
+<ul>
+<li>create objects</li>
+<li>change behavior</li>
+<li>add business logic</li>
+</ul>
+<p>Instead, it focuses on:</p>
+<ul>
+<li><strong>how objects are connected</strong></li>
+<li><strong>how responsibilities are bridged</strong></li>
+<li><strong>how systems evolve without breaking</strong></li>
+</ul>
+<p>This is the essence of <strong>structural design</strong>.</p>
+<hr>
+<h2 id="9-adapter-vs-just-a-wrapper-interview-trap">9. Adapter vs “Just a Wrapper” (Interview Trap)</h2>
+<hr>
+<p>Adapters are often dismissed as “just wrappers”.</p>
+<p>That’s incomplete.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Wrapper</th>
+          <th>Adapter</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Delegates calls</td>
+          <td>Translates interfaces</td>
+      </tr>
+      <tr>
+          <td>Same abstraction</td>
+          <td>Different abstractions</td>
+      </tr>
+      <tr>
+          <td>Convenience</td>
+          <td>Compatibility</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p><strong>All adapters wrap something, but not all wrappers are adapters.</strong></p></blockquote>
+<hr>
+<h2 id="10-when-you-should-use-adapter">10. When You Should Use Adapter</h2>
+<hr>
+<h3 id="-use-adapter-when">✅ Use Adapter when:</h3>
+<ul>
+<li>integrating legacy or third-party APIs</li>
+<li>interfaces are incompatible</li>
+<li>you cannot modify one or both sides</li>
+<li>you want to preserve clean abstractions</li>
+</ul>
+<h3 id="-avoid-adapter-when">❌ Avoid Adapter when:</h3>
+<ul>
+<li>you control both interfaces</li>
+<li>the mismatch is conceptual, not technical</li>
+<li>you’re hiding poor domain modeling</li>
+</ul>
+<hr>
+<h2 id="11-interview-perspective">11. Interview Perspective</h2>
+<hr>
+<p>If asked:</p>
+<blockquote>
+<p>“Why not change the interface?”</p></blockquote>
+<p>A strong answer:</p>
+<blockquote>
+<p>Because interfaces represent <strong>contracts</strong>.<br>
+Adapters allow systems to evolve without breaking those contracts.</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Adapter Pattern is not about elegance.</p>
+<p>It is about <strong>survival</strong> in real systems.</p>
+<p>It allows you to:</p>
+<ul>
+<li>integrate without refactoring</li>
+<li>preserve clean design</li>
+<li>isolate change</li>
+<li>respect existing contracts</li>
+</ul>
+<p>This is why Adapter is often the <strong>first structural pattern engineers actually use</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>In the next article, we’ll go deeper:</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2">Adapter Pattern – Object Adapter vs Class Adapter + Trade-offs (Part 2) →</a></strong></p>
+<p>We’ll cover:</p>
+<ul>
+<li>object vs inheritance-based adapters</li>
+<li>where adapters should live in package structure</li>
+<li>how adapters relate to DIP and anti-corruption layers</li>
+</ul>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Adapter bridges incompatibility, not behavior</li>
+<li>It preserves existing contracts</li>
+<li>It isolates integration pain</li>
+<li>Most real systems need adapters — whether named or not</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

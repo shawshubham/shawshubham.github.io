@@ -322,7 +322,7 @@ This is why Adapter is often the **first structural pattern engineers actually u
 
 In the next article, we’ll go deeper:
 
-👉 **[Adapter Pattern – Object Adapter vs Class Adapter + Trade-offs (Part 2) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-patterns-part2)**
+👉 **[Adapter Pattern – Object Adapter vs Class Adapter + Trade-offs (Part 2) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2)**
 
 We’ll cover:
 

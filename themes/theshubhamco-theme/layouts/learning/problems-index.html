@@ -1,0 +1,339 @@
+{{ define "main" }}
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Practice</p>
+    <h1 class="main-heading">{{ .Title }}</h1>
+    {{ with .Params.description }}<p class="sub-heading">{{ . }}</p>{{ end }}
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  <div class="container topic-content">
+    <h1>All Problems</h1>
+    {{/* 1) Collect all problem solution pages under this section (recursive) */}}
+    {{ $pages := where .CurrentSection.RegularPagesRecursive "Params.problem" "!=" nil }}
+
+    {{/* 2) Build unique values for filters */}}
+    {{ $difficulties := slice }}
+    {{ $patterns := slice }}
+    {{ $allTags := slice }}
+    {{ $sources := slice }}
+
+    {{ range $pages }}
+    {{ with .Params.problem.difficulty }} {{ $difficulties = $difficulties | append . }} {{ end }}
+    {{ with .Params.problem.corePattern }} {{ $patterns = $patterns | append . }} {{ end }}
+    {{ with .Params.problem.source }} {{ $sources = $sources | append . }} {{ end }}
+    {{ with .Params.problem.tags }} {{ range . }} {{ $allTags = $allTags | append . }} {{ end }} {{ end }}
+    {{ end }}
+
+    {{ $difficulties = uniq $difficulties | sort }}
+    {{ $patterns = uniq $patterns | sort }}
+    {{ $allTags = uniq $allTags | sort }}
+    {{ $sources = uniq $sources | sort }}
+
+    <!-- =========================
+     Problems Toolbar (Search + Filter + Clear Solved)
+     ========================= -->
+    <div class="problems-toolbar">
+
+      <!-- Left group: Search + Filter (kept together to avoid overlap) -->
+      <div class="toolbar-left-group">
+
+        <!-- Search -->
+        <div class="toolbar-left">
+          <label class="sr-only" for="filterSearch">Search Question</label>
+
+          <div class="search-input-wrapper">
+            <input id="filterSearch" type="text" placeholder="Search questions" />
+            <span class="search-icon" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <!-- Filter dropdown -->
+        <div class="toolbar-middle">
+          <details class="filters-dropdown" id="filtersDropdown">
+            <summary class="btn filter-icon" aria-label="Filter">
+              <span class="filter-icon-glyph" aria-hidden="true"></span>
+            </summary>
+
+            <div class="filters-panel">
+
+              <div class="filter-item">
+                <label for="filterDifficulty">Difficulty</label>
+                <select id="filterDifficulty">
+                  <option value="">All</option>
+                  {{ range $difficulties }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label for="filterPattern">Core Pattern</label>
+                <select id="filterPattern">
+                  <option value="">All</option>
+                  {{ range $patterns }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+
+              {{ if gt (len $allTags) 0 }}
+              <div class="filter-item">
+                <label for="filterTag">Tag</label>
+                <select id="filterTag">
+                  <option value="">All</option>
+                  {{ range $allTags }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+              {{ end }}
+
+              {{ if gt (len $sources) 0 }}
+              <div class="filter-item">
+                <label for="filterSource">Source</label>
+                <select id="filterSource">
+                  <option value="">All</option>
+                  {{ range $sources }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+              {{ end }}
+
+              <div class="filter-item">
+                <label for="filterSolved">Solved</label>
+                <select id="filterSolved">
+                  <option value="">All</option>
+                  <option value="true">Solved</option>
+                  <option value="false">Unsolved</option>
+                </select>
+              </div>
+
+              <div class="filters-actions">
+                <button class="btn" id="resetFilters" type="button">Reset</button>
+              </div>
+
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Right: Clear solved -->
+      <div class="toolbar-right">
+        <button class="btn" id="clearSolved" type="button">Clear Solved</button>
+      </div>
+
+    </div>
+
+    <div class="problems-meta" id="problemsMeta"></div>
+
+    <div class="problems-table-wrapper">
+      <table class="problems-table" id="problemsTable" border="1" cellpadding="8">
+        <thead>
+          <tr>
+            <th>SL</th>
+            <th>Problem</th>
+            <th>Solution</th>
+            <th>Difficulty</th>
+            <th>Core Pattern</th>
+            <th>Source</th>
+            <th>Solved</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{ $i := 0 }}
+          {{ range sort $pages "Title" "asc" }}
+          {{ $i = add $i 1 }}
+
+          {{ $pid := .Params.problem.id | default (printf "%s" .RelPermalink) }}
+          {{ $difficulty := .Params.problem.difficulty | default "" }}
+          {{ $pattern := .Params.problem.corePattern | default "" }}
+          {{ $tags := .Params.problem.tags | default (slice) }}
+          {{ $problemUrl := .Params.problem.url | default "" }}
+          {{ $source := .Params.problem.source | default "" }}
+
+          <tr class="problem-row" data-id="{{ $pid }}" data-title="{{ lower .Title }}"
+            data-difficulty="{{ $difficulty }}" data-pattern="{{ $pattern }}" data-source="{{ $source }}"
+            data-tags="{{ delimit $tags " ," }}">
+            <td>{{ $i }}</td>
+
+            <td>
+              {{ if $problemUrl }}
+              <a href="{{ $problemUrl }}" target="_blank" rel="noopener">{{ .Title }}</a>
+              {{ else }}
+              {{ .Title }}
+              {{ end }}
+            </td>
+
+            <td><a href="{{ .RelPermalink }}">View</a></td>
+            <td>{{ $difficulty }}</td>
+            <td>{{ $pattern }}</td>
+            <td>{{ $source }}</td>
+
+            <td>
+              <input type="checkbox" class="solved-checkbox" aria-label="Solved" />
+            </td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    {{ partial "find-top-section.html" . }}
+    {{ $top := .Scratch.Get "topPageObject" }}
+    {{ with $top }}
+    <a href="{{ .RelPermalink }}" class="btn nav-btn">
+        {{ .Title }} : Home Page
+    </a>
+    {{ end }}
+  </div>
+</section>
+
+<script>
+  (() => {
+    const STORAGE_KEY = "theshubhamco:problems:v1";
+    const state = loadState();
+
+    const elSearch = document.getElementById("filterSearch");
+    const elDifficulty = document.getElementById("filterDifficulty");
+    const elPattern = document.getElementById("filterPattern");
+    const elTag = document.getElementById("filterTag"); // might be null
+    const elSource = document.getElementById("filterSource"); // might be null
+    const elSolved = document.getElementById("filterSolved");
+    const elReset = document.getElementById("resetFilters");
+    const elClearSolved = document.getElementById("clearSolved");
+    const meta = document.getElementById("problemsMeta");
+
+    const rows = Array.from(document.querySelectorAll(".problem-row"));
+
+    // Restore checkbox state
+    rows.forEach(row => {
+      const id = row.dataset.id;
+      const checkbox = row.querySelector(".solved-checkbox");
+      checkbox.checked = !!state.solved[id];
+
+      checkbox.addEventListener("change", () => {
+        state.solved[id] = checkbox.checked;
+        saveState(state);
+        applyFilters();
+      });
+    });
+
+    // Restore filters
+    if (state.filters) {
+      elSearch.value = state.filters.search || "";
+      elDifficulty.value = state.filters.difficulty || "";
+      elPattern.value = state.filters.pattern || "";
+      elSolved.value = (state.filters.solved ?? "");
+      if (elTag) elTag.value = state.filters.tag || "";
+      if (elSource) elSource.value = state.filters.source || "";
+    }
+
+    const filterControls = [elSearch, elDifficulty, elPattern, elSolved].filter(Boolean);
+    if (elTag) filterControls.push(elTag);
+    if (elSource) filterControls.push(elSource);
+
+    filterControls.forEach(el => {
+      el.addEventListener("input", onFilterChanged);
+      el.addEventListener("change", onFilterChanged);
+    });
+
+    elReset.addEventListener("click", () => {
+      elSearch.value = "";
+      elDifficulty.value = "";
+      elPattern.value = "";
+      elSolved.value = "";
+      if (elTag) elTag.value = "";
+      if (elSource) elSource.value = "";
+
+      state.filters = { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" };
+      saveState(state);
+      applyFilters();
+    });
+
+    elClearSolved.addEventListener("click", () => {
+      state.solved = {};
+      saveState(state);
+
+      rows.forEach(row => {
+        const checkbox = row.querySelector(".solved-checkbox");
+        checkbox.checked = false;
+      });
+
+      applyFilters();
+    });
+
+    function onFilterChanged() {
+      state.filters = {
+        search: elSearch.value || "",
+        difficulty: elDifficulty.value || "",
+        pattern: elPattern.value || "",
+        solved: elSolved.value || "",
+        tag: elTag ? (elTag.value || "") : "",
+        source: elSource ? (elSource.value || "") : ""
+      };
+      saveState(state);
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const q = (elSearch.value || "").trim().toLowerCase();
+      const d = elDifficulty.value;
+      const p = elPattern.value;
+      const s = elSolved.value; // "", "true", "false"
+      const t = elTag ? elTag.value : "";
+      const src = elSource ? elSource.value : "";
+
+      let visible = 0;
+      let solvedVisible = 0;
+
+      rows.forEach(row => {
+        const id = row.dataset.id;
+        const title = row.dataset.title || "";
+        const diff = row.dataset.difficulty || "";
+        const pat = row.dataset.pattern || "";
+        const source = row.dataset.source || "";
+        const tags = (row.dataset.tags || "").split(",").filter(Boolean);
+        const isSolved = !!state.solved[id];
+
+        let ok = true;
+        if (q && !title.includes(q)) ok = false;
+        if (d && diff !== d) ok = false;
+        if (p && pat !== p) ok = false;
+        if (t && !tags.includes(t)) ok = false;
+        if (src && source !== src) ok = false;
+        if (s === "true" && !isSolved) ok = false;
+        if (s === "false" && isSolved) ok = false;
+
+        row.style.display = ok ? "" : "none";
+        if (ok) {
+          visible++;
+          if (isSolved) solvedVisible++;
+        }
+      });
+
+      meta.textContent = `Showing ${visible} problems • Solved: ${solvedVisible}/${visible}`;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { solved: {}, filters: { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" } };
+        const parsed = JSON.parse(raw);
+        return {
+          solved: parsed.solved || {},
+          filters: parsed.filters || { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" }
+        };
+      } catch {
+        return { solved: {}, filters: { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" } };
+      }
+    }
+
+    function saveState(next) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { }
+    }
+
+    applyFilters();
+  })();
+</script>
+{{ end }}

@@ -1296,3 +1296,240 @@ circle.progress {
     width: 100%;
   }
 }
+
+/* =========================
+   Problems Toolbar — Final (no overlap)
+   ========================= */
+
+.problems-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 18px 0 14px;
+  padding: 10px 12px;
+
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  border-left: 4px solid var(--accent-color);
+}
+
+/* Group Search + Filter so they behave as one unit */
+.toolbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex: 1;
+  min-width: 0; /* critical: allows children to shrink without overlap */
+}
+
+/* Search should shrink safely */
+.toolbar-left {
+  flex: 1;
+  min-width: 0; /* critical: prevents input from overflowing into filter */
+}
+
+/* Search wrapper */
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 420px; /* keep search compact */
+}
+
+/* Search input (oval) */
+.problems-toolbar #filterSearch {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-color);
+  color: var(--text-color);
+
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.problems-toolbar #filterSearch::placeholder {
+  color: var(--text-secondary);
+}
+
+.problems-toolbar #filterSearch:focus {
+  border-color: var(--accent-color);
+}
+
+/* Search icon */
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 14px;
+  height: 14px;
+  opacity: 0.55;
+  pointer-events: none;
+
+  background-color: currentColor;
+  mask: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'> <path d='M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z'/> </svg>") no-repeat center / contain;
+}
+
+/* Filter anchor */
+.toolbar-middle {
+  flex: 0 0 auto;
+  position: relative;
+}
+
+/* Remove default details marker */
+.filters-dropdown summary::-webkit-details-marker { display: none; }
+.filters-dropdown summary { list-style: none; }
+
+/* Filter icon button */
+.filters-dropdown summary.btn.filter-icon {
+  width: 30px;
+  height: 34px;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Filter glyph (non-emoji) */
+.filter-icon-glyph {
+  width: 16px;
+  height: 16px;
+  opacity: 0.72;
+
+  background-color: currentColor;
+  mask: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'> <path d='M3 5h18v2H3V5zm4 6h10v2H7v-2zm3 6h4v2h-4v-2z'/> </svg>") no-repeat center / contain;
+}
+
+/* Dropdown panel (popover) */
+.filters-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+
+  width: 420px;
+  max-width: calc(100vw - 32px);
+
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  z-index: 50;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Filter items inside panel */
+.filters-panel .filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.filters-panel label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.filters-panel select {
+  height: 38px;
+  padding: 8px 10px;
+
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+
+  font-family: inherit;
+  outline: none;
+}
+
+.filters-panel select:focus {
+  border-color: var(--accent-color);
+}
+
+/* Reset row */
+.filters-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Right: Clear solved aligns extreme right */
+.toolbar-right {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.toolbar-right .btn {
+  height: 38px;
+}
+
+/* Checkbox */
+.solved-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+}
+
+/* Accessibility helper */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .problems-toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .toolbar-left-group {
+    flex: 1 1 100%;
+  }
+
+  .search-input-wrapper {
+    max-width: none; /* full width on mobile */
+  }
+
+  .toolbar-right {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+
+  .toolbar-right .btn {
+    width: 100%;
+  }
+
+  .filters-panel {
+    left: 0;
+    right: 0;
+    width: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .filters-actions {
+    justify-content: stretch;
+  }
+
+  .filters-actions .btn {
+    width: 100%;
+  }
+}

@@ -183,7 +183,7 @@ This is where design stops being theoretical and starts becoming architectural.
 
 We start with the most common and most misunderstood structural pattern:
 
-👉 **[Adapter Pattern – Making Incompatible Interfaces Work Together →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-patterns-part1)**
+👉 **[Adapter Pattern – Making Incompatible Interfaces Work Together →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-pattern-part1)**
 
 ---
 
