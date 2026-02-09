@@ -15,19 +15,27 @@
 
     {{/* 2) Build unique values for filters */}}
     {{ $difficulties := slice }}
-    {{ $patterns := slice }}
+    {{ $patternsRow := slice }}
     {{ $allTags := slice }}
     {{ $sources := slice }}
 
     {{ range $pages }}
     {{ with .Params.problem.difficulty }} {{ $difficulties = $difficulties | append . }} {{ end }}
-    {{ with .Params.problem.corePattern }} {{ $patterns = $patterns | append . }} {{ end }}
+    {{ with .Params.problem.corePatterns }}
+      {{ if (reflect.IsSlice .) }}
+        {{ range . }}
+          {{ $patternsRow = $patternsRow | append (printf "%v" .) }}
+        {{ end }}
+      {{ else }}
+        {{ $patternsRow = $patternsRow | append (printf "%v" .) }}
+      {{ end }}
+    {{ end }}
     {{ with .Params.problem.source }} {{ $sources = $sources | append . }} {{ end }}
     {{ with .Params.problem.tags }} {{ range . }} {{ $allTags = $allTags | append . }} {{ end }} {{ end }}
     {{ end }}
 
     {{ $difficulties = uniq $difficulties | sort }}
-    {{ $patterns = uniq $patterns | sort }}
+    {{ $patternsRow = uniq $patternsRow | sort }}
     {{ $allTags = uniq $allTags | sort }}
     {{ $sources = uniq $sources | sort }}
 
@@ -70,7 +78,7 @@
                 <label for="filterPattern">Core Pattern</label>
                 <select id="filterPattern">
                   <option value="">All</option>
-                  {{ range $patterns }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                  {{ range $patternsRow }} <option value="{{ . }}">{{ . }}</option> {{ end }}
                 </select>
               </div>
 
@@ -142,13 +150,13 @@
 
           {{ $pid := .Params.problem.id | default (printf "%s" .RelPermalink) }}
           {{ $difficulty := .Params.problem.difficulty | default "" }}
-          {{ $pattern := .Params.problem.corePattern | default "" }}
+          {{ $patternsRow := .Params.problem.corePatterns | default "" }}
           {{ $tags := .Params.problem.tags | default (slice) }}
           {{ $problemUrl := .Params.problem.url | default "" }}
           {{ $source := .Params.problem.source | default "" }}
 
           <tr class="problem-row" data-id="{{ $pid }}" data-title="{{ lower .Title }}"
-            data-difficulty="{{ $difficulty }}" data-pattern="{{ $pattern }}" data-source="{{ $source }}"
+            data-difficulty="{{ $difficulty }}" data-patterns="{{ delimit $patternsRow "," }}" data-source="{{ $source }}"
             data-tags="{{ delimit $tags " ," }}">
             <td>{{ $i }}</td>
 
@@ -162,7 +170,7 @@
 
             <td><a href="{{ .RelPermalink }}">View</a></td>
             <td>{{ $difficulty }}</td>
-            <td>{{ $pattern }}</td>
+            <td>{{ delimit $patternsRow ", " }}</td>
             <td>{{ $source }}</td>
 
             <td>
@@ -291,7 +299,10 @@
         const id = row.dataset.id;
         const title = row.dataset.title || "";
         const diff = row.dataset.difficulty || "";
-        const pat = row.dataset.pattern || "";
+        const patterns = (row.dataset.patterns || "")
+          .split(",")
+          .map(x => x.trim())
+          .filter(Boolean);
         const source = row.dataset.source || "";
         const tags = (row.dataset.tags || "").split(",").filter(Boolean);
         const isSolved = !!state.solved[id];
@@ -299,7 +310,7 @@
         let ok = true;
         if (q && !title.includes(q)) ok = false;
         if (d && diff !== d) ok = false;
-        if (p && pat !== p) ok = false;
+        if (p && !patterns.includes(p)) ok = false;
         if (t && !tags.includes(t)) ok = false;
         if (src && source !== src) ok = false;
         if (s === "true" && !isSolved) ok = false;
@@ -318,14 +329,14 @@
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { solved: {}, filters: { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" } };
+        if (!raw) return { solved: {}, filters: { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" } };
         const parsed = JSON.parse(raw);
         return {
           solved: parsed.solved || {},
-          filters: parsed.filters || { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" }
+          filters: parsed.filters || { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" }
         };
       } catch {
-        return { solved: {}, filters: { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" } };
+        return { solved: {}, filters: { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" } };
       }
     }
 

@@ -92,7 +92,15 @@
 
     
       
+    
       
+        
+          
+        
+          
+        
+      
+    
       
           
     
@@ -217,7 +225,7 @@
           
 
           <tr class="problem-row" data-id="lc-1" data-title="two sum"
-            data-difficulty="Easy" data-pattern="[Hashing Two Pointer]" data-source="LeetCode"
+            data-difficulty="Easy" data-patterns="Hashing,Two Pointer" data-source="LeetCode"
             data-tags="arrays ,hashmap">
             <td>1</td>
 
@@ -229,7 +237,7 @@
 
             <td><a href="/learning/intermediate-skills/problem-solving/3_coderpad-practice/easy/two-sum/">View</a></td>
             <td>Easy</td>
-            <td>[Hashing Two Pointer]</td>
+            <td>Hashing, Two Pointer</td>
             <td>LeetCode</td>
 
             <td>
@@ -378,7 +386,10 @@
         const id = row.dataset.id;
         const title = row.dataset.title || "";
         const diff = row.dataset.difficulty || "";
-        const pat = row.dataset.pattern || "";
+        const patterns = (row.dataset.patterns || "")
+          .split(",")
+          .map(x => x.trim())
+          .filter(Boolean);
         const source = row.dataset.source || "";
         const tags = (row.dataset.tags || "").split(",").filter(Boolean);
         const isSolved = !!state.solved[id];
@@ -386,7 +397,7 @@
         let ok = true;
         if (q && !title.includes(q)) ok = false;
         if (d && diff !== d) ok = false;
-        if (p && pat !== p) ok = false;
+        if (p && !patterns.includes(p)) ok = false;
         if (t && !tags.includes(t)) ok = false;
         if (src && source !== src) ok = false;
         if (s === "true" && !isSolved) ok = false;
@@ -405,14 +416,14 @@
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { solved: {}, filters: { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" } };
+        if (!raw) return { solved: {}, filters: { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" } };
         const parsed = JSON.parse(raw);
         return {
           solved: parsed.solved || {},
-          filters: parsed.filters || { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" }
+          filters: parsed.filters || { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" }
         };
       } catch {
-        return { solved: {}, filters: { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" } };
+        return { solved: {}, filters: { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" } };
       }
     }
 

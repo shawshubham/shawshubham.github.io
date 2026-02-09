@@ -9,8 +9,8 @@ problem:
   source: "LeetCode"
   url: "https://leetcode.com/problems/two-sum/"
   difficulty: "Easy"
-  corePattern:
-    - Hashing
-    - Two Pointer
+  corePatterns:
+    - "Hashing"
+    - "Two Pointer"
   tags: ["arrays", "hashmap"]
 ---
