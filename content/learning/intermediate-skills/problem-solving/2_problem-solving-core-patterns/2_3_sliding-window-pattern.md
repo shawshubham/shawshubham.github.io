@@ -8,7 +8,7 @@ keywords:
   - array string window problems
   - problem solving patterns
 weight: 3
-date: 2025-06-14
+date: 2026-02-09
 layout: "topic-content"
 ---
 
@@ -267,4 +267,4 @@ entire classes of problems collapse into linear-time solutions.
 The next pattern builds on managing **state transitions explicitly**.
 
 Up next:  
-**👉 Stack-Based Patterns – Managing Order and Constraints**
+**👉 [Stack-Based Patterns – Managing Order and Constraints](/learning/intermediate-skills/problem-solving/2_problem-solving-core-patterns/2_4_stack-based-pattern)**

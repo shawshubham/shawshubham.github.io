@@ -8,7 +8,7 @@ keywords:
   - algorithmic patterns two pointers
   - problem solving interviews
 weight: 2
-date: 2025-06-14
+date: 2026-02-09
 layout: "topic-content"
 ---
 
@@ -244,7 +244,7 @@ Pattern misuse is a common interview failure.
 To apply this pattern under real interview conditions, explore tagged problems in the practice section:
 
 **👉 [Two Pointers – Practice Problems](/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems)**  
-_(CoderPad Practice → Filter by “Two Pointers”)_
+_(Coderpad Practice → Apply the Two Pointers filter → Use search by question title if required)_
 
 Each problem there follows the standard structure:
 
@@ -254,6 +254,46 @@ Each problem there follows the standard structure:
 - optimized approach
 - final code
 - interview-style explanation
+
+---
+
+### ✅ Recommended Learning Path (Minimum Set)
+
+To build strong intuition for the Two Pointers pattern, it is **strongly recommended** to solve at least the following four problems in order:
+
+1. **Two Sum II – Input Array Is Sorted**  
+   → Basic recognition of sorted input + opposite direction pointers
+
+2. **Remove Duplicates from Sorted Array**  
+   → Fast & slow pointers + in-place constraints
+
+3. **3Sum**  
+   → Sorting + Two Pointers + duplicate handling discipline
+
+4. **Container With Most Water**  
+   → Greedy pointer movement + proof of correctness
+
+These four problems together cover:
+
+- both pointer variants (opposite direction & fast/slow),
+- constraint handling,
+- duplicate control,
+- and greedy reasoning.
+
+---
+
+### 🚦 After This Point
+
+Once you are comfortable with these four problems:
+
+- pointer movement feels instinctive,
+- edge cases are handled naturally,
+- and explanations are clear while coding,
+
+you can confidently move on to **any Two Pointers problem** of your choice.
+
+More problems should reinforce intuition —  
+not replace understanding with memorization.
 
 ---
 

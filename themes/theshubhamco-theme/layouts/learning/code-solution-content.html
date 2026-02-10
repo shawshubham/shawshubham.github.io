@@ -1,0 +1,112 @@
+{{ define "main" }}
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">{{ .Title }}</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    <!-- Progress Ring Floater (absolute in main section) -->
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        {{ $content := .Content }}
+        {{ $matches := findRE "<h2[^>]*>(.*?)</h2>" $content }}
+        {{ range $i, $match := $matches }}
+        <li>{{ replaceRE "<.*?>" "" $match }}</li>
+        {{ end }}
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          {{ if .GitInfo }}
+            Last updated on: {{ .GitInfo.AuthorDate.Format "2 Jan, 2006" }}
+          {{ else }}
+            Last updated on: {{ .Lastmod.Format "2 Jan, 2006" }}
+          {{ end }}
+        </p>
+      </div>
+    </div>
+
+    {{/* Optional: Problem meta header (only if problem front-matter exists) */}}
+    {{ with .Params.problem }}
+      <div class="solution-meta-card">
+        <div class="solution-meta-left">
+          {{ with .difficulty }}<span class="solution-pill">{{ . }}</span>{{ end }}
+          {{ with .source }}<span class="solution-pill">{{ . }}</span>{{ end }}
+
+          {{/* corePatterns (list) preferred; fallback to corePattern */}}
+          {{ $patternsRow := slice }}
+          {{ with .corePatterns }}
+            {{ range . }} {{ $patternsRow = $patternsRow | append (printf "%v" .) }} {{ end }}
+          {{ else }}
+            {{ with .corePattern }} {{ $patternsRow = $patternsRow | append (printf "%v" .) }} {{ end }}
+          {{ end }}
+
+          {{ if gt (len $patternsRow) 0 }}
+            <span class="solution-meta-label">Patterns:</span>
+            <span class="solution-meta-value">{{ delimit $patternsRow ", " }}</span>
+          {{ end }}
+        </div>
+
+        <div class="solution-meta-right">
+          {{ with .url }}
+            <a class="btn nav-btn" href="{{ . }}" target="_blank" rel="noopener">View Original Problem</a>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+    
+    <article class="topic-content">
+      {{ .Content }}
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    {{/* Back → Always go to All Problems */}}
+    {{ with .CurrentSection.GetPage "all-problems" }}
+        <a href="{{ .RelPermalink }}" class="btn nav-btn">&larr; Back</a>
+    {{ end }}
+
+    {{ partial "find-top-section.html" . }}
+    {{ $top := .Scratch.Get "topPageObject" }}
+    {{ with $top }}
+    <a href="{{ .RelPermalink }}" class="btn nav-btn">
+        {{ .Title }} : Home Page
+    </a>
+    {{ end }}
+  </div>
+</section>
+
+<!-- JS for Progress Ring -->
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+{{ end }}
