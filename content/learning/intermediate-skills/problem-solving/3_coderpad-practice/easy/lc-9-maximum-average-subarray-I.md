@@ -9,6 +9,7 @@ keywords:
   - interview sliding window
 date: 2026-02-12
 layout: "code-solution-content"
+toc_hide: true
 
 problem:
   id: "lc-9"

@@ -236,12 +236,45 @@ Pattern misuse leads to subtle bugs.
 
 ## 🔗 Practice Problems (CoderPad Style)
 
-To apply this pattern under interview conditions, explore tagged problems:
+To reinforce this pattern in a structured way, practice **phase-wise**.  
+All problems live in the central index — you’ll just filter by **Core Pattern = Sliding Window** and **Learning Phase**.
 
 **👉 [Sliding Window – Practice Problems](/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems)**  
 _(CoderPad Practice → Filter by “Sliding Window”)_
 
-Each problem follows the standard structure:
+### ✅ Phase 1 — Core (Calibration)
+
+Focus: build the window mental model (expand, shrink, maintain state).
+
+- **Longest Substring Without Repeating Characters**
+  _Variable window + uniqueness constraint_
+
+### ✅ Phase 2 — Stretch (Constraint Handling)
+
+Focus: “at most k” style validity checks and derived constraints.
+
+- **Longest Repeating Character Replacement**
+  _Variable window + tolerance (`k`) + max-frequency reasoning_
+
+### ✅ Phase 3 — Advanced (Precise Shrinking)
+
+Focus: shrinking must be exact — the smallest valid window.
+
+- **Minimum Window Substring**
+  _Covering substring with duplicates + `formed/required` discipline_
+
+### ✅ Phase 4 — Fixed Window (Core)
+
+Focus: fixed-size window with rolling update (add right, remove left).
+
+- **Maximum Average Subarray I**
+  _Fixed window + rolling sum_
+
+---
+
+### How to Practice (CoderPad Discipline)
+
+Each problem page follows the same structure:
 
 - problem understanding
 - constraints & edge cases
@@ -249,6 +282,12 @@ Each problem follows the standard structure:
 - optimized sliding window approach
 - final code
 - interview-style explanation
+
+📌 **Rule:** don’t move to the next phase until you can explain:
+
+- what the window represents,
+- what makes it valid/invalid,
+- and why the left pointer moves when it does.
 
 ---
 
