@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Two Sum II - Input Array Is Sorted</title>
+<title>Remove Duplicates from Sorted Array</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1770898606">
+<link rel="stylesheet" href="/css/style.css?v=1770898911">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -73,7 +73,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Two Sum II - Input Array Is Sorted</h1>
+    <h1 class="main-heading">Remove Duplicates from Sorted Array</h1>
   </div>
 </section>
 
@@ -103,7 +103,7 @@
         
         <li>5. Pattern Recognition</li>
         
-        <li>6. Optimized Approach (Two Pointers)</li>
+        <li>6. Optimized Approach (Fast &amp;amp; Slow Pointers)</li>
         
         <li>7. Final Code (Java)</li>
         
@@ -128,7 +128,7 @@
     
       <div class="solution-meta-card">
         <div class="solution-meta-left">
-          <span class="solution-pill">Medium</span>
+          <span class="solution-pill">Easy</span>
           <span class="solution-pill">LeetCode</span>
 
           
@@ -145,110 +145,111 @@
 
         <div class="solution-meta-right">
           
-            <a class="btn nav-btn" href="https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank" rel="noopener">View Original Problem</a>
+            <a class="btn nav-btn" href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="noopener">View Original Problem</a>
           
         </div>
       </div>
     
     
     <article class="topic-content">
-      <h1 id="leetcode-problem-two-sum-ii--input-array-is-sorted">LeetCode Problem: Two Sum II – Input Array Is Sorted</h1>
+      <h1 id="leetcode-problem-remove-duplicates-from-sorted-array">LeetCode Problem: Remove Duplicates from Sorted Array</h1>
 <h2 id="1-problem-statement">1. Problem Statement</h2>
-<p>Given a <strong>sorted array of integers</strong> <code>numbers</code> and an integer <code>target</code>, find <strong>two distinct elements</strong> such that their sum equals <code>target</code>.</p>
-<p>Return the <strong>1-based indices</strong> of the two numbers as an array <code>[index1, index2]</code>, where:</p>
-<ul>
-<li><code>1 ≤ index1 &lt; index2 ≤ numbers.length</code></li>
-<li>Exactly <strong>one solution exists</strong></li>
-<li>The same element <strong>cannot</strong> be used twice</li>
-</ul>
+<p>Given a <strong>sorted</strong> integer array <code>nums</code>, remove the duplicates <strong>in-place</strong> such that each unique element appears only once.</p>
+<p>Return <code>k</code>, the number of unique elements.</p>
+<p>After removing duplicates, the first <code>k</code> elements of <code>nums</code> should contain the unique elements in the <strong>same relative order</strong> as the original array.</p>
+<p>You must do this with <strong>O(1)</strong> extra space.</p>
 <hr>
 <h2 id="2-clarifying-questions-interview-thinking">2. Clarifying Questions (Interview Thinking)</h2>
 <p>Before coding, confirm:</p>
 <ul>
-<li>Is the array guaranteed to be sorted? → <strong>Yes</strong></li>
-<li>Are indices 0-based or 1-based? → <strong>1-based</strong></li>
-<li>Can the same element be reused? → <strong>No</strong></li>
-<li>Are duplicates allowed? → <strong>Yes</strong></li>
-<li>Is there always a valid solution? → <strong>Yes, exactly one</strong></li>
+<li>Is the array sorted? → <strong>Yes</strong></li>
+<li>Do we need to preserve order? → <strong>Yes</strong></li>
+<li>Should we allocate a new array? → <strong>No (in-place)</strong></li>
+<li>What do we return? → <strong>k (count of unique elements)</strong></li>
+<li>What about elements after index <code>k-1</code>? → <strong>Don&rsquo;t care</strong></li>
 </ul>
-<p>📌 These clarifications directly drive the solution approach.</p>
 <hr>
 <h2 id="3-constraints--edge-cases">3. Constraints &amp; Edge Cases</h2>
 <ul>
-<li><code>numbers.length &lt; 2</code> → not valid per problem constraints</li>
-<li>Negative numbers → allowed</li>
-<li>Duplicate values → allowed</li>
-<li>Exactly one solution → no need to handle “no solution” case</li>
+<li>Empty array → return <code>0</code></li>
+<li>Single element → return <code>1</code></li>
+<li>All unique → return <code>n</code></li>
+<li>All duplicates → return <code>1</code></li>
 </ul>
-<p>📌 Despite the guarantee, pointer bounds must still be handled safely.</p>
 <hr>
 <h2 id="4-brute-force-idea">4. Brute Force Idea</h2>
-<p>Check every possible pair using two nested loops.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time: O(n²)
-</span></span><span style="display:flex;"><span>Space: O(1)
-</span></span></code></pre></div><p>Correct, but inefficient.</p>
+<p>Create a new list of unique elements and copy back.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time: O(n)
+</span></span><span style="display:flex;"><span>Space: O(n)
+</span></span></code></pre></div><p>Correct, but violates the in-place requirement.</p>
 <hr>
 <h2 id="5-pattern-recognition">5. Pattern Recognition</h2>
 <p>Key observations:</p>
 <ul>
-<li>Array is <strong>sorted</strong></li>
-<li>We are checking <strong>pairs</strong></li>
-<li>We want to eliminate unnecessary comparisons</li>
+<li>Array is <strong>sorted</strong> → duplicates are adjacent</li>
+<li>Need <strong>in-place</strong> modification</li>
+<li>Must preserve relative order</li>
 </ul>
-<p>➡️ Two Pointers (Opposite Direction)</p>
-<hr>
-<h2 id="6-optimized-approach-two-pointers">6. Optimized Approach (Two Pointers)</h2>
+<p><strong>➡️ Two Pointers (Fast &amp; Slow)</strong></p>
 <ul>
-<li>Place one pointer at the start of the array</li>
-<li>Place another pointer at the end</li>
-<li>Compute the sum of both values
+<li>slow tracks the position to write the next unique value</li>
+<li>fast scans the array</li>
+</ul>
+<h2 id="6-optimized-approach-fast--slow-pointers">6. Optimized Approach (Fast &amp; Slow Pointers)</h2>
 <ul>
-<li>If sum &lt; target → move left pointer right</li>
-<li>If sum &gt; target → move right pointer left</li>
-<li>If sum == target → return their <strong>1-based indices</strong></li>
+<li>If the array is empty, return 0</li>
+<li>Initialize slow = 1 (next write position)</li>
+<li>Iterate fast from index 1 to end:
+<ul>
+<li>If nums[fast] != nums[fast - 1]:
+<ul>
+<li>write nums[fast] at nums[slow]</li>
+<li>increment slow</li>
 </ul>
 </li>
-<li>Stop when pointers cross</li>
 </ul>
-<p>Each pointer movement eliminates a set of impossible pairs.</p>
+</li>
+<li>Return slow as k</li>
+</ul>
+<p>This works because in a sorted array, a new unique element is detected when it differs from the previous element.</p>
 <h3 id="time--space-complexity">Time &amp; Space Complexity</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time: O(n)
 </span></span><span style="display:flex;"><span>Space: O(1)
 </span></span></code></pre></div><hr>
 <h2 id="7-final-code-java">7. Final Code (Java)</h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">twoSum</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> numbers, <span style="color:#66d9ef">int</span> target) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0, right <span style="color:#f92672">=</span> numbers.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">removeDuplicates</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(nums <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">==</span> 0){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> 0;
+</span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right) {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> numbers<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> numbers<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (sum <span style="color:#f92672">==</span> target) {
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span>{left <span style="color:#f92672">+</span> 1, right <span style="color:#f92672">+</span> 1}; <span style="color:#75715e">// 1-based indices</span>
-</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (sum <span style="color:#f92672">&gt;</span> target) {
-</span></span><span style="display:flex;"><span>                right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> slow <span style="color:#f92672">=</span> 0, fast <span style="color:#f92672">=</span> 1;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span>(fast <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (nums<span style="color:#f92672">[</span>slow<span style="color:#f92672">]</span> <span style="color:#f92672">!=</span> nums<span style="color:#f92672">[</span>fast<span style="color:#f92672">]</span>){
+</span></span><span style="display:flex;"><span>                nums<span style="color:#f92672">[++</span>slow<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> nums<span style="color:#f92672">[</span>fast<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>                fast<span style="color:#f92672">++</span>;
 </span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                fast<span style="color:#f92672">++</span>;
 </span></span><span style="display:flex;"><span>            }
 </span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>; <span style="color:#75715e">// unreachable due to problem guarantee</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> slow<span style="color:#f92672">+</span>1;
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h2 id="8-interview-style-explanation">8. Interview-Style Explanation</h2>
 <blockquote>
-<p>“Because the array is sorted, I can eliminate pairs intelligently.<br>
-I start with the smallest and largest elements and move pointers inward based on how the sum compares to the target.<br>
-Each step reduces the search space, so the solution runs in linear time.”</p></blockquote>
-<p>This explanation is <strong>interview-ready</strong>.</p>
+<p>“Because the array is sorted, duplicates appear next to each other.<br>
+I use two pointers: fast scans the array and slow tracks the next position to write a unique value.<br>
+Whenever I find a new value (different from the previous one), I write it at slow and move slow forward.<br>
+This keeps the unique elements in-place and preserves order in O(n) time and O(1) space.”</p></blockquote>
 <hr>
 <h2 id="9-common-mistakes">9. Common Mistakes</h2>
 <ul>
-<li>Ignoring the sorted constraint and using a hashmap</li>
-<li>Returning 0-based indices instead of 1-based</li>
-<li>Using nested loops unnecessarily</li>
-<li>Incorrect loop condition (&lt;= instead of &lt;)</li>
-<li>Forgetting the “exactly one solution” guarantee</li>
+<li>Forgetting the empty array case</li>
+<li>Starting slow at 0 and overwriting incorrectly</li>
+<li>Comparing nums[fast] with nums[slow] instead of nums[fast - 1]</li>
+<li>Allocating a new array (violates in-place requirement)</li>
 </ul>
 
     </article>
