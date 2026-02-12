@@ -10,17 +10,27 @@
 <section class="section topic-content-wrapper">
   <div class="container topic-content">
     <h1>All Problems</h1>
+    <p class="problems-intro">
+      Use filters to navigate problems by <strong>Learning Phase</strong>:<br/>
+      <ul>
+        <li><strong>Core</strong> (fundamentals),</li>
+        <li><strong>Stretch</strong> (pattern reinforcement),</li>
+        <li><strong>Advanced</strong> (complex or multi-concept).</li>
+      </ul>
+    </p>
     {{/* 1) Collect all problem solution pages under this section (recursive) */}}
     {{ $pages := where .CurrentSection.RegularPagesRecursive "Params.problem" "!=" nil }}
 
     {{/* 2) Build unique values for filters */}}
     {{ $difficulties := slice }}
+    {{ $learningPhases := slice }}
     {{ $patternsRow := slice }}
     {{ $allTags := slice }}
     {{ $sources := slice }}
 
     {{ range $pages }}
     {{ with .Params.problem.difficulty }} {{ $difficulties = $difficulties | append . }} {{ end }}
+    {{ with .Params.problem.learningPhase }} {{ $learningPhases = $learningPhases | append . }} {{ end }}
     {{ with .Params.problem.corePatterns }}
       {{ if (reflect.IsSlice .) }}
         {{ range . }}
@@ -35,6 +45,7 @@
     {{ end }}
 
     {{ $difficulties = uniq $difficulties | sort }}
+    {{ $learningPhases = uniq $learningPhases | sort }}
     {{ $patternsRow = uniq $patternsRow | sort }}
     {{ $allTags = uniq $allTags | sort }}
     {{ $sources = uniq $sources | sort }}
@@ -71,6 +82,14 @@
                 <select id="filterDifficulty">
                   <option value="">All</option>
                   {{ range $difficulties }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label for="filterLearningPhase">Learning Phase</label>
+                <select id="filterLearningPhase">
+                  <option value="">All</option>
+                  {{ range $learningPhases }} <option value="{{ . }}">{{ . }}</option> {{ end }}
                 </select>
               </div>
 
@@ -138,6 +157,7 @@
             <th>Solution</th>
             <th>Difficulty</th>
             <th>Core Pattern</th>
+            <th>Learning Phase</th>
             <th>Source</th>
             <th>Solved</th>
           </tr>
@@ -150,13 +170,14 @@
 
           {{ $pid := .Params.problem.id | default (printf "%s" .RelPermalink) }}
           {{ $difficulty := .Params.problem.difficulty | default "" }}
+          {{ $learningPhase := .Params.problem.learningPhase | default "" }}
           {{ $patternsRow := .Params.problem.corePatterns | default "" }}
           {{ $tags := .Params.problem.tags | default (slice) }}
           {{ $problemUrl := .Params.problem.url | default "" }}
           {{ $source := .Params.problem.source | default "" }}
 
           <tr class="problem-row" data-id="{{ $pid }}" data-title="{{ lower .Title }}"
-            data-difficulty="{{ $difficulty }}" data-patterns="{{ delimit $patternsRow "," }}" data-source="{{ $source }}"
+            data-difficulty="{{ $difficulty }}" data-patterns="{{ delimit $patternsRow "," }}" data-learning-phase="{{ $learningPhase }}" data-source="{{ $source }}"
             data-tags="{{ delimit $tags " ," }}">
             <td>{{ $i }}</td>
 
@@ -171,6 +192,7 @@
             <td><a href="{{ .RelPermalink }}">View</a></td>
             <td>{{ $difficulty }}</td>
             <td>{{ delimit $patternsRow ", " }}</td>
+            <td>{{ $learningPhase }}</td>
             <td>{{ $source }}</td>
 
             <td>
@@ -204,6 +226,7 @@
 
     const elSearch = document.getElementById("filterSearch");
     const elDifficulty = document.getElementById("filterDifficulty");
+    const elLearningPhase = document.getElementById("filterLearningPhase");
     const elPattern = document.getElementById("filterPattern");
     const elTag = document.getElementById("filterTag"); // might be null
     const elSource = document.getElementById("filterSource"); // might be null
@@ -231,13 +254,14 @@
     if (state.filters) {
       elSearch.value = state.filters.search || "";
       elDifficulty.value = state.filters.difficulty || "";
+      elLearningPhase.value = state.filters.learningPhase || "";
       elPattern.value = state.filters.pattern || "";
       elSolved.value = (state.filters.solved ?? "");
       if (elTag) elTag.value = state.filters.tag || "";
       if (elSource) elSource.value = state.filters.source || "";
     }
 
-    const filterControls = [elSearch, elDifficulty, elPattern, elSolved].filter(Boolean);
+    const filterControls = [elSearch, elDifficulty, elLearningPhase, elPattern, elSolved].filter(Boolean);
     if (elTag) filterControls.push(elTag);
     if (elSource) filterControls.push(elSource);
 
@@ -249,12 +273,13 @@
     elReset.addEventListener("click", () => {
       elSearch.value = "";
       elDifficulty.value = "";
+      elLearningPhase.value = "";
       elPattern.value = "";
       elSolved.value = "";
       if (elTag) elTag.value = "";
       if (elSource) elSource.value = "";
 
-      state.filters = { search: "", difficulty: "", pattern: "", solved: "", tag: "", source: "" };
+      state.filters = { search: "", difficulty: "", learningPhase: "", pattern: "", solved: "", tag: "", source: "" };
       saveState(state);
       applyFilters();
     });
@@ -275,6 +300,7 @@
       state.filters = {
         search: elSearch.value || "",
         difficulty: elDifficulty.value || "",
+        learningPhase: elLearningPhase.value || "",
         pattern: elPattern.value || "",
         solved: elSolved.value || "",
         tag: elTag ? (elTag.value || "") : "",
@@ -287,6 +313,7 @@
     function applyFilters() {
       const q = (elSearch.value || "").trim().toLowerCase();
       const d = elDifficulty.value;
+      const lp = elLearningPhase.value;
       const p = elPattern.value;
       const s = elSolved.value; // "", "true", "false"
       const t = elTag ? elTag.value : "";
@@ -310,6 +337,7 @@
         let ok = true;
         if (q && !title.includes(q)) ok = false;
         if (d && diff !== d) ok = false;
+        if (lp && row.dataset.learningPhase !== lp) ok = false;
         if (p && !patterns.includes(p)) ok = false;
         if (t && !tags.includes(t)) ok = false;
         if (src && source !== src) ok = false;
@@ -329,14 +357,14 @@
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { solved: {}, filters: { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" } };
+        if (!raw) return { solved: {}, filters: { search: "", difficulty: "", learningPhase: "", patterns: "", solved: "", tag: "", source: "" } };
         const parsed = JSON.parse(raw);
         return {
           solved: parsed.solved || {},
-          filters: parsed.filters || { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" }
+          filters: parsed.filters || { search: "", difficulty: "", learningPhase: "", patterns: "", solved: "", tag: "", source: "" }
         };
       } catch {
-        return { solved: {}, filters: { search: "", difficulty: "", patterns: "", solved: "", tag: "", source: "" } };
+        return { solved: {}, filters: { search: "", difficulty: "", learningPhase: "", patterns: "", solved: "", tag: "", source: "" } };
       }
     }
 

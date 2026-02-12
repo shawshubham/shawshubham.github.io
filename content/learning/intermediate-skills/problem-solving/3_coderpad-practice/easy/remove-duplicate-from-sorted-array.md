@@ -9,6 +9,7 @@ problem:
   source: "LeetCode"
   url: "https://leetcode.com/problems/remove-duplicates-from-sorted-array/"
   difficulty: "Easy"
+  learningPhase: "Core"
   corePatterns:
     - "Two Pointers"
   tags:

@@ -9,6 +9,7 @@ problem:
   source: "LeetCode"
   url: "https://leetcode.com/problems/3sum/"
   difficulty: "Medium"
+  learningPhase: "Stretch"
   corePatterns:
     - "Two Pointers"
   tags:

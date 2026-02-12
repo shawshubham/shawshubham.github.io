@@ -9,6 +9,7 @@ problem:
   source: "LeetCode"
   url: "https://leetcode.com/problems/longest-substring-without-repeating-characters/"
   difficulty: "Medium"
+  learningPhase: "Core"
   corePatterns:
     - "Sliding Window"
   tags:

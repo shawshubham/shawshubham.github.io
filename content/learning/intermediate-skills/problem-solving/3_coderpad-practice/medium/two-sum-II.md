@@ -9,6 +9,7 @@ problem:
   source: "LeetCode"
   url: "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/"
   difficulty: "Medium"
+  learningPhase: "Core"
   corePatterns:
     - "Two Pointers"
   tags:

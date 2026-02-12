@@ -9,6 +9,7 @@ problem:
   source: "LeetCode"
   url: "https://leetcode.com/problems/container-with-most-water/"
   difficulty: "Medium"
+  learningPhase: "Core"
   corePatterns:
     - "Two Pointers"
   tags:

@@ -9,6 +9,7 @@ problem:
   source: "LeetCode"
   url: "https://leetcode.com/problems/longest-repeating-character-replacement/"
   difficulty: "Medium"
+  learningPhase: "Stretch"
   corePatterns:
     - "Sliding Window"
   tags:
