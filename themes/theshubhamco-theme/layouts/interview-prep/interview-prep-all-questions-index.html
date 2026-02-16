@@ -1,0 +1,377 @@
+{{ define "main" }}
+
+<!-- HERO SECTION -->
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Interview Prep</p>
+    <h1 class="main-heading">{{ .Title }}</h1>
+    {{ with .Params.description }}<p class="sub-heading">{{ . }}</p>{{ end }}
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  <div class="container topic-content">
+
+  <h1>All Interview Questions</h1>
+  <p class="problems-intro">
+    Use filters to explore questions by <strong>Interview Phase</strong>:
+  </p>
+  
+  <ul class="phase-explainer">
+    <li>
+      <strong>Core</strong> — baseline questions interviewers expect every candidate to answer correctly
+    </li>
+    <li>
+      <strong>Stretch</strong> — follow-ups that test depth, edge cases, and reasoning
+    </li>
+    <li>
+      <strong>Advanced</strong> — senior-level questions involving multiple concepts and trade-offs
+    </li>
+  </ul>
+
+    {{/* 1) Collect all interview question pages under this section (recursive) */}}
+    {{ $pages := where .CurrentSection.RegularPagesRecursive "Params.interview" "!=" nil }}
+
+    {{/* 2) Build unique values for filters */}}
+    {{ $phases := slice }}
+    {{ $topics := slice }}
+    {{ $rounds := slice }}
+    {{ $companies := slice }}
+    {{ $allTags := slice }}
+
+    {{ range $pages }}
+      {{ with .Params.interview.phase }} {{ $phases = $phases | append . }} {{ end }}
+      {{ with .Params.interview.topic }} {{ $topics = $topics | append . }} {{ end }}
+      {{ with .Params.interview.round }} {{ $rounds = $rounds | append . }} {{ end }}
+      {{ with .Params.interview.company }} {{ $companies = $companies | append . }} {{ end }}
+      {{ with .Params.interview.tags }} {{ range . }} {{ $allTags = $allTags | append . }} {{ end }} {{ end }}
+    {{ end }}
+
+    {{ $phases = uniq $phases | sort }}
+    {{ $topics = uniq $topics | sort }}
+    {{ $rounds = uniq $rounds | sort }}
+    {{ $companies = uniq $companies | sort }}
+    {{ $allTags = uniq $allTags | sort }}
+
+    <!-- =========================
+     Toolbar (Search + Filters + Clear Solved)
+     ========================= -->
+    <div class="problems-toolbar">
+
+      <div class="toolbar-left-group">
+
+        <!-- Search -->
+        <div class="toolbar-left">
+          <label class="sr-only" for="filterSearch">Search Question</label>
+          <div class="search-input-wrapper">
+            <input id="filterSearch" type="text" placeholder="Search questions" />
+            <span class="search-icon" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <!-- Filter dropdown -->
+        <div class="toolbar-middle">
+          <details class="filters-dropdown" id="filtersDropdown">
+            <summary class="btn filter-icon" aria-label="Filter">
+              <span class="filter-icon-glyph" aria-hidden="true"></span>
+            </summary>
+
+            <div class="filters-panel">
+
+              <div class="filter-item">
+                <label for="filterPhase">Phase</label>
+                <select id="filterPhase">
+                  <option value="">All</option>
+                  {{ range $phases }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+
+              {{ if gt (len $topics) 0 }}
+              <div class="filter-item">
+                <label for="filterTopic">Topic</label>
+                <select id="filterTopic">
+                  <option value="">All</option>
+                  {{ range $topics }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+              {{ end }}
+
+              {{ if gt (len $rounds) 0 }}
+              <div class="filter-item">
+                <label for="filterRound">Round</label>
+                <select id="filterRound">
+                  <option value="">All</option>
+                  {{ range $rounds }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+              {{ end }}
+
+              {{ if gt (len $companies) 0 }}
+              <div class="filter-item">
+                <label for="filterCompany">Company</label>
+                <select id="filterCompany">
+                  <option value="">All</option>
+                  {{ range $companies }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+              {{ end }}
+
+              {{ if gt (len $allTags) 0 }}
+              <div class="filter-item">
+                <label for="filterTag">Tag</label>
+                <select id="filterTag">
+                  <option value="">All</option>
+                  {{ range $allTags }} <option value="{{ . }}">{{ . }}</option> {{ end }}
+                </select>
+              </div>
+              {{ end }}
+
+              <div class="filter-item">
+                <label for="filterSolved">Solved</label>
+                <select id="filterSolved">
+                  <option value="">All</option>
+                  <option value="true">Solved</option>
+                  <option value="false">Unsolved</option>
+                </select>
+              </div>
+
+              <div class="filters-actions">
+                <button class="btn" id="resetFilters" type="button">Reset</button>
+              </div>
+
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn" id="clearSolved" type="button">Clear Solved</button>
+      </div>
+
+    </div>
+
+    <div class="problems-meta" id="problemsMeta"></div>
+
+    <div class="problems-table-wrapper">
+      <table class="problems-table" id="problemsTable" border="1" cellpadding="8">
+        <thead>
+          <tr>
+            <th>SL</th>
+            <th>Question</th>
+            <th>Answer</th>
+            <th>Phase</th>
+            <th>Topic</th>
+            <th>Round</th>
+            <th>Company</th>
+            <th>Solved</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{ $i := 0 }}
+          {{ range sort $pages "Title" "asc" }}
+            {{ $i = add $i 1 }}
+
+            {{ $qid := .Params.interview.id | default (printf "%s" .RelPermalink) }}
+            {{ $phase := .Params.interview.phase | default "" }}
+            {{ $topic := .Params.interview.topic | default "" }}
+            {{ $round := .Params.interview.round | default "" }}
+            {{ $company := .Params.interview.company | default "" }}
+            {{ $tags := .Params.interview.tags | default (slice) }}
+
+            <tr class="problem-row"
+                data-id="{{ $qid }}"
+                data-title="{{ lower .Title }}"
+                data-phase="{{ $phase }}"
+                data-topic="{{ $topic }}"
+                data-round="{{ $round }}"
+                data-company="{{ $company }}"
+                data-tags="{{ delimit $tags "," }}">
+              <td>{{ $i }}</td>
+
+              <td>{{ .Title }}</td>
+
+              <td><a href="{{ .RelPermalink }}">View</a></td>
+
+              <td>{{ $phase }}</td>
+              <td>{{ $topic }}</td>
+              <td>{{ $round }}</td>
+              <td>{{ $company }}</td>
+
+              <td>
+                <input type="checkbox" class="solved-checkbox" aria-label="Solved" />
+              </td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    {{ partial "find-top-section.html" . }}
+    {{ $top := .Scratch.Get "topPageObject" }}
+    {{ with $top }}
+      <a href="{{ .RelPermalink }}" class="btn nav-btn">{{ .Title }} : Home Page</a>
+    {{ end }}
+  </div>
+</section>
+
+<script>
+  (() => {
+    const STORAGE_KEY = "theshubhamco:interview:v1";
+    const state = loadState();
+
+    const elSearch   = document.getElementById("filterSearch");
+    const elPhase    = document.getElementById("filterPhase");
+    const elTopic    = document.getElementById("filterTopic");   // may be null
+    const elRound    = document.getElementById("filterRound");   // may be null
+    const elCompany  = document.getElementById("filterCompany"); // may be null
+    const elTag      = document.getElementById("filterTag");     // may be null
+    const elSolved   = document.getElementById("filterSolved");
+    const elReset    = document.getElementById("resetFilters");
+    const elClear    = document.getElementById("clearSolved");
+    const meta       = document.getElementById("problemsMeta");
+
+    const rows = Array.from(document.querySelectorAll(".problem-row"));
+
+    // Restore checkbox state
+    rows.forEach(row => {
+      const id = row.dataset.id;
+      const checkbox = row.querySelector(".solved-checkbox");
+      checkbox.checked = !!state.solved[id];
+
+      checkbox.addEventListener("change", () => {
+        state.solved[id] = checkbox.checked;
+        saveState(state);
+        applyFilters();
+      });
+    });
+
+    // Restore filters
+    if (state.filters) {
+      elSearch.value = state.filters.search || "";
+      elPhase.value  = state.filters.phase  || "";
+      elSolved.value = (state.filters.solved ?? "");
+
+      if (elTopic)   elTopic.value   = state.filters.topic || "";
+      if (elRound)   elRound.value   = state.filters.round || "";
+      if (elCompany) elCompany.value = state.filters.company || "";
+      if (elTag)     elTag.value     = state.filters.tag || "";
+    }
+
+    const filterControls = [elSearch, elPhase, elSolved].filter(Boolean);
+    if (elTopic) filterControls.push(elTopic);
+    if (elRound) filterControls.push(elRound);
+    if (elCompany) filterControls.push(elCompany);
+    if (elTag) filterControls.push(elTag);
+
+    filterControls.forEach(el => {
+      el.addEventListener("input", onFilterChanged);
+      el.addEventListener("change", onFilterChanged);
+    });
+
+    elReset.addEventListener("click", () => {
+      elSearch.value = "";
+      elPhase.value = "";
+      elSolved.value = "";
+      if (elTopic) elTopic.value = "";
+      if (elRound) elRound.value = "";
+      if (elCompany) elCompany.value = "";
+      if (elTag) elTag.value = "";
+
+      state.filters = { search:"", phase:"", topic:"", round:"", company:"", tag:"", solved:"" };
+      saveState(state);
+      applyFilters();
+    });
+
+    elClear.addEventListener("click", () => {
+      state.solved = {};
+      saveState(state);
+      rows.forEach(row => row.querySelector(".solved-checkbox").checked = false);
+      applyFilters();
+    });
+
+    function onFilterChanged() {
+      state.filters = {
+        search: elSearch.value || "",
+        phase: elPhase.value || "",
+        topic: elTopic ? (elTopic.value || "") : "",
+        round: elRound ? (elRound.value || "") : "",
+        company: elCompany ? (elCompany.value || "") : "",
+        tag: elTag ? (elTag.value || "") : "",
+        solved: elSolved.value || ""
+      };
+      saveState(state);
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const q   = (elSearch.value || "").trim().toLowerCase();
+      const ph  = elPhase.value || "";
+      const tp  = elTopic ? (elTopic.value || "") : "";
+      const rd  = elRound ? (elRound.value || "") : "";
+      const co  = elCompany ? (elCompany.value || "") : "";
+      const tg  = elTag ? (elTag.value || "") : "";
+      const sol = elSolved.value; // "", "true", "false"
+
+      let visible = 0;
+      let solvedVisible = 0;
+
+      rows.forEach(row => {
+        const id = row.dataset.id;
+        const title = row.dataset.title || "";
+        const phase = row.dataset.phase || "";
+        const topic = row.dataset.topic || "";
+        const round = row.dataset.round || "";
+        const company = row.dataset.company || "";
+        const tags = (row.dataset.tags || "").split(",").map(x => x.trim()).filter(Boolean);
+        const isSolved = !!state.solved[id];
+
+        let ok = true;
+        if (q && !title.includes(q)) ok = false;
+        if (ph && phase !== ph) ok = false;
+        if (tp && topic !== tp) ok = false;
+        if (rd && round !== rd) ok = false;
+        if (co && company !== co) ok = false;
+        if (tg && !tags.includes(tg)) ok = false;
+        if (sol === "true" && !isSolved) ok = false;
+        if (sol === "false" && isSolved) ok = false;
+
+        row.style.display = ok ? "" : "none";
+
+        if (ok) {
+          visible++;
+          if (isSolved) solvedVisible++;
+        }
+      });
+
+      meta.textContent = `Showing ${visible} questions • Solved: ${solvedVisible}/${visible}`;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { solved: {}, filters: { search:"", phase:"", topic:"", round:"", company:"", tag:"", solved:"" } };
+        const parsed = JSON.parse(raw);
+        return {
+          solved: parsed.solved || {},
+          filters: parsed.filters || { search:"", phase:"", topic:"", round:"", company:"", tag:"", solved:"" }
+        };
+      } catch {
+        return { solved: {}, filters: { search:"", phase:"", topic:"", round:"", company:"", tag:"", solved:"" } };
+      }
+    }
+
+    function saveState(next) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    }
+
+    applyFilters();
+  })();
+</script>
+
+{{ end }}

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Queue &amp; BFS — Exploring Problems Level by Level</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771263892">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Queue &amp; BFS — Exploring Problems Level by Level</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why This Pattern Exists</li>
+        
+        <li>2. The Core Mental Model</li>
+        
+        <li>3. What BFS Is (and Is Not)</li>
+        
+        <li>4. When to Use BFS (Recognition Signals)</li>
+        
+        <li>5. The Mental Model</li>
+        
+        <li>6. Generic BFS Template (Conceptual)</li>
+        
+        <li>7. Level-Based BFS (Very Common in Interviews)</li>
+        
+        <li>8. Visited State — The Most Common Bug</li>
+        
+        <li>9. BFS vs DFS (Quick Contrast)</li>
+        
+        <li>10. Common Variants You’ll See Later</li>
+        
+        <li>11. Common Interview Mistakes</li>
+        
+        <li>🔗 Practice Problems (CoderPad Style)</li>
+        
+        <li>Key Takeaway</li>
+        
+        <li>🔗 What’s Next?</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 16 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h1 id="queue--bfs--exploring-problems-level-by-level">Queue &amp; BFS — Exploring Problems Level by Level</h1>
+<p>Queue-based <strong>Breadth-First Search (BFS)</strong> is a foundational problem-solving pattern used whenever problems involve <strong>progressing step-by-step</strong>, <strong>levels</strong>, or <strong>minimum distance</strong>.</p>
+<p>This article focuses on <strong>recognition and mental models</strong>, not problem memorization.</p>
+<hr>
+<h2 id="1-why-this-pattern-exists">1. Why This Pattern Exists</h2>
+<p>Some problems cannot be solved by:</p>
+<ul>
+<li>sorting,</li>
+<li>two pointers,</li>
+<li>or sliding windows.</li>
+</ul>
+<p>They require:</p>
+<ul>
+<li>exploring <strong>all possibilities at the current depth</strong></li>
+<li>before moving deeper.</li>
+</ul>
+<p>That is exactly what BFS provides.</p>
+<hr>
+<h2 id="2-the-core-mental-model">2. The Core Mental Model</h2>
+<blockquote>
+<p><strong>BFS explores problems level by level.</strong></p></blockquote>
+<p>This guarantees:</p>
+<ul>
+<li>the <strong>shortest path</strong> in unweighted graphs</li>
+<li>the <strong>minimum number of steps</strong></li>
+<li>the earliest time a state is reached</li>
+</ul>
+<h3 id="21-queue-meaning">2.1 Queue Meaning</h3>
+<p>A <strong>queue</strong> enforces this ordering naturally.</p>
+<ul>
+<li>First, all states at distance <code>0</code></li>
+<li>Then, all states at distance <code>1</code></li>
+<li>Then, all states at distance <code>2</code></li>
+<li>… and so on</li>
+</ul>
+<blockquote>
+<p>If the order of exploration matters, BFS matters.</p></blockquote>
+<p>The queue represents:</p>
+<blockquote>
+<p>“All states that are ready to be processed <em>next</em>.”</p></blockquote>
+<p>First in → first explored.</p>
+<hr>
+<h2 id="3-what-bfs-is-and-is-not">3. What BFS Is (and Is Not)</h2>
+<h3 id="31-bfs-is">3.1 BFS <strong>is</strong></h3>
+<ul>
+<li>a traversal pattern</li>
+<li>level-by-level exploration</li>
+<li>optimal for unweighted shortest paths</li>
+<li>queue-driven</li>
+</ul>
+<h3 id="32-bfs-is-not">3.2 BFS <strong>is not</strong></h3>
+<ul>
+<li>recursion-first (that’s DFS)</li>
+<li>about backtracking</li>
+<li>about maximizing or minimizing values directly</li>
+</ul>
+<hr>
+<h2 id="4-when-to-use-bfs-recognition-signals">4. When to Use BFS (Recognition Signals)</h2>
+<p>Use BFS when the problem mentions:</p>
+<ul>
+<li><strong>Shortest path</strong></li>
+<li><strong>Minimum number of moves / steps</strong></li>
+<li><strong>Nearest / farthest</strong></li>
+<li><strong>Level order</strong></li>
+<li><strong>All states reachable from X</strong></li>
+<li><strong>Transformations</strong> (one step at a time)</li>
+</ul>
+<p>If all moves have <strong>equal cost</strong>, BFS guarantees the first time you reach a state is optimal.</p>
+<hr>
+<h2 id="5-the-mental-model">5. The Mental Model</h2>
+<p>Think in terms of <strong>states</strong>.</p>
+<p>A state could be:</p>
+<ul>
+<li>a node in a tree or graph</li>
+<li>a cell in a grid</li>
+<li>a word in a dictionary</li>
+<li>a configuration (string, number, mask)</li>
+</ul>
+<p>BFS answers:</p>
+<blockquote>
+<p>“What can I reach next, given where I am now?”</p></blockquote>
+<hr>
+<h2 id="6-generic-bfs-template-conceptual">6. Generic BFS Template (Conceptual)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>queue ← starting state
+</span></span><span style="display:flex;"><span>mark starting state as visited
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>while queue not empty:
+</span></span><span style="display:flex;"><span>    current ← dequeue
+</span></span><span style="display:flex;"><span>    for each neighbor of current:
+</span></span><span style="display:flex;"><span>        if neighbor not visited:
+</span></span><span style="display:flex;"><span>            mark visited
+</span></span><span style="display:flex;"><span>            enqueue neighbor
+</span></span></code></pre></div><p>The <strong>queue</strong> ensures correct exploration order.</p>
+<hr>
+<h2 id="7-level-based-bfs-very-common-in-interviews">7. Level-Based BFS (Very Common in Interviews)</h2>
+<p>Sometimes you need to process <strong>levels explicitly</strong>.</p>
+<p>Typical signal:</p>
+<ul>
+<li>“minimum number of steps”</li>
+<li>“distance from source”</li>
+</ul>
+<p>Conceptual structure:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>steps = 0
+</span></span><span style="display:flex;"><span>while queue not empty:
+</span></span><span style="display:flex;"><span>    for each element currently in queue:
+</span></span><span style="display:flex;"><span>        process element
+</span></span><span style="display:flex;"><span>        add neighbors
+</span></span><span style="display:flex;"><span>    steps++
+</span></span></code></pre></div><p>Each loop = one level.</p>
+<hr>
+<h2 id="8-visited-state--the-most-common-bug">8. Visited State — The Most Common Bug</h2>
+<p>Every BFS problem needs <strong>visited tracking</strong>.</p>
+<p>Why?</p>
+<ul>
+<li>To avoid infinite loops</li>
+<li>To avoid revisiting states</li>
+<li>To guarantee correctness</li>
+</ul>
+<p>Visited can be:</p>
+<ul>
+<li>a boolean array</li>
+<li>a set</li>
+<li>marking in-place (grid problems)</li>
+</ul>
+<blockquote>
+<p>If you forget visited, BFS breaks.</p></blockquote>
+<hr>
+<h2 id="9-bfs-vs-dfs-quick-contrast">9. BFS vs DFS (Quick Contrast)</h2>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>BFS</th>
+          <th>DFS</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Traversal</td>
+          <td>Level-by-level</td>
+          <td>Deep-first</td>
+      </tr>
+      <tr>
+          <td>Uses</td>
+          <td><strong>Queue</strong></td>
+          <td><strong>Stack / recursion</strong></td>
+      </tr>
+      <tr>
+          <td>Shortest path (unweighted)</td>
+          <td>✅ Yes</td>
+          <td>❌ No</td>
+      </tr>
+      <tr>
+          <td>Memory</td>
+          <td>Higher</td>
+          <td>Lower</td>
+      </tr>
+      <tr>
+          <td>Typical interview use</td>
+          <td>Paths, steps</td>
+          <td>Exploration, existence</td>
+      </tr>
+  </tbody>
+</table>
+<p>Understanding <em>why</em> BFS guarantees shortest paths is critical.</p>
+<hr>
+<h2 id="10-common-variants-youll-see-later">10. Common Variants You’ll See Later</h2>
+<p>This pattern shows up in many disguises:</p>
+<ul>
+<li>Tree level-order traversal</li>
+<li>Grid BFS (up/down/left/right)</li>
+<li>Word transformations</li>
+<li>Multi-source BFS</li>
+<li>State-space search</li>
+</ul>
+<p>The core idea <strong>never changes</strong>.</p>
+<hr>
+<h2 id="11-common-interview-mistakes">11. Common Interview Mistakes</h2>
+<ul>
+<li>Using DFS when shortest path is required</li>
+<li>Forgetting to mark visited early</li>
+<li>Adding the same state multiple times</li>
+<li>Overcomplicating state representation</li>
+<li>Not recognizing BFS early enough</li>
+</ul>
+<h2 id="-practice-problems-coderpad-style">🔗 Practice Problems (CoderPad Style)</h2>
+<p>To apply <strong>Queue &amp; BFS–based patterns</strong> under interview conditions, explore tagged problems:</p>
+<p>👉 <strong><a href="/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems">Queue &amp; BFS Based Patterns – Practice Problems</a></strong><br>
+<em>(CoderPad Practice → Filter by “Queue &amp; BFS”)</em></p>
+<p>Each problem follows the standard structure:</p>
+<ul>
+<li>problem understanding</li>
+<li>constraints &amp; edge cases</li>
+<li>brute force idea</li>
+<li>optimized queue / BFS-based approach</li>
+<li>final code</li>
+<li>interview-style explanation</li>
+</ul>
+<hr>
+<h2 id="key-takeaway">Key Takeaway</h2>
+<p>If a problem asks for <strong>minimum steps</strong>, <strong>shortest path</strong>, or <strong>closest reach</strong>,<br>
+<strong>BFS is not an option — it is the answer.</strong></p>
+<hr>
+<h2 id="-whats-next">🔗 What’s Next?</h2>
+<p>Up next:<br>
+👉 <strong><a href="/learning/intermediate-skills/problem-solving/2_problem-solving-core-patterns/2_6_heap-top-k-pattern">Heap / Top-K Pattern</a></strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/intermediate-skills/problem-solving/2_problem-solving-core-patterns/2_4_stack-based-pattern/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/problem-solving/" class="btn nav-btn">
+        Problem Solving : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

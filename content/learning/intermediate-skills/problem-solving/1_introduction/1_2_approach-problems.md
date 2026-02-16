@@ -8,7 +8,7 @@ keywords:
   - coderpad problem solving
   - algorithmic thinking framework
 weight: 2
-date: 2025-06-14
+date: 2026-02-14
 layout: "topic-content"
 ---
 
@@ -245,9 +245,19 @@ This framework helps you:
 
 ---
 
-## 🔗 What’s Next?
+### 🔗 What’s Next?
 
-With a framework in place, the next step is to learn **reusable problem-solving patterns**.
+You now have a **reliable framework** to approach any individual problem:
+how to understand it, reason about constraints, and structure a solution.
+
+The next step is to zoom out.
+
+Before learning specific problem-solving patterns, it’s important to understand
+**how the entire preparation journey should be structured** — what to focus on first,
+what to defer, and why.
 
 Up next:  
-**👉 [Problem Solving Core Patterns – Recognizing the Shape of Problems](/learning/intermediate-skills/problem-solving/2_problem-solving-core-patterns/2_1_introduction)**
+**👉 [Problem Solving Strategy for Coding Interviews — A Phase-Based Learning Approach](/learning/intermediate-skills/problem-solving/1_introduction/1_3_phase-based-learning-approach)**
+
+> 📌 This will clarify _how_ to use the upcoming Core Patterns section effectively,  
+> and prevent common mistakes like chasing speed too early.

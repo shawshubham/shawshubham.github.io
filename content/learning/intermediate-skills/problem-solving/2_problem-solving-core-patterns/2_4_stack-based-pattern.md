@@ -267,4 +267,4 @@ many complex-looking problems become systematic.
 With stack-based reasoning in place, we move to **level-wise traversal and shortest paths**.
 
 Up next:  
-**👉 Queue & BFS – Exploring Problems Level by Level**
+👉 **[Queue & BFS – Exploring Problems Level by Level](/learning/intermediate-skills/problem-solving/2_problem-solving-core-patterns/2_5_queue-and-bfs-pattern)**
