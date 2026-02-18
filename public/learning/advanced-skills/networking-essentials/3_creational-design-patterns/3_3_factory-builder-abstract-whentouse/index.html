@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factory Method vs Builder vs Abstract Factory – When to Use What</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771361682">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Factory Method vs Builder vs Abstract Factory – When to Use What</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why These Patterns Are Often Confused</li>
+        
+        <li>2. The Core Difference (In One Sentence Each)</li>
+        
+        <li>3. Factory Method – Choosing the Right Type</li>
+        
+        <li>4. Builder – Constructing Complex Objects Safely</li>
+        
+        <li>5. Abstract Factory – Creating Families of Objects</li>
+        
+        <li>6. Side-by-Side Comparison (The Money Table)</li>
+        
+        <li>7. How These Patterns Work Together (Very Important)</li>
+        
+        <li>8. A Simple Decision Guide (Bookmark This)</li>
+        
+        <li>9. Interview Insight</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 17 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-these-patterns-are-often-confused">1. Why These Patterns Are Often Confused</h2>
+<hr>
+<p>Factory Method, Builder, and Abstract Factory all deal with <strong>object creation</strong>.</p>
+<p>That’s why they’re frequently mixed up — especially in interviews.</p>
+<p>But they solve <strong>very different problems</strong>.</p>
+<p>The confusion usually comes from asking the wrong question:</p>
+<blockquote>
+<p>❌ “Which pattern should I use for object creation?”</p></blockquote>
+<p>The right question is:</p>
+<blockquote>
+<p>✅ <strong>“What <em>kind</em> of creation problem do I have?”</strong></p></blockquote>
+<p>This chapter exists to answer exactly that.</p>
+<hr>
+<h2 id="2-the-core-difference-in-one-sentence-each">2. The Core Difference (In One Sentence Each)</h2>
+<hr>
+<p>Let’s strip these patterns down to their essence:</p>
+<ul>
+<li>
+<p><strong>Factory Method</strong><br>
+👉 <em>“I don’t want to know which concrete class I’m creating.”</em></p>
+</li>
+<li>
+<p><strong>Builder</strong><br>
+👉 <em>“Creating this object is complex or has many optional parts.”</em></p>
+</li>
+<li>
+<p><strong>Abstract Factory</strong><br>
+👉 <em>“I need to create families of related objects consistently.”</em></p>
+</li>
+</ul>
+<p>If you remember only this, you’ll already outperform most candidates.</p>
+<blockquote>
+<p>📝 <strong>NOTE: Other creational patterns like Singleton and Prototype solve different concerns and are discussed separately.</strong></p></blockquote>
+<hr>
+<h2 id="3-factory-method--choosing-the-right-type">3. Factory Method – Choosing the Right Type</h2>
+<hr>
+<h3 id="when-the-problem-looks-like-this">When the Problem Looks Like This</h3>
+<ul>
+<li>Multiple implementations of an interface</li>
+<li>Client should not depend on concrete classes</li>
+<li>Decision is based on:
+<ul>
+<li>type</li>
+<li>configuration</li>
+<li>input value</li>
+<li>environment</li>
+</ul>
+</li>
+</ul>
+<h3 id="typical-smell">Typical Smell</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (type <span style="color:#f92672">==</span> FILE) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> FileSaver();
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (type <span style="color:#f92672">==</span> DB) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> DBSaver();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="use-factory-method-when">Use Factory Method When</h3>
+<ul>
+<li>The object type varies</li>
+<li>The creation logic changes more often than usage</li>
+<li>You want to hide <code>new</code> behind an abstraction</li>
+</ul>
+<h3 id="what-factory-method-solves">What Factory Method Solves</h3>
+<ul>
+<li>Decouples client from concrete classes</li>
+<li>Supports OCP and DIP naturally</li>
+<li>Keeps creation logic in one place</li>
+</ul>
+<blockquote>
+<p>📌 <strong>Key insight</strong>:<br>
+Factory Method answers <strong>“which object?”</strong>, not <strong>“how complex?”</strong></p></blockquote>
+<hr>
+<h2 id="4-builder--constructing-complex-objects-safely">4. Builder – Constructing Complex Objects Safely</h2>
+<hr>
+<h3 id="when-the-problem-looks-like-this-1">When the Problem Looks Like This</h3>
+<ul>
+<li>Object has many fields</li>
+<li>Some fields are optional</li>
+<li>Construction order matters</li>
+<li>You want readable, self-documenting code</li>
+</ul>
+<h3 id="typical-smell-1">Typical Smell</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> User(name, email, phone, address, preferences, role, status, ...)
+</span></span></code></pre></div><h3 id="use-builder-when">Use Builder When</h3>
+<ul>
+<li>Constructors become unreadable</li>
+<li>Objects can exist in invalid states</li>
+<li>You want immutability with flexibility</li>
+</ul>
+<h3 id="what-builder-solves">What Builder Solves</h3>
+<ul>
+<li>Prevents constructor explosion</li>
+<li>Improves readability</li>
+<li>Makes object construction explicit and safe</li>
+</ul>
+<blockquote>
+<p>📌 <strong>Key insight</strong>:<br>
+Builder answers <strong>“how to build step by step?”</strong>, not <strong>“which type?”</strong></p></blockquote>
+<hr>
+<h2 id="5-abstract-factory--creating-families-of-objects">5. Abstract Factory – Creating Families of Objects</h2>
+<hr>
+<h3 id="when-the-problem-looks-like-this-2">When the Problem Looks Like This</h3>
+<ul>
+<li>Multiple related objects must work together</li>
+<li>Variants must remain consistent</li>
+<li>You want to swap entire families at once</li>
+</ul>
+<h3 id="example-contexts">Example Contexts</h3>
+<ul>
+<li>UI components (Windows vs Mac)</li>
+<li>Persistence stacks (File + Formatter + Validator)</li>
+<li>Environment-specific implementations</li>
+</ul>
+<h3 id="use-abstract-factory-when">Use Abstract Factory When</h3>
+<ul>
+<li>Objects are related and must be compatible</li>
+<li>You want to switch implementations at a higher level</li>
+<li>You need consistency guarantees</li>
+</ul>
+<h3 id="what-abstract-factory-solves">What Abstract Factory Solves</h3>
+<ul>
+<li>Ensures object compatibility</li>
+<li>Avoids mixing incompatible implementations</li>
+<li>Scales better than multiple factories</li>
+</ul>
+<blockquote>
+<p>📌 <strong>Key insight</strong>:<br>
+Abstract Factory answers <strong>“which family of objects?”</strong></p></blockquote>
+<hr>
+<h2 id="6-side-by-side-comparison-the-money-table">6. Side-by-Side Comparison (The Money Table)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Factory Method</th>
+          <th>Builder</th>
+          <th>Abstract Factory</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Main purpose</td>
+          <td>Choose object type</td>
+          <td>Build complex object</td>
+          <td>Create object families</td>
+      </tr>
+      <tr>
+          <td>Focus</td>
+          <td><em>Which object</em></td>
+          <td><em>How to construct</em></td>
+          <td><em>Which family</em></td>
+      </tr>
+      <tr>
+          <td>Handles complexity</td>
+          <td>❌</td>
+          <td>✅</td>
+          <td>⚠️ (indirectly)</td>
+      </tr>
+      <tr>
+          <td>Handles variants</td>
+          <td>✅</td>
+          <td>❌</td>
+          <td>✅ (at family level)</td>
+      </tr>
+      <tr>
+          <td>Common misuse</td>
+          <td>Overengineering</td>
+          <td>Using for simple objects</td>
+          <td>Premature abstraction</td>
+      </tr>
+      <tr>
+          <td>Typical output</td>
+          <td>One object</td>
+          <td>One object</td>
+          <td>Multiple related objects</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="7-how-these-patterns-work-together-very-important">7. How These Patterns Work Together (Very Important)</h2>
+<hr>
+<p>These patterns are <strong>not competitors</strong>.</p>
+<p>They are often <strong>used together</strong>.</p>
+<p>Example flow in real systems:</p>
+<ul>
+<li><strong>Abstract Factory</strong> selects a family</li>
+<li><strong>Factory Method</strong> selects a concrete type</li>
+<li><strong>Builder</strong> constructs the object safely</li>
+</ul>
+<p>Understanding this composition is a <strong>senior-level insight</strong>.</p>
+<hr>
+<h2 id="8-a-simple-decision-guide-bookmark-this">8. A Simple Decision Guide (Bookmark This)</h2>
+<hr>
+<p>Ask these questions in order:</p>
+<p>1️⃣ <em>Do I need to hide which concrete class is created?</em>
+→ <strong>Factory Method</strong></p>
+<p>2️⃣ <em>Is object construction complex or error-prone?</em>
+→ <strong>Builder</strong></p>
+<p>3️⃣ <em>Am I creating multiple related objects together?</em>
+→ <strong>Abstract Factory</strong></p>
+<p>If none apply:</p>
+<p>👉 <strong>Don’t use a pattern.</strong></p>
+<hr>
+<h2 id="9-interview-insight">9. Interview Insight</h2>
+<hr>
+<p>If asked:</p>
+<blockquote>
+<p>“Which creational pattern should I use?”</p></blockquote>
+<p>A strong answer is:</p>
+<blockquote>
+<p>“It depends on whether the problem is about choosing a type,
+constructing a complex object, or creating a family of objects.”</p></blockquote>
+<p>This shows <strong>judgment</strong>, not memorization.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Factory Method, Builder, and Abstract Factory exist because <strong>object creation has different failure modes</strong>.</p>
+<ul>
+<li>Factory Method controls <strong>variation</strong></li>
+<li>Builder controls <strong>complexity</strong></li>
+<li>Abstract Factory controls <strong>consistency</strong></li>
+</ul>
+<p>Choosing the right one is about <strong>understanding the problem</strong>, not knowing the pattern names.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that you know <em>how to choose</em>, we’ll implement the first one in depth:</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_4_factory-pattern">Factory Method Pattern – Solving Type Explosion in a Real System →</a></strong></p>
+<p>We’ll start with a broken design and refactor it step by step using the Employee Management System.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_creational-design-patterns/3_2_creational-patterns-overview/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_creational-design-patterns/3_4_factory-pattern/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

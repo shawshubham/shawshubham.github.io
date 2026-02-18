@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facade Pattern – Simplifying Complex Subsystems (Part 1)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771361682">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Facade Pattern – Simplifying Complex Subsystems (Part 1)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why Facade Pattern Exists (The Real Problem)</li>
+        
+        <li>2. Why Facade Often Feels “Obvious” (or Invisible)</li>
+        
+        <li>3. What Facade Is (and Is Not)</li>
+        
+        <li>4. EMS Today: What We Already Have</li>
+        
+        <li>5. The Caller’s Problem (Even Before Facade)</li>
+        
+        <li>6. Why ReportingClient / ReportingOperationsService Is Not a Facade (Yet)</li>
+        
+        <li>7. Where Facade Actually Lives in Real Systems</li>
+        
+        <li>8. Why Facade Is Hard to “See” Without Design Pressure</li>
+        
+        <li>9. What We Are Not Doing Yet (On Purpose)</li>
+        
+        <li>10. Mental Model to Carry Forward</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 17 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-facade-pattern-exists-the-real-problem">1. Why Facade Pattern Exists (The Real Problem)</h2>
+<hr>
+<p>Most developers first encounter Facade and think:</p>
+<blockquote>
+<p>“This looks like just another service or client wrapper.”</p></blockquote>
+<p>That confusion is valid — because <strong>Facade is not about layers</strong>.<br>
+It is about <strong>use-case orchestration</strong>.</p>
+<p>The Facade Pattern exists to solve this problem:</p>
+<blockquote>
+<p><strong>One business action requires coordinating multiple subsystems, and that coordination logic should not leak into controllers, UI, or callers.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-facade-often-feels-obvious-or-invisible">2. Why Facade Often Feels “Obvious” (or Invisible)</h2>
+<hr>
+<p>If you’ve spent most of your time building <strong>REST APIs</strong>, Facade can feel confusing at first.</p>
+<p>You might look at this and think:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingClient</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportingOperations reportingOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employeeData, ExportReportRequest request) {
+</span></span><span style="display:flex;"><span>        reportingOperations.<span style="color:#a6e22e">exportReport</span>(employeeData, request);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Or this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@RequestMapping</span>(<span style="color:#e6db74">&#34;/employees/reports&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingController</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportingOperations reportingOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@PostMapping</span>(<span style="color:#e6db74">&#34;/{employeeId}/export&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">exportReport</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@PathVariable</span> String employeeId,
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@RequestBody</span> ExportReportRequest request) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        reportingOperations.<span style="color:#a6e22e">exportReport</span>(employeeId, request);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ResponseEntity.<span style="color:#a6e22e">ok</span>().<span style="color:#a6e22e">build</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And wonder:</p>
+<blockquote>
+<p>“Isn’t this already a Facade?”</p></blockquote>
+<p>That confusion is <strong><em>valid</em></strong>.</p>
+<p>In many real systems, <strong>facades already exist</strong>, but they are:</p>
+<ul>
+<li>implicit</li>
+<li>accidental</li>
+<li>mixed with other responsibilities</li>
+</ul>
+<p>This article is about making that role explicit and intentional.</p>
+<hr>
+<h2 id="3-what-facade-is-and-is-not">3. What Facade Is (and Is Not)</h2>
+<hr>
+<h3 id="what-facade-is">What Facade is</h3>
+<p>A Facade is:</p>
+<blockquote>
+<p>A <strong>coarse-grained entry point</strong> that hides coordination between multiple subsystems.</p></blockquote>
+<p>It:</p>
+<ul>
+<li>simplifies usage</li>
+<li>centralizes orchestration</li>
+<li>shields callers from internal complexity</li>
+</ul>
+<h3 id="what-facade-is-not">What Facade is not</h3>
+<p>Facade is not:</p>
+<ul>
+<li>a replacement for services</li>
+<li>a data access layer</li>
+<li>a controller</li>
+<li>a factory</li>
+<li>a long-running workflow engine</li>
+</ul>
+<p>Facade <strong>coordinates domain services</strong>; it does not replace or re-implement them.</p>
+<hr>
+<h2 id="4-ems-today-what-we-already-have">4. EMS Today: What We Already Have</h2>
+<hr>
+<p>In EMS, we already have multiple subsystems:</p>
+<ul>
+<li>HR</li>
+<li>Payroll</li>
+<li>IT Admin</li>
+<li>Reporting</li>
+<li>Persistence</li>
+<li>Notification</li>
+</ul>
+<p>Each subsystem has:</p>
+<ul>
+<li>its own service</li>
+<li>its own rules</li>
+<li>its own responsibilities</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>HROperationsService
+</span></span><span style="display:flex;"><span>PayrollOperationsService
+</span></span><span style="display:flex;"><span>ITAdminOperationsService
+</span></span><span style="display:flex;"><span>ReportingOperationsService
+</span></span></code></pre></div><p>These are <strong>good services</strong>.<br>
+They obey SRP.<br>
+They are testable in isolation.</p>
+<p>But now look at the caller’s perspective.</p>
+<hr>
+<h2 id="5-the-callers-problem-even-before-facade">5. The Caller’s Problem (Even Before Facade)</h2>
+<hr>
+<p>Imagine a caller wants to do something slightly higher-level:</p>
+<blockquote>
+<p>“Generate and export an employee report”</p></blockquote>
+<p>What does it actually need to touch?</p>
+<ul>
+<li>employee data</li>
+<li>salary calculation</li>
+<li>report formatting</li>
+<li>export logic</li>
+<li>delivery</li>
+<li>notification</li>
+</ul>
+<p>Even today, we are already <strong>coordinating multiple things</strong>.</p>
+<p>That coordination has to live somewhere.</p>
+<p>If it leaks into:</p>
+<ul>
+<li>clients</li>
+<li>controllers</li>
+<li>application entry points</li>
+<li>sometimes even services</li>
+</ul>
+<p>we start accumulating <strong>system-level complexity in the wrong places</strong>.</p>
+<p>This is where Facade becomes relevant.</p>
+<hr>
+<h2 id="6-why-reportingclient--reportingoperationsservice-is-not-a-facade-yet">6. Why ReportingClient / ReportingOperationsService Is Not a Facade (Yet)</h2>
+<hr>
+<p>At first glance, this looks like a facade:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingClient</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportingOperations reportingOperations;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employee, ExportReportRequest request) {
+</span></span><span style="display:flex;"><span>        reportingOperations.<span style="color:#a6e22e">exportReport</span>(employee, request);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>But this class is <strong>not</strong> a Facade.<br>
+It:</p>
+<ul>
+<li>it delegates directly</li>
+<li>it does not orchestrate</li>
+<li>it does not simplify multiple subsystems</li>
+<li>it adds no semantic boundary</li>
+</ul>
+<p>This is a <strong>thin client / adapter</strong>, not a Facade.
+A Facade must <strong>own the workflow</strong>, not merely forward calls.</p>
+<h3 id="the-more-subtle-question-and-the-real-source-of-confusion">The More Subtle Question (and the Real Source of Confusion)</h3>
+<p>A more interesting — and fair — question is this:</p>
+<blockquote>
+<p><strong>“Isn’t ReportingOperationsService.exportReport() already acting as a Facade?”</strong></p></blockquote>
+<p>The answer is:</p>
+<blockquote>
+<p><strong>almost — but not quite</strong>.</p></blockquote>
+<p>Let’s look at the method itself:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employeeData, ExportReportRequest request) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ReportBundleFactory bundleFactory <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            ReportBundleFactoryProvider.<span style="color:#a6e22e">getBundleFactory</span>(request);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    EmployeeReport report <span style="color:#f92672">=</span> generateReport(employeeData);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ExportedReport exportedReport <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            bundleFactory.<span style="color:#a6e22e">createExportStrategy</span>().<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    DeliveryResult deliveryResult <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            bundleFactory.<span style="color:#a6e22e">createDeliveryStrategy</span>()
+</span></span><span style="display:flex;"><span>                          .<span style="color:#a6e22e">deliver</span>(exportedReport, request.<span style="color:#a6e22e">getDeliveryAddress</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    bundleFactory.<span style="color:#a6e22e">createNotificationStrategy</span>()
+</span></span><span style="display:flex;"><span>            .<span style="color:#a6e22e">ifPresent</span>(strategy <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                    strategy.<span style="color:#a6e22e">notifyUser</span>(deliveryResult, request.<span style="color:#a6e22e">getNotificationTarget</span>()));
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This method <strong>does perform orchestration</strong> — but only for a <strong>single, isolated capability</strong>.</p>
+<p>It represents <strong>local orchestration</strong>, not a <strong>system-level use case boundary</strong>.</p>
+<p>At this point in the system:</p>
+<ul>
+<li>there is only <strong>one orchestration path</strong></li>
+<li>no competing workflows exist</li>
+<li>no coordination logic has leaked into controllers or clients
+• the orchestration is still naturally scoped to a single service</li>
+</ul>
+<p>Because of this, introducing a dedicated Facade abstraction <strong>would add indirection without solving a real problem</strong>.</p>
+<blockquote>
+<p><strong>Not all orchestration is a Facade.</strong><br>
+<strong>Facade emerges when orchestration becomes a system-level concern.</strong></p></blockquote>
+<h3 id="the-key-distinction-to-keep-in-mind">The Key Distinction to Keep in Mind</h3>
+<ul>
+<li><strong>Services</strong> solve <em>local business problems</em></li>
+<li><strong>Facades</strong> solve <em>system-level workflows</em></li>
+</ul>
+<p>Right now, exportReport() is still firmly in the first category.</p>
+<p>That will change — and when it does, the Facade will become obvious rather than forced.</p>
+<hr>
+<h2 id="7-where-facade-actually-lives-in-real-systems">7. Where Facade Actually Lives in Real Systems</h2>
+<hr>
+<p>In real applications, Facade typically sits:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">Controller / UI / Job
+        ↓
+     Facade   ←––– this layer
+        ↓
+  Domain Services (HR, Payroll, IT, Reporting, etc.)
+</code></pre><p>Think of Facade as:</p>
+<ul>
+<li>a <strong>use-case boundary</strong></li>
+<li>a <strong>workflow coordinator</strong></li>
+<li>a <strong>system-level API</strong></li>
+</ul>
+<p>Not a technical layer — a <em>conceptual</em> one.<br>
+In API-based systems, controllers typically <strong>delegate to facades</strong>.</p>
+<hr>
+<h2 id="8-why-facade-is-hard-to-see-without-design-pressure">8. Why Facade Is Hard to “See” Without Design Pressure</h2>
+<hr>
+<p>If your system has only:</p>
+<ul>
+<li>simple CRUD</li>
+<li>single-service calls</li>
+<li>one-step operations</li>
+</ul>
+<p>Then Facade feels unnecessary.</p>
+<p>That’s why many tutorials feel artificial.</p>
+<p>Facade only becomes obvious when:</p>
+<ul>
+<li>multiple subsystems must work together</li>
+<li>ordering matters</li>
+<li>failures must be handled consistently</li>
+<li>business workflows grow beyond a single service</li>
+</ul>
+<p><strong>We haven’t applied that pressure yet.</strong></p>
+<p>And that’s intentional.</p>
+<hr>
+<h2 id="9-what-we-are-not-doing-yet-on-purpose">9. What We Are Not Doing Yet (On Purpose)</h2>
+<hr>
+<p>In this article, we are <strong>not yet</strong> introducing:</p>
+<ul>
+<li>Employee onboarding</li>
+<li>Employee offboarding</li>
+<li>Lifecycle orchestration</li>
+<li>Rollback / compensation logic</li>
+<li>Cross-cutting workflows</li>
+</ul>
+<p>Why?</p>
+<p>Because introducing Facade without pressure feels like ceremony.</p>
+<p>Instead, we will <strong>earn the Facade</strong> in Part 2.</p>
+<hr>
+<h2 id="10-mental-model-to-carry-forward">10. Mental Model to Carry Forward</h2>
+<hr>
+<p>Before moving on, keep this framing:</p>
+<blockquote>
+<p>Services solve <strong>local business problems</strong><br>
+Facades solve <strong>system-level workflows</strong></p></blockquote>
+<p>If you ever feel:</p>
+<blockquote>
+<p>“This service knows too much about other services”</p></blockquote>
+<p>You are probably missing a Facade.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Facade is not about hiding code.</p>
+<p>It is about <strong>protecting callers from coordination complexity</strong> and <strong>protecting services from misuse</strong>.</p>
+<p>Right now, EMS is still manageable without explicit facades.<br>
+That will change the moment we introduce <strong>multi-step lifecycle workflows</strong>.</p>
+<p>And that is exactly what we’ll do next.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>In <strong>Part 2</strong>, we will introduce real design pressure:</p>
+<blockquote>
+<p><strong>Employee Offboarding</strong></p></blockquote>
+<p>A single business action that requires coordination across:</p>
+<ul>
+<li>HR</li>
+<li>IT</li>
+<li>Payroll</li>
+<li>Reporting</li>
+<li>Notifications</li>
+</ul>
+<p>We’ll first see the <strong>naive approach</strong>, then refactor it into a proper Facade — and only then will the pattern fully click.</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_5_facade-pattern-part2">Up next: Facade Pattern – Orchestrating Employee Offboarding (Part 2) →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Facade is about orchestration, not delegation</li>
+<li>Controllers and clients often look like facades but aren’t</li>
+<li>Facade becomes obvious only under workflow pressure</li>
+<li>We delay complexity until the design truly demands it</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_structural-design-patterns/4_4_adapter-pattern-part3/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factory Method Pattern – Solving Type Explosion in a Real System</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771361682">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Factory Method Pattern – Solving Type Explosion in a Real System</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why Factory Method Still Matters (Even After Strategy)</li>
+        
+        <li>2. Recognizing the Same Problem We Solved Before</li>
+        
+        <li>3. Naive Factory Method (Baseline)</li>
+        
+        <li>4. Improving the Factory with Enums</li>
+        
+        <li>5. Final Evolution: Map-Based Factory (OCP-Friendly)</li>
+        
+        <li>6. Where Does Configuration Come From?</li>
+        
+        <li>7. Strategy &#43; Factory: A Common Real-World Pair</li>
+        
+        <li>8. When to Stop Evolving the Factory</li>
+        
+        <li>9. Interview Insight</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 17 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-factory-method-still-matters-even-after-strategy">1. Why Factory Method Still Matters (Even After Strategy)</h2>
+<hr>
+<p>In earlier sections of the Employee Management System (EMS), we already applied the <strong>Strategy Pattern</strong> to solve problems like:</p>
+<ul>
+<li>Salary calculation per employee type</li>
+<li>Persistence behavior per destination</li>
+</ul>
+<p>In both cases, we achieved:</p>
+<ul>
+<li>Open/Closed Principle (OCP)</li>
+<li>Polymorphic behavior</li>
+<li>Clean separation of responsibilities</li>
+</ul>
+<p>However, there is still an <strong>important gap</strong>.</p>
+<h3 id="the-hidden-problem">The Hidden Problem</h3>
+<p>Even though behavior is abstracted, <strong>creation responsibility still leaks into client code</strong>.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/factory/existing/MainClient.java">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> EmployeeFilePersistenceStrategy()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> EmployeeDBPersistenceStrategy()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> EmployeeAPIPersistenceStrategy()
+</span></span></code></pre></div><p>This means:</p>
+<ul>
+<li>Client code still knows <strong>which concrete class to create</strong></li>
+<li>Creation logic is <strong>duplicated or leaked</strong></li>
+<li>Adding a new implementation requires touching client code</li>
+</ul>
+<p>This is where <strong>Factory Method complements Strategy</strong>.</p>
+<blockquote>
+<p><strong>Strategy encapsulates behavior.</strong><br>
+<strong>Factory encapsulates object creation.</strong></p></blockquote>
+<hr>
+<h2 id="2-recognizing-the-same-problem-we-solved-before">2. Recognizing the Same Problem We Solved Before</h2>
+<hr>
+<p>If this feels familiar, that’s intentional.</p>
+<p>Earlier, in the <strong>salary calculation</strong> section, we already used a <strong>factory-style lookup</strong> to choose the correct salary strategy based on EmployeeType.</p>
+<p>This section formalizes that idea and applies it to <strong>persistence strategies</strong>.</p>
+<p>Different context — <strong>same design pressure</strong>.</p>
+<hr>
+<h2 id="3-naive-factory-method-baseline">3. Naive Factory Method (Baseline)</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/factory/naive/persistence/EmployeePersistenceFactory.java">See Code in Git Repo</a>
+</div>
+<p>We begin with a simple factory.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeePersistenceFactory</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> EmployeePersistenceStrategy <span style="color:#a6e22e">create</span>(String destinationType) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (destinationType) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;FILE&#34;</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeFilePersistenceStrategy(<span style="color:#e6db74">&#34;employee.txt&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;DATABASE&#34;</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeDBPersistenceStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;API&#34;</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeAPIPersistenceStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown persistence type: &#34;</span> <span style="color:#f92672">+</span> destinationType);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="what-this-improves">What This Improves</h4>
+<ul>
+<li>Removes new from business logic</li>
+<li>Centralizes creation logic</li>
+<li>Improves readability</li>
+</ul>
+<h4 id="whats-still-wrong">What’s Still Wrong</h4>
+<ul>
+<li>String-based selection is fragile</li>
+<li>Switch grows over time</li>
+<li>Factory itself is not truly closed for modification</li>
+</ul>
+<p>This is a <strong>good first step</strong>, but not the final design.</p>
+<hr>
+<h2 id="4-improving-the-factory-with-enums">4. Improving the Factory with Enums</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/factory/improved/persistence">See Code in Git Repo</a>
+</div>
+<h4 id="step-1-introduce-a-strongly-typed-enum">Step 1: Introduce a Strongly Typed Enum</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> PersistenceType {
+</span></span><span style="display:flex;"><span>    FILE,
+</span></span><span style="display:flex;"><span>    DATABASE,
+</span></span><span style="display:flex;"><span>    API
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="step-2-update-the-factory-signature">Step 2: Update the Factory Signature</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeePersistenceFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> EmployeePersistenceStrategy <span style="color:#a6e22e">create</span>(PersistenceType type) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span> (type) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> FILE:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeFilePersistenceStrategy(<span style="color:#e6db74">&#34;employee.txt&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> DATABASE:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeDBPersistenceStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> API:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeeAPIPersistenceStrategy();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">default</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown persistence type: &#34;</span> <span style="color:#f92672">+</span> type);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="what-improved">What Improved</h4>
+<ul>
+<li>Compile-time safety</li>
+<li>Clear intent</li>
+<li>No magic strings</li>
+</ul>
+<p>But we still have a growing switch statement.</p>
+<hr>
+<h2 id="5-final-evolution-map-based-factory-ocp-friendly">5. Final Evolution: Map-Based Factory (OCP-Friendly)</h2>
+<hr>
+<p>To fully align with OCP, we remove conditional logic entirely.</p>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/factory/finalrefactoredversion/persistence/EmployeePersistenceFactory.java">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//Lazy Initialization Factory Pattern, supplier will create object only when required</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeePersistenceFactory</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>PersistenceType, Supplier<span style="color:#f92672">&lt;</span>EmployeePersistenceStrategy<span style="color:#f92672">&gt;&gt;</span> supplierMap;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeePersistenceFactory</span> (String fileName) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">supplierMap</span> <span style="color:#f92672">=</span> Map.<span style="color:#a6e22e">of</span>(
+</span></span><span style="display:flex;"><span>                PersistenceType.<span style="color:#a6e22e">FILE</span>, () <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> EmployeeFilePersistenceStrategy(fileName),
+</span></span><span style="display:flex;"><span>                PersistenceType.<span style="color:#a6e22e">DATABASE</span>, EmployeeDBPersistenceStrategy::<span style="color:#66d9ef">new</span>,
+</span></span><span style="display:flex;"><span>                PersistenceType.<span style="color:#a6e22e">API</span>, EmployeeAPIPersistenceStrategy::<span style="color:#66d9ef">new</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> EmployeePersistenceStrategy <span style="color:#a6e22e">create</span>(PersistenceType type) {
+</span></span><span style="display:flex;"><span>        Supplier<span style="color:#f92672">&lt;</span>EmployeePersistenceStrategy<span style="color:#f92672">&gt;</span> supplier <span style="color:#f92672">=</span> supplierMap.<span style="color:#a6e22e">get</span>(type);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (supplier <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknown persistence type: &#34;</span> <span style="color:#f92672">+</span> type);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> supplier.<span style="color:#a6e22e">get</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="why-this-design-is-better">Why This Design Is Better</h4>
+<ul>
+<li>No switch / if-else chains</li>
+<li>Adding new persistence types does not modify client code</li>
+<li>Configuration is centralized</li>
+<li>Factory becomes a configuration concern, not a logic concern</li>
+</ul>
+<p>This mirrors the approach already used in the <strong>salary strategy</strong> section — now applied deliberately and consistently.</p>
+<hr>
+<h2 id="6-where-does-configuration-come-from">6. Where Does Configuration Come From?</h2>
+<hr>
+<p>Notice that <strong>EmployeeFilePersistenceStrategy</strong> requires a <strong>file name</strong>.</p>
+<p>A common question is:</p>
+<blockquote>
+<p><strong>Who should provide configuration like file names or DB URLs?</strong></p></blockquote>
+<h4 id="the-correct-answer">The Correct Answer</h4>
+<blockquote>
+<p>Configuration belongs in the composition root — the place where objects are assembled.<br>
+This keeps business logic free from environment-specific decisions, prevents configuration leakage into domain logic, and prepares the system for dependency injection frameworks.</p></blockquote>
+<p>Not in:</p>
+<ul>
+<li>business services</li>
+<li>client code</li>
+<li>strategy implementations</li>
+</ul>
+<blockquote>
+<p>In this design, the strategy is resolved during application wiring.<br>
+If strategy selection must vary per request, the factory can instead be injected into the service.</p></blockquote>
+<h4 id="example-application-wiring">Example: Application Wiring</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EMSApplication</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> String persistenceFileName <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;employees.txt&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) {
+</span></span><span style="display:flex;"><span>        EmployeeFormatter formatter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeFormatter();
+</span></span><span style="display:flex;"><span>        SalaryCalculator salaryCalculator <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SalaryCalculator();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeePersistenceFactory persistenceFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeePersistenceFactory(persistenceFileName);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeService employeeService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmployeeService(formatter,
+</span></span><span style="display:flex;"><span>                persistenceFactory.<span style="color:#a6e22e">create</span>(PersistenceType.<span style="color:#a6e22e">FILE</span>),
+</span></span><span style="display:flex;"><span>                salaryCalculator);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="this-keeps">This keeps:</h4>
+<ul>
+<li>business logic clean</li>
+<li>infrastructure configurable</li>
+<li>testing simple</li>
+</ul>
+<blockquote>
+<p>📌 <strong>This is manual dependency injection — exactly what frameworks automate later.</strong></p></blockquote>
+<h3 id="this-is-exactly-what-spring-does-key-insight">This Is EXACTLY What Spring Does (Key Insight)</h3>
+<p>Spring just hides this wiring:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Bean</span>
+</span></span><span style="display:flex;"><span>EmployeePersistenceFactory <span style="color:#a6e22e">factory</span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Value</span>(<span style="color:#e6db74">&#34;${employee.file.name}&#34;</span>) String fileName
+</span></span><span style="display:flex;"><span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> EmployeePersistenceFactory(fileName);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="7-strategy--factory-a-common-real-world-pair">7. Strategy + Factory: A Common Real-World Pair</h2>
+<hr>
+<p>These patterns are often used together.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Pattern</th>
+          <th>Responsibility</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Strategy</td>
+          <td>Encapsulate behavior</td>
+      </tr>
+      <tr>
+          <td>Factory Method</td>
+          <td>Encapsulate creation</td>
+      </tr>
+      <tr>
+          <td>Enum / Map</td>
+          <td>Configuration &amp; lookup</td>
+      </tr>
+  </tbody>
+</table>
+<p>This is not overengineering — it is <strong>controlled complexity</strong>.</p>
+<hr>
+<h2 id="8-when-to-stop-evolving-the-factory">8. When to Stop Evolving the Factory</h2>
+<hr>
+<p>Do not push every factory to the final form prematurely.</p>
+<p>Use this guideline:</p>
+<ul>
+<li><strong>1 implementation</strong> → no factory needed</li>
+<li><strong>Few variants</strong> → simple factory</li>
+<li><strong>Growing or configurable system</strong> → map-based factory</li>
+</ul>
+<p>Patterns should respond to <strong>real pressure</strong>, not speculation.</p>
+<hr>
+<h2 id="9-interview-insight">9. Interview Insight</h2>
+<hr>
+<p><strong>Common Interview Questions Around Factory Method:</strong></p>
+<h3 id="-isnt-this-just-moving-the-switch-statement">❓ “Isn’t this just moving the switch statement?”</h3>
+<p>Yes — and that is the point.</p>
+<p>Factory Method does not eliminate conditionals;<br>
+it <strong>moves them to a single, controlled location</strong> where change is expected.</p>
+<h3 id="-how-is-factory-different-from-strategy">❓ “How is Factory different from Strategy?”</h3>
+<ul>
+<li><strong>Strategy</strong> decides <em>what behavior to execute</em></li>
+<li><strong>Factory</strong> decides <em>which object to create</em></li>
+</ul>
+<p>They often work together:</p>
+<ul>
+<li>Factory creates the strategy</li>
+<li>Service uses it polymorphically</li>
+</ul>
+<h3 id="-who-should-pass-configuration-like-file-names-or-db-urls">❓ “Who should pass configuration like file names or DB URLs?”</h3>
+<p>Configuration should be provided at the <strong>composition root</strong>, not inside services or clients.</p>
+<p>Business logic must remain environment-agnostic.</p>
+<h3 id="-when-would-you-not-use-factory-method">❓ “When would you not use Factory Method?”</h3>
+<ul>
+<li>When there is only one implementation</li>
+<li>When creation logic is trivial and stable</li>
+<li>When adding a factory adds more complexity than value</li>
+</ul>
+<p>Patterns should solve problems — not decorate code.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Factory Method is not about eliminating new.</p>
+<p>It is about moving <strong>creation decisions to the right place</strong>.</p>
+<p>By evolving the factory step by step, we achieved:</p>
+<ul>
+<li>Cleaner client code</li>
+<li>Stronger OCP and DIP</li>
+<li>Consistency with earlier Strategy designs</li>
+<li>A production-ready creation model</li>
+</ul>
+<p>This is how real systems evolve — incrementally and intentionally.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we’ve handled type selection, we move to a different creation problem:</p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_5_builder-pattern-part1">Builder Pattern – Constructing Complex Objects Safely →</a></strong></p>
+<p>Where Factory answers “which object?”,
+Builder answers “how do we build it correctly?”</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Factory Method centralizes object creation and removes type-based conditionals from business logic</li>
+<li>It complements Strategy by handling <em>creation</em>, not behavior</li>
+<li>Enum- and map-based factories are more robust than string-based switches</li>
+<li>Configuration belongs in the composition root, not in services or clients</li>
+<li>Evolve factories only when real design pressure appears</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_creational-design-patterns/3_3_factory-builder-abstract-whentouse/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Low Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_creational-design-patterns/3_5_builder-pattern-part1/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>
