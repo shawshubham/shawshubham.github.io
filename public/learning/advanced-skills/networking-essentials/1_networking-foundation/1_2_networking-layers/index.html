@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Networking Layers: OSI &amp; TCP/IP — A Mental Map</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771614033">
+<link rel="stylesheet" href="/css/custom.css?v=1771614033">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Networking Layers: OSI &amp; TCP/IP — A Mental Map</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why We Need a Layered Mental Model</li>
+        
+        <li>2. OSI Model vs TCP/IP Model (Conceptual vs Practical)</li>
+        
+        <li>3. How the Two Models Map to Each Other</li>
+        
+        <li>4. End-to-End Request Flow (Layered View)</li>
+        
+        <li>5. How We Will Use These Layers in This Tutorial</li>
+        
+        <li>6. Why This Matters for System Design</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 20 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-why-we-need-a-layered-mental-model">1. Why We Need a Layered Mental Model</h2>
+<hr>
+<p>Before diving into IP addresses, ports, or protocols, we need a <strong>map</strong>.</p>
+<p>Networking involves multiple concerns:</p>
+<ul>
+<li>identifying machines</li>
+<li>delivering data reliably</li>
+<li>defining application semantics</li>
+<li>handling failures and performance</li>
+</ul>
+<p>If these concerns are mixed together, reasoning about systems becomes difficult.</p>
+<p>Layered models exist to solve this exact problem.</p>
+<blockquote>
+<p>They help us answer a simple but powerful question:<br>
+<strong>“At which layer does this problem or decision belong?”</strong></p></blockquote>
+<hr>
+<h2 id="2-osi-model-vs-tcpip-model-conceptual-vs-practical">2. OSI Model vs TCP/IP Model (Conceptual vs Practical)</h2>
+<hr>
+<p>Two models are commonly used to describe networking layers:</p>
+<ul>
+<li><strong>OSI Model</strong> — conceptual, educational, 7 layers</li>
+<li><strong>TCP/IP Model</strong> — practical, used by real systems, fewer layers</li>
+</ul>
+<p>They describe the <strong>same flow</strong>, at different levels of abstraction.</p>
+<h3 id="21-osi-model-conceptual-view">2.1 OSI Model (Conceptual View)</h3>
+<pre class="mermaid">
+flowchart TB
+    L7[&#34;Layer 7&lt;br/&gt;Application&lt;br/&gt;(HTTP, gRPC, APIs)&#34;]
+    L6[&#34;Layer 6&lt;br/&gt;Presentation&lt;br/&gt;(Encoding, TLS)&#34;]
+    L5[&#34;Layer 5&lt;br/&gt;Session&lt;br/&gt;(Connections, Sessions)&#34;]
+    L4[&#34;Layer 4&lt;br/&gt;Transport&lt;br/&gt;(TCP, UDP)&#34;]
+    L3[&#34;Layer 3&lt;br/&gt;Network&lt;br/&gt;(IP, Routing)&#34;]
+    L2[&#34;Layer 2&lt;br/&gt;Data Link&lt;br/&gt;(Ethernet)&#34;]
+    L1[&#34;Layer 1&lt;br/&gt;Physical&lt;br/&gt;(Wires, Signals)&#34;]
+
+    L7 --&gt; L6 --&gt; L5 --&gt; L4 --&gt; L3 --&gt; L2 --&gt; L1
+</pre>
+
+<p>The OSI model is <strong>not how systems are implemented</strong>,<br>
+but it is extremely useful for <strong>thinking and communication</strong>.</p>
+<hr>
+<h3 id="22-tcpip-model-how-systems-are-actually-built">2.2 TCP/IP Model (How Systems Are Actually Built)</h3>
+<pre class="mermaid">
+flowchart TB
+    A[&#34;Application&lt;br/&gt;(HTTP, gRPC, DNS)&#34;]
+    T[&#34;Transport&lt;br/&gt;(TCP, UDP)&#34;]
+    I[&#34;Internet&lt;br/&gt;(IP)&#34;]
+    N[&#34;Network Access&lt;br/&gt;(Ethernet, Wi-Fi)&#34;]
+
+    A --&gt; T --&gt; I --&gt; N
+</pre>
+
+<p>In practice:</p>
+<ul>
+<li>multiple OSI layers collapse into <strong>the Application layer</strong></li>
+<li>TCP/IP is simpler and closer to real implementations</li>
+</ul>
+<hr>
+<h2 id="3-how-the-two-models-map-to-each-other">3. How the Two Models Map to Each Other</h2>
+<hr>
+<p>The same networking concepts can be viewed through both models:</p>
+<table>
+  <thead>
+      <tr>
+          <th>OSI Model (Conceptual)</th>
+          <th>TCP/IP Model (Practical)</th>
+          <th>Examples</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Layer 7 – Application</td>
+          <td>Application</td>
+          <td>HTTP, gRPC</td>
+      </tr>
+      <tr>
+          <td>Layer 6 – Presentation</td>
+          <td>Application</td>
+          <td>TLS, Encoding</td>
+      </tr>
+      <tr>
+          <td>Layer 5 – Session</td>
+          <td>Application</td>
+          <td>Sessions</td>
+      </tr>
+      <tr>
+          <td>Layer 4 – Transport</td>
+          <td>Transport</td>
+          <td>TCP, UDP</td>
+      </tr>
+      <tr>
+          <td>Layer 3 – Network</td>
+          <td>Internet</td>
+          <td>IP</td>
+      </tr>
+      <tr>
+          <td>Layer 2 – Data Link</td>
+          <td>Network Access</td>
+          <td>Ethernet</td>
+      </tr>
+      <tr>
+          <td>Layer 1 – Physical</td>
+          <td>Network Access</td>
+          <td>Wires</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p><strong>Key idea:</strong><br>
+OSI helps you <strong>locate concepts</strong><br>
+TCP/IP shows you <strong>how systems are actually structured</strong>.</p></blockquote>
+<hr>
+<h2 id="4-end-to-end-request-flow-layered-view">4. End-to-End Request Flow (Layered View)</h2>
+<hr>
+<p>Every request in a distributed system follows the same layered path.</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant App as Application Layer
+    participant Transport as Transport Layer
+    participant Network as Network Layer
+    participant Server as Server Application
+
+    Client-&gt;&gt;App: HTTP / gRPC Request
+    App-&gt;&gt;Transport: Hand data to TCP/UDP
+    Transport-&gt;&gt;Network: Send via IP
+    Network-&gt;&gt;Server: Deliver packets
+    Server-&gt;&gt;Transport: Response data
+    Transport-&gt;&gt;App: Reassembled bytes
+    App-&gt;&gt;Client: Application response
+</pre>
+
+<p>Even when hidden by frameworks or cloud platforms,<br>
+this layered flow is <strong>always present</strong>.</p>
+<hr>
+<h2 id="5-how-we-will-use-these-layers-in-this-tutorial">5. How We Will Use These Layers in This Tutorial</h2>
+<hr>
+<p>We will not teach OSI or TCP/IP as standalone theory.</p>
+<p>Instead, throughout the rest of this tutorial:</p>
+<ul>
+<li>When we discuss <strong>IP addressing &amp; routing</strong>,<br>
+we are working at <strong>OSI Layer 3 / TCP-IP Internet layer</strong></li>
+<li>When we discuss <strong>ports, TCP, UDP, reliability</strong>,<br>
+we are working at <strong>OSI Layer 4 / TCP-IP Transport layer</strong></li>
+<li>When we discuss <strong>HTTP, gRPC, APIs, authentication</strong>,<br>
+we are working at <strong>OSI Layer 7 / TCP-IP Application layer</strong></li>
+</ul>
+<p>Each article will <strong>explicitly mention the layer</strong> it is operating in.</p>
+<p>This ensures you always know:</p>
+<ul>
+<li>where a concept belongs</li>
+<li>which layer a problem lives in</li>
+<li>which layer a design decision affects</li>
+</ul>
+<hr>
+<h2 id="6-why-this-matters-for-system-design">6. Why This Matters for System Design</h2>
+<hr>
+<p>In real systems:</p>
+<ul>
+<li>Connectivity issues usually belong to the <strong>Network layer</strong></li>
+<li>Performance and reliability issues often belong to the <strong>Transport layer</strong></li>
+<li>Semantics, security, and APIs live at the <strong>Application layer</strong></li>
+</ul>
+<p>Strong system design depends on:</p>
+<ul>
+<li>separating concerns</li>
+<li>avoiding cross-layer confusion</li>
+<li>making decisions at the correct abstraction level</li>
+</ul>
+<p>This layered mental map makes that possible.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>We begin the journey at the lowest possible level:</p>
+<blockquote>
+<p>How does a client reach a backend process in the first place?</p></blockquote>
+<p>The next chapter starts with:</p>
+<ul>
+<li>IP addresses</li>
+<li>Ports</li>
+<li>Sockets</li>
+<li>And the simplest possible system: <strong>one server, one application</strong></li>
+</ul>
+<p>From there, everything else naturally follows.</p>
+<p>👉 Up Next →
+<strong><a href="/learning/advanced-skills/networking-essentials/1_networking-foundation/1_3_addressing-and-ports">Networking Foundations: Addressing &amp; Ports</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 Key Takeaway</p>
+<p>OSI and TCP/IP are not content to memorize.<br>
+They are maps to help you <strong>place concepts where they belong</strong> as systems grow in complexity.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/1_networking-foundation/1_1_introduction/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/1_networking-foundation/1_3_addressing-and-ports/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

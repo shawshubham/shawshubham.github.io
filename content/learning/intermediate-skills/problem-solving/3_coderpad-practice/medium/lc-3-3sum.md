@@ -78,8 +78,8 @@ Key observations:
 - We need triplets
 - Duplicate handling is critical
 - After sorting, the problem reduces to:
-- Fix one number
-- Find two numbers whose sum equals -fixed
+  - Fix one number
+  - Find two numbers whose sum equals -fixed
 
 **➡️ Sorting + Two Pointers**
 

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTTP/1.1 — The Original Model and Its Limits</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771628382">
+<link rel="stylesheet" href="/css/custom.css?v=1771628382">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">HTTP/1.1 — The Original Model and Its Limits</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — When “Working” Is Not Enough</li>
+        
+        <li>2. The Core HTTP/1.1 Model</li>
+        
+        <li>3. HTTP/1.1 and TCP — A Critical Dependency</li>
+        
+        <li>4. The Single-Request-at-a-Time Problem</li>
+        
+        <li>5. Keep-Alive Helped — But Didn’t Solve the Problem</li>
+        
+        <li>6. Head-of-Line Blocking (HTTP/1.1)</li>
+        
+        <li>7. Browser Workarounds (A Design Smell)</li>
+        
+        <li>8. Why HTTP/1.1 Could Not Scale Gracefully</li>
+        
+        <li>9. Layer Mapping (Explicit)</li>
+        
+        <li>10. Key Takeaways</li>
+        
+        <li>🔗 What’s Next?</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 20 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--when-working-is-not-enough">1. Introduction — When “Working” Is Not Enough</h2>
+<hr>
+<p>HTTP/1.1 has powered the web for decades.</p>
+<p>It is:</p>
+<ul>
+<li>simple</li>
+<li>human-readable</li>
+<li>widely supported</li>
+<li>still in use today</li>
+</ul>
+<p>Yet almost every modern networking improvement exists <strong>because of HTTP/1.1’s limitations</strong>.</p>
+<p>To understand HTTP/2, gRPC, and HTTP/3, we must first understand <strong>what HTTP/1.1 optimized for — and what it sacrificed</strong>.</p>
+<hr>
+<h2 id="2-the-core-http11-model">2. The Core HTTP/1.1 Model</h2>
+<hr>
+<p>At its heart, HTTP/1.1 follows a very simple idea:</p>
+<blockquote>
+<p>One request → one response</p></blockquote>
+<p>A client sends a request.<br>
+The server processes it and sends back a response.</p>
+<p>Conceptually:</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client-&gt;&gt;Server: HTTP Request
+    Server-&gt;&gt;Client: HTTP Response
+</pre>
+
+<p>This simplicity is one of HTTP/1.1’s greatest strengths.</p>
+<hr>
+<h2 id="3-http11-and-tcp--a-critical-dependency">3. HTTP/1.1 and TCP — A Critical Dependency</h2>
+<hr>
+<p>HTTP/1.1 does <strong>not</strong> move data by itself.</p>
+<p>It relies entirely on <strong>TCP</strong> for:</p>
+<ul>
+<li>reliable delivery</li>
+<li>ordering</li>
+<li>congestion control</li>
+</ul>
+<p>So the actual stack looks like this:</p>
+<pre class="mermaid">
+flowchart TB
+    HTTP[&#34;HTTP/1.1&lt;br/&gt;(Request / Response)&#34;]
+    TCP[&#34;TCP&lt;br/&gt;(Reliable, Ordered)&#34;]
+    IP[&#34;IP&lt;br/&gt;(Routing)&#34;]
+
+    HTTP --&gt; TCP --&gt; IP
+</pre>
+
+<p>This dependency has deep consequences for performance.</p>
+<hr>
+<h2 id="4-the-single-request-at-a-time-problem">4. The Single-Request-at-a-Time Problem</h2>
+<hr>
+<p>Originally, HTTP/1.1 was designed around a simple assumption:</p>
+<ul>
+<li>One TCP connection</li>
+<li>One active request at a time</li>
+</ul>
+<p>This means:</p>
+<ul>
+<li>A request must <strong>wait for the previous request to finish</strong></li>
+<li>Even if the requests are independent</li>
+<li>Even if the server is capable of handling them in parallel</li>
+</ul>
+<p>This behavior is known as <strong>application-level serialization</strong>.</p>
+<p>The limitation is not about server capability —<br>
+it is about how HTTP/1.1 structures communication over a connection.</p>
+<hr>
+<h2 id="5-keep-alive-helped--but-didnt-solve-the-problem">5. Keep-Alive Helped — But Didn’t Solve the Problem</h2>
+<hr>
+<p>To reduce the overhead of opening a new TCP connection for every request,<br>
+HTTP/1.1 introduced <strong>persistent connections</strong> (commonly called <em>keep-alive</em>).</p>
+<p>With keep-alive:</p>
+<ul>
+<li>Multiple requests can reuse the same TCP connection</li>
+<li>Connection setup cost is reduced</li>
+</ul>
+<p>However, a critical limitation remains:</p>
+<ul>
+<li>Requests are still handled <strong>sequentially</strong></li>
+<li>Responses must be sent <strong>in order</strong></li>
+<li>A slow response blocks all subsequent responses on that connection</li>
+</ul>
+<p>So while keep-alive improved efficiency,<br>
+it did <strong>not</strong> solve the fundamental problem of request blocking.</p>
+<hr>
+<h2 id="6-head-of-line-blocking-http11">6. Head-of-Line Blocking (HTTP/1.1)</h2>
+<hr>
+<p>In HTTP/1.1, if one request is slow:</p>
+<ul>
+<li>all subsequent requests are blocked</li>
+<li>even if they could be processed quickly</li>
+</ul>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client-&gt;&gt;Server: Request A (slow)
+    Client-&gt;&gt;Server: Request B (fast)
+    Server--&gt;&gt;Client: Response A (slow)
+    Server--&gt;&gt;Client: Response B (fast, but delayed)
+</pre>
+
+<p>This is known as <strong>Head-of-Line (HoL) Blocking at the application layer</strong>.</p>
+<p>The problem is not TCP here —
+it is how HTTP/1.1 uses TCP.</p>
+<hr>
+<h2 id="7-browser-workarounds-a-design-smell">7. Browser Workarounds (A Design Smell)</h2>
+<hr>
+<p>As HTTP/1.1 became the backbone of increasingly complex web applications, its limitations became impossible to ignore.</p>
+<p>To work around these issues, browsers introduced several techniques:</p>
+<ul>
+<li>Opening <strong>multiple TCP connections</strong> per host</li>
+<li><strong>Domain sharding</strong> to bypass per-host connection limits</li>
+<li><strong>Inlining and bundling</strong> multiple resources into larger files</li>
+</ul>
+<p>These techniques improved perceived performance — but they came with costs:</p>
+<ul>
+<li>Increased connection overhead</li>
+<li>More congestion and packet loss</li>
+<li>Higher memory and CPU usage</li>
+<li>Greater operational complexity</li>
+</ul>
+<p>When a protocol requires widespread workarounds to perform well, it is usually a sign that the <strong>protocol itself is the bottleneck</strong>.</p>
+<hr>
+<h2 id="8-why-http11-could-not-scale-gracefully">8. Why HTTP/1.1 Could Not Scale Gracefully</h2>
+<hr>
+<p>HTTP/1.1 was designed for a very different world:</p>
+<ul>
+<li>Fewer resources per page</li>
+<li>Lower concurrency requirements</li>
+<li>Relatively stable network conditions</li>
+</ul>
+<p>Modern systems, however, demand:</p>
+<ul>
+<li>Many concurrent requests</li>
+<li>Efficient use of limited connections</li>
+<li>Predictable performance on high-latency and mobile networks</li>
+<li>Service-to-service communication at scale</li>
+</ul>
+<p>HTTP/1.1’s sequential request model simply could not meet these demands without excessive workarounds.</p>
+<p>The protocol did not fail — <strong>its assumptions were overtaken by reality</strong>.</p>
+<hr>
+<h2 id="9-layer-mapping-explicit">9. Layer Mapping (Explicit)</h2>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>HTTP/1.1 operates at the <strong>Application layer</strong><br>
+(OSI Layer 7 / TCP/IP Application layer).</p>
+<p>However, its performance characteristics are tightly coupled to<br>
+<strong>TCP behavior at the Transport layer (OSI Layer 4)</strong>.</p></blockquote>
+<p>This tight coupling explains why improving HTTP/1.1 performance required <strong>rethinking how applications use transport connections</strong>, rather than changing TCP itself.</p>
+<hr>
+<h2 id="10-key-takeaways">10. Key Takeaways</h2>
+<ul>
+<li>HTTP/1.1 is simple, stable, and widely supported</li>
+<li>Its request–response model is inherently <strong>sequential</strong></li>
+<li>Persistent connections reduced overhead but not blocking</li>
+<li>Head-of-line blocking occurs at the <strong>application level</strong></li>
+<li>Browser-level hacks indicate protocol-level limitations</li>
+</ul>
+<p>Understanding these constraints is essential before exploring newer protocols.</p>
+<hr>
+<h2 id="-whats-next">🔗 What’s Next?</h2>
+<p>So far, we have looked at HTTP purely from a <strong>functionality and performance</strong> perspective.</p>
+<p>However, modern systems do not operate on trusted networks.</p>
+<p>Before we improve performance with newer protocols, we must answer a more fundamental question:</p>
+<blockquote>
+<p><strong>How can clients trust who they are talking to, and how is data protected in transit?</strong></p></blockquote>
+<p>This is where <strong>TLS</strong> enters the picture.</p>
+<p>In the next chapter, we explore:</p>
+<ul>
+<li>why TLS was introduced</li>
+<li>how HTTPS actually works</li>
+<li>where TLS fits in the networking stack</li>
+<li>and why security changes system behavior without changing HTTP semantics</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_2_https-and-tls">HTTPS &amp; TLS — Security Without Changing HTTP</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>HTTP/1.1 did not fail —<br>
+the systems built on top of it simply outgrew its original design assumptions.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_2_https-and-tls/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

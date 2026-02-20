@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTTPS &amp; TLS — Security Without Changing HTTP</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771628382">
+<link rel="stylesheet" href="/css/custom.css?v=1771628382">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">HTTPS &amp; TLS — Security Without Changing HTTP</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — What HTTPS Really Is</li>
+        
+        <li>2. HTTP vs HTTPS — What Actually Changes?</li>
+        
+        <li>3. What TLS Is Responsible For</li>
+        
+        <li>4. TLS Handshake (High-Level Only)</li>
+        
+        <li>5. Why TLS Was Introduced (And Why It Became Mandatory)</li>
+        
+        <li>6. Certificates &amp;amp; Trust (Conceptual)</li>
+        
+        <li>7. Performance Cost of TLS (And Why It’s Worth It)</li>
+        
+        <li>8. TLS Across Modern Protocols</li>
+        
+        <li>9. System Design Implications</li>
+        
+        <li>10. Layer Mapping (Explicit)</li>
+        
+        <li>11. Key Takeaways</li>
+        
+        <li>🔗 What’s Next?</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 20 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--what-https-really-is">1. Introduction — What HTTPS Really Is</h2>
+<hr>
+<p>At some point, almost every developer hears:</p>
+<blockquote>
+<p>“HTTPS is just HTTP with encryption.”</p></blockquote>
+<p>While this is directionally correct, it hides <strong>critical system design details</strong>.</p>
+<p>HTTPS does <strong>not</strong>:</p>
+<ul>
+<li>change HTTP methods</li>
+<li>change request–response semantics</li>
+<li>change application behavior</li>
+</ul>
+<p>Yet it <strong>does</strong>:</p>
+<ul>
+<li>change connection setup</li>
+<li>affect latency</li>
+<li>introduce trust and identity</li>
+<li>influence architecture decisions</li>
+</ul>
+<p>This chapter explains <strong>what TLS actually does</strong> and <strong>where it fits</strong>, without diving into cryptography.</p>
+<hr>
+<h2 id="2-http-vs-https--what-actually-changes">2. HTTP vs HTTPS — What Actually Changes?</h2>
+<hr>
+<p>At a conceptual level:</p>
+<ul>
+<li><strong>HTTP</strong> defines <em>what</em> is sent</li>
+<li><strong>TLS</strong> defines <em>how securely</em> it is sent</li>
+</ul>
+<p>Nothing about HTTP itself changes.</p>
+<pre class="mermaid">
+flowchart TB
+    HTTP[&#34;HTTP&lt;br/&gt;(Requests &amp; Responses)&#34;]
+    TLS[&#34;TLS&lt;br/&gt;(Encryption, Authentication)&#34;]
+    TCP[&#34;TCP&lt;br/&gt;(Reliable Delivery)&#34;]
+    IP[&#34;IP&lt;br/&gt;(Routing)&#34;]
+
+    HTTP --&gt; TLS --&gt; TCP --&gt; IP
+</pre>
+
+<blockquote>
+<p>HTTPS is simply <strong>HTTP running over TLS</strong>.</p></blockquote>
+<hr>
+<h2 id="3-what-tls-is-responsible-for">3. What TLS Is Responsible For</h2>
+<hr>
+<p>TLS (Transport Layer Security) provides three core guarantees:</p>
+<h3 id="31--confidentiality">3.1 🔒 Confidentiality</h3>
+<ul>
+<li>Data is encrypted</li>
+<li>Intermediaries cannot read payloads</li>
+</ul>
+<h3 id="32--integrity">3.2 🧾 Integrity</h3>
+<ul>
+<li>Data cannot be modified undetected</li>
+<li>Tampering breaks verification</li>
+</ul>
+<h3 id="33--authentication">3.3 🪪 Authentication</h3>
+<ul>
+<li>Clients can verify server identity</li>
+<li>Trust is established via certificates</li>
+</ul>
+<h3 id="tls-does-not">TLS does not:</h3>
+<ul>
+<li>define application semantics</li>
+<li>retry requests</li>
+<li>guarantee delivery</li>
+</ul>
+<p>Those responsibilities remain elsewhere.</p>
+<hr>
+<h2 id="4-tls-handshake-high-level-only">4. TLS Handshake (High-Level Only)</h2>
+<hr>
+<p>Before application data can flow, TLS must establish trust.</p>
+<p>Conceptually:</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client-&gt;&gt;Server: ClientHello (capabilities)
+    Server-&gt;&gt;Client: ServerHello + Certificate
+    Client-&gt;&gt;Server: Key Exchange
+    Note over Client,Server: Secure channel established
+    Client-&gt;&gt;Server: Encrypted HTTP Request
+    Server-&gt;&gt;Client: Encrypted HTTP Response
+</pre>
+
+<p>Key ideas (no crypto math):</p>
+<ul>
+<li>identity is verified <strong>before</strong> data exchange</li>
+<li>encryption keys are negotiated</li>
+<li>handshake adds <strong>latency</strong></li>
+</ul>
+<p>This latency matters in system design.</p>
+<hr>
+<h2 id="5-why-tls-was-introduced-and-why-it-became-mandatory">5. Why TLS Was Introduced (And Why It Became Mandatory)</h2>
+<hr>
+<p>In the early days of the web, <strong>HTTP traffic was sent in plain text</strong>.</p>
+<p>This meant:</p>
+<ul>
+<li>anyone on the network path could read requests and responses</li>
+<li>credentials could be intercepted</li>
+<li>data could be modified in transit without detection</li>
+</ul>
+<p>At small scale, this risk was often ignored.<br>
+At internet scale, it became unacceptable.</p>
+<p>As the web evolved to support:</p>
+<ul>
+<li>authentication</li>
+<li>payments</li>
+<li>personal data</li>
+<li>enterprise systems</li>
+</ul>
+<p>a fundamental requirement emerged:</p>
+<blockquote>
+<p><strong>Clients must be able to trust who they are talking to,<br>
+and data must be protected while in transit.</strong></p></blockquote>
+<p>This led to the introduction of <strong>SSL</strong>, which later evolved into <strong>TLS</strong>.</p>
+<p>Over time:</p>
+<ul>
+<li>threats became more sophisticated</li>
+<li>attack surfaces expanded (public Wi-Fi, ISPs, proxies)</li>
+<li>regulatory and compliance requirements increased</li>
+</ul>
+<p>As a result, encryption moved from:</p>
+<ul>
+<li><strong>optional → recommended → mandatory</strong></li>
+</ul>
+<p>Today:</p>
+<ul>
+<li>browsers mark plain HTTP as unsafe</li>
+<li>modern protocols assume encryption by default</li>
+<li>unencrypted traffic is considered a design flaw</li>
+</ul>
+<p>TLS exists not as a feature, but as a <strong>baseline requirement</strong> for operating on untrusted networks.</p>
+<pre class="mermaid">
+timeline
+    title HTTP, TLS, and Protocol Evolution (Mental Model)
+
+    1990s : HTTP/1.0 &amp; HTTP/1.1
+          : Plain-text by default
+
+    Late 1990s : SSL → TLS introduced
+               : HTTPS (HTTP over TLS) becomes possible
+
+    2000s–2014 : HTTP/1.1 + TLS widely used
+               : Encryption optional but common
+
+    2015 : HTTP/2 standardized
+         : TLS strongly enforced by browsers
+
+    2018+ : HTTP/3 / QUIC
+          : TLS built-in and mandatory
+</pre>
+
+<blockquote>
+<p>📌 <strong>Mental Model</strong></p>
+<p>TLS existed long before HTTP/2.<br>
+HTTP/2 normalized encryption, and HTTP/3 made it unavoidable.</p></blockquote>
+<hr>
+<h2 id="6-certificates--trust-conceptual">6. Certificates &amp; Trust (Conceptual)</h2>
+<hr>
+<p>TLS relies on a <strong>chain of trust</strong> to verify identity.</p>
+<p>At a high level:</p>
+<ul>
+<li>Servers present a <strong>certificate</strong> claiming an identity</li>
+<li>Certificates are <strong>signed by trusted Certificate Authorities (CAs)</strong></li>
+<li>Clients verify this chain before sending sensitive data</li>
+</ul>
+<p>This explains several real-world behaviors:</p>
+<ul>
+<li>An <strong>expired certificate</strong> can take down a production system</li>
+<li>A <strong>misconfigured certificate</strong> causes browsers to block access</li>
+<li>Trust must be <strong>explicitly managed</strong>, not assumed</li>
+</ul>
+<p>Certificates are not just a security artifact —<br>
+they are a <strong>critical operational dependency</strong>.</p>
+<hr>
+<h2 id="7-performance-cost-of-tls-and-why-its-worth-it">7. Performance Cost of TLS (And Why It’s Worth It)</h2>
+<hr>
+<p>TLS introduces unavoidable overhead:</p>
+<ul>
+<li>One or more <strong>handshake round trips</strong></li>
+<li><strong>Cryptographic computation</strong> during setup</li>
+</ul>
+<p>From a system design perspective, this means:</p>
+<ul>
+<li>First requests are often slower</li>
+<li>Connection reuse becomes important</li>
+<li>Cold starts feel more expensive</li>
+</ul>
+<p>However, modern systems mitigate this cost:</p>
+<ul>
+<li>Hardware acceleration for encryption</li>
+<li>TLS session reuse</li>
+<li>Long-lived connections (keep-alive)</li>
+</ul>
+<p>The trade-off is clear:</p>
+<blockquote>
+<p><strong>A small latency cost is acceptable when the alternative is untrusted communication.</strong></p></blockquote>
+<p>This is why HTTPS is now the default for almost all systems.</p>
+<hr>
+<h2 id="8-tls-across-modern-protocols">8. TLS Across Modern Protocols</h2>
+<hr>
+<p>TLS behaves slightly differently across protocol generations:</p>
+<ul>
+<li>
+<p><strong>HTTP/1.1</strong><br>
+TLS runs on top of TCP</p>
+</li>
+<li>
+<p><strong>HTTP/2</strong><br>
+TLS is not strictly required by the spec,<br>
+but is effectively mandatory in practice</p>
+</li>
+<li>
+<p><strong>HTTP/3</strong><br>
+TLS is <strong>built directly into QUIC</strong></p>
+</li>
+</ul>
+<p>Security evolved from:</p>
+<ul>
+<li>optional</li>
+<li>to expected</li>
+<li>to deeply integrated</li>
+</ul>
+<p>This mirrors how threat models evolved alongside the internet.</p>
+<hr>
+<h2 id="9-system-design-implications">9. System Design Implications</h2>
+<hr>
+<p>Understanding TLS clarifies many design and operational questions:</p>
+<ul>
+<li>Why the <strong>first request</strong> is slower than subsequent ones</li>
+<li>Why <strong>connection reuse</strong> is critical for performance</li>
+<li>Why <strong>certificate rotation</strong> must be automated</li>
+<li>Why <strong>mTLS</strong> is used for internal service communication</li>
+<li>Why zero-trust architectures exist</li>
+</ul>
+<p>TLS is not “just security”.</p>
+<p>It actively shapes:</p>
+<ul>
+<li>latency profiles</li>
+<li>connection lifecycles</li>
+<li>infrastructure complexity</li>
+</ul>
+<hr>
+<h2 id="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>TLS operates <strong>between</strong>:</p>
+<ul>
+<li>the Application layer (HTTP semantics)</li>
+<li>the Transport layer (TCP / QUIC)</li>
+</ul>
+<p>It spans responsibilities traditionally associated with<br>
+<strong>OSI Layer 6 (Presentation)</strong> and <strong>OSI Layer 5 (Session)</strong>.</p></blockquote>
+<p>This cross-layer nature is why TLS is often misunderstood and misplaced in discussions.</p>
+<hr>
+<h2 id="11-key-takeaways">11. Key Takeaways</h2>
+<hr>
+<ul>
+<li>HTTPS is simply <strong>HTTP over TLS</strong></li>
+<li>TLS provides confidentiality, integrity, and authentication</li>
+<li>HTTP semantics do not change</li>
+<li>TLS adds latency, but enables trust</li>
+<li>Modern protocols assume encryption by default</li>
+</ul>
+<p>Security is no longer optional —<br>
+it is an architectural baseline.</p>
+<hr>
+<h2 id="-whats-next">🔗 What’s Next?</h2>
+<p>Now that we understand:</p>
+<ul>
+<li>HTTP semantics</li>
+<li>transport behavior</li>
+<li>and security guarantees</li>
+</ul>
+<p>we can return to <strong>performance</strong>.</p>
+<p>In the next chapter, we explore:</p>
+<ul>
+<li>how HTTP/2 improves efficiency</li>
+<li>why multiplexing matters</li>
+<li>and how performance evolved without changing HTTP itself</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_3_http-2-multiplexing-and-performance">HTTP/2 — Multiplexing and Performance</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>TLS does not change what your system does —<br>
+it changes <strong>who you can trust and at what cost</strong>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_1_http-1.1-original-model/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_3_http-2-multiplexing-and-performance/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTTP/2 — Multiplexing and Performance</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771623297">
+<link rel="stylesheet" href="/css/custom.css?v=1771623297">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">HTTP/2 — Multiplexing and Performance</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — Fixing HTTP Without Replacing It</li>
+        
+        <li>2. The Core Idea Behind HTTP/2</li>
+        
+        <li>3. From Messages to Streams</li>
+        
+        <li>4. Multiplexing in Action</li>
+        
+        <li>5. Binary Framing (Why It Matters)</li>
+        
+        <li>6. Header Compression (HPACK)</li>
+        
+        <li>7. What HTTP/2 Solves (And What It Doesn’t)</li>
+        
+        <li>8. System Design Implications</li>
+        
+        <li>9. Layer Mapping (Explicit)</li>
+        
+        <li>10. Key Takeaways</li>
+        
+        <li>🔗 What’s Next?</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 20 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--fixing-http-without-replacing-it">1. Introduction — Fixing HTTP Without Replacing It</h2>
+<hr>
+<p>In the previous chapter, we saw why <strong>HTTP/1.1 became a bottleneck</strong>:</p>
+<ul>
+<li>sequential request handling</li>
+<li>application-level head-of-line blocking</li>
+<li>browser-level workarounds</li>
+</ul>
+<p>The problem was not <em>what</em> HTTP did —<br>
+it was <strong>how HTTP used a single TCP connection</strong>.</p>
+<p>HTTP/2 was designed to fix this exact issue.</p>
+<p>Importantly:</p>
+<blockquote>
+<p><strong>HTTP/2 does not change HTTP semantics.</strong><br>
+It changes how HTTP messages are transported.</p></blockquote>
+<hr>
+<h2 id="2-the-core-idea-behind-http2">2. The Core Idea Behind HTTP/2</h2>
+<hr>
+<p>The central idea of HTTP/2 is simple:</p>
+<blockquote>
+<p><strong>Multiple requests and responses should be able to share a single connection concurrently.</strong></p></blockquote>
+<p>Instead of treating a connection as a single pipeline,
+HTTP/2 treats it as a <strong>multiplexed channel</strong>.</p>
+<p>This allows:</p>
+<ul>
+<li>better utilization of a single TCP connection</li>
+<li>reduced latency</li>
+<li>fewer hacks at the application level</li>
+</ul>
+<blockquote>
+<p>🕰️ <strong>Timeline Context</strong></p>
+<ul>
+<li><strong>2012–2014</strong>: Google experimented with <strong>SPDY</strong>, introducing multiplexing and header compression</li>
+<li><strong>May 2015</strong>: HTTP/2 was standardized as <strong>RFC 7540</strong>, heavily influenced by SPDY</li>
+<li><strong>2016 onward</strong>: Major browsers, servers, and CDNs adopted HTTP/2 by default</li>
+</ul>
+<p>HTTP/2 was not a theoretical improvement — it was a response to real performance bottlenecks observed at scale.</p></blockquote>
+<hr>
+<h2 id="3-from-messages-to-streams">3. From Messages to Streams</h2>
+<hr>
+<p>In HTTP/2:</p>
+<ul>
+<li>each request–response pair is mapped to a <strong>stream</strong></li>
+<li>streams are independent</li>
+<li>multiple streams can be active at the same time</li>
+</ul>
+<p>Conceptually:</p>
+<pre class="mermaid">
+flowchart TB
+    Conn[TCP Connection]
+    S1[Stream 1&lt;br/&gt;Request A / Response A]
+    S2[Stream 2&lt;br/&gt;Request B / Response B]
+    S3[Stream 3&lt;br/&gt;Request C / Response C]
+
+    Conn --&gt; S1
+    Conn --&gt; S2
+    Conn --&gt; S3
+</pre>
+
+<p>This removes the application-level serialization seen in HTTP/1.1.</p>
+<hr>
+<h2 id="4-multiplexing-in-action">4. Multiplexing in Action</h2>
+<hr>
+<p>Let’s compare behavior.</p>
+<h3 id="41-http11-sequential">4.1 HTTP/1.1 (Sequential)</h3>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client-&gt;&gt;Server: Request A
+    Server--&gt;&gt;Client: Response A
+    Client-&gt;&gt;Server: Request B
+    Server--&gt;&gt;Client: Response B
+</pre>
+
+<h3 id="42-http2-multiplexed">4.2 HTTP/2 (Multiplexed)</h3>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client-&gt;&gt;Server: Request A (Stream 1)
+    Client-&gt;&gt;Server: Request B (Stream 2)
+    Server--&gt;&gt;Client: Response B (Stream 2)
+    Server--&gt;&gt;Client: Response A (Stream 1)
+</pre>
+
+<p>Fast responses are no longer blocked by slow ones.</p>
+<hr>
+<h2 id="5-binary-framing-why-it-matters">5. Binary Framing (Why It Matters)</h2>
+<hr>
+<p>HTTP/2 introduces a <strong>binary framing layer</strong>.</p>
+<p>Instead of sending plain text messages:</p>
+<ul>
+<li>requests and responses are split into <strong>frames</strong></li>
+<li>frames are tagged with <strong>stream IDs</strong></li>
+<li>frames can be <strong>interleaved</strong> on the wire</li>
+</ul>
+<p>This framing is what makes <strong>multiplexing possible</strong>.</p>
+<p>Applications do not see frames —<br>
+they still work with <strong>HTTP requests and responses</strong>.</p>
+<hr>
+<h2 id="6-header-compression-hpack">6. Header Compression (HPACK)</h2>
+<hr>
+<p>HTTP/1.1 headers are:</p>
+<ul>
+<li>verbose</li>
+<li>repetitive</li>
+<li>expensive over slow networks</li>
+</ul>
+<p>HTTP/2 introduces <strong>HPACK</strong>:</p>
+<ul>
+<li>headers are compressed</li>
+<li>repeated headers are referenced instead of resent</li>
+<li>bandwidth usage is significantly reduced</li>
+</ul>
+<p>This matters especially for:</p>
+<ul>
+<li>mobile networks</li>
+<li>APIs with many small requests</li>
+</ul>
+<hr>
+<h2 id="7-what-http2-solves-and-what-it-doesnt">7. What HTTP/2 Solves (And What It Doesn’t)</h2>
+<hr>
+<h3 id="solves">Solves</h3>
+<ul>
+<li>Application-level head-of-line blocking</li>
+<li>Excessive TCP connections</li>
+<li>Browser hacks (mostly)</li>
+</ul>
+<h3 id="does-not-solve">Does <em>Not</em> Solve</h3>
+<ul>
+<li>TCP-level head-of-line blocking</li>
+<li>Packet loss affecting all streams</li>
+<li>Transport-layer latency issues</li>
+</ul>
+<p>HTTP/2 improves efficiency —<br>
+but it is still <strong>bound to TCP’s behavior</strong>.</p>
+<hr>
+<h2 id="8-system-design-implications">8. System Design Implications</h2>
+<hr>
+<p>HTTP/2 changes how systems behave under load:</p>
+<ul>
+<li>fewer connections → less congestion</li>
+<li>better latency for concurrent requests</li>
+<li>simpler client and server designs</li>
+</ul>
+<p>However:</p>
+<ul>
+<li>packet loss on a TCP connection still affects all streams</li>
+<li>long-lived connections require careful timeout handling</li>
+</ul>
+<p>Understanding these trade-offs is critical when designing:</p>
+<ul>
+<li>APIs</li>
+<li>gateways</li>
+<li>service meshes</li>
+</ul>
+<hr>
+<h2 id="9-layer-mapping-explicit">9. Layer Mapping (Explicit)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>HTTP/2 operates at the <strong>Application layer</strong><br>
+(OSI Layer 7 / TCP-IP Application layer),</p>
+<p>while relying on <strong>TCP at the Transport layer</strong><br>
+(OSI Layer 4).</p>
+<p>Multiplexing is an <em>application-level</em> solution built on top of TCP.</p></blockquote>
+<p>This distinction explains why HTTP/2 helped —<br>
+but did not eliminate all latency problems.</p>
+<hr>
+<h2 id="10-key-takeaways">10. Key Takeaways</h2>
+<hr>
+<ul>
+<li>HTTP/2 keeps HTTP semantics unchanged</li>
+<li>Multiplexing allows concurrent requests on one connection</li>
+<li>Binary framing enables efficient interleaving</li>
+<li>Header compression reduces overhead</li>
+<li>TCP-level limitations still apply</li>
+</ul>
+<p>HTTP/2 is a major improvement — but not the end of the story.</p>
+<hr>
+<h2 id="-whats-next">🔗 What’s Next?</h2>
+<p>HTTP/2 exposed a deeper limitation:</p>
+<blockquote>
+<p>Even with multiplexing, <strong>TCP itself can become the bottleneck</strong>.</p></blockquote>
+<p>In the next chapter, we explore:</p>
+<ul>
+<li>why TCP head-of-line blocking still matters</li>
+<li>how QUIC rethinks transport</li>
+<li>and why HTTP/3 moved to UDP</li>
+</ul>
+<p>👉 <strong>Up Next → HTTP/3 &amp; QUIC — Rethinking Transport</strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>HTTP/2 fixed how HTTP <em>uses</em> connections —<br>
+but it could not change how TCP behaves underneath.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_1_http-1.1-original-model/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_3_http-3-and-quic/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

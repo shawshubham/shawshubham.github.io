@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTTP/3 &amp; QUIC — Rethinking Transport</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771623309">
+<link rel="stylesheet" href="/css/custom.css?v=1771623309">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">HTTP/3 &amp; QUIC — Rethinking Transport</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — When HTTP/2 Was Still Not Enough</li>
+        
+        <li>2. The Hidden Bottleneck: TCP Head-of-Line Blocking</li>
+        
+        <li>3. Why TCP Could Not Be “Fixed” for This</li>
+        
+        <li>4. QUIC — Reliable Transport Built on UDP</li>
+        
+        <li>5. Streams Without Transport-Level Blocking</li>
+        
+        <li>6. Faster Connection Establishment</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 20 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--when-http2-was-still-not-enough">1. Introduction — When HTTP/2 Was Still Not Enough</h2>
+<hr>
+<p>HTTP/2 fixed many of HTTP/1.1’s problems:</p>
+<ul>
+<li>multiplexing requests</li>
+<li>reducing connection overhead</li>
+<li>eliminating application-level head-of-line blocking</li>
+</ul>
+<p>Yet under real-world conditions, especially on:</p>
+<ul>
+<li>mobile networks</li>
+<li>high-latency links</li>
+<li>lossy connections</li>
+</ul>
+<p>performance issues still remained.</p>
+<p>The reason was subtle but critical:</p>
+<blockquote>
+<p><strong>HTTP/2 fixed the application layer —<br>
+but it was still bound to TCP at the transport layer.</strong></p></blockquote>
+<hr>
+<h2 id="2-the-hidden-bottleneck-tcp-head-of-line-blocking">2. The Hidden Bottleneck: TCP Head-of-Line Blocking</h2>
+<hr>
+<p>TCP guarantees <strong>ordered delivery</strong>.</p>
+<p><strong>This means:</strong></p>
+<ul>
+<li>packets must be delivered in sequence</li>
+<li>later packets cannot be processed until earlier ones arrive</li>
+</ul>
+<p><strong>In HTTP/2:</strong></p>
+<ul>
+<li>multiple streams share a single TCP connection</li>
+<li>if one TCP packet is lost, <strong>all streams stall</strong></li>
+</ul>
+<p>This is known as <strong>transport-level head-of-line blocking</strong>.</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant TCP
+    participant Server
+
+    Client-&gt;&gt;TCP: Packet 1 (Stream A)
+    Client-&gt;&gt;TCP: Packet 2 (Stream B)
+    Client-&gt;&gt;TCP: Packet 3 (Stream C)
+    TCP--x Server: Packet 2 lost
+    TCP--&gt;&gt;Server: Packet 3 (blocked)
+</pre>
+
+<p>Even though streams are independent at the application level,<br>
+TCP forces them to wait.</p>
+<hr>
+<h2 id="3-why-tcp-could-not-be-fixed-for-this">3. Why TCP Could Not Be “Fixed” for This</h2>
+<hr>
+<p>TCP’s behavior is not an implementation detail —<br>
+it is the <strong>core contract of the protocol</strong>.</p>
+<h4 id="tcp-is-designed-to">TCP is designed to:</h4>
+<ul>
+<li>deliver bytes reliably</li>
+<li>in strict order</li>
+<li>as a single stream</li>
+</ul>
+<h4 id="this-makes-tcp-excellent-for-correctness-but-problematic-for">This makes TCP excellent for correctness, but problematic for:</h4>
+<ul>
+<li>multiplexed workloads</li>
+<li>high packet loss environments</li>
+</ul>
+<h4 id="changing-tcp-itself-was-not-feasible">Changing TCP itself was not feasible:</h4>
+<ul>
+<li>it is deeply embedded in operating systems</li>
+<li>it is widely deployed and standardized</li>
+</ul>
+<p>So the industry took a different path.</p>
+<hr>
+<h2 id="4-quic--reliable-transport-built-on-udp">4. QUIC — Reliable Transport Built on UDP</h2>
+<hr>
+<p><strong>QUIC</strong> is a modern transport protocol that runs <strong>on top of UDP</strong>.</p>
+<p>This sounds counterintuitive at first.</p>
+<p>UDP is:</p>
+<ul>
+<li>connectionless</li>
+<li>unreliable</li>
+<li>unordered</li>
+</ul>
+<p>But QUIC adds, at the application level:</p>
+<ul>
+<li>reliability</li>
+<li>ordering (per stream)</li>
+<li>congestion control</li>
+<li>encryption by default</li>
+</ul>
+<p>QUIC uses UDP only as a <strong>thin delivery mechanism</strong>.</p>
+<hr>
+<h2 id="5-streams-without-transport-level-blocking">5. Streams Without Transport-Level Blocking</h2>
+<hr>
+<p>The key innovation in QUIC is <strong>stream-level independence</strong>.</p>
+<p>Each stream:</p>
+<ul>
+<li>is ordered internally</li>
+<li>does not block other streams if packets are lost</li>
+</ul>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant QUIC
+    participant Server
+
+    Client-&gt;&gt;QUIC: Stream A Packet
+    Client-&gt;&gt;QUIC: Stream B Packet
+    Client-&gt;&gt;QUIC: Stream C Packet
+    QUIC--x Server: Stream B packet lost
+    QUIC--&gt;&gt;Server: Stream A continues
+    QUIC--&gt;&gt;Server: Stream C continues
+</pre>
+
+<p>Loss in one stream does <strong>not</strong> stall the others.</p>
+<p>This directly solves TCP’s head-of-line blocking.</p>
+<hr>
+<h2 id="6-faster-connection-establishment">6. Faster Connection Establishment</h2>
+<hr>
+<p>QUIC also improves connection setup:</p>
+<ul>
+<li>TCP requires a handshake</li>
+<li>TLS requires another handshake</li>
+<li>Together, this adds round-trip latency</li>
+</ul>
+<p>QUIC integrates:</p>
+<ul>
+<li>transport setup</li>
+<li>encryption</li>
+<li>authentication</li>
+</ul>
+<p>This allows:</p>
+<ul>
+<li>faster first requests</li>
+<li>quicker reconnections (especially on mobile networks)</li>
+</ul>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_3_http-2-multiplexing-and-performance/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_2/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Example 1: Simple Web System — High-Level Architecture</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771531957">
+<link rel="stylesheet" href="/css/custom.css?v=1771531957">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Example 1: Simple Web System — High-Level Architecture</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction</li>
+        
+        <li>2. High-Level Architecture Overview</li>
+        
+        <li>3. Core Components</li>
+        
+        <li>4. Request Flow (Step-by-Step)</li>
+        
+        <li>5. Logical vs Physical View</li>
+        
+        <li>6. Architecture Choices (and Why)</li>
+        
+        <li>7. What This Architecture Enables</li>
+        
+        <li>8. What This Architecture Does Not Solve (Yet)</li>
+        
+        <li>9. Concepts Used (and Why)</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 19 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction">1. Introduction</h2>
+<hr>
+<p>Now that we clearly understand <strong>what problem we are solving</strong> and <strong>what constraints we are operating under</strong>, we can move to the most important step in High-Level Design:</p>
+<blockquote>
+<p><strong>Defining the system architecture.</strong></p></blockquote>
+<p>At this stage, we are not choosing frameworks or writing code.<br>
+We are deciding <strong>what components exist</strong>, <strong>how they interact</strong>, and <strong>why each one is necessary</strong>.</p>
+<p>This architecture will act as the <strong>baseline blueprint</strong> for all future evolutions of the system.</p>
+<hr>
+<h2 id="2-high-level-architecture-overview">2. High-Level Architecture Overview</h2>
+<hr>
+<p>At a high level, our simple web system consists of four core components:</p>
+<pre class="mermaid">
+flowchart TD
+    U[&#34;User (Browser)&#34;]
+    A[&#34;Application Server&#34;]
+    D[&#34;Database&#34;]
+
+    U --&gt; A
+    A --&gt; D
+</pre>
+
+<p>This may look trivial — but this structure forms the foundation of almost every modern web system.</p>
+<p>As the system grows, we don’t replace this model — we <strong>extend and scale it</strong>.</p>
+<hr>
+<h2 id="3-core-components">3. Core Components</h2>
+<hr>
+<p>Let’s examine each component and its responsibility.</p>
+<h3 id="31-client-web-browser">3.1 Client (Web Browser)</h3>
+<p><strong>Responsibility</strong></p>
+<ul>
+<li>Initiates requests</li>
+<li>Displays responses to users</li>
+</ul>
+<p><strong>Key Points</strong></p>
+<ul>
+<li>Communicates with the system over HTTP/HTTPS</li>
+<li>Stateless from the system’s perspective</li>
+<li>Can be a browser, mobile app, or any HTTP client</li>
+</ul>
+<p>At this stage, the client is intentionally simple.</p>
+<hr>
+<h3 id="32-application-server">3.2 Application Server</h3>
+<p><strong>Responsibility</strong></p>
+<ul>
+<li>Handles incoming requests</li>
+<li>Contains business logic</li>
+<li>Coordinates data access</li>
+<li>Generates responses</li>
+</ul>
+<p><strong>Why It Exists</strong></p>
+<ul>
+<li>Separates business logic from presentation</li>
+<li>Acts as the central processing unit of the system</li>
+</ul>
+<p><strong>Key Characteristics</strong></p>
+<ul>
+<li>Stateless</li>
+<li>Handles multiple concurrent requests</li>
+<li>Can be scaled independently in the future</li>
+</ul>
+<hr>
+<h3 id="33-database">3.3 Database</h3>
+<p><strong>Responsibility</strong></p>
+<ul>
+<li>Stores persistent data</li>
+<li>Provides durability across restarts and failures</li>
+</ul>
+<p><strong>Key Points</strong></p>
+<ul>
+<li>Single database instance (for now)</li>
+<li>Used for both reads and writes</li>
+<li>Strong consistency by default</li>
+</ul>
+<p>At this stage, simplicity is preferred over distribution.</p>
+<hr>
+<h2 id="4-request-flow-step-by-step">4. Request Flow (Step-by-Step)</h2>
+<hr>
+<p>Understanding <strong>how a request moves through the system</strong> is critical.</p>
+<ol>
+<li>User sends a request from the browser</li>
+<li>Request reaches the application server</li>
+<li>Application server processes the request</li>
+<li>Application server queries the database (if needed)</li>
+<li>Database returns data</li>
+<li>Application server builds the response</li>
+<li>Response is sent back to the user</li>
+</ol>
+<p>This synchronous flow keeps reasoning simple and predictable.</p>
+<hr>
+<h2 id="5-logical-vs-physical-view">5. Logical vs Physical View</h2>
+<hr>
+<h3 id="logical-view">Logical View</h3>
+<ul>
+<li>Client</li>
+<li>Application</li>
+<li>Database</li>
+</ul>
+<p>This is how we <strong>reason about responsibilities</strong>.</p>
+<h3 id="physical-view">Physical View</h3>
+<ul>
+<li>All components may initially run on a single machine</li>
+<li>Or application and database may run on separate machines</li>
+</ul>
+<p>At HLD level, <strong>logical separation matters more than physical deployment</strong>.</p>
+<hr>
+<h2 id="6-architecture-choices-and-why">6. Architecture Choices (and Why)</h2>
+<hr>
+<h3 id="choice-1-single-application-server">Choice 1: Single Application Server</h3>
+<ul>
+<li>Simpler to develop and debug</li>
+<li>Sufficient for low traffic</li>
+<li>Easy to evolve later</li>
+</ul>
+<h3 id="choice-2-no-load-balancer-yet">Choice 2: No Load Balancer (Yet)</h3>
+<ul>
+<li>Traffic volume does not justify it</li>
+<li>Adds unnecessary complexity early</li>
+<li>Will be introduced when scaling becomes a requirement</li>
+</ul>
+<h3 id="choice-3-single-database">Choice 3: Single Database</h3>
+<ul>
+<li>Avoids replication complexity</li>
+<li>Strong consistency by default</li>
+<li>Easy schema evolution</li>
+</ul>
+<p>Each choice favors <strong>clarity and correctness</strong> over premature scalability.</p>
+<hr>
+<h2 id="7-what-this-architecture-enables">7. What This Architecture Enables</h2>
+<hr>
+<p>This baseline architecture allows us to:</p>
+<ul>
+<li>clearly understand request flow</li>
+<li>reason about failures</li>
+<li>identify future bottlenecks</li>
+<li>extend the system incrementally</li>
+</ul>
+<p>Most importantly, it gives us a <strong>stable mental model</strong>.</p>
+<hr>
+<h2 id="8-what-this-architecture-does-not-solve-yet">8. What This Architecture Does Not Solve (Yet)</h2>
+<hr>
+<p>This design intentionally does <strong>not</strong> address:</p>
+<ul>
+<li>high availability</li>
+<li>horizontal scaling</li>
+<li>performance optimization</li>
+<li>fault isolation</li>
+<li>distributed consistency</li>
+</ul>
+<p>These are not omissions — they are <strong>future design milestones</strong>.</p>
+<hr>
+<h2 id="9-concepts-used-and-why">9. Concepts Used (and Why)</h2>
+<hr>
+<ul>
+<li><strong>Client–Server Model</strong> — clear separation of concerns</li>
+<li><strong>Stateless Application Server</strong> — enables future scaling</li>
+<li><strong>Synchronous Request Flow</strong> — easier reasoning</li>
+<li><strong>Single Source of Truth (Database)</strong> — correctness first</li>
+</ul>
+<p>Each of these concepts will be revisited and expanded later.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>In this article, we designed the <strong>high-level architecture</strong> of a simple web system.</p>
+<p>We:</p>
+<ul>
+<li>identified core components</li>
+<li>defined their responsibilities</li>
+<li>explained request flow</li>
+<li>made deliberate architectural choices</li>
+</ul>
+<p>This architecture is not “basic” — it is <strong>foundational</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>In the next article, we will examine <strong>architecture alternatives and trade-offs</strong>.</p>
+<p>We will explore:</p>
+<ul>
+<li>monolithic vs layered designs</li>
+<li>early scaling considerations</li>
+<li>how this architecture can evolve without breaking</li>
+</ul>
+<p>👉 <strong>Next:</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_4_architecture-choices-and-trade-offs">Example 1: Simple Web System — Architecture Choices &amp; Trade-offs</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Architecture starts with <strong>responsibilities</strong>, not tools.</li>
+<li>Simple systems are easier to evolve than complex ones.</li>
+<li>Statelessness is a powerful early decision.</li>
+<li>High-Level Design is about <strong>what exists and why</strong>.</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_2_simple-web-system/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+        High-Level Design (HLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_4_architecture-choices-and-trade-offs/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

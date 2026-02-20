@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where HTTP Fits in the Networking Stack</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771616710">
+<link rel="stylesheet" href="/css/custom.css?v=1771616710">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Where HTTP Fits in the Networking Stack</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — A Common Source of Confusion</li>
+        
+        <li>2. Transport vs Application — A Clear Separation of Responsibilities</li>
+        
+        <li>3. Where HTTP Actually Lives</li>
+        
+        <li>4. What HTTP Adds (And What It Does Not)</li>
+        
+        <li>5. Why This Separation Matters in Practice</li>
+        
+        <li>6. End-to-End Request Flow (Putting It Together)</li>
+        
+        <li>7. System Design Implications</li>
+        
+        <li>8. Layer Mapping (Explicit)</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 20 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--a-common-source-of-confusion">1. Introduction — A Common Source of Confusion</h2>
+<hr>
+<p>After learning about TCP and UDP, many developers naturally ask:</p>
+<blockquote>
+<p>“If HTTP sends requests and responses,<br>
+isn’t HTTP the transport protocol?”</p></blockquote>
+<p>This confusion is extremely common — and extremely important to resolve.</p>
+<p>The short answer is:</p>
+<blockquote>
+<p><strong>HTTP does not move bytes across the network.<br>
+It defines what those bytes mean.</strong></p></blockquote>
+<p>This chapter clarifies <strong>where HTTP fits</strong>, and why this separation is foundational to system design.</p>
+<hr>
+<h2 id="2-transport-vs-application--a-clear-separation-of-responsibilities">2. Transport vs Application — A Clear Separation of Responsibilities</h2>
+<hr>
+<p>Let’s restate the responsibilities clearly:</p>
+<ul>
+<li>
+<p><strong>Transport protocols (TCP / UDP)</strong><br>
+Decide <em>how bytes are delivered</em><br>
+(reliability, ordering, flow control)</p>
+</li>
+<li>
+<p><strong>Application protocols (HTTP, gRPC)</strong><br>
+Decide <em>how data is structured and interpreted</em><br>
+(requests, responses, headers, semantics)</p>
+</li>
+</ul>
+<p>They solve <strong>different problems</strong>, at different layers.</p>
+<hr>
+<h2 id="3-where-http-actually-lives">3. Where HTTP Actually Lives</h2>
+<hr>
+<p>HTTP operates at the <strong>Application layer</strong>.</p>
+<p>It assumes that:</p>
+<ul>
+<li>bytes can already be sent</li>
+<li>bytes can already be received</li>
+<li>delivery guarantees are handled elsewhere</li>
+</ul>
+<p>HTTP focuses on:</p>
+<ul>
+<li>request / response structure</li>
+<li>headers and metadata</li>
+<li>resource semantics (e.g. “GET”, “POST”)</li>
+</ul>
+<h3 id="31-layered-view">3.1 Layered View</h3>
+<pre class="mermaid">
+flowchart TB
+    HTTP[&#34;HTTP&lt;br/&gt;(Requests, Responses)&#34;]
+    TCP[&#34;TCP&lt;br/&gt;(Reliable Delivery)&#34;]
+    IP[&#34;IP&lt;br/&gt;(Routing)&#34;]
+
+    HTTP --&gt; TCP --&gt; IP
+</pre>
+
+<blockquote>
+<p>HTTP <strong>depends on</strong> TCP.<br>
+TCP does <strong>not depend on</strong> HTTP.</p></blockquote>
+<p>This dependency direction is intentional.</p>
+<hr>
+<h2 id="4-what-http-adds-and-what-it-does-not">4. What HTTP Adds (And What It Does Not)</h2>
+<hr>
+<p>HTTP operates <strong>above the transport layer</strong> and focuses on application semantics.</p>
+<h3 id="what-http-adds">What HTTP Adds</h3>
+<ul>
+<li>A standardized <strong>request–response</strong> communication model</li>
+<li>Clear <strong>semantics</strong> for operations (e.g., fetching data, submitting data)</li>
+<li><strong>Metadata support</strong> through headers</li>
+<li>A <strong>stateless</strong> interaction model by default</li>
+<li>Extensibility without changing the transport layer</li>
+</ul>
+<p>These features allow applications to communicate in a predictable and interoperable way.</p>
+<hr>
+<h3 id="what-http-does-not-do">What HTTP Does <em>Not</em> Do</h3>
+<ul>
+<li>It does <strong>not</strong> guarantee delivery of data</li>
+<li>It does <strong>not</strong> ensure ordering of packets</li>
+<li>It does <strong>not</strong> handle congestion control</li>
+<li>It does <strong>not</strong> retransmit lost packets</li>
+</ul>
+<p>All of these responsibilities belong to the <strong>transport layer</strong>, not HTTP.</p>
+<p>HTTP assumes that data delivery concerns are already handled before it is invoked.</p>
+<hr>
+<h2 id="5-why-this-separation-matters-in-practice">5. Why This Separation Matters in Practice</h2>
+<hr>
+<p>Understanding the separation between <strong>transport protocols</strong> and <strong>application protocols</strong>
+explains many real-world system behaviors:</p>
+<ul>
+<li>
+<p><strong>Why HTTP retries exist</strong><br>
+TCP may retry packets, but it has no concept of application-level requests.</p>
+</li>
+<li>
+<p><strong>Why HTTP timeouts are mandatory</strong><br>
+Reliable delivery does not mean infinite waiting.</p>
+</li>
+<li>
+<p><strong>Why duplicate requests can occur</strong><br>
+Transport retries and application retries operate at different layers.</p>
+</li>
+<li>
+<p><strong>Why “slow network” issues surface at the HTTP layer</strong><br>
+HTTP experiences the <em>effects</em> of transport-layer behavior.</p>
+</li>
+</ul>
+<p>These are <strong>system design concerns</strong>, not framework quirks.</p>
+<p>Misunderstanding this boundary is a common cause of:</p>
+<ul>
+<li>cascading failures</li>
+<li>data inconsistencies</li>
+<li>unpredictable latency in production systems</li>
+</ul>
+<hr>
+<h2 id="6-end-to-end-request-flow-putting-it-together">6. End-to-End Request Flow (Putting It Together)</h2>
+<hr>
+<p>Let’s follow a single request conceptually:</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant HTTP as Application Layer (HTTP)
+    participant TCP as Transport Layer (TCP)
+    participant IP as Network Layer (IP)
+    participant Server
+
+    Client-&gt;&gt;HTTP: Create HTTP Request
+    HTTP-&gt;&gt;TCP: Hand bytes to TCP
+    TCP-&gt;&gt;IP: Send packets via IP
+    IP-&gt;&gt;Server: Deliver packets
+    Server-&gt;&gt;TCP: Response bytes
+    TCP-&gt;&gt;HTTP: Reassembled stream
+    HTTP-&gt;&gt;Client: HTTP Response
+</pre>
+
+<p>Even though developers interact with HTTP,<br>
+<strong>every request still depends on transport guarantees underneath</strong>.</p>
+<hr>
+<h2 id="7-system-design-implications">7. System Design Implications</h2>
+<hr>
+<p>Once you understand where HTTP fits, several design principles become clear:</p>
+<ul>
+<li>Transport failures can surface as HTTP failures</li>
+<li>Application-level retries must be carefully designed</li>
+<li>Timeouts belong at multiple layers</li>
+<li>Performance tuning often starts below HTTP</li>
+</ul>
+<p>This is why system design discussions frequently ask:</p>
+<blockquote>
+<p>“Is this a transport-level issue or an application-level issue?”</p></blockquote>
+<hr>
+<h2 id="8-layer-mapping-explicit">8. Layer Mapping (Explicit)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>HTTP operates at the <strong>Application layer</strong><br>
+(OSI Layer 7 / TCP-IP Application layer).</p>
+<p>It relies on the <strong>Transport layer</strong><br>
+(OSI Layer 4) for delivery guarantees.</p></blockquote>
+<p>We will continue to explicitly call out layers as we move forward.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<ul>
+<li>HTTP is <strong>not</strong> a transport protocol</li>
+<li>TCP decides <strong>how bytes</strong> move</li>
+<li>HTTP decides <strong>what those bytes represent</strong></li>
+<li>This separation enables flexibility, evolution, and reuse</li>
+<li>Many production issues come from misunderstanding this boundary</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we understand:</p>
+<ul>
+<li>where HTTP fits</li>
+<li>what it relies on</li>
+<li>what it does not guarantee</li>
+</ul>
+<p>we are ready to explore why HTTP itself had to evolve.</p>
+<p>In the next phase, we examine:</p>
+<ul>
+<li>HTTP/1.1 limitations</li>
+<li>performance bottlenecks</li>
+<li>and why newer protocols were introduced</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_1_http-1.1-original-model">HTTP, HTTPS &amp; Protocol Evolution (HTTP/1.1 → HTTP/2 → HTTP/3)</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<p>HTTP gives meaning to data —<br>
+but it is the transport layer that decides whether that data arrives at all.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/2_transport-and-application-protocol/2_2_tcp-vs-udp/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

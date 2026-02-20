@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Networking Foundations: Addressing &amp; Ports</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771496749">
+<link rel="stylesheet" href="/css/custom.css?v=1771496749">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Networking Foundations: Addressing &amp; Ports</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — Where Networking Really Begins</li>
+        
+        <li>2. The Running Example (Simplified on Purpose)</li>
+        
+        <li>3. What Is an IP Address?</li>
+        
+        <li>4. Why Ports Exist</li>
+        
+        <li>5. The Socket: The First Complete Mental Model</li>
+        
+        <li>6. What Actually Happens When a Client Sends a Request</li>
+        
+        <li>7. Common Failure Scenarios (Real World Intuition)</li>
+        
+        <li>8. Design Limitations of Our Current System</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 19 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <hr>
+<h2 id="1-introduction--where-networking-really-begins">1. Introduction — Where Networking Really Begins</h2>
+<hr>
+<p>Consider a <strong>learning platform</strong> like this one.</p>
+<p>Today it may serve a small number of users, but the fundamental problem it solves is universal:</p>
+<blockquote>
+<p>A client needs to send a request to a backend application over the network.</p></blockquote>
+<p>Before we talk about scale, cloud, load balancers, or containers, we must understand <strong>how that single request reaches a backend process in the first place</strong>.</p>
+<p>This is where networking truly begins.</p>
+<p>In this chapter, we will <strong>ignore what the application does</strong> and focus only on:</p>
+<ul>
+<li>how machines are identified</li>
+<li>how processes are addressed</li>
+<li>how a request finds the correct destination</li>
+</ul>
+<hr>
+<h2 id="2-the-running-example-simplified-on-purpose">2. The Running Example (Simplified on Purpose)</h2>
+<hr>
+<p>For the rest of this section, we will reduce the learning platform to its simplest form:</p>
+<ul>
+<li>One server (physical or virtual)</li>
+<li>One backend application running on that server</li>
+<li>One client (browser or another service)</li>
+<li>Communication over the internet</li>
+</ul>
+<p>No business logic.<br>
+No databases.<br>
+No frameworks.</p>
+<p>Just <strong>a client, a machine, and a process</strong>.</p>
+<pre class="mermaid">
+flowchart LR
+    Client[&#34;Client&lt;br/&gt;Browser / App&#34;]
+
+    subgraph Server[&#34;Server (IP: 203.0.113.10)&#34;]
+        A[&#34;Backend Service&lt;br/&gt;Port 8080&#34;]
+        B[&#34;Database&lt;br/&gt;Port 5432&#34;]
+        C[&#34;Admin Tool&lt;br/&gt;Port 9000&#34;]
+    end
+
+    Dest[&#34;Destination Socket&lt;hr/&gt;203.0.113.10:8080&#34;]
+
+    Client --&gt; Dest
+    Dest --&gt; A
+</pre>
+
+<hr>
+<h2 id="3-what-is-an-ip-address">3. What Is an IP Address?</h2>
+<hr>
+<p>An <strong>IP address</strong> identifies a <strong>machine on a network</strong>.</p>
+<ul>
+<li>It answers the question:<br>
+<strong>“Which machine should receive this data?”</strong></li>
+<li>Every machine connected to a network has an IP address.</li>
+<li>The internet is essentially a massive system for routing data between IP addresses.</li>
+</ul>
+<p>Important clarification:</p>
+<blockquote>
+<p>An IP address identifies a <strong>machine</strong>, not an application.</p></blockquote>
+<p>If a client only knows the IP address of a server, it still does not know which <strong>program</strong> on that machine should handle the request.</p>
+<p>This limitation is intentional — and necessary.</p>
+<blockquote>
+<p>📌 <strong>Conceptual Note</strong></p>
+<p>IPv4 addresses use 32 bits, which limits them to about 4.3 billion unique values.<br>
+The internet scales beyond this limit using private IP ranges, NAT (Network Address Translation),
+and careful address reuse.</p>
+<p>We’ll explore these mechanisms later in the networking section.</p></blockquote>
+<hr>
+<h2 id="4-why-ports-exist">4. Why Ports Exist</h2>
+<hr>
+<p>A single machine rarely runs just one application.</p>
+<p>On the same server, you might have:</p>
+<ul>
+<li>a backend service</li>
+<li>a database</li>
+<li>a monitoring agent</li>
+<li>an admin interface</li>
+</ul>
+<p>All of them share the <strong>same IP address</strong>.</p>
+<p>Ports exist to solve this exact problem.</p>
+<ul>
+<li>A <strong>port</strong> identifies a <strong>process</strong> on a machine.</li>
+<li>Each application listens on one or more ports.</li>
+<li>The operating system uses ports to route incoming network traffic to the correct process.</li>
+</ul>
+<blockquote>
+<p>IP answers: <strong>Which machine?</strong><br>
+Port answers: <strong>Which process on that machine?</strong></p></blockquote>
+<p>This is why you see errors like:</p>
+<ul>
+<li>“Port already in use”</li>
+<li>“Cannot bind to port 8080”</li>
+</ul>
+<p>They are not application bugs — they are <strong>networking constraints</strong>.</p>
+<hr>
+<h2 id="5-the-socket-the-first-complete-mental-model">5. The Socket: The First Complete Mental Model</h2>
+<hr>
+<p>A socket is the combination of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IP Address + Port
+</span></span></code></pre></div><p>This pair uniquely identifies a network endpoint.</p>
+<ul>
+<li>The backend application opens a <strong>server socket</strong> (e.g., 0.0.0.0:8080)</li>
+<li>The client opens a <strong>client socket</strong></li>
+<li>Communication happens <strong>between sockets</strong>, not applications directly</li>
+</ul>
+<p>This is a foundational truth:</p>
+<blockquote>
+<p>Every network request in every distributed system begins with a socket connection.</p></blockquote>
+<p>Load balancers, firewalls, DNS, and service meshes all exist <strong>around this concept</strong>.</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client as Client Socket&lt;br/&gt;192.168.1.5:54012
+    participant Server as Server Socket&lt;br/&gt;203.0.113.10:8080
+
+    Client-&gt;&gt;Server: Send data
+    Server--&gt;&gt;Client: Response
+</pre>
+
+<hr>
+<h2 id="6-what-actually-happens-when-a-client-sends-a-request">6. What Actually Happens When a Client Sends a Request</h2>
+<hr>
+<p>At a high level:</p>
+<ol>
+<li>The client targets an <strong>IP address</strong></li>
+<li>The client specifies a <strong>port</strong></li>
+<li>The operating system routes the traffic</li>
+<li>The correct process receives the data</li>
+</ol>
+<p>We are intentionally avoiding protocol details (HTTP, TCP) for now.<br>
+Those come next.</p>
+<p>Right now, the goal is to understand <strong>how a request finds the right process</strong> — nothing more.</p>
+<hr>
+<h2 id="7-common-failure-scenarios-real-world-intuition">7. Common Failure Scenarios (Real World Intuition)</h2>
+<hr>
+<p>Understanding IPs and ports immediately explains many real issues:</p>
+<ul>
+<li><strong>Wrong IP</strong> → request reaches the wrong machine</li>
+<li><strong>Wrong port</strong> → request reaches no process</li>
+<li><strong>Port already in use</strong> → two processes cannot bind to the same port</li>
+<li><strong>Application running but unreachable</strong> → network or firewall issue</li>
+</ul>
+<p>These problems appear in:</p>
+<ul>
+<li>local development</li>
+<li>cloud deployments</li>
+<li>production outages</li>
+</ul>
+<p>They are <strong>networking problems</strong>, not code problems.</p>
+<hr>
+<h2 id="8-design-limitations-of-our-current-system">8. Design Limitations of Our Current System</h2>
+<hr>
+<p>Our system works — but only barely.</p>
+<p>Limitations:</p>
+<ul>
+<li>Single point of failure</li>
+<li>Limited capacity</li>
+<li>No isolation</li>
+<li>No security boundaries</li>
+</ul>
+<p>These are not mistakes.</p>
+<blockquote>
+<p>They are the natural constraints of a single-machine, single-process design.</p></blockquote>
+<p>Every major networking concept you will learn next exists to address <strong>these exact limitations</strong>.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Every distributed system — no matter how large or complex — starts the same way:</p>
+<p>A client sends data to a <strong>machine</strong>, and the operating system delivers it to a <strong>process</strong>.</p>
+<p>IP addresses, ports, and sockets are not implementation details.
+They are the <strong>foundation</strong> on which all networking concepts are built.</p>
+<p>If these basics are unclear:</p>
+<ul>
+<li>load balancers feel magical</li>
+<li>cloud networking feels opaque</li>
+<li>production failures feel random</li>
+</ul>
+<p>Once they are clear, everything that follows — DNS, firewalls, scaling, reliability —
+becomes a <strong>logical response to real constraints</strong>, not a list of memorized components.</p>
+<p>This chapter establishes that foundation.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>We now know where services live.</p>
+<p>Next, we need to understand <strong>how data moves between them</strong>.</p>
+<p>In the next chapter, we introduce:</p>
+<ul>
+<li>TCP vs UDP</li>
+<li>Reliability vs speed</li>
+<li>Why transport protocols exist at all</li>
+</ul>
+<p>👉 Up Next →
+<strong><a href="/learning/advanced-skills/networking-essentials/1_networking-foundation/1_2_addressing-and-ports">Transport &amp; Application Protocols: TCP, UDP, and HTTP</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Networking starts at the <strong>operating system level</strong></li>
+<li>An IP identifies a <strong>machine</strong></li>
+<li>A port identifies a <strong>process</strong></li>
+<li>A socket is the true unit of network communication</li>
+<li>Most distributed system issues trace back to these basics</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/high-level-design/1_networking-foundation/1_1_introduction/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/high-level-design/1_networking-foundation/1_3_tcp-udp-http/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  
+</body>
+</html>

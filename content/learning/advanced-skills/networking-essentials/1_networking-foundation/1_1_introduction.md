@@ -179,23 +179,23 @@ This section is designed to give you **just enough networking knowledge** to:
 
 Not as theory — but as applied understanding.
 
+---
+
 ### 🔗 What’s Next?
 
-We begin the journey at the lowest possible level:
+Before we dive into concrete networking mechanics like IP addresses and ports,  
+we need a **shared mental map** of how networking concepts are layered.
 
-> How does a client reach a backend process in the first place?
+In the next chapter, we introduce:
 
-The next chapter starts with:
+- the **OSI model** (conceptual view)
+- the **TCP/IP model** (practical view)
+- how these layers relate to real system design decisions
 
-- IP addresses
-- Ports
-- Sockets
-- And the simplest possible system: **one server, one application**
-
-From there, everything else naturally follows.
+This mental map will help you consistently place each concept at the correct level as we move forward.
 
 👉 Up Next →
-**[Networking Foundations: Addressing & Ports](/learning/advanced-skills/networking-essentials/1_networking-foundation/1_2_addressing-and-ports)**
+**[Networking Layers: OSI & TCP/IP — A Mental Map](/learning/advanced-skills/networking-essentials/1_networking-foundation/1_2_networking-layers)**
 
 ---
 

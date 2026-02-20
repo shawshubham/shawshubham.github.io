@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Networking for System Design</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771497002">
+<link rel="stylesheet" href="/css/custom.css?v=1771497002">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Networking for System Design</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Purpose of This Tutorial</li>
+        
+        <li>2. Where This Section Fits</li>
+        
+        <li>3. Why Networking Matters for System Design</li>
+        
+        <li>4. How This Tutorial Is Structured</li>
+        
+        <li>5. Scope of This Section</li>
+        
+        <li>6. Learning Roadmap</li>
+        
+        <li>7. How to Use This Section</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 19 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <hr>
+<h2 id="1-purpose-of-this-tutorial">1. Purpose of This Tutorial</h2>
+<hr>
+<p>Modern backend systems are <strong>distributed by default</strong>.</p>
+<p>Even a “simple” application today involves:</p>
+<ul>
+<li>Multiple services</li>
+<li>Multiple machines</li>
+<li>Public and private networks</li>
+<li>Secure communication over the internet</li>
+</ul>
+<p>Yet most developers learn networking either:</p>
+<ul>
+<li>Too shallow (“HTTP just works”), or</li>
+<li>Too deep (packet-level details meant for network engineers)</li>
+</ul>
+<p>This tutorial exists to fill the <strong>exact gap required for system design</strong>.</p>
+<blockquote>
+<p>This is <strong>not networking for exams</strong>.<br>
+This is <strong>not networking for network engineers</strong>.<br>
+This is <strong>networking for reasoning about distributed systems</strong>.</p></blockquote>
+<hr>
+<h2 id="2-where-this-section-fits">2. Where This Section Fits</h2>
+<hr>
+<p>This section sits <strong>between LLD and HLD</strong> in the learning path:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Low-Level Design (LLD)
+</span></span><span style="display:flex;"><span>         ↓
+</span></span><span style="display:flex;"><span>Networking for System Design
+</span></span><span style="display:flex;"><span>         ↓
+</span></span><span style="display:flex;"><span>High-Level Design (HLD)
+</span></span></code></pre></div><ul>
+<li><strong>LLD</strong> focuses on code inside a process</li>
+<li><strong>Networking</strong> explains communication <em>between</em> processes</li>
+<li><strong>HLD</strong> designs systems across machines, regions, and users</li>
+</ul>
+<p>Without networking knowledge:</p>
+<ul>
+<li>HLD diagrams become hand-wavy</li>
+<li>Design decisions sound memorized</li>
+<li>Failure scenarios are poorly reasoned</li>
+</ul>
+<hr>
+<h2 id="3-why-networking-matters-for-system-design">3. Why Networking Matters for System Design</h2>
+<hr>
+<p>After completing this section, you should be able to confidently answer:</p>
+<ul>
+<li>How does a request travel from a client to a backend service?</li>
+<li>Why do ports, DNS, load balancers, and firewalls exist?</li>
+<li>What breaks first when traffic increases?</li>
+<li>Why does latency rise even when servers are “healthy”?</li>
+<li>How do systems remain secure on public networks?</li>
+</ul>
+<p>These are <strong>core system design questions</strong>, not optional knowledge.</p>
+<hr>
+<h2 id="4-how-this-tutorial-is-structured">4. How This Tutorial Is Structured</h2>
+<hr>
+<p>This section is <strong>example-driven</strong>, not definition-driven.</p>
+<p>We will:</p>
+<ul>
+<li>Start with a <strong>single-server system</strong></li>
+<li>Gradually evolve it under <strong>real-world constraints</strong></li>
+<li>Introduce networking concepts <strong>only when the system demands them</strong></li>
+</ul>
+<blockquote>
+<p>Networking concepts appear as <em>solutions to problems</em>, not facts to memorize.</p></blockquote>
+<p>The <strong>same example system</strong> is used throughout the section to maintain continuity.</p>
+<hr>
+<h2 id="5-scope-of-this-section">5. Scope of This Section</h2>
+<hr>
+<p>This section covers <strong>only what is required for system design</strong> — no more, no less..</p>
+<h3 id="included-topics">Included Topics</h3>
+<ul>
+<li>OSI &amp; TCP/IP (Layers 3–7 only)</li>
+<li>IP addressing, ports, and sockets</li>
+<li>DNS and service discovery</li>
+<li>HTTP/HTTPS, gRPC, WebSockets</li>
+<li>Load balancing (Layer 4 vs Layer 7)</li>
+<li>Firewalls, security groups, NAT</li>
+<li>CDN and edge networks</li>
+<li>Connection concepts (latency, retries, timeouts)</li>
+<li>Networking in cloud and containerized systems (high level)</li>
+</ul>
+<h3 id="explicitly-excluded">Explicitly Excluded</h3>
+<ul>
+<li>Packet-level analysis</li>
+<li>Router configuration</li>
+<li>CCNA-style subnet math drills</li>
+<li>Vendor-specific networking certifications</li>
+</ul>
+<hr>
+<h2 id="6-learning-roadmap">6. Learning Roadmap</h2>
+<hr>
+<p>This section is designed as a <strong>progressive journey</strong>, not a collection of isolated topics.</p>
+<p>You will move through four broad phases:</p>
+<ul>
+<li>
+<p><strong>Foundations</strong><br>
+Understanding how machines and processes communicate using addresses, ports, and sockets.</p>
+</li>
+<li>
+<p><strong>Protocols &amp; Communication</strong><br>
+Learning how data moves across the network using HTTP, TCP/UDP, gRPC, and streaming protocols.</p>
+</li>
+<li>
+<p><strong>Traffic, Security &amp; Performance</strong><br>
+Managing scale, reliability, trust boundaries, and performance in distributed systems.</p>
+</li>
+<li>
+<p><strong>Modern Platforms &amp; System Design</strong><br>
+Applying networking concepts in cloud, containerized, and large-scale architectures.</p>
+</li>
+</ul>
+<p>Each chapter builds directly on the previous one and uses the <strong>same evolving system example</strong> throughout.</p>
+<hr>
+<h2 id="7-how-to-use-this-section">7. How to Use This Section</h2>
+<hr>
+<ul>
+<li>Read <strong>top to bottom</strong> if you are new to system design</li>
+<li>Revisit individual chapters during <strong>HLD interview preparation</strong></li>
+<li>Use it as a <strong>mental checklist</strong> while drawing architecture diagrams</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Networking is the <strong>invisible foundation</strong> of every distributed system.</p>
+<p>When systems scale, fail, or behave unpredictably, the root cause is often not business logic —
+it is how components communicate across machines, networks, and boundaries.</p>
+<p>This section is designed to give you <strong>just enough networking knowledge</strong> to:</p>
+<ul>
+<li>reason clearly about system behavior</li>
+<li>justify architectural decisions</li>
+<li>explain trade-offs with confidence</li>
+</ul>
+<p>Not as theory — but as applied understanding.</p>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>We begin the journey at the lowest possible level:</p>
+<blockquote>
+<p>How does a client reach a backend process in the first place?</p></blockquote>
+<p>The next chapter starts with:</p>
+<ul>
+<li>IP addresses</li>
+<li>Ports</li>
+<li>Sockets</li>
+<li>And the simplest possible system: <strong>one server, one application</strong></li>
+</ul>
+<p>From there, everything else naturally follows.</p>
+<p>👉 Up Next →
+<strong><a href="/learning/advanced-skills/networking-essentials/1_networking-foundation/1_2_addressing-and-ports">Networking Foundations: Addressing &amp; Ports</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<p>Good system design is not about knowing more components.<br>
+It is about understanding <strong>why components exist</strong>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+        High Level Design (HLD) : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

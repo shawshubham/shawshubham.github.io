@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Example 1: Simple Web System — Early Scaling Signals &amp; Limitations</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771583154">
+<link rel="stylesheet" href="/css/custom.css?v=1771583154">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Example 1: Simple Web System — Early Scaling Signals &amp; Limitations</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction</li>
+        
+        <li>2. Recap: Our Current Architecture</li>
+        
+        <li>3. Early Scaling Signals</li>
+        
+        <li>4. Why We Do NOT Fix These Yet</li>
+        
+        <li>5. Design Philosophy: Signals Before Solutions</li>
+        
+        <li>6. What This Phase Has Taught Us</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 19 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction">1. Introduction</h2>
+<hr>
+<p>A good High-Level Design does not stop at <strong>what works today</strong>.</p>
+<p>It also asks:</p>
+<ul>
+<li><em>Where will this system start to struggle?</em></li>
+<li><em>What signals tell us it’s time to evolve the architecture?</em></li>
+</ul>
+<p>In this article, we examine the <strong>limitations</strong> of our Simple Web System and identify the <strong>early scaling signals</strong> that indicate when changes are needed.</p>
+<p>This is a crucial skill in system design:<br>
+<strong>knowing when to change — and when not to.</strong></p>
+<hr>
+<h2 id="2-recap-our-current-architecture">2. Recap: Our Current Architecture</h2>
+<hr>
+<p>Our baseline system consists of:</p>
+<ul>
+<li>a stateless application server</li>
+<li>a single database</li>
+<li>synchronous request processing</li>
+<li>a monolithic, layered application</li>
+</ul>
+<p>This design is intentionally simple and correct for early-stage systems.</p>
+<hr>
+<h2 id="3-early-scaling-signals">3. Early Scaling Signals</h2>
+<hr>
+<p>As usage grows, the system will begin to show <strong>observable symptoms</strong>.</p>
+<p>These signals appear <strong>before</strong> the system completely breaks.</p>
+<h3 id="31-increased-response-time">3.1 Increased Response Time</h3>
+<h4 id="what-youll-notice">What You’ll Notice</h4>
+<ul>
+<li>Pages load more slowly</li>
+<li>API responses take longer under load</li>
+</ul>
+<h4 id="why-it-happens">Why It Happens</h4>
+<ul>
+<li>application server handles more concurrent requests</li>
+<li>database becomes a shared bottleneck</li>
+</ul>
+<h4 id="what-this-signals">What This Signals</h4>
+<ul>
+<li>need for horizontal scaling</li>
+<li>need to separate read-heavy traffic</li>
+</ul>
+<hr>
+<h3 id="32-application-server-resource-saturation">3.2 Application Server Resource Saturation</h3>
+<h4 id="what-youll-notice-1">What You’ll Notice</h4>
+<ul>
+<li>CPU or memory usage spikes</li>
+<li>request queues start building up</li>
+</ul>
+<h4 id="why-it-happens-1">Why It Happens</h4>
+<ul>
+<li>single application instance processes all traffic</li>
+<li>synchronous request handling blocks threads</li>
+</ul>
+<h4 id="what-this-signals-1">What This Signals</h4>
+<ul>
+<li>need for multiple application instances</li>
+<li>introduction of a load balancer</li>
+</ul>
+<hr>
+<h3 id="33-database-bottlenecks">3.3 Database Bottlenecks</h3>
+<h4 id="what-youll-notice-2">What You’ll Notice</h4>
+<ul>
+<li>slow queries</li>
+<li>increased connection wait times</li>
+<li>database CPU or I/O saturation</li>
+</ul>
+<h4 id="why-it-happens-2">Why It Happens</h4>
+<ul>
+<li>all reads and writes hit the same database</li>
+<li>no caching layer exists</li>
+</ul>
+<h4 id="what-this-signals-2">What This Signals</h4>
+<ul>
+<li>need for caching</li>
+<li>potential read replicas later</li>
+</ul>
+<hr>
+<h3 id="34-reduced-availability">3.4 Reduced Availability</h3>
+<h4 id="what-youll-notice-3">What You’ll Notice</h4>
+<ul>
+<li>system goes down during deployments</li>
+<li>single instance failure affects all users</li>
+</ul>
+<h4 id="why-it-happens-3">Why It Happens</h4>
+<ul>
+<li>single application server</li>
+<li>single database instance</li>
+</ul>
+<h4 id="what-this-signals-3">What This Signals</h4>
+<ul>
+<li>need for redundancy</li>
+<li>fault isolation</li>
+</ul>
+<hr>
+<h3 id="35-deployment-friction">3.5 Deployment Friction</h3>
+<h4 id="what-youll-notice-4">What You’ll Notice</h4>
+<ul>
+<li>deployments cause downtime</li>
+<li>rollbacks are risky</li>
+</ul>
+<h4 id="why-it-happens-4">Why It Happens</h4>
+<ul>
+<li>monolithic deployment unit</li>
+<li>no redundancy</li>
+</ul>
+<h4 id="what-this-signals-4">What This Signals</h4>
+<ul>
+<li>need for multiple instances</li>
+<li>gradual deployment strategies (later phases)</li>
+</ul>
+<hr>
+<h2 id="4-why-we-do-not-fix-these-yet">4. Why We Do NOT Fix These Yet</h2>
+<hr>
+<p>It is tempting to solve all these problems immediately.</p>
+<p>But doing so too early:</p>
+<ul>
+<li>increases complexity</li>
+<li>slows development</li>
+<li>introduces operational burden</li>
+</ul>
+<p>At this stage:</p>
+<ul>
+<li>the system still meets requirements</li>
+<li>complexity would be premature</li>
+</ul>
+<p>Good design evolves <strong>in response to real pressure</strong>, not anticipation.</p>
+<hr>
+<h2 id="5-design-philosophy-signals-before-solutions">5. Design Philosophy: Signals Before Solutions</h2>
+<hr>
+<p>A core HLD principle emerges here:</p>
+<blockquote>
+<p><strong>We scale systems when signals appear — not before.</strong></p></blockquote>
+<p>This prevents:</p>
+<ul>
+<li>unnecessary abstractions</li>
+<li>wasted effort</li>
+<li>brittle architectures</li>
+</ul>
+<hr>
+<h2 id="6-what-this-phase-has-taught-us">6. What This Phase Has Taught Us</h2>
+<hr>
+<p>By reaching these limitations, we now:</p>
+<ul>
+<li>understand where systems break first</li>
+<li>can justify future architectural changes</li>
+<li>have a concrete reason to introduce new components</li>
+</ul>
+<p>This prepares us perfectly for the next phase.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>In this article, we:</p>
+<ul>
+<li>identified early scaling signals</li>
+<li>understood why the baseline system will struggle</li>
+<li>resisted premature optimization</li>
+</ul>
+<p>Recognizing limitations is just as important as designing solutions.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>The scaling signals we identified now demand <strong>architectural evolution</strong>.</p>
+<p>In the next phase, we will redesign this system to:</p>
+<ul>
+<li>handle heavy read traffic</li>
+<li>improve performance</li>
+<li>scale horizontally</li>
+</ul>
+<p>👉 <strong>Next Phase:</strong><br>
+<strong>Phase 2 — Scaling for Reads: Designing a News Feed System</strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Every architecture has limits — even good ones.</li>
+<li>Scaling signals appear gradually, not suddenly.</li>
+<li>Premature optimization is a design smell.</li>
+<li>Constraints drive architecture evolution.</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_4_architecture-choices-and-trade-offs/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+        High-Level Design (HLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_6_phase1-summary/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

@@ -8,7 +8,7 @@ keywords:
   - backend networking basics
   - system design networking
   - client server communication
-weight: 2
+weight: 3
 date: 2026-02-17
 layout: "topic-content"
 ---
@@ -64,7 +64,7 @@ flowchart LR
         C["Admin Tool<br/>Port 9000"]
     end
 
-    Dest["Destination Socket<hr/>203.0.113.10:8080"]
+    Dest["Destination Socket<hr/>(203.0.113.10:8080)"]
 
     Client --> Dest
     Dest --> A
@@ -253,18 +253,26 @@ This chapter establishes that foundation.
 
 ### 🔗 What’s Next?
 
-We now know where services live.
+At this point, we understand **how a client reaches a backend process**:
 
-Next, we need to understand **how data moves between them**.
+- an IP address identifies the machine
+- a port identifies the process
+- a socket forms the basic communication endpoint
 
-In the next chapter, we introduce:
+However, reachability alone is not enough.
 
-- TCP vs UDP
-- Reliability vs speed
-- Why transport protocols exist at all
+We have not yet answered critical questions like:
+
+- What happens if data is lost?
+- What if packets arrive out of order?
+- How do systems behave under slow or unreliable networks?
+
+These questions are answered by the **transport layer**.
+
+In the next chapter, we move into **Phase 2** and explore **why transport protocols exist** in the first place.
 
 👉 Up Next →
-**[Transport & Application Protocols: TCP, UDP, and HTTP](/learning/advanced-skills/networking-essentials/1_networking-foundation/1_2_addressing-and-ports)**
+**[Transport & Application Protocols: Why Transport Protocols Exist](/learning/advanced-skills/networking-essentials/2_transport-and-application-protocol/2_1_why-transport-protocols-exist)**
 
 ---
 
