@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consistent Hashing — Routing Without Chaos (REVIST FOR DIAGRAM)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771717739">
+<link rel="stylesheet" href="/css/custom.css?v=1771717739">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Consistent Hashing — Routing Without Chaos (REVIST FOR DIAGRAM)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. The Core Problem: Naive Hashing Breaks at Scale</li>
+        
+        <li>2. What Is Consistent Hashing?</li>
+        
+        <li>3. How Consistent Hashing Works (Conceptually)</li>
+        
+        <li>4. Why Consistent Hashing Is Powerful</li>
+        
+        <li>5. Virtual Nodes (VNodes)</li>
+        
+        <li>6. Important Limitation: Consistent Hashing ≠ Session Management</li>
+        
+        <li>7. So How Do Modern Systems Handle Sessions?</li>
+        
+        <li>8. Where Consistent Hashing Is Still Used</li>
+        
+        <li>9. When You Might Still See Hash-Based Routing for Users</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h1 id="consistent-hashing--routing-without-chaos">Consistent Hashing — Routing Without Chaos</h1>
+<p>In the previous article, we saw that <strong>sticky sessions</strong> solve one problem but introduce many others:</p>
+<ul>
+<li>Poor scalability</li>
+<li>Fragile failover</li>
+<li>Tight coupling between users and instances</li>
+</ul>
+<p>So the next logical question is:</p>
+<blockquote>
+<p><strong>How do systems keep routing predictable without pinning users to servers?</strong></p></blockquote>
+<p>This is where <strong>consistent hashing</strong> comes in.</p>
+<hr>
+<h2 id="1-the-core-problem-naive-hashing-breaks-at-scale">1. The Core Problem: Naive Hashing Breaks at Scale</h2>
+<hr>
+<p>A common first attempt is <strong>simple modulo hashing</strong>:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">instanceIndex = hash(request) % numberOfInstances
+</code></pre><p>This works <strong>only as long as the number of instances never changes</strong>.</p>
+<h3 id="what-goes-wrong">What Goes Wrong?</h3>
+<p>If the instance count changes:</p>
+<ul>
+<li>Almost <strong>all keys remap</strong></li>
+<li>Cache becomes useless</li>
+<li>Traffic reshuffles aggressively</li>
+<li>Users hit cold instances</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    R[Requests] --> H[Hash % N]
+    H --> A[Instance A]
+    H --> B[Instance B]
+    H --> C[Instance C]
+
+    note["Change N → almost all mappings change"]:::note
+    H -.-> note
+
+    classDef note fill:transparent,stroke:transparent,color:inherit;
+</div>
+<p>This is unacceptable in real systems where instances are added, removed, or fail regularly.</p>
+<hr>
+<h2 id="2-what-is-consistent-hashing">2. What Is Consistent Hashing?</h2>
+<hr>
+<p>Consistent hashing is a strategy that ensures:</p>
+<blockquote>
+<p><strong>When nodes change, only a small fraction of requests are remapped.</strong></p></blockquote>
+<p>Instead of hashing into a fixed array, both <strong>requests and nodes</strong> are placed on a <strong>hash ring</strong>.</p>
+<hr>
+<h2 id="3-how-consistent-hashing-works-conceptually">3. How Consistent Hashing Works (Conceptually)</h2>
+<hr>
+<ol>
+<li>Hash space is treated as a <strong>circle</strong></li>
+<li>Each instance is assigned a position on the ring</li>
+<li>Each request is hashed to a point on the ring</li>
+<li>The request is routed to the <strong>next instance clockwise</strong></li>
+</ol>
+<div class="mermaid">
+flowchart LR
+    subgraph HashSpace["Hash Space (0 → 360°)"]
+        K1["Key: user123"]
+        K2["Key: order789"]
+        K3["Key: session456"]
+    end
+
+    A["Node A\nRange: 0–120"]
+    B["Node B\nRange: 121–240"]
+    C["Node C\nRange: 241–360"]
+
+    K1 --> B
+    K2 --> C
+    K3 --> A
+</div>
+<h3 id="what-happens-when-a-node-fails">What Happens When a Node Fails?</h3>
+<ul>
+<li>Only requests mapped to that node move</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    subgraph Before["Before Node Failure"]
+        A1["Node A\n0–120"]
+        B1["Node B\n121–240"]
+        C1["Node C\n241–360"]
+    end
+
+    subgraph After["After Node B Removed"]
+        A2["Node A\n0–120"]
+        C2["Node C\n121–360"]
+    end
+
+    Before --> After
+</div>
+<ul>
+<li>Other mappings remain unchanged</li>
+</ul>
+<p>This dramatically reduces disruption.</p>
+<hr>
+<h2 id="4-why-consistent-hashing-is-powerful">4. Why Consistent Hashing Is Powerful</h2>
+<hr>
+<h3 id="key-properties">Key Properties</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Property</th>
+          <th>Benefit</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Minimal reshuffling</td>
+          <td>Stable routing during failures</td>
+      </tr>
+      <tr>
+          <td>Predictable behavior</td>
+          <td>Easier capacity planning</td>
+      </tr>
+      <tr>
+          <td>Horizontal scalability</td>
+          <td>Safe autoscaling</td>
+      </tr>
+      <tr>
+          <td>Cache locality</td>
+          <td>Higher cache hit rates</td>
+      </tr>
+  </tbody>
+</table>
+<p>Because of these properties, consistent hashing is widely used in:</p>
+<ul>
+<li>Distributed caches (e.g., Redis, Memcached)</li>
+<li>Distributed databases (e.g., Cassandra, Dynamo-style systems)</li>
+<li>Message partitioning systems</li>
+<li>Advanced load balancer routing modes</li>
+</ul>
+<hr>
+<h2 id="5-virtual-nodes-vnodes">5. Virtual Nodes (VNodes)</h2>
+<hr>
+<p>In practice, instances are assigned <strong>multiple positions</strong> on the ring.</p>
+<p>Why?</p>
+<ul>
+<li>Prevents uneven load</li>
+<li>Improves balance</li>
+<li>Smooths traffic distribution</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    subgraph HashSpace["Hash Space"]
+        A1["A₁"]
+        A2["A₂"]
+        B1["B₁"]
+        B2["B₂"]
+        C1["C₁"]
+        C2["C₂"]
+    end
+
+    A1 --> NodeA["Node A"]
+    A2 --> NodeA
+
+    B1 --> NodeB["Node B"]
+    B2 --> NodeB
+
+    C1 --> NodeC["Node C"]
+    C2 --> NodeC
+</div>
+<p>Each physical node owns multiple slices of the ring.</p>
+<hr>
+<h2 id="6-important-limitation-consistent-hashing--session-management">6. Important Limitation: Consistent Hashing ≠ Session Management</h2>
+<hr>
+<p>At this point, a common misunderstanding appears:</p>
+<blockquote>
+<p>“If consistent hashing exists, why did we need sticky sessions?”</p></blockquote>
+<h3 id="key-clarification">Key clarification:</h3>
+<ul>
+<li>Consistent hashing is about <strong>data locality</strong></li>
+<li>Sticky sessions are about <strong>user state</strong></li>
+</ul>
+<p>They solve <strong>different problems</strong>.</p>
+<p>Consistent hashing <strong>does not manage sessions by itself</strong>.</p>
+<hr>
+<h2 id="7-so-how-do-modern-systems-handle-sessions">7. So How Do Modern Systems Handle Sessions?</h2>
+<hr>
+<p>Modern systems solve the session problem <strong>by removing server-side state entirely</strong>.</p>
+<h3 id="the-core-strategy">The Core Strategy</h3>
+<h4 id="1-externalize-session-state">1. Externalize session state</h4>
+<ul>
+<li>Sessions stored in Redis / database</li>
+<li>Not kept in application memory</li>
+</ul>
+<h4 id="2-stateless-authentication">2. Stateless authentication</h4>
+<ul>
+<li>JSON Web Token (JWTs) or access tokens</li>
+<li>Any instance can validate requests</li>
+</ul>
+<h4 id="3-load-balancer-stays-stateless">3. Load balancer stays stateless</h4>
+<ul>
+<li>No user pinning</li>
+<li>Free routing</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    U[User] --> LB[Load Balancer]
+    LB --> A[App Instance A]
+    LB --> B[App Instance B]
+
+    A --> S[(Session Store)]
+    B --> S
+</div>
+<h3 id="result">Result</h3>
+<ul>
+<li>No sticky sessions needed</li>
+<li>Any instance can serve any user</li>
+<li>Failures become non-events</li>
+<li>Autoscaling works naturally</li>
+</ul>
+<hr>
+<h2 id="8-where-consistent-hashing-is-still-used">8. Where Consistent Hashing Is Still Used</h2>
+<hr>
+<p>Even in fully stateless systems, consistent hashing remains a critical building block for <strong>data placement</strong>, not user sessions.</p>
+<p>Common real-world use cases include:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Area</th>
+          <th>Why Consistent Hashing Is Used</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Distributed caches (Redis, Memcached)</td>
+          <td>Preserves cache locality and minimizes cache invalidation</td>
+      </tr>
+      <tr>
+          <td>Sharded databases (Cassandra, Dynamo-style systems)</td>
+          <td>Keeps data partitions stable during scaling</td>
+      </tr>
+      <tr>
+          <td>Message queues / streams</td>
+          <td>Ensures predictable partition ownership</td>
+      </tr>
+      <tr>
+          <td>Edge routing / CDN systems</td>
+          <td>Reduces reshuffling when nodes join or leave</td>
+      </tr>
+  </tbody>
+</table>
+<p>The key distinction is:</p>
+<p><strong>Sessions are centralized.<br>
+Data is distributed.</strong></p>
+<p>Consistent hashing is applied where <strong>data locality matters</strong>, not where <strong>user identity</strong> must be preserved.</p>
+<hr>
+<h2 id="9-when-you-might-still-see-hash-based-routing-for-users">9. When You Might Still See Hash-Based Routing for Users</h2>
+<hr>
+<p>Although uncommon, some specialized systems still route users using hash-based strategies:</p>
+<ul>
+<li>Stateful real-time gaming servers</li>
+<li>Ultra-low-latency trading systems</li>
+<li>Legacy monoliths with in-memory state</li>
+<li>Region-locked or compliance-driven systems</li>
+</ul>
+<p>In these cases:</p>
+<ul>
+<li>Scaling is tightly controlled</li>
+<li>Failures are carefully mitigated</li>
+<li>Trade-offs are explicitly accepted</li>
+</ul>
+<p>This is the exception, not the norm.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we understand:</p>
+<ul>
+<li>Why sticky sessions fail at scale</li>
+<li>How consistent hashing minimizes reshuffling</li>
+<li>How modern systems eliminate server-side sessions</li>
+</ul>
+<p>We’re ready to connect theory to real infrastructure.</p>
+<p>👉 <strong>Next Article: Popular Load Balancers — Nginx, HAProxy, AWS ALB</strong></p>
+<hr>
+<h3 id="key-takeaway">Key Takeaway</h3>
+<blockquote>
+<p>Consistent hashing solves <strong>traffic reshuffling</strong>, not <strong>session management</strong>.</p></blockquote>
+<p>Modern systems handle sessions by <strong>removing server-side state</strong>,<br>
+and use consistent hashing only where <strong>data distribution and locality</strong> are required.</p>
+<p>Understanding this separation is essential for building resilient, scalable systems.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_6_sticky-sessions-and-affinity/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

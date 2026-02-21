@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sticky Sessions &amp; Session Affinity</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771717739">
+<link rel="stylesheet" href="/css/custom.css?v=1771717739">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Sticky Sessions &amp; Session Affinity</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why Stateless Load Balancing Breaks</li>
+        
+        <li>2. What Are Sticky Sessions?</li>
+        
+        <li>3. How Sticky Sessions Work</li>
+        
+        <li>4. Common Session Affinity Strategies</li>
+        
+        <li>5. Why Sticky Sessions Are a Trade-Off</li>
+        
+        <li>6. When Sticky Sessions Make Sense</li>
+        
+        <li>7. Sticky Sessions vs Stateless Design</li>
+        
+        <li>8. What Sticky Sessions Still Don’t Solve</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h1 id="sticky-sessions--session-affinity">Sticky Sessions &amp; Session Affinity</h1>
+<p>In the previous article, we explored <strong>load balancing algorithms</strong> and how traffic is distributed across instances.</p>
+<p>However, all those algorithms rely on a <strong>critical assumption</strong>:</p>
+<blockquote>
+<p>Any request can be handled by any instance.</p></blockquote>
+<p>This assumption breaks down the moment <strong>state</strong> enters the system.</p>
+<hr>
+<h2 id="1-why-stateless-load-balancing-breaks">1. Why Stateless Load Balancing Breaks</h2>
+<hr>
+<p>Consider a system with:</p>
+<ul>
+<li>In-memory user sessions</li>
+<li>Local caches</li>
+<li>Stateful workflows</li>
+</ul>
+<p>A stateless load balancer might route the <strong>same user</strong> to <strong>different instances</strong> on every request.</p>
+<div class="mermaid">
+flowchart LR
+    U[User] --> LB[Load Balancer]
+
+    LB --> A[Instance A\nSession: Present]
+    LB --> B[Instance B\nSession: Missing]
+    LB --> C[Instance C\nSession: Missing]
+</div>
+<h3 id="problems-that-arise">Problems that arise</h3>
+<ul>
+<li>User is logged out unexpectedly</li>
+<li>Cache warm-up repeats</li>
+<li>Requests fail due to missing context</li>
+</ul>
+<p>To solve this, we need <strong>deterministic routing</strong>.</p>
+<hr>
+<h2 id="2-what-are-sticky-sessions">2. What Are Sticky Sessions?</h2>
+<hr>
+<p><strong>Sticky sessions</strong> (also called <strong>session affinity</strong>) ensure that:</p>
+<blockquote>
+<p>Requests from the same client are consistently routed to the same backend instance.</p></blockquote>
+<p>Once an instance is selected, future requests from that client are “stuck” to it.</p>
+<hr>
+<h2 id="3-how-sticky-sessions-work">3. How Sticky Sessions Work</h2>
+<hr>
+<p>There are multiple ways to achieve session affinity.</p>
+<h3 id="high-level-idea">High-level idea</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant LB as Load Balancer
+    participant A as Instance A
+
+    U->>LB: First request
+    LB->>A: Forward + assign affinity
+    U->>LB: Subsequent request
+    LB->>A: Forward (same instance)
+</div>
+<p>The key question is: <strong>how does the load balancer remember this mapping?</strong></p>
+<hr>
+<h2 id="4-common-session-affinity-strategies">4. Common Session Affinity Strategies</h2>
+<hr>
+<h3 id="41-cookie-based-affinity-most-common">4.1 Cookie-Based Affinity (Most Common)</h3>
+<p>The load balancer injects a cookie into the response.</p>
+<div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant LB as Load Balancer
+    participant A as Instance A
+
+    U->>LB: Request
+    LB->>A: Forward
+    A-->>LB: Response
+    LB-->>U: Response + affinity cookie
+
+    U->>LB: Next request (cookie included)
+    LB->>A: Forward (cookie match)
+</div>
+<h4 id="characteristics">Characteristics</h4>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Details</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Routing Basis</td>
+          <td>Cookie value</td>
+      </tr>
+      <tr>
+          <td>LB State Required</td>
+          <td>Sometimes (depends on implementation)</td>
+      </tr>
+      <tr>
+          <td>Pros</td>
+          <td>Precise, user-level affinity</td>
+      </tr>
+      <tr>
+          <td>Cons</td>
+          <td>Breaks if instance goes down</td>
+      </tr>
+      <tr>
+          <td>Common In</td>
+          <td>Application Load Balancers</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h3 id="42-ip-based-affinity">4.2 IP-Based Affinity</h3>
+<p>The client’s IP address determines the backend instance.</p>
+<div class="mermaid">
+flowchart LR
+    IP[Client IP] --> H[Hash Function]
+    H --> A[Instance A]
+</div>
+<h4 id="characteristics-1">Characteristics</h4>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Details</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Routing Basis</td>
+          <td>Client IP</td>
+      </tr>
+      <tr>
+          <td>Pros</td>
+          <td>Simple, no cookies required</td>
+      </tr>
+      <tr>
+          <td>Cons</td>
+          <td>Breaks behind NAT / proxies</td>
+      </tr>
+      <tr>
+          <td>Accuracy</td>
+          <td>Low for mobile or shared networks</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h3 id="43-header-based-affinity">4.3 Header-Based Affinity</h3>
+<p>Custom headers (user ID, token) are used for routing.</p>
+<ul>
+<li>Requires application cooperation</li>
+<li>More common in internal systems</li>
+<li>Rarely exposed publicly</li>
+</ul>
+<hr>
+<h2 id="5-why-sticky-sessions-are-a-trade-off">5. Why Sticky Sessions Are a Trade-Off</h2>
+<hr>
+<p>Sticky sessions <strong>solve one problem</strong> but <strong>introduce others</strong>.</p>
+<h3 id="key-drawbacks">Key drawbacks</h3>
+<ul>
+<li>Uneven load distribution</li>
+<li>Hot instances under heavy users</li>
+<li>Poor fault tolerance</li>
+<li>Harder autoscaling</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    LB["Load Balancer"] --> A["Instance A\n🔥 Overloaded"]
+    LB["Load Balancer"] --> B["Instance B\nIdle"]
+    LB["Load Balancer"] --> C["Instance C\nIdle"]
+</div>
+<p>If Instance A fails, <strong>all its sessions are lost</strong>.</p>
+<hr>
+<h2 id="6-when-sticky-sessions-make-sense">6. When Sticky Sessions Make Sense</h2>
+<hr>
+<p>Sticky sessions are not inherently bad — they are <strong>contextual tools</strong>.</p>
+<p>They make sense when the system constraints leave you with limited options.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Recommendation</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Legacy systems with in-memory sessions</td>
+          <td>✅ Often unavoidable</td>
+      </tr>
+      <tr>
+          <td>Small-scale systems</td>
+          <td>✅ Acceptable</td>
+      </tr>
+      <tr>
+          <td>Short-lived user sessions</td>
+          <td>✅ Low risk</td>
+      </tr>
+      <tr>
+          <td>High availability requirements</td>
+          <td>❌ Avoid</td>
+      </tr>
+      <tr>
+          <td>Frequent autoscaling</td>
+          <td>❌ Avoid</td>
+      </tr>
+  </tbody>
+</table>
+<p>Sticky sessions should be treated as a <strong>temporary or transitional solution</strong>, not a long-term architecture.</p>
+<hr>
+<h2 id="7-sticky-sessions-vs-stateless-design">7. Sticky Sessions vs Stateless Design</h2>
+<hr>
+<p>Modern systems typically avoid sticky sessions by <strong>removing server-side state</strong>.</p>
+<p>Common approaches include:</p>
+<ul>
+<li>External session storage (Redis, database)</li>
+<li>Stateless authentication using JWTs</li>
+<li>Centralized or distributed caching layers</li>
+</ul>
+<p>This enables:</p>
+<ul>
+<li>True horizontal scaling</li>
+<li>Easier failover</li>
+<li>Better resilience during deployments and crashes</li>
+</ul>
+<p>Stateless systems allow load balancers to route requests freely without user impact.</p>
+<hr>
+<h2 id="8-what-sticky-sessions-still-dont-solve">8. What Sticky Sessions Still Don’t Solve</h2>
+<hr>
+<p>Even with session affinity in place:</p>
+<ul>
+<li>Node failures still cause session loss</li>
+<li>Scaling events reshuffle traffic</li>
+<li>Cache locality remains fragile</li>
+</ul>
+<p>Sticky sessions improve routing <strong>consistency</strong>, but they do not address <strong>rebalancing during failures</strong>.</p>
+<p>To solve that problem, we need a strategy that minimizes disruption when nodes are added or removed.</p>
+<p>👉 This leads directly to <strong>Consistent Hashing</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>In the next article, we’ll answer:</p>
+<ul>
+<li>Why naïve hashing fails during node changes</li>
+<li>How consistent hashing minimizes reshuffling</li>
+<li>Why it’s used in load balancers, caches, and databases</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_6_sticky-sessions-and-affinity">Consistent Hashing — Routing Without Chaos</a></strong></p>
+<hr>
+<h3 id="key-takeaway">Key Takeaway</h3>
+<blockquote>
+<p>Sticky sessions trade scalability and resilience for simplicity.</p></blockquote>
+<p>They are a <strong>tactical fix</strong>, not a strategic foundation.</p>
+<p>Knowing when to use them — and when to replace them — is a core system design skill.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_5_load-balancing-algo/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_7_consistent-hashing/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

@@ -355,7 +355,8 @@ In the next chapter, we explore:
 - what problems they solve beyond DNS
 - and how they enable horizontal scaling
 
-👉 **Up Next → Load Balancers — Why They Exist**
+👉 **Up Next →**  
+**[Load Balancers — Why They Exist](/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_3_load-balancers)**
 
 ---
 

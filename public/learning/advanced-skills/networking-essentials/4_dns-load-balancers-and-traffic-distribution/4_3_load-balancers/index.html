@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Load Balancers — Why They Exist</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771711500">
+<link rel="stylesheet" href="/css/custom.css?v=1771711500">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Load Balancers — Why They Exist</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — DNS Solved Discovery, Not Distribution</li>
+        
+        <li>2. The Core Limitation of DNS</li>
+        
+        <li>3. The Scaling Problem Revisited</li>
+        
+        <li>4. Load Balancers — The Missing Active Component</li>
+        
+        <li>5. What Load Balancers Actually Do</li>
+        
+        <li>6. Load Balancer vs Application-Level Routing</li>
+        
+        <li>7. Load Balancers as a Control Plane &#43; Data Plane Hybrid</li>
+        
+        <li>8. Availability vs Scalability (Important Distinction)</li>
+        
+        <li>9. Layer Mapping (Explicit)</li>
+        
+        <li>10. Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-introduction--dns-solved-discovery-not-distribution">1. Introduction — DNS Solved Discovery, Not Distribution</h2>
+<hr>
+<p>In the previous chapter, we learned that <strong>DNS solves discovery</strong>.</p>
+<ul>
+<li>Clients talk to names, not machines</li>
+<li>Infrastructure can change without client updates</li>
+<li>Caching enables global scalability</li>
+</ul>
+<p>However, DNS stops short of solving a critical problem:</p>
+<blockquote>
+<p><strong>Once traffic reaches a service, who should actually handle the request?</strong></p></blockquote>
+<p>This is where <strong>load balancers</strong> become necessary.</p>
+<hr>
+<h2 id="2-the-core-limitation-of-dns">2. The Core Limitation of DNS</h2>
+<hr>
+<p>DNS can return multiple IP addresses, but it has fundamental limits:</p>
+<ul>
+<li>It does not know if an instance is healthy <em>right now</em></li>
+<li>It cannot react instantly to failures</li>
+<li>It cannot make per-request decisions</li>
+<li>It is influenced by client-side caching</li>
+</ul>
+<p>Because of this, DNS alone cannot guarantee:</p>
+<ul>
+<li>even load distribution</li>
+<li>fast failover</li>
+<li>safe rolling deployments</li>
+</ul>
+<p>DNS answers <strong>where services live</strong>.<br>
+Load balancers decide <strong>which instance gets traffic</strong>.</p>
+<hr>
+<h2 id="3-the-scaling-problem-revisited">3. The Scaling Problem Revisited</h2>
+<hr>
+<p>Consider a backend service scaled horizontally:</p>
+<div class="mermaid">
+flowchart LR
+    Client --> DNS
+    DNS --> S1[Service Instance 1]
+    DNS --> S2[Service Instance 2]
+    DNS --> S3[Service Instance 3]
+</div>
+<p>Now imagine:</p>
+<ul>
+<li>Service Instance 2 <strong>becomes slow</strong></li>
+<li>Service Instance 3 <strong>crashes</strong></li>
+<li>Servie Instance 1 <strong>is overloaded</strong></li>
+</ul>
+<p>DNS:</p>
+<ul>
+<li>will continue returning cached results</li>
+<li>cannot stop sending traffic to unhealthy instances</li>
+<li>reacts slowly, by design</li>
+</ul>
+<p>This is unacceptable for high-availability systems.</p>
+<hr>
+<h2 id="4-load-balancers--the-missing-active-component">4. Load Balancers — The Missing Active Component</h2>
+<hr>
+<p>A <strong>load balancer (LB)</strong> sits between clients and service instances.</p>
+<p>Its role is to:</p>
+<ul>
+<li>receive incoming traffic</li>
+<li>decide which backend instance should handle each request</li>
+<li>actively avoid unhealthy instances</li>
+</ul>
+<p>Conceptually:</p>
+<div class="mermaid">
+flowchart LR
+    Client --> LB[Load Balancer]
+    LB --> S1[Service Instance 1]
+    LB --> S2[Service Instance 2]
+    LB --> S3[Service Instance 3]
+</div>
+<p>This indirection enables <strong>dynamic, real-time traffic control</strong>.</p>
+<hr>
+<h2 id="5-what-load-balancers-actually-do">5. What Load Balancers Actually Do</h2>
+<hr>
+<p>Load balancers are responsible for a set of <strong>infrastructure-level concerns</strong> that applications should not handle themselves.</p>
+<h3 id="-traffic-distribution">🔁 Traffic Distribution</h3>
+<ul>
+<li>Spread incoming requests across multiple instances</li>
+<li>Prevent hot spots</li>
+<li>Improve overall resource utilization</li>
+</ul>
+<h3 id="-health-awareness">❤️ Health Awareness</h3>
+<ul>
+<li>Continuously check backend instance health</li>
+<li>Stop routing traffic to unhealthy instances</li>
+<li>Automatically restore traffic when instances recover</li>
+</ul>
+<h3 id="-fault-isolation">🧱 Fault Isolation</h3>
+<ul>
+<li>Prevent single-instance failures from cascading</li>
+<li>Reduce blast radius when something goes wrong</li>
+</ul>
+<h3 id="-deployment-safety">🔄 Deployment Safety</h3>
+<ul>
+<li>Enable rolling deployments</li>
+<li>Support blue–green and canary strategies</li>
+<li>Allow capacity changes without client impact</li>
+</ul>
+<p>These responsibilities cannot be handled reliably by DNS or application code alone.</p>
+<hr>
+<h2 id="6-load-balancer-vs-application-level-routing">6. Load Balancer vs Application-Level Routing</h2>
+<hr>
+<p>A common question is:</p>
+<blockquote>
+<p>“Why not handle routing inside the application?”</p></blockquote>
+<p>This approach fails because:</p>
+<ul>
+<li>every client would need routing logic</li>
+<li>health state would need to be shared across clients</li>
+<li>failures would be handled inconsistently</li>
+<li>deployments would require coordinated client changes</li>
+</ul>
+<p>Load balancers centralize routing decisions in <strong>infrastructure</strong>, not in business logic.</p>
+<p>This separation of concerns is a key system design principle.</p>
+<hr>
+<h2 id="7-load-balancers-as-a-control-plane--data-plane-hybrid">7. Load Balancers as a Control Plane + Data Plane Hybrid</h2>
+<hr>
+<p>Unlike DNS, load balancers interact with <strong>live traffic</strong>.</p>
+<ul>
+<li>
+<p><strong>Control plane responsibilities</strong></p>
+<ul>
+<li>configuration</li>
+<li>routing rules</li>
+<li>health checks</li>
+</ul>
+</li>
+<li>
+<p><strong>Data plane responsibilities</strong></p>
+<ul>
+<li>forwarding requests</li>
+<li>maintaining connections</li>
+<li>enforcing routing decisions</li>
+</ul>
+</li>
+</ul>
+<p>This dual role is why load balancers are powerful — and why they must be designed and operated carefully.</p>
+<hr>
+<h2 id="8-availability-vs-scalability-important-distinction">8. Availability vs Scalability (Important Distinction)</h2>
+<hr>
+<p>Load balancers serve <strong>two related but distinct goals</strong>.</p>
+<h3 id="availability">Availability</h3>
+<ul>
+<li>Survive instance failures</li>
+<li>Keep the service reachable</li>
+</ul>
+<h3 id="scalability">Scalability</h3>
+<ul>
+<li>Handle increasing traffic</li>
+<li>Add capacity incrementally</li>
+</ul>
+<p>A system can scale without being highly available, and vice versa.</p>
+<p>Load balancers help address <strong>both</strong>, but they do not guarantee either on their own.</p>
+<hr>
+<h2 id="9-layer-mapping-explicit">9. Layer Mapping (Explicit)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>Load balancers typically operate at:</p>
+<ul>
+<li><strong>OSI Layer 4</strong> (transport-aware routing)</li>
+<li><strong>OSI Layer 7</strong> (application-aware routing)</li>
+</ul>
+<p>We will explore this distinction in the next chapter.</p></blockquote>
+<p>Understanding <em>where</em> a load balancer operates explains <em>what it can and cannot do</em>.</p>
+<hr>
+<h2 id="10-key-takeaways">10. Key Takeaways</h2>
+<hr>
+<ul>
+<li>DNS solves discovery, not traffic distribution</li>
+<li>Load balancers provide real-time routing decisions</li>
+<li>Health checks enable fast failure isolation</li>
+<li>Load balancers decouple clients from instance topology</li>
+<li>They are essential for both availability and scalability</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Not all load balancers behave the same.</p>
+<p>Some operate purely at the transport level.<br>
+Others understand application protocols like HTTP.</p>
+<p>In the next chapter, we compare:</p>
+<ul>
+<li>Layer 4 load balancing</li>
+<li>Layer 7 load balancing</li>
+<li>Trade-offs between performance and flexibility</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_4_layer4-layer7-load-balancing">Layer 4 vs Layer 7 Load Balancing</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>DNS tells clients <em>where a service exists</em>.<br>
+Load balancers decide <em>who actually handles the request</em>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_2_dns-how-services-are-found/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_4_layer4-layer7-load-balancing/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

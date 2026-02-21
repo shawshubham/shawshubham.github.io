@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Layer 4 vs Layer 7 Load Balancing</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771711500">
+<link rel="stylesheet" href="/css/custom.css?v=1771711500">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Layer 4 vs Layer 7 Load Balancing</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — Not All Load Balancers Are the Same</li>
+        
+        <li>2. Re-Introducing the Example: The Learning Platform</li>
+        
+        <li>3. What “Layer” Means in Load Balancing</li>
+        
+        <li>4. Layer 4 Load Balancing (Transport-Level)</li>
+        
+        <li>5. Layer 7 Load Balancing (Application-Level)</li>
+        
+        <li>6. Side-by-Side Comparison</li>
+        
+        <li>7. Which One Should You Choose?</li>
+        
+        <li>8. Real-World Architecture Pattern</li>
+        
+        <li>9. Layer Mapping (Explicit)</li>
+        
+        <li>10. Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-introduction--not-all-load-balancers-are-the-same">1. Introduction — Not All Load Balancers Are the Same</h2>
+<hr>
+<p>In the previous chapter, we established <strong>why load balancers exist</strong>.</p>
+<p>Now comes the next critical question:</p>
+<blockquote>
+<p><strong>What does the load balancer actually understand about the traffic?</strong></p></blockquote>
+<p>The answer defines two fundamentally different categories:</p>
+<ul>
+<li><strong>Layer 4 (L4) load balancing</strong></li>
+<li><strong>Layer 7 (L7) load balancing</strong></li>
+</ul>
+<p>Choosing between them is a <strong>system design decision</strong>, not a configuration detail.</p>
+<hr>
+<h2 id="2-re-introducing-the-example-the-learning-platform">2. Re-Introducing the Example: The Learning Platform</h2>
+<hr>
+<p>Let’s bring back our <strong>learning platform</strong>.</p>
+<p>Current setup:</p>
+<ul>
+<li>Users access the platform via a browser</li>
+<li>Requests go to <code>learn.myplatform.com</code></li>
+<li>The backend is horizontally scaled</li>
+</ul>
+<p>Conceptually:</p>
+<div class="mermaid">
+flowchart LR
+    User --> DNS
+    DNS --> LB[Load Balancer]
+    LB --> S1[App Instance 1]
+    LB --> S2[App Instance 2]
+    LB --> S3[App Instance 3]
+</div>
+<p>At this point, the <strong>type of load balancer</strong> we choose starts to matter.</p>
+<hr>
+<h2 id="3-what-layer-means-in-load-balancing">3. What “Layer” Means in Load Balancing</h2>
+<hr>
+<p>The “layer” refers to <strong>how much of the request the load balancer understands</strong>.</p>
+<ul>
+<li><strong>Layer 4</strong> → Transport layer (TCP/UDP)</li>
+<li><strong>Layer 7</strong> → Application layer (HTTP)</li>
+</ul>
+<p>This maps directly to the networking layers you’ve already learned.</p>
+<hr>
+<h2 id="4-layer-4-load-balancing-transport-level">4. Layer 4 Load Balancing (Transport-Level)</h2>
+<hr>
+<h3 id="41-how-l4-load-balancers-work">4.1 How L4 Load Balancers Work</h3>
+<p>Layer 4 load balancers:</p>
+<ul>
+<li>operate at the TCP/UDP level</li>
+<li>do not inspect HTTP headers or URLs</li>
+<li>forward traffic based on:
+<ul>
+<li>IP address</li>
+<li>port</li>
+<li>connection metadata</li>
+</ul>
+</li>
+</ul>
+<p>From their perspective:</p>
+<blockquote>
+<p>“This is a stream of bytes — I don’t care what it means.”</p></blockquote>
+<div class="mermaid">
+flowchart LR
+    Client --> L4LB[L4 Load Balancer]
+    L4LB --> A[Instance A]
+    L4LB --> B[Instance B]
+</div>
+<hr>
+<h3 id="42-l4-load-balancing-in-our-example">4.2 L4 Load Balancing in Our Example</h3>
+<p>Using L4 load balancing:</p>
+<ul>
+<li>all HTTP requests are treated the same</li>
+<li>/login, /search, /video are indistinguishable</li>
+<li>traffic is distributed purely at the connection level</li>
+</ul>
+<p>This works well when:</p>
+<ul>
+<li>all instances are identical</li>
+<li>routing logic is simple</li>
+<li>performance is critical</li>
+</ul>
+<hr>
+<h3 id="43-strengths-of-layer-4">4.3 Strengths of Layer 4</h3>
+<ul>
+<li>Very fast (minimal inspection)</li>
+<li>Low latency</li>
+<li>High throughput</li>
+<li>Protocol-agnostic (not HTTP-specific)</li>
+</ul>
+<hr>
+<h3 id="44-limitations-of-layer-4">4.4 Limitations of Layer 4</h3>
+<ul>
+<li>No awareness of URLs, headers, or methods</li>
+<li>Cannot route based on application logic</li>
+<li>Limited control for complex architectures</li>
+</ul>
+<hr>
+<h2 id="5-layer-7-load-balancing-application-level">5. Layer 7 Load Balancing (Application-Level)</h2>
+<hr>
+<h3 id="51-how-l7-load-balancers-work">5.1 How L7 Load Balancers Work</h3>
+<p>Layer 7 load balancers:</p>
+<ul>
+<li>understand application protocols (usually HTTP)</li>
+<li>inspect:
+<ul>
+<li>URLs</li>
+<li>headers</li>
+<li>cookies</li>
+<li>request methods</li>
+</ul>
+</li>
+</ul>
+<p>From their perspective:</p>
+<blockquote>
+<p>“I understand what this request is trying to do.”</p></blockquote>
+<div class="mermaid">
+flowchart LR
+    Client --> L7LB[L7 Load Balancer]
+    L7LB --> A[Web API]
+    L7LB --> B[Video Service]
+</div>
+<hr>
+<h3 id="52-l7-load-balancing-in-our-example">5.2 L7 Load Balancing in Our Example</h3>
+<p>With L7 load balancing, the learning platform can do things like:</p>
+<ul>
+<li>Route <code>/api/*</code> → backend API service</li>
+<li>Route <code>/videos/*</code> → video service</li>
+<li>Route <code>/admin/*</code> → internal admin service</li>
+<li>Apply different rate limits per endpoint</li>
+</ul>
+<p>This enables <strong>application-aware routing</strong>.</p>
+<hr>
+<h3 id="53-strengths-of-layer-7">5.3 Strengths of Layer 7</h3>
+<ul>
+<li>Fine-grained routing control</li>
+<li>Better support for microservices</li>
+<li>Enables <strong>canary releases</strong> (gradually sending a small percentage of traffic to a new version)</li>
+<li>Supports <strong>A/B testing</strong> (routing different users to different versions for comparison)</li>
+<li>Supports <strong>authentication</strong> and <strong>rate limiting</strong> based on HTTP headers (user identity, API keys, metadata)</li>
+</ul>
+<hr>
+<h3 id="54-limitations-of-layer-7">5.4 Limitations of Layer 7</h3>
+<ul>
+<li>Higher latency than L4</li>
+<li>More CPU usage</li>
+<li>Protocol-specific (usually HTTP/HTTPS)</li>
+</ul>
+<hr>
+<h2 id="6-side-by-side-comparison">6. Side-by-Side Comparison</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Layer 4 Load Balancing</th>
+          <th>Layer 7 Load Balancing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Operates on</td>
+          <td>TCP / UDP</td>
+          <td>HTTP / HTTPS</td>
+      </tr>
+      <tr>
+          <td>Understands request content</td>
+          <td>❌ No</td>
+          <td>✅ Yes</td>
+      </tr>
+      <tr>
+          <td>Routing granularity</td>
+          <td>Connection-level</td>
+          <td>Request-level</td>
+      </tr>
+      <tr>
+          <td>Performance</td>
+          <td>Very high</td>
+          <td>Slightly lower</td>
+      </tr>
+      <tr>
+          <td>Flexibility</td>
+          <td>Low</td>
+          <td>High</td>
+      </tr>
+      <tr>
+          <td>Protocol awareness</td>
+          <td>Protocol-agnostic</td>
+          <td>Protocol-specific</td>
+      </tr>
+      <tr>
+          <td>Common use cases</td>
+          <td>Simple horizontal scaling</td>
+          <td>APIs, microservices, complex routing</td>
+      </tr>
+  </tbody>
+</table>
+<p>This comparison highlights a core truth:</p>
+<blockquote>
+<p><strong>The difference is not tooling — it’s how much the load balancer understands about the traffic.</strong></p></blockquote>
+<hr>
+<h2 id="7-which-one-should-you-choose">7. Which One Should You Choose?</h2>
+<hr>
+<p>The choice between Layer 4 and Layer 7 load balancing depends on <strong>system requirements</strong>, not personal preference.</p>
+<h3 id="use-layer-4-when">Use Layer 4 when:</h3>
+<ul>
+<li>All backend instances are identical</li>
+<li>You want maximum throughput and minimal latency</li>
+<li>Routing rules are simple</li>
+<li>You don’t need visibility into request contents</li>
+</ul>
+<h3 id="use-layer-7-when">Use Layer 7 when:</h3>
+<ul>
+<li>Multiple services share a single domain</li>
+<li>Routing depends on URL paths, headers, or methods</li>
+<li>You need fine-grained traffic control</li>
+<li>You want safer deployment strategies (canary, blue–green)</li>
+</ul>
+<p>Many mature production systems use <strong>both approaches together</strong>, each where it fits best.</p>
+<blockquote>
+<p>Layer 4 optimizes for <strong>speed</strong>.<br>
+Layer 7 optimizes for <strong>control</strong>.</p></blockquote>
+<hr>
+<h2 id="8-real-world-architecture-pattern">8. Real-World Architecture Pattern</h2>
+<hr>
+<p>A common production setup:</p>
+<div class="mermaid">
+flowchart LR
+    Client --> DNS
+    DNS --> L4LB[L4 LB]
+    L4LB --> L7LB[L7 LB]
+    L7LB --> S1[Service A]
+    L7LB --> S2[Service B]
+</div>
+<p>Why this works:</p>
+<ul>
+<li>L4 handles raw scale efficiently</li>
+<li>L7 handles intelligent routing</li>
+<li>Responsibilities are cleanly separated</li>
+</ul>
+<hr>
+<h2 id="9-layer-mapping-explicit">9. Layer Mapping (Explicit)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<ul>
+<li><strong>Layer 4 Load Balancers</strong> operate at OSI Layer 4 (Transport)</li>
+<li><strong>Layer 7 Load Balancers</strong> operate at OSI Layer 7 (Application)</li>
+</ul>
+<p>The difference is not tooling — it’s <strong>how much the load balancer understands</strong> about the traffic.</p></blockquote>
+<p>Understanding this mapping explains why:</p>
+<ul>
+<li>L4 load balancers are faster but less flexible</li>
+<li>L7 load balancers are more powerful but slightly more expensive</li>
+</ul>
+<hr>
+<h2 id="10-key-takeaways">10. Key Takeaways</h2>
+<hr>
+<ul>
+<li>Load balancers can operate at different layers of the networking stack</li>
+<li>Layer 4 focuses on speed and simplicity</li>
+<li>Layer 7 focuses on intelligence and routing flexibility</li>
+<li>The correct choice depends on system requirements, not personal preference</li>
+<li>Mature systems often combine both approaches</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we understand <em>how</em> traffic is routed, the next question is:</p>
+<blockquote>
+<p><strong>How exactly is traffic distributed among instances?</strong></p></blockquote>
+<p>In the next chapter, we explore:</p>
+<ul>
+<li>round-robin</li>
+<li>least connections</li>
+<li>weighted strategies</li>
+<li>sticky sessions (and why they’re risky)</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_5_load-balancing-algo">Load Balancing Algorithms &amp; Strategies</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>Layer 4 decides <em>where traffic can go</em>.<br>
+Layer 7 decides <em>where traffic should go</em>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_3_load-balancers/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_5_load-balancing-algo/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

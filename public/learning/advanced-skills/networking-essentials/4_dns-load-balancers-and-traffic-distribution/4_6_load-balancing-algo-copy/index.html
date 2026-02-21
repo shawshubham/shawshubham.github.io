@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sticky Sessions &amp; Session Affinity</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771702977">
+<link rel="stylesheet" href="/css/custom.css?v=1771702977">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Sticky Sessions &amp; Session Affinity</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. What Is a Load Balancing Algorithm?</li>
+        
+        <li>2. Round Robin Algorithm</li>
+        
+        <li>3. Weighted Round Robin Algorithm</li>
+        
+        <li>4. Least Connections Algorithm</li>
+        
+        <li>5. Least Response Time Algorithm (Advanced Variant)</li>
+        
+        <li>6. Random Selection Algorithm</li>
+        
+        <li>7. Algorithm Selection Is a Design Decision</li>
+        
+        <li>8. What Load Balancing Algorithms Do Not Solve</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h1 id="load-balancing-algorithms--strategies">Load Balancing Algorithms &amp; Strategies</h1>
+<p>So far, we’ve answered <strong>why load balancers exist</strong> and <strong>where they operate (Layer 4 vs Layer 7)</strong>.</p>
+<p>Now comes the critical question:</p>
+<blockquote>
+<p><strong>Once traffic reaches the load balancer, how does it decide <em>which</em> instance should handle the request?</strong></p></blockquote>
+<p>That decision is made using <strong>load balancing algorithms</strong>.</p>
+<hr>
+<h2 id="1-what-is-a-load-balancing-algorithm">1. What Is a Load Balancing Algorithm?</h2>
+<hr>
+<p>A load balancing algorithm is a <strong>traffic distribution rule</strong> that determines how incoming requests are assigned to backend instances.</p>
+<p>At a high level, every algorithm tries to balance one or more of the following goals:</p>
+<ul>
+<li>Even distribution of traffic</li>
+<li>Efficient use of resources</li>
+<li>Low latency</li>
+<li>Fault tolerance</li>
+<li>Predictable behavior</li>
+</ul>
+<p>No single algorithm is “best” — the choice depends on <strong>system characteristics</strong>.</p>
+<hr>
+<h2 id="2-round-robin-algorithm">2. Round Robin Algorithm</h2>
+<hr>
+<h3 id="how-it-works">How It Works</h3>
+<p>Requests are distributed sequentially across instances in a fixed order.</p>
+<h4 id="example">Example:</h4>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant C as Client
+    participant LB as Load Balancer
+    participant A as Instance A
+    participant B as Instance B
+    participant D as Instance C
+
+    C->>LB: Request #1
+    LB->>A: Forward
+    C->>LB: Request #2
+    LB->>B: Forward
+    C->>LB: Request #3
+    LB->>D: Forward
+    C->>LB: Request #4
+    LB->>A: Forward (cycle repeats)
+</div>
+<p>Each new request goes to the next instance in the list.</p>
+<h3 id="round-robin--summary">Round Robin — Summary</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Details</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Core Idea</strong></td>
+          <td>Sequentially distributes requests across instances</td>
+      </tr>
+      <tr>
+          <td><strong>State Awareness</strong></td>
+          <td>Stateless</td>
+      </tr>
+      <tr>
+          <td><strong>Pros</strong></td>
+          <td>Simple, minimal overhead, easy to reason about</td>
+      </tr>
+      <tr>
+          <td><strong>Cons</strong></td>
+          <td>Ignores real-time load, slow instances get equal traffic</td>
+      </tr>
+      <tr>
+          <td><strong>Best Used When</strong></td>
+          <td>Homogeneous instances with short, uniform requests</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="3-weighted-round-robin-algorithm">3. Weighted Round Robin Algorithm</h2>
+<hr>
+<h3 id="how-it-works-1">How It Works</h3>
+<p>Each instance is assigned a <strong>weight</strong> based on its capacity.</p>
+<h4 id="example-1">Example:</h4>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant C as Client
+    participant LB as Load Balancer
+    participant A as Instance A (weight 3)
+    participant B as Instance B (weight 2)
+    participant D as Instance C (weight 1)
+
+    C->>LB: Req #1
+    LB->>A: Forward
+    C->>LB: Req #2
+    LB->>A: Forward
+    C->>LB: Req #3
+    LB->>A: Forward
+    C->>LB: Req #4
+    LB->>B: Forward
+    C->>LB: Req #5
+    LB->>B: Forward
+    C->>LB: Req #6
+    LB->>D: Forward
+</div>
+<h3 id="weighted-round-robin--summary">Weighted Round Robin — Summary</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Details</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Core Idea</strong></td>
+          <td>Distributes traffic based on predefined instance weights</td>
+      </tr>
+      <tr>
+          <td><strong>State Awareness</strong></td>
+          <td>Static capacity awareness</td>
+      </tr>
+      <tr>
+          <td><strong>Pros</strong></td>
+          <td>Handles mixed instance sizes better than Round Robin</td>
+      </tr>
+      <tr>
+          <td><strong>Cons</strong></td>
+          <td>Weights are static, no reaction to load spikes</td>
+      </tr>
+      <tr>
+          <td><strong>Best Used When</strong></td>
+          <td>Predictable workloads with different instance capacities</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="4-least-connections-algorithm">4. Least Connections Algorithm</h2>
+<hr>
+<h3 id="how-it-works-2">How It Works</h3>
+<p>The request is sent to the instance with the <strong>fewest active connections</strong>.</p>
+<div class="mermaid">
+flowchart LR
+    C[Client] --> LB[Load Balancer]
+
+    LB --> A[Instance A\nActive: 10]
+    LB --> B[Instance B\nActive: 4  ✅ Selected]
+    LB --> D[Instance C\nActive: 7]
+
+    LB -. decision .-> B
+</div>
+<h3 id="least-connections--summary">Least Connections — Summary</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Details</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Core Idea</strong></td>
+          <td>Routes traffic to the instance with the fewest active connections</td>
+      </tr>
+      <tr>
+          <td><strong>State Awareness</strong></td>
+          <td>Tracks active connections</td>
+      </tr>
+      <tr>
+          <td><strong>Pros</strong></td>
+          <td>Adapts well to uneven request durations</td>
+      </tr>
+      <tr>
+          <td><strong>Cons</strong></td>
+          <td>Connection count may not reflect true load</td>
+      </tr>
+      <tr>
+          <td><strong>Best Used When</strong></td>
+          <td>Long-lived connections, streaming, WebSockets</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="5-least-response-time-algorithm-advanced-variant">5. Least Response Time Algorithm (Advanced Variant)</h2>
+<hr>
+<h3 id="how-it-works-3">How It Works</h3>
+<p>Routes traffic to the instance with:</p>
+<ul>
+<li>Lowest response time</li>
+<li>Often combined with least connections</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    C[Client] --> LB[Load Balancer]
+
+    LB --> A[Instance A\nAvg: 120ms]
+    LB --> B[Instance B\nAvg: 60ms ✅ Selected]
+    LB --> D[Instance C\nAvg: 90ms]
+
+    LB -. decision .-> B
+</div>
+<h3 id="least-response-time--summary">Least Response Time — Summary</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Details</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Core Idea</strong></td>
+          <td>Routes traffic to the instance with the lowest response time</td>
+      </tr>
+      <tr>
+          <td><strong>State Awareness</strong></td>
+          <td>Tracks latency (often combined with connections)</td>
+      </tr>
+      <tr>
+          <td><strong>Pros</strong></td>
+          <td>Optimizes end-user latency</td>
+      </tr>
+      <tr>
+          <td><strong>Cons</strong></td>
+          <td>Monitoring overhead, possible oscillation</td>
+      </tr>
+      <tr>
+          <td><strong>Best Used When</strong></td>
+          <td>Latency-sensitive, high-traffic production systems</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="6-random-selection-algorithm">6. Random Selection Algorithm</h2>
+<hr>
+<h3 id="how-it-works-4">How It Works</h3>
+<p>Each request is sent to a randomly selected instance.</p>
+<div class="mermaid">
+flowchart LR
+    C[Client] --> LB[Load Balancer]
+    LB --> A[Instance A]
+    LB --> B[Instance B]
+    LB --> D[Instance C]
+
+    LB -. random pick .-> A
+</div>
+<h3 id="random-selection--summary">Random Selection — Summary</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Details</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Core Idea</strong></td>
+          <td>Randomly selects a backend instance</td>
+      </tr>
+      <tr>
+          <td><strong>State Awareness</strong></td>
+          <td>None</td>
+      </tr>
+      <tr>
+          <td><strong>Pros</strong></td>
+          <td>Extremely simple (rarely used)</td>
+      </tr>
+      <tr>
+          <td><strong>Cons</strong></td>
+          <td>No fairness or predictability</td>
+      </tr>
+      <tr>
+          <td><strong>Best Used When</strong></td>
+          <td>Testing, fallback, or low-stakes scenarios</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="7-algorithm-selection-is-a-design-decision">7. Algorithm Selection Is a Design Decision</h2>
+<hr>
+<p>Choosing a load balancing algorithm is not about popularity — it is about <strong>matching system behavior and constraints</strong>.</p>
+<p>Different systems fail in different ways, and each algorithm optimizes for a different assumption.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Recommended Algorithm</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Identical backend instances</td>
+          <td>Round Robin</td>
+      </tr>
+      <tr>
+          <td>Mixed instance sizes</td>
+          <td>Weighted Round Robin</td>
+      </tr>
+      <tr>
+          <td>Variable request processing time</td>
+          <td>Least Connections</td>
+      </tr>
+      <tr>
+          <td>Long-lived connections (WebSocket, streaming)</td>
+          <td>Least Connections</td>
+      </tr>
+      <tr>
+          <td>Latency-sensitive systems</td>
+          <td>Least Response Time</td>
+      </tr>
+  </tbody>
+</table>
+<p>There is no universally correct choice — the <strong>workload shape</strong> determines the algorithm.</p>
+<hr>
+<h2 id="8-what-load-balancing-algorithms-do-not-solve">8. What Load Balancing Algorithms Do <em>Not</em> Solve</h2>
+<hr>
+<p>Most basic algorithms assume:</p>
+<ul>
+<li>Services are <strong>stateless</strong></li>
+<li>Any instance can handle <strong>any request</strong></li>
+<li>Instances come and go infrequently</li>
+</ul>
+<p>These assumptions break down when:</p>
+<ul>
+<li>User sessions must be preserved</li>
+<li>Cache locality matters</li>
+<li>Instances scale up/down dynamically</li>
+<li>A node failure should not reshuffle all traffic</li>
+</ul>
+<p>At this point, algorithms alone are insufficient.</p>
+<div class="mermaid">
+flowchart LR
+    U[User] --> LB[Load Balancer]
+
+    LB --> A[Instance A\nCache: Warm]
+    LB --> B[Instance B\nCache: Cold]
+    LB --> C[Instance C\nSession: Missing]
+
+    note1["Same user routed to different instances\n→ cache misses / session issues"]:::note
+    LB -.-> note1
+
+    classDef note fill:transparent,stroke:transparent,color:inherit;
+</div>
+<p>This is where <strong>session affinity</strong> and <strong>hash-based routing</strong> enter the picture.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we understand <strong>how traffic is distributed</strong>, the next logical questions are:</p>
+<ul>
+<li>What if a user must always hit the same instance?</li>
+<li>What happens when an instance goes down?</li>
+<li>How do we prevent massive request reshuffling?</li>
+</ul>
+<p>👉 <strong>Next Article: Sticky Sessions &amp; Session Affinity</strong></p>
+<hr>
+<h3 id="key-takeaway">Key Takeaway</h3>
+<blockquote>
+<p>Load balancing algorithms are intentionally simple.<br>
+Real complexity appears when <strong>state, variability, and failures</strong> are introduced.</p></blockquote>
+<p>Understanding where algorithms stop — and higher-level strategies begin — is essential for both <strong>system design interviews</strong> and <strong>production architectures</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_5_load-balancing-algo/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

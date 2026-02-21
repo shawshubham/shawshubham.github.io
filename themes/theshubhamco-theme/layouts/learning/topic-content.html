@@ -38,7 +38,7 @@
         </p>
       </div>
     </div>
-    
+
     <article class="topic-content">
       {{ .Content }}
     </article>
@@ -82,5 +82,37 @@
     circle.style.strokeDashoffset = offset;
     text.textContent = Math.round(scrollPercent) + "%";
   });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; // match your CSS top (e.g., h2 { top: 150px })
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    // Create a sentinel just before the heading in normal flow
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // When sentinel goes above the sticky line, heading is stuck
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        // Move the "top" of the observer down by NAV_HEIGHT
+        // So "not intersecting" means sentinel is above that line.
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
 </script>
 {{ end }}
