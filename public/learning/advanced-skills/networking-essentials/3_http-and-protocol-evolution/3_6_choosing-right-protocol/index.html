@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choosing the Right Protocol — REST vs gRPC vs HTTP/2 vs HTTP/3</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771684541">
+<link rel="stylesheet" href="/css/custom.css?v=1771684541">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Choosing the Right Protocol — REST vs gRPC vs HTTP/2 vs HTTP/3</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — Protocol Choice Is a Design Decision</li>
+        
+        <li>2. First Principle: External vs Internal Communication</li>
+        
+        <li>3. REST Over HTTP — The Default for External APIs</li>
+        
+        <li>4. gRPC — Optimized for Internal Service Communication</li>
+        
+        <li>5. Choosing Between HTTP/1.1, HTTP/2, and HTTP/3</li>
+        
+        <li>6. Decision Matrix (Quick Reference)</li>
+        
+        <li>7. Common Mistakes to Avoid</li>
+        
+        <li>8. How to Explain Your Choice in Interviews</li>
+        
+        <li>9. Layer Mapping (Final Synthesis)</li>
+        
+        <li>Final Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--protocol-choice-is-a-design-decision">1. Introduction — Protocol Choice Is a Design Decision</h2>
+<hr>
+<p>By now, we have studied:</p>
+<ul>
+<li>HTTP/1.1 and its limitations</li>
+<li>TLS and security as a baseline</li>
+<li>HTTP/2 and multiplexing</li>
+<li>HTTP/3 and QUIC</li>
+<li>gRPC for internal communication</li>
+</ul>
+<p>At this point, a common question arises:</p>
+<blockquote>
+<p><strong>Which protocol should I actually use?</strong></p></blockquote>
+<p>There is no universally “best” protocol.</p>
+<p>Protocol selection depends on:</p>
+<ul>
+<li>who the clients are</li>
+<li>where communication happens</li>
+<li>performance requirements</li>
+<li>reliability and security needs</li>
+</ul>
+<p>This chapter turns knowledge into <strong>design judgment</strong>.</p>
+<hr>
+<h2 id="2-first-principle-external-vs-internal-communication">2. First Principle: External vs Internal Communication</h2>
+<hr>
+<p>The most important distinction is <strong>where the communication happens</strong>.</p>
+<h3 id="external-communication">External Communication</h3>
+<ul>
+<li>Unknown or third-party clients</li>
+<li>Browsers, mobile apps, partners</li>
+<li>Long-lived compatibility expectations</li>
+</ul>
+<h3 id="internal-communication">Internal Communication</h3>
+<ul>
+<li>Services owned by the same organization</li>
+<li>Controlled deployment environment</li>
+<li>Performance and efficiency matter more</li>
+</ul>
+<p>This single distinction eliminates many wrong choices early.</p>
+<hr>
+<h2 id="3-rest-over-http--the-default-for-external-apis">3. REST Over HTTP — The Default for External APIs</h2>
+<hr>
+<h3 id="when-rest-is-the-right-choice">When REST Is the Right Choice</h3>
+<p>Use REST when:</p>
+<ul>
+<li>APIs are consumed by external clients</li>
+<li>Browser compatibility is required</li>
+<li>Human readability matters</li>
+<li>Debugging with curl/Postman is valuable</li>
+<li>Caching (GET, CDN) is important</li>
+</ul>
+<p>REST works best with:</p>
+<ul>
+<li>HTTP/1.1 or HTTP/2</li>
+<li>HTTPS as the default</li>
+<li>Stateless request–response patterns</li>
+</ul>
+<blockquote>
+<p>REST optimizes for <strong>reach and simplicity</strong>, not raw performance.</p></blockquote>
+<hr>
+<h2 id="4-grpc--optimized-for-internal-service-communication">4. gRPC — Optimized for Internal Service Communication</h2>
+<hr>
+<h3 id="when-grpc-is-the-better-choice">When gRPC Is the Better Choice</h3>
+<p>Use gRPC when:</p>
+<ul>
+<li>You control both client and server</li>
+<li>Communication is service-to-service</li>
+<li>High throughput or low latency matters</li>
+<li>Strong contracts are required</li>
+<li>Streaming is part of the workflow</li>
+</ul>
+<p>Typical gRPC environments:</p>
+<ul>
+<li>microservices</li>
+<li>data processing pipelines</li>
+<li>trading systems</li>
+<li>internal platforms</li>
+</ul>
+<blockquote>
+<p>gRPC optimizes for <strong>performance, contracts, and efficiency</strong>.</p></blockquote>
+<hr>
+<h2 id="5-choosing-between-http11-http2-and-http3">5. Choosing Between HTTP/1.1, HTTP/2, and HTTP/3</h2>
+<hr>
+<h3 id="http11">HTTP/1.1</h3>
+<p>Use when:</p>
+<ul>
+<li>simplicity matters</li>
+<li>legacy systems are involved</li>
+<li>low concurrency is expected</li>
+</ul>
+<p>Limitations:</p>
+<ul>
+<li>sequential request handling</li>
+<li>inefficient under high concurrency</li>
+</ul>
+<hr>
+<h3 id="http2">HTTP/2</h3>
+<p>Use when:</p>
+<ul>
+<li>clients support it (most modern ones do)</li>
+<li>concurrency is high</li>
+<li>reducing latency matters</li>
+<li>infrastructure supports long-lived connections</li>
+</ul>
+<p>HTTP/2 is often the <strong>best default</strong> today for REST APIs.</p>
+<hr>
+<h3 id="http3">HTTP/3</h3>
+<p>Use when:</p>
+<ul>
+<li>clients are mobile or on unreliable networks</li>
+<li>latency variability is high</li>
+<li>packet loss is common</li>
+<li>first-request performance matters</li>
+</ul>
+<p>HTTP/3 is powerful but not always necessary.</p>
+<blockquote>
+<p>Use HTTP/3 where the network is the bottleneck — not by default everywhere.</p></blockquote>
+<hr>
+<h2 id="6-decision-matrix-quick-reference">6. Decision Matrix (Quick Reference)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Recommended Choice</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Public API (browser, mobile)</td>
+          <td>REST + HTTPS (HTTP/2)</td>
+      </tr>
+      <tr>
+          <td>Public API, mobile-heavy</td>
+          <td>REST + HTTPS (HTTP/3)</td>
+      </tr>
+      <tr>
+          <td>Internal microservices</td>
+          <td>gRPC over HTTP/2</td>
+      </tr>
+      <tr>
+          <td>Streaming / real-time internal</td>
+          <td>gRPC</td>
+      </tr>
+      <tr>
+          <td>Simple internal admin APIs</td>
+          <td>REST</td>
+      </tr>
+      <tr>
+          <td>Legacy compatibility</td>
+          <td>HTTP/1.1</td>
+      </tr>
+      <tr>
+          <td>High-latency / lossy networks</td>
+          <td>HTTP/3</td>
+      </tr>
+  </tbody>
+</table>
+<p>This table is <strong>not a rulebook</strong> — it’s a starting point.</p>
+<hr>
+<h2 id="7-common-mistakes-to-avoid">7. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-choosing-grpc-for-public-apis">❌ Choosing gRPC for Public APIs</h3>
+<ul>
+<li>Browser support is limited</li>
+<li>Tooling and debugging become harder</li>
+<li>Client friction increases</li>
+</ul>
+<h3 id="-using-http3-everywhere">❌ Using HTTP/3 Everywhere</h3>
+<ul>
+<li>Adds complexity</li>
+<li>Benefits may be negligible in data centers</li>
+</ul>
+<h3 id="-treating-protocols-as-trends">❌ Treating Protocols as Trends</h3>
+<ul>
+<li>“Everyone is using X” is not a design reason</li>
+<li>Context matters more than popularity</li>
+</ul>
+<p>Good systems choose protocols <strong>intentionally</strong>.</p>
+<hr>
+<h2 id="8-how-to-explain-your-choice-in-interviews">8. How to Explain Your Choice in Interviews</h2>
+<hr>
+<p>Interviewers care less about <em>what</em> you chose<br>
+and more about <em>why</em> you chose it.</p>
+<p>Strong answers sound like this:</p>
+<blockquote>
+<p>“Externally, we expose REST APIs over HTTPS for compatibility.<br>
+Internally, we use gRPC over HTTP/2 for performance and strong contracts.”</p></blockquote>
+<p>Or:</p>
+<blockquote>
+<p>“We chose HTTP/2 by default, and HTTP/3 only for mobile clients where packet loss is common.”</p></blockquote>
+<p>Clarity of reasoning &gt; protocol names.</p>
+<hr>
+<h2 id="9-layer-mapping-final-synthesis">9. Layer Mapping (Final Synthesis)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Perspective</strong></p>
+<ul>
+<li>REST and gRPC operate at the <strong>Application layer</strong></li>
+<li>HTTP/1.1, HTTP/2, HTTP/3 define application-level transport semantics</li>
+<li>TLS provides cross-layer security</li>
+<li>TCP or QUIC handle delivery guarantees</li>
+</ul>
+<p>Protocol choice is about <strong>how these layers interact</strong>, not isolated decisions.</p></blockquote>
+<p>This layered thinking is the hallmark of strong system design.</p>
+<hr>
+<h2 id="final-takeaways">Final Takeaways</h2>
+<hr>
+<ul>
+<li>There is no single “best” protocol</li>
+<li>External and internal communication have different needs</li>
+<li>REST prioritizes compatibility</li>
+<li>gRPC prioritizes performance and contracts</li>
+<li>HTTP/2 is a strong default</li>
+<li>HTTP/3 shines in unreliable networks</li>
+<li>Protocol choice should be justified, not assumed</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Phase 3 focused on <strong>how data is communicated efficiently and securely</strong>.</p>
+<p>In the next phase, we move outward into <strong>network-scale components</strong>:</p>
+<ul>
+<li>DNS and service discovery</li>
+<li>Load balancers (L4 vs L7)</li>
+<li>CDNs and edge networks</li>
+<li>Cloud and private networking</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_1_why-service-discovery">Phase 4: DNS, Load Balancers &amp; Traffic Distribution</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Capstone Takeaway</strong></p>
+<p>Strong system design is not about knowing more protocols —<br>
+it’s about choosing the <strong>right one for the right context</strong>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

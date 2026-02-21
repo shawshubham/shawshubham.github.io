@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Service Discovery &amp; Traffic Distribution Exist</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771684509">
+<link rel="stylesheet" href="/css/custom.css?v=1771684509">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Why Service Discovery &amp; Traffic Distribution Exist</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — The Single Endpoint Illusion</li>
+        
+        <li>2. The Original Model: One Client, One Server</li>
+        
+        <li>3. What Breaks First as Systems Grow</li>
+        
+        <li>4. The Naive Scaling Attempt (And Why It Fails)</li>
+        
+        <li>5. The Core Problem: Indirection Is Missing</li>
+        
+        <li>6. Service Discovery — The Missing Abstraction</li>
+        
+        <li>7. Traffic Distribution — The Second Half of the Problem</li>
+        
+        <li>8. Control Plane vs Data Plane (Mental Model)</li>
+        
+        <li>9. What This Phase Will Build Toward</li>
+        
+        <li>10. Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--the-single-endpoint-illusion">1. Introduction — The Single Endpoint Illusion</h2>
+<hr>
+<p>In the early stages of an application, things feel simple.</p>
+<ul>
+<li>One server</li>
+<li>One IP address</li>
+<li>One port</li>
+<li>One endpoint</li>
+</ul>
+<p>Clients send requests directly to that endpoint, and everything works.</p>
+<p>This creates a dangerous illusion:</p>
+<blockquote>
+<p><strong>“If the server is reachable, the system is fine.”</strong></p></blockquote>
+<p>At scale, this assumption breaks — quickly and repeatedly.</p>
+<p>This chapter explains <strong>why single endpoints fail</strong> and why modern systems need <strong>service discovery and traffic distribution</strong> as first-class concepts.</p>
+<hr>
+<h2 id="2-the-original-model-one-client-one-server">2. The Original Model: One Client, One Server</h2>
+<hr>
+<p>Let’s start with the simplest possible setup:</p>
+<ul>
+<li>A client application</li>
+<li>A backend service</li>
+<li>A fixed IP address</li>
+</ul>
+<p>Conceptually:</p>
+<div class="mermaid">
+flowchart LR
+    Client --> Server[Backend Service]
+</div>
+<p>This model works when:</p>
+<ul>
+<li>traffic is low</li>
+<li>failures are rare</li>
+<li>scale is not a concern</li>
+</ul>
+<p>But it embeds several assumptions that do not hold in real systems.</p>
+<hr>
+<h2 id="3-what-breaks-first-as-systems-grow">3. What Breaks First as Systems Grow</h2>
+<hr>
+<p>As usage increases, the single-endpoint model starts failing in predictable ways.</p>
+<h3 id="31-capacity-limits">3.1 Capacity Limits</h3>
+<ul>
+<li>One machine can handle only a finite number of requests</li>
+<li>CPU, memory, and I/O become bottlenecks</li>
+</ul>
+<h3 id="32-availability-problems">3.2 Availability Problems</h3>
+<ul>
+<li>If the server crashes, <strong>everything is down</strong></li>
+<li>Maintenance requires full downtime</li>
+</ul>
+<h3 id="33-deployment-constraints">3.3 Deployment Constraints</h3>
+<ul>
+<li>New versions cannot be deployed safely</li>
+<li>Rolling updates are impossible without impact</li>
+</ul>
+<h3 id="34-network-realities">3.4 Network Realities</h3>
+<ul>
+<li>Latency varies based on client location</li>
+<li>A single server cannot be “close” to all users</li>
+</ul>
+<p>These failures are not bugs.<br>
+They are <strong>natural consequences of centralization</strong>.</p>
+<hr>
+<h2 id="4-the-naive-scaling-attempt-and-why-it-fails">4. The Naive Scaling Attempt (And Why It Fails)</h2>
+<hr>
+<p>A common first reaction is:</p>
+<blockquote>
+<p>“Let’s add more servers.”</p></blockquote>
+<p>So we end up with:</p>
+<div class="mermaid">
+flowchart LR
+    Client --> Server1
+    Client --> Server2
+    Client --> Server3
+</div>
+<p>Now a new problem appears immediately:</p>
+<blockquote>
+<p><strong>How does the client know which server to talk to?</strong></p></blockquote>
+<p>Hardcoding multiple IPs:</p>
+<ul>
+<li>does not scale</li>
+<li>breaks when instances change</li>
+<li>shifts complexity to clients</li>
+</ul>
+<p>This is the moment where <strong>service discovery becomes unavoidable</strong>.</p>
+<hr>
+<h2 id="5-the-core-problem-indirection-is-missing">5. The Core Problem: Indirection Is Missing</h2>
+<hr>
+<p>At the heart of the issue is this:</p>
+<blockquote>
+<p>Clients should not need to know <strong>where services live</strong>.</p></blockquote>
+<p>In real systems:</p>
+<ul>
+<li>servers are added and removed</li>
+<li>IPs change</li>
+<li>instances fail and recover</li>
+<li>regions come and go</li>
+</ul>
+<p>Direct addressing creates <strong>tight coupling</strong> between clients and infrastructure.</p>
+<p>Modern systems solve this by introducing <strong>indirection</strong>.</p>
+<hr>
+<h2 id="6-service-discovery--the-missing-abstraction">6. Service Discovery — The Missing Abstraction</h2>
+<hr>
+<p>Service discovery introduces a simple but powerful idea:</p>
+<blockquote>
+<p><strong>Clients talk to a name, not a machine.</strong></p></blockquote>
+<p>Instead of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>client → 192.168.1.42:8080
+</span></span></code></pre></div><p>We move to:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>client → api.myservice.com
+</span></span></code></pre></div><p>What happens behind that name is no longer the client’s concern.</p>
+<p>This abstraction enables:</p>
+<ul>
+<li>scaling without client changes</li>
+<li>instance replacement without downtime</li>
+<li>infrastructure evolution without breaking consumers</li>
+</ul>
+<hr>
+<h2 id="7-traffic-distribution--the-second-half-of-the-problem">7. Traffic Distribution — The Second Half of the Problem</h2>
+<hr>
+<p>Finding a service is only half the story.</p>
+<p>Once multiple instances exist, the system must decide:</p>
+<ul>
+<li>which instance receives a request</li>
+<li>how load is spread across instances</li>
+<li>what happens when one instance becomes unhealthy</li>
+</ul>
+<p>This is the problem of <strong>traffic distribution</strong>.</p>
+<p>Key responsibilities include:</p>
+<ul>
+<li>spreading load evenly</li>
+<li>avoiding unhealthy or overloaded instances</li>
+<li>reacting to failures automatically</li>
+</ul>
+<p>This responsibility must live <strong>outside application code</strong>.<br>
+Embedding traffic logic inside services tightly couples business logic with infrastructure concerns.</p>
+<hr>
+<h2 id="8-control-plane-vs-data-plane-mental-model">8. Control Plane vs Data Plane (Mental Model)</h2>
+<hr>
+<p>At this point, it helps to separate concerns clearly:</p>
+<ul>
+<li>
+<p><strong>Control Plane</strong></p>
+<ul>
+<li>decides <em>where traffic should go</em></li>
+<li>manages discovery, configuration, and health information</li>
+</ul>
+</li>
+<li>
+<p><strong>Data Plane</strong></p>
+<ul>
+<li>actually moves requests and responses</li>
+<li>optimized for performance and reliability</li>
+</ul>
+</li>
+</ul>
+<p>Modern networking components exist to keep these concerns separate.</p>
+<p>This separation is foundational to scalable and maintainable system design.</p>
+<hr>
+<h2 id="9-what-this-phase-will-build-toward">9. What This Phase Will Build Toward</h2>
+<hr>
+<p>This chapter intentionally avoids tools and implementations.</p>
+<p>Instead, it defines the <strong>problem space</strong>.</p>
+<p>In the rest of Phase 4, we will see how this problem is addressed using:</p>
+<ul>
+<li>DNS — locating services by name</li>
+<li>Load balancers — distributing traffic across instances</li>
+<li>Firewalls &amp; security groups — controlling who can communicate</li>
+<li>CDNs — reducing latency by moving content closer to users</li>
+<li>Cloud networking primitives — defining isolation and boundaries</li>
+</ul>
+<p>Each component exists to solve <strong>a specific failure of the single-endpoint model</strong>.</p>
+<hr>
+<h2 id="10-key-takeaways">10. Key Takeaways</h2>
+<hr>
+<ul>
+<li>Single endpoints do not scale</li>
+<li>Hardcoded addresses create tight coupling</li>
+<li>Scale introduces discovery and distribution problems</li>
+<li>Indirection is required for resilience</li>
+<li>Service discovery and traffic distribution are architectural necessities</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we understand <strong>why discovery is needed</strong>, we can examine the most fundamental discovery mechanism on the internet.</p>
+<p>In the next chapter, we explore:</p>
+<ul>
+<li>how names are resolved to locations</li>
+<li>why caching matters</li>
+<li>and why DNS is the <strong>first load balancer</strong> most systems ever use</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_2_dns-how-services-are-found">DNS — How Services Are Found</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>Scalability is not about adding servers.<br>
+It’s about <strong>decoupling clients from infrastructure</strong>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_2_dns-how-services-are-found/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

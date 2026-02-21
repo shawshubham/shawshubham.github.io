@@ -255,6 +255,8 @@ This is a deliberate cross-layer design.
 
 ## 10. Key Takeaways
 
+---
+
 - HTTP/2 solved application-level blocking
 - TCP still caused transport-level blocking
 - QUIC reimplemented transport semantics over UDP
@@ -282,7 +284,7 @@ In the next chapter, we explore:
 - and when gRPC is the right choice
 
 👉 **Up Next →**  
-**[gRPC — High-Performance Service-to-Service Communication](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-3-and-quic)**
+**[gRPC — High-Performance Service-to-Service Communication](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication)**
 
 ---
 

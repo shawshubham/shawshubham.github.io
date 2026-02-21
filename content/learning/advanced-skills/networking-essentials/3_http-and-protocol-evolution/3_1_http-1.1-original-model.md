@@ -228,7 +228,7 @@ Understanding these constraints is essential before exploring newer protocols.
 
 ---
 
-## 🔗 What’s Next?
+### 🔗 What’s Next?
 
 So far, we have looked at HTTP purely from a **functionality and performance** perspective.
 

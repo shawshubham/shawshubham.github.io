@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNS — How Services Are Found</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771684509">
+<link rel="stylesheet" href="/css/custom.css?v=1771684509">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">DNS — How Services Are Found</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — Names Before Machines</li>
+        
+        <li>2. What DNS Actually Does (And What It Does Not)</li>
+        
+        <li>3. The Basic DNS Resolution Flow</li>
+        
+        <li>4. Recursive vs Authoritative DNS (Mental Model)</li>
+        
+        <li>5. DNS Records You Need to Understand (Conceptual)</li>
+        
+        <li>6. TTL &amp;amp; Caching — The Most Important DNS Concept</li>
+        
+        <li>7. DNS as the First Load Balancer</li>
+        
+        <li>8. Failure &amp;amp; Change — Where DNS Helps (And Where It Doesn’t)</li>
+        
+        <li>9. Control Plane vs Data Plane (DNS Perspective)</li>
+        
+        <li>10. Layer Mapping (Explicit)</li>
+        
+        <li>11. Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--names-before-machines">1. Introduction — Names Before Machines</h2>
+<hr>
+<p>In Phase 4.1, we established a core principle:</p>
+<blockquote>
+<p><strong>Clients should talk to names, not machines.</strong></p></blockquote>
+<p>DNS (Domain Name System) is the mechanism that makes this possible at internet scale.</p>
+<p>DNS answers a deceptively simple question:</p>
+<blockquote>
+<p><strong>“Given a name, where should I send traffic?”</strong></p></blockquote>
+<p>This chapter explains how DNS works conceptually, why caching matters, and why DNS is often the <strong>first traffic distribution layer</strong> in real systems.</p>
+<hr>
+<h2 id="2-what-dns-actually-does-and-what-it-does-not">2. What DNS Actually Does (And What It Does Not)</h2>
+<hr>
+<h3 id="what-dns-does">What DNS does</h3>
+<ul>
+<li>Maps <strong>names → network locations</strong></li>
+<li>Enables <strong>indirection</strong> between clients and infrastructure</li>
+<li>Allows infrastructure to change without client updates</li>
+</ul>
+<h3 id="what-dns-does-not-do">What DNS does <em>not</em> do</h3>
+<ul>
+<li>It does not handle application routing</li>
+<li>It does not check service health in real time</li>
+<li>It does not guarantee availability</li>
+</ul>
+<p>DNS is about <strong>discovery</strong>, not delivery.</p>
+<hr>
+<h2 id="3-the-basic-dns-resolution-flow">3. The Basic DNS Resolution Flow</h2>
+<hr>
+<p>At a high level, resolving a name looks like this:</p>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Resolver as DNS Resolver
+    participant Auth as Authoritative DNS
+
+    Client->>Resolver: Resolve api.myservice.com
+    Resolver->>Auth: Query api.myservice.com
+    Auth-->>Resolver: IP address(es)
+    Resolver-->>Client: IP address(es)
+</div>
+<blockquote>
+<p><strong>Key idea:</strong></p>
+<p>Clients do not usually talk directly to authoritative servers.<br>
+They rely on <strong>resolvers</strong> that cache and optimize lookups.</p></blockquote>
+<hr>
+<h2 id="4-recursive-vs-authoritative-dns-mental-model">4. Recursive vs Authoritative DNS (Mental Model)</h2>
+<hr>
+<h3 id="recursive-resolver">Recursive Resolver</h3>
+<ul>
+<li>Acts on behalf of the client</li>
+<li>Caches results</li>
+<li>Reduces latency and load</li>
+<li>Examples: ISP DNS, cloud DNS resolvers</li>
+</ul>
+<h3 id="authoritative-dns">Authoritative DNS</h3>
+<ul>
+<li>Owns the source of truth</li>
+<li>Returns final answers</li>
+<li>Does not cache client results</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    Client --> Resolver[Recursive Resolver]
+    Resolver --> Authoritative[Authoritative DNS]
+</div>
+<p>This separation allows DNS to scale globally.</p>
+<hr>
+<h2 id="5-dns-records-you-need-to-understand-conceptual">5. DNS Records You Need to Understand (Conceptual)</h2>
+<hr>
+<p>You do <strong>not</strong> need to memorize all DNS record types for system design.</p>
+<p>The important ones are those that answer a single question:</p>
+<blockquote>
+<p><strong>“Given a name, where should traffic go?”</strong></p></blockquote>
+<p>You can think of DNS records as <strong>instructions</strong> telling resolvers <em>how</em> to answer that question.</p>
+<div class="mermaid">
+flowchart LR
+    Client["Client / Browser"]
+    DNS["DNS Resolver"]
+
+    Alias["CNAME Alias<br/>(lb.mycompany.net)"]
+    IP["IP Address<br/>(203.0.113.10)"]
+    Meta["TXT Record<br/>(Verification / Policy)"]
+
+    Client -->|Query| DNS
+
+    DNS -->|A / AAAA| IP
+    DNS -->|CNAME| Alias
+    Alias -->|A / AAAA| IP
+
+    DNS -.->|TXT| Meta
+</div>
+<h3 id="1-a--aaaa-records--names-to-ip-addresses">1. A / AAAA Records — Names to IP Addresses</h3>
+<ul>
+<li><strong>A record</strong> maps a domain name to an <strong>IPv4 address</strong></li>
+<li><strong>AAAA record</strong> maps a domain name to an <strong>IPv6 address</strong></li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>api.myservice.com → 203.0.113.10      (A record)
+</span></span><span style="display:flex;"><span>api.myservice.com → 2001:db8::42      (AAAA record)
+</span></span></code></pre></div><p>Mental model:</p>
+<blockquote>
+<p>“This service lives at this machine.”</p></blockquote>
+<p>From a system-design perspective:</p>
+<ul>
+<li>This is the <strong>final step</strong> before traffic flows</li>
+<li>Load balancers, servers, and CDNs ultimately resolve to A / AAAA records</li>
+</ul>
+<hr>
+<h3 id="2-cname-record--name-to-name-indirection">2. CNAME Record — Name to Name (Indirection)</h3>
+<p>A <strong>CNAME</strong> record maps <strong>one domain name to another domain name</strong>, not to an IP.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>api.myservice.com → lb.mycompany.net   (CNAME)
+</span></span><span style="display:flex;"><span>lb.mycompany.net → 203.0.113.10        (A / AAAA)
+</span></span></code></pre></div><p>Mental model:</p>
+<blockquote>
+<p>“This name is just an alias for another name.”</p></blockquote>
+<p>Why CNAME matters in system design:</p>
+<ul>
+<li>Enables indirection</li>
+<li>Allows infrastructure changes without breaking clients</li>
+<li>Commonly used with load balancers and CDNs</li>
+</ul>
+<hr>
+<h3 id="3-txt-record--metadata-not-routing">3. TXT Record — Metadata, Not Routing</h3>
+<p>A <strong>TXT</strong> record stores <strong>metadata</strong>, not routing information.</p>
+<p>Examples:</p>
+<ul>
+<li>Domain ownership verification</li>
+<li>Security policies (SPF, DKIM, DMARC)</li>
+<li>Service configuration hints</li>
+</ul>
+<p>Mental model:</p>
+<blockquote>
+<p>“Extra information about the domain, not where traffic goes.”</p></blockquote>
+<p>TXT records are important for <strong>trust and security</strong>, but they do not participate in request routing.</p>
+<hr>
+<h3 id="design-perspective-what-to-focus-on">Design Perspective (What to Focus On)</h3>
+<p>For HLD discussions:</p>
+<ul>
+<li>Focus on <strong>indirection</strong>, not syntax</li>
+<li>Understand <strong>how names decouple clients from infrastructure</strong></li>
+<li>Know that traffic ultimately resolves to an <strong>IP address</strong></li>
+</ul>
+<p>You do <strong>not</strong> need:</p>
+<ul>
+<li>Zone files</li>
+<li>Record configuration details</li>
+<li>DNS administration knowledge</li>
+</ul>
+<hr>
+<h2 id="6-ttl--caching--the-most-important-dns-concept">6. TTL &amp; Caching — The Most Important DNS Concept</h2>
+<hr>
+<p>Every DNS record has a <strong>TTL (Time To Live)</strong>.</p>
+<p>TTL controls:</p>
+<ul>
+<li>how long DNS resolvers cache results</li>
+<li>how quickly changes propagate</li>
+<li>the trade-off between freshness and stability</li>
+</ul>
+<h3 id="high-ttl">High TTL</h3>
+<ul>
+<li>Faster name resolution</li>
+<li>Fewer DNS queries</li>
+<li>Slower reaction to infrastructure changes</li>
+</ul>
+<h3 id="low-ttl">Low TTL</h3>
+<ul>
+<li>Faster propagation of updates</li>
+<li>Higher DNS query volume</li>
+<li>Slightly increased lookup latency</li>
+</ul>
+<blockquote>
+<p>DNS caching is a <strong>design trade-off</strong>, not an implementation detail.</p></blockquote>
+<hr>
+<h2 id="7-dns-as-the-first-load-balancer">7. DNS as the First Load Balancer</h2>
+<hr>
+<p><strong>DNS can return multiple IP addresses for the same name.</strong></p>
+<p>This enables simple traffic distribution:</p>
+<div class="mermaid">
+flowchart LR
+    Client --> DNS
+    DNS --> S1[Service Instance 1]
+    DNS --> S2[Service Instance 2]
+    DNS --> S3[Service Instance 3]
+</div>
+<p>Common strategies:</p>
+<ul>
+<li>Round-robin responses</li>
+<li>Geo-based resolution</li>
+<li>Weighted records</li>
+</ul>
+<p>However, DNS-based distribution has limits:</p>
+<ul>
+<li>No real-time health awareness</li>
+<li>Caching delays reaction to failure</li>
+</ul>
+<p>This is why DNS is often combined with <strong>load balancers</strong>, not used alone.</p>
+<hr>
+<h2 id="8-failure--change--where-dns-helps-and-where-it-doesnt">8. Failure &amp; Change — Where DNS Helps (And Where It Doesn’t)</h2>
+<hr>
+<p>DNS is effective for handling <strong>planned and coarse-grained changes</strong>.</p>
+<p>DNS works well for:</p>
+<ul>
+<li>Planned infrastructure changes (deployments, migrations)</li>
+<li>Region-level traffic routing</li>
+<li>Gradual cutovers and failovers</li>
+</ul>
+<p>However, DNS is not designed for:</p>
+<ul>
+<li>Rapid instance-level failures</li>
+<li>Per-request routing decisions</li>
+<li>Real-time load awareness</li>
+</ul>
+<p>Because of caching and TTLs, DNS reacts to change <strong>slowly by design</strong>.</p>
+<p>Understanding this limitation prevents pushing DNS beyond its intended role.</p>
+<hr>
+<h2 id="9-control-plane-vs-data-plane-dns-perspective">9. Control Plane vs Data Plane (DNS Perspective)</h2>
+<hr>
+<p>DNS operates firmly in the <strong>control plane</strong>.</p>
+<ul>
+<li>It decides <em>where traffic should go</em></li>
+<li>It does not carry application data</li>
+<li>It influences routing, but does not execute requests</li>
+</ul>
+<p>This makes DNS:</p>
+<ul>
+<li>globally scalable</li>
+<li>highly cacheable</li>
+<li>intentionally conservative</li>
+</ul>
+<p>DNS is powerful precisely because it does <strong>less</strong>, not more.</p>
+<hr>
+<h2 id="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>DNS operates at the <strong>Application layer</strong><br>
+(OSI Layer 7 / TCP-IP Application layer),</p>
+<p>but it indirectly influences <strong>network-level routing decisions</strong>.</p></blockquote>
+<p>This cross-cutting influence is why DNS appears in nearly every system design.</p>
+<hr>
+<h2 id="11-key-takeaways">11. Key Takeaways</h2>
+<hr>
+<ul>
+<li>DNS enables name-based service discovery</li>
+<li>Indirection decouples clients from infrastructure</li>
+<li>TTL and caching are core design levers</li>
+<li>DNS supports coarse-grained traffic distribution</li>
+<li>DNS is a control-plane mechanism, not a data-plane one</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>DNS helps clients find <em>where</em> services live, but it does not decide <em>which instance</em> should handle a request.</p>
+<p>To solve that problem, systems introduce a more active component.</p>
+<p>In the next chapter, we explore:</p>
+<ul>
+<li>why load balancers exist</li>
+<li>what problems they solve beyond DNS</li>
+<li>and how they enable horizontal scaling</li>
+</ul>
+<p>👉 <strong>Up Next → Load Balancers — Why They Exist</strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>DNS doesn’t make systems fast or resilient by itself —<br>
+it makes them <strong>changeable without breaking clients</strong>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_1_why-service-discovery/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

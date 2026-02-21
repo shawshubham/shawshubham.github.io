@@ -8,8 +8,8 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1771628382">
-<link rel="stylesheet" href="/css/custom.css?v=1771628382">
+<link rel="stylesheet" href="/css/style.css?v=1771684568">
+<link rel="stylesheet" href="/css/custom.css?v=1771684568">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -118,8 +118,6 @@
         
         <li>11. Key Takeaways</li>
         
-        <li>🔗 What’s Next?</li>
-        
       </ul>
     </div>
   
@@ -127,7 +125,7 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 20 Feb, 2026
+            Last updated on: 21 Feb, 2026
           
         </p>
       </div>
@@ -163,16 +161,15 @@
 <li><strong>TLS</strong> defines <em>how securely</em> it is sent</li>
 </ul>
 <p>Nothing about HTTP itself changes.</p>
-<pre class="mermaid">
+<div class="mermaid">
 flowchart TB
-    HTTP[&#34;HTTP&lt;br/&gt;(Requests &amp; Responses)&#34;]
-    TLS[&#34;TLS&lt;br/&gt;(Encryption, Authentication)&#34;]
-    TCP[&#34;TCP&lt;br/&gt;(Reliable Delivery)&#34;]
-    IP[&#34;IP&lt;br/&gt;(Routing)&#34;]
+    HTTP["HTTP<br/>(Requests & Responses)"]
+    TLS["TLS<br/>(Encryption, Authentication)"]
+    TCP["TCP<br/>(Reliable Delivery)"]
+    IP["IP<br/>(Routing)"]
 
-    HTTP --&gt; TLS --&gt; TCP --&gt; IP
-</pre>
-
+    HTTP --> TLS --> TCP --> IP
+</div>
 <blockquote>
 <p>HTTPS is simply <strong>HTTP running over TLS</strong>.</p></blockquote>
 <hr>
@@ -206,19 +203,18 @@ flowchart TB
 <hr>
 <p>Before application data can flow, TLS must establish trust.</p>
 <p>Conceptually:</p>
-<pre class="mermaid">
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant Server
 
-    Client-&gt;&gt;Server: ClientHello (capabilities)
-    Server-&gt;&gt;Client: ServerHello + Certificate
-    Client-&gt;&gt;Server: Key Exchange
+    Client->>Server: ClientHello (capabilities)
+    Server->>Client: ServerHello + Certificate
+    Client->>Server: Key Exchange
     Note over Client,Server: Secure channel established
-    Client-&gt;&gt;Server: Encrypted HTTP Request
-    Server-&gt;&gt;Client: Encrypted HTTP Response
-</pre>
-
+    Client->>Server: Encrypted HTTP Request
+    Server->>Client: Encrypted HTTP Response
+</div>
 <p>Key ideas (no crypto math):</p>
 <ul>
 <li>identity is verified <strong>before</strong> data exchange</li>
@@ -267,11 +263,11 @@ and data must be protected while in transit.</strong></p></blockquote>
 <li>unencrypted traffic is considered a design flaw</li>
 </ul>
 <p>TLS exists not as a feature, but as a <strong>baseline requirement</strong> for operating on untrusted networks.</p>
-<pre class="mermaid">
+<div class="mermaid">
 timeline
     title HTTP, TLS, and Protocol Evolution (Mental Model)
 
-    1990s : HTTP/1.0 &amp; HTTP/1.1
+    1990s : HTTP/1.0 & HTTP/1.1
           : Plain-text by default
 
     Late 1990s : SSL → TLS introduced
@@ -285,8 +281,7 @@ timeline
 
     2018+ : HTTP/3 / QUIC
           : TLS built-in and mandatory
-</pre>
-
+</div>
 <blockquote>
 <p>📌 <strong>Mental Model</strong></p>
 <p>TLS existed long before HTTP/2.<br>
@@ -403,7 +398,7 @@ TLS is <strong>built directly into QUIC</strong></p>
 <p>Security is no longer optional —<br>
 it is an architectural baseline.</p>
 <hr>
-<h2 id="-whats-next">🔗 What’s Next?</h2>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>Now that we understand:</p>
 <ul>
 <li>HTTP semantics</li>
@@ -518,8 +513,13 @@ it changes <strong>who you can trust and at what cost</strong>.</p></blockquote>
   
     <script type="module">
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
-      mermaid.initialize({ startOnLoad: true });
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
     </script>
   
 </body>

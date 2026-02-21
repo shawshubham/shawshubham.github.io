@@ -334,7 +334,7 @@ it is an architectural baseline.
 
 ---
 
-## 🔗 What’s Next?
+### 🔗 What’s Next?
 
 Now that we understand:
 

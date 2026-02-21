@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gRPC — High-Performance Service-to-Service Communication</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771684553">
+<link rel="stylesheet" href="/css/custom.css?v=1771684553">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">gRPC — High-Performance Service-to-Service Communication</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — Why REST Isn’t Always Ideal Internally</li>
+        
+        <li>2. What gRPC Actually Is</li>
+        
+        <li>3. Where gRPC Fits in the Stack</li>
+        
+        <li>4. The Contract-First Model (Why Teams Love It)</li>
+        
+        <li>5. Protobuf vs JSON (System Design View)</li>
+        
+        <li>6. Streaming: The Killer Feature for Many Systems</li>
+        
+        <li>7. Why HTTP/2 Makes gRPC Efficient</li>
+        
+        <li>8. gRPC vs REST — When to Use What</li>
+        
+        <li>9. Operational Reality (Important for HLD)</li>
+        
+        <li>10. Layer Mapping (Explicit)</li>
+        
+        <li>11. Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 21 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-introduction--why-rest-isnt-always-ideal-internally">1. Introduction — Why REST Isn’t Always Ideal Internally</h2>
+<hr>
+<p>HTTP + REST + JSON is a great default for <strong>public APIs</strong> because it is:</p>
+<ul>
+<li>universal</li>
+<li>debuggable</li>
+<li>browser-friendly</li>
+<li>easy to integrate</li>
+</ul>
+<p>But inside a distributed system (service-to-service), teams often hit limits:</p>
+<ul>
+<li>Too much JSON overhead for high-throughput calls</li>
+<li>Weak contracts (breaking changes slip through)</li>
+<li>Inefficient multi-call workflows</li>
+<li>Streaming requirements (events, progress updates) feel awkward</li>
+</ul>
+<p>This is where <strong>gRPC</strong> shines.</p>
+<blockquote>
+<p>gRPC is not “the next version of REST”.<br>
+It’s a different communication style optimized for <strong>internal services</strong>.</p></blockquote>
+<hr>
+<h2 id="2-what-grpc-actually-is">2. What gRPC Actually Is</h2>
+<hr>
+<p><strong>gRPC</strong> is an RPC (Remote Procedure Call) framework that:</p>
+<ul>
+<li>uses <strong>HTTP/2</strong> as the transport substrate</li>
+<li>typically uses <strong>Protocol Buffers (Protobuf)</strong> as the message format</li>
+<li>supports unary calls and multiple forms of <strong>streaming</strong></li>
+<li>generates strongly-typed client/server stubs from a contract</li>
+</ul>
+<p>Mental model:</p>
+<blockquote>
+<p>REST: “Resources over HTTP”<br>
+gRPC: “Typed function calls over the network”</p></blockquote>
+<hr>
+<h2 id="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</h2>
+<hr>
+<p>gRPC is an <strong>application-layer protocol</strong> running on top of <strong>HTTP/2</strong>.</p>
+<div class="mermaid">
+flowchart TB
+    App["gRPC API<br/>(RPC methods, streaming)"]
+    H2["HTTP/2<br/>(Streams, multiplexing)"]
+    TLS["TLS<br/>(Encryption, auth)"]
+    TCP["TCP<br/>(Reliable delivery)"]
+    IP["IP<br/>(Routing)"]
+
+    App --> H2 --> TLS --> TCP --> IP
+</div>
+<blockquote>
+<p>This is why Phase 3 matters:<br>
+gRPC makes the most sense after you understand HTTP/2.</p></blockquote>
+<hr>
+<h2 id="4-the-contract-first-model-why-teams-love-it">4. The Contract-First Model (Why Teams Love It)</h2>
+<hr>
+<p>In REST-based systems, the “contract” often lives in:</p>
+<ul>
+<li>documentation</li>
+<li>OpenAPI specs (sometimes)</li>
+<li>shared understanding or tribal knowledge</li>
+</ul>
+<p>This creates room for:</p>
+<ul>
+<li>accidental breaking changes</li>
+<li>runtime failures</li>
+<li>misaligned expectations between teams</li>
+</ul>
+<p>gRPC takes a <strong>contract-first</strong> approach.</p>
+<p>You define:</p>
+<ul>
+<li>service methods (RPCs)</li>
+<li>request and response message schemas</li>
+</ul>
+<p>from a single, authoritative contract.</p>
+<p>From this contract, tooling generates:</p>
+<ul>
+<li>client stubs</li>
+<li>server interfaces</li>
+<li>serialization and deserialization logic</li>
+</ul>
+<p>The result is:</p>
+<ul>
+<li>strong typing across service boundaries</li>
+<li>compile-time validation instead of runtime surprises</li>
+<li>clear, enforceable API evolution rules</li>
+</ul>
+<blockquote>
+<p>Contract-first design doesn’t eliminate breaking changes —<br>
+it makes them <strong>explicit, detectable, and intentional</strong>.</p></blockquote>
+<hr>
+<h2 id="5-protobuf-vs-json-system-design-view">5. Protobuf vs JSON (System Design View)</h2>
+<hr>
+<p>Both JSON and Protobuf are widely used, but they optimize for different priorities.</p>
+<h3 id="json--strengths">JSON — Strengths</h3>
+<ul>
+<li>Human-readable and easy to inspect</li>
+<li>Simple debugging with tools like curl and Postman</li>
+<li>Extremely broad ecosystem support</li>
+</ul>
+<h3 id="protobuf--strengths">Protobuf — Strengths</h3>
+<ul>
+<li>Compact binary encoding (smaller payloads)</li>
+<li>Faster serialization and deserialization</li>
+<li>Strongly typed schemas with explicit evolution rules</li>
+</ul>
+<p>From a system design perspective:</p>
+<blockquote>
+<p>Protobuf is not “better” in all cases.<br>
+It is better when <strong>performance, efficiency, and strict contracts</strong> matter more than human readability.</p></blockquote>
+<p>In high-throughput internal systems, the cumulative benefits of Protobuf<br>
+— smaller payloads, faster parsing, fewer errors — often outweigh the convenience of text-based formats.</p>
+<hr>
+<h2 id="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</h2>
+<hr>
+<p>REST is great for request/response.<br>
+But when you need continuous or bidirectional communication, it gets awkward.</p>
+<p>gRPC supports <strong>four communication patterns</strong>:</p>
+<div class="mermaid">
+flowchart LR
+    U[Unary<br/>1 request → 1 response]
+    CS[Client Streaming<br/>many requests → 1 response]
+    SS[Server Streaming<br/>1 request → many responses]
+    BI[Bidirectional Streaming<br/>many ↔ many]
+
+    U --- CS --- SS --- BI
+</div>
+<h3 id="when-streaming-matters">When streaming matters</h3>
+<ul>
+<li>live progress updates (report generation, large jobs)</li>
+<li>market data / price feeds</li>
+<li>chat / collaboration</li>
+<li>high-frequency telemetry</li>
+<li>pushing partial results as they become available</li>
+</ul>
+<p>This is one reason gRPC is common in:</p>
+<ul>
+<li>trading platforms</li>
+<li>data infrastructure</li>
+<li>internal microservice ecosystems</li>
+</ul>
+<hr>
+<h2 id="7-why-http2-makes-grpc-efficient">7. Why HTTP/2 Makes gRPC Efficient</h2>
+<hr>
+<p>HTTP/2 enables gRPC performance and scalability because it provides:</p>
+<ul>
+<li>multiplexed streams over a single connection</li>
+<li>efficient framing (binary)</li>
+<li>lower connection overhead under concurrent load</li>
+</ul>
+<p>Conceptually:</p>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant H2 as HTTP/2 Connection
+    participant Svc as Service
+
+    Client->>H2: RPC A (Stream 1)
+    Client->>H2: RPC B (Stream 2)
+    Client->>H2: RPC C (Stream 3)
+    H2->>Svc: A, B, C concurrently
+    Svc-->>H2: Responses interleaved
+    H2-->>Client: A, B, C delivered
+</div>
+<p>This is a very natural fit for microservices making many parallel calls.</p>
+<hr>
+<h2 id="8-grpc-vs-rest--when-to-use-what">8. gRPC vs REST — When to Use What</h2>
+<hr>
+<h3 id="use-rest-when">Use REST when</h3>
+<ul>
+<li>You expose public APIs to third parties</li>
+<li>Browser compatibility matters</li>
+<li>You want cache-friendly GET semantics</li>
+<li>Consumers vary widely (unknown clients)</li>
+<li>Debugging via curl/Postman is a priority</li>
+</ul>
+<h3 id="use-grpc-when">Use gRPC when</h3>
+<ul>
+<li>You control both client and server (internal systems)</li>
+<li>Performance and efficiency matter</li>
+<li>Strict contracts and type safety matter</li>
+<li>You need streaming</li>
+<li>You want consistent client libraries generated from schema</li>
+</ul>
+<p>A common mature architecture looks like this:</p>
+<blockquote>
+<p><strong>External:</strong> REST over HTTPS (compatibility and reach)<br>
+<strong>Internal:</strong> gRPC (performance, contracts, streaming)</p></blockquote>
+<hr>
+<h2 id="9-operational-reality-important-for-hld">9. Operational Reality (Important for HLD)</h2>
+<hr>
+<p>Adopting gRPC comes with real operational considerations.</p>
+<h3 id="91-observability">9.1 Observability</h3>
+<ul>
+<li>Metrics and latency tracked per RPC method</li>
+<li>Distributed tracing across service boundaries</li>
+</ul>
+<h3 id="92-load-balancing">9.2 Load Balancing</h3>
+<ul>
+<li>Long-lived connections with multiplexed streams</li>
+<li>Layer 4 vs Layer 7 load balancing decisions matter</li>
+</ul>
+<h3 id="93-timeouts--retries">9.3 Timeouts &amp; Retries</h3>
+<ul>
+<li>Retries must be carefully designed</li>
+<li>Poor retry strategy can cause retry storms</li>
+</ul>
+<h3 id="94-versioning">9.4 Versioning</h3>
+<ul>
+<li>Additive schema changes are easiest</li>
+<li>Breaking changes require coordination and planning</li>
+</ul>
+<p>These are not drawbacks —<br>
+they are the <strong>cost of high-performance, strongly-typed communication</strong>.</p>
+<hr>
+<h2 id="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</h2>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>gRPC is an <strong>Application-layer protocol</strong><br>
+(OSI Layer 7 / TCP-IP Application layer).</p>
+<p>It typically runs over <strong>HTTP/2</strong>, which itself operates at the Application layer but depends on:</p>
+<ul>
+<li><strong>TLS</strong> (cross-layer security boundary)</li>
+<li><strong>TCP</strong> (OSI Layer 4) for reliable delivery</li>
+</ul></blockquote>
+<p>This explains why:</p>
+<ul>
+<li>Understanding HTTP/2 is a prerequisite for gRPC</li>
+<li>TCP behavior still affects gRPC performance under packet loss</li>
+</ul>
+<hr>
+<h2 id="11-key-takeaways">11. Key Takeaways</h2>
+<hr>
+<ul>
+<li>gRPC is RPC-style communication built on <strong>HTTP/2</strong></li>
+<li>It is optimized for <strong>internal service-to-service</strong> calls</li>
+<li>Protobuf enables compact payloads and strong contracts</li>
+<li>Streaming is a major differentiator</li>
+<li>REST remains ideal for public APIs</li>
+<li>Protocol choice is an architectural decision, not a trend</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we’ve covered:</p>
+<ul>
+<li>HTTP evolution (1.1 → 2 → 3)</li>
+<li>TLS as a security baseline</li>
+<li>gRPC for internal communication</li>
+</ul>
+<p>we synthesize everything into a <strong>practical decision guide</strong>:</p>
+<ul>
+<li>HTTP/1.1 vs HTTP/2 vs HTTP/3</li>
+<li>REST vs gRPC</li>
+<li>Internet vs mobile vs data-center environments</li>
+<li>Trade-offs, defaults, and when to deviate</li>
+</ul>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol">Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>gRPC is not about “modernizing APIs”.<br>
+It’s about building <strong>fast, safe, contract-driven communication</strong> inside distributed systems.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-3-and-quic/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

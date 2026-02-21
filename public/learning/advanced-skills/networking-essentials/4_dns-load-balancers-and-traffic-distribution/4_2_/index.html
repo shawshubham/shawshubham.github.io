@@ -3,13 +3,13 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Temperatures</title>
+<title>DNS — How Services Are Found</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1771676895">
-<link rel="stylesheet" href="/css/custom.css?v=1771676895">
+<link rel="stylesheet" href="/css/style.css?v=1771670074">
+<link rel="stylesheet" href="/css/custom.css?v=1771670074">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Daily Temperatures</h1>
+    <h1 class="main-heading">DNS — How Services Are Found</h1>
   </div>
 </section>
 
@@ -96,6 +96,12 @@
         
         
         
+        <li>1. Introduction — Names Before Machines</li>
+        
+        <li>2. What DNS Actually Does (And What It Does Not)</li>
+        
+        <li>3. The Basic DNS Resolution Flow</li>
+        
       </ul>
     </div>
   
@@ -103,41 +109,53 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 20 Feb, 2026
+            Last updated on: 21 Feb, 2026
           
         </p>
       </div>
     </div>
-
-    
-    
-      <div class="solution-meta-card">
-        <div class="solution-meta-left">
-          <span class="solution-pill">Medium</span>
-          <span class="solution-pill">LeetCode</span>
-
-          
-          
-          
-              
-          
-
-          
-            <span class="solution-meta-label">Patterns:</span>
-            <span class="solution-meta-value">Stack</span>
-          
-        </div>
-
-        <div class="solution-meta-right">
-          
-            <a class="btn nav-btn" href="https://leetcode.com/problems/daily-temperatures/" target="_blank" rel="noopener">View Original Problem</a>
-          
-        </div>
-      </div>
-    
     
     <article class="topic-content">
-      
+      <h2 id="1-introduction--names-before-machines">1. Introduction — Names Before Machines</h2>
+<p>In Phase 4.1, we established a core principle:</p>
+<blockquote>
+<p><strong>Clients should talk to names, not machines.</strong></p></blockquote>
+<p>DNS (Domain Name System) is the mechanism that makes this possible at internet scale.</p>
+<p>DNS answers a deceptively simple question:</p>
+<blockquote>
+<p><strong>“Given a name, where should I send traffic?”</strong></p></blockquote>
+<p>This chapter explains how DNS works conceptually, why caching matters, and why DNS is often the <strong>first traffic distribution layer</strong> in real systems.</p>
+<hr>
+<h2 id="2-what-dns-actually-does-and-what-it-does-not">2. What DNS Actually Does (And What It Does Not)</h2>
+<h3 id="what-dns-does">What DNS does</h3>
+<ul>
+<li>Maps <strong>names → network locations</strong></li>
+<li>Enables <strong>indirection</strong> between clients and infrastructure</li>
+<li>Allows infrastructure to change without client updates</li>
+</ul>
+<h3 id="what-dns-does-not-do">What DNS does <em>not</em> do</h3>
+<ul>
+<li>It does not handle application routing</li>
+<li>It does not check service health in real time</li>
+<li>It does not guarantee availability</li>
+</ul>
+<p>DNS is about <strong>discovery</strong>, not delivery.</p>
+<hr>
+<h2 id="3-the-basic-dns-resolution-flow">3. The Basic DNS Resolution Flow</h2>
+<p>At a high level, resolving a name looks like this:</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Resolver as DNS Resolver
+    participant Auth as Authoritative DNS
+
+    Client-&gt;&gt;Resolver: Resolve api.myservice.com
+    Resolver-&gt;&gt;Auth: Query api.myservice.com
+    Auth--&gt;&gt;Resolver: IP address(es)
+    Resolver--&gt;&gt;Client: IP address(es)
+</pre>
+
+
     </article>
   </div>
 </section>
@@ -145,8 +163,7 @@
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    
-        <a href="/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems/" class="btn nav-btn">&larr; Back</a>
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_1_why-service-discovery/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -172,9 +189,11 @@
 
     
     
-    <a href="/learning/intermediate-skills/problem-solving/" class="btn nav-btn">
-        Problem Solving : Home Page
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
     </a>
+    
+
     
   </div>
 </section>
@@ -225,6 +244,12 @@
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+      mermaid.initialize({ startOnLoad: true });
+    </script>
   
 </body>
 </html>

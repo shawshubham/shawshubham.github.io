@@ -8,8 +8,8 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1771629458">
-<link rel="stylesheet" href="/css/custom.css?v=1771629458">
+<link rel="stylesheet" href="/css/style.css?v=1771684553">
+<link rel="stylesheet" href="/css/custom.css?v=1771684553">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -123,7 +123,7 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 20 Feb, 2026
+            Last updated on: 21 Feb, 2026
           
         </p>
       </div>
@@ -164,19 +164,18 @@ but it was still bound to TCP at the transport layer.</strong></p></blockquote>
 <li>if one TCP packet is lost, <strong>all streams stall</strong></li>
 </ul>
 <p>This is known as <strong>transport-level head-of-line blocking</strong>.</p>
-<pre class="mermaid">
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant TCP
     participant Server
 
-    Client-&gt;&gt;TCP: Packet 1 (Stream A)
-    Client-&gt;&gt;TCP: Packet 2 (Stream B)
-    Client-&gt;&gt;TCP: Packet 3 (Stream C)
+    Client->>TCP: Packet 1 (Stream A)
+    Client->>TCP: Packet 2 (Stream B)
+    Client->>TCP: Packet 3 (Stream C)
     TCP--x Server: Packet 2 lost
-    TCP--&gt;&gt;Server: Packet 3 (blocked)
-</pre>
-
+    TCP-->>Server: Packet 3 (blocked)
+</div>
 <p>Even though streams are independent at the application level,<br>
 TCP forces them to wait.</p>
 <hr>
@@ -229,20 +228,19 @@ it is the <strong>core contract of the protocol</strong>.</p>
 <li>is ordered internally</li>
 <li>does not block other streams if packets are lost</li>
 </ul>
-<pre class="mermaid">
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant QUIC
     participant Server
 
-    Client-&gt;&gt;QUIC: Stream A Packet
-    Client-&gt;&gt;QUIC: Stream B Packet
-    Client-&gt;&gt;QUIC: Stream C Packet
+    Client->>QUIC: Stream A Packet
+    Client->>QUIC: Stream B Packet
+    Client->>QUIC: Stream C Packet
     QUIC--x Server: Stream B packet lost
-    QUIC--&gt;&gt;Server: Stream A continues
-    QUIC--&gt;&gt;Server: Stream C continues
-</pre>
-
+    QUIC-->>Server: Stream A continues
+    QUIC-->>Server: Stream C continues
+</div>
 <p>Loss in one stream does <strong>not</strong> stall the others.</p>
 <p>This directly solves TCP’s head-of-line blocking.</p>
 <hr>
@@ -277,16 +275,15 @@ sequenceDiagram
 </ul>
 <p>remain conceptually the same.</p>
 <p>The difference is <strong>where HTTP runs</strong>:</p>
-<pre class="mermaid">
+<div class="mermaid">
 flowchart TB
     HTTP3[HTTP/3]
     QUIC[QUIC Transport]
     UDP[UDP]
     IP[IP]
 
-    HTTP3 --&gt; QUIC --&gt; UDP --&gt; IP
-</pre>
-
+    HTTP3 --> QUIC --> UDP --> IP
+</div>
 <p>HTTP/3 inherits:</p>
 <ul>
 <li>stream multiplexing</li>
@@ -325,6 +322,7 @@ but relies on QUIC instead of TCP.</p></blockquote>
 <p>This is a deliberate cross-layer design.</p>
 <hr>
 <h2 id="10-key-takeaways">10. Key Takeaways</h2>
+<hr>
 <ul>
 <li>HTTP/2 solved application-level blocking</li>
 <li>TCP still caused transport-level blocking</li>
@@ -349,7 +347,7 @@ but relies on QUIC instead of TCP.</p></blockquote>
 <li>and when gRPC is the right choice</li>
 </ul>
 <p>👉 <strong>Up Next →</strong><br>
-<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-3-and-quic">gRPC — High-Performance Service-to-Service Communication</a></strong></p>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication">gRPC — High-Performance Service-to-Service Communication</a></strong></p>
 <hr>
 <blockquote>
 <p><strong>📝 Takeaway</strong></p>
@@ -394,6 +392,8 @@ rethinking assumptions at a deeper layer than expected.</p></blockquote>
     </a>
     
 
+    
+      <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -447,8 +447,13 @@ rethinking assumptions at a deeper layer than expected.</p></blockquote>
   
     <script type="module">
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
-      mermaid.initialize({ startOnLoad: true });
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
     </script>
   
 </body>

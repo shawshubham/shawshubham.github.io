@@ -245,7 +245,7 @@ HTTP/2 is a major improvement — but not the end of the story.
 
 ---
 
-## 🔗 What’s Next?
+### 🔗 What’s Next?
 
 HTTP/2 exposed a deeper limitation:
 

@@ -8,8 +8,8 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1771628382">
-<link rel="stylesheet" href="/css/custom.css?v=1771628382">
+<link rel="stylesheet" href="/css/style.css?v=1771684568">
+<link rel="stylesheet" href="/css/custom.css?v=1771684568">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -116,8 +116,6 @@
         
         <li>10. Key Takeaways</li>
         
-        <li>🔗 What’s Next?</li>
-        
       </ul>
     </div>
   
@@ -125,7 +123,7 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 20 Feb, 2026
+            Last updated on: 21 Feb, 2026
           
         </p>
       </div>
@@ -153,15 +151,14 @@
 <p>A client sends a request.<br>
 The server processes it and sends back a response.</p>
 <p>Conceptually:</p>
-<pre class="mermaid">
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant Server
 
-    Client-&gt;&gt;Server: HTTP Request
-    Server-&gt;&gt;Client: HTTP Response
-</pre>
-
+    Client->>Server: HTTP Request
+    Server->>Client: HTTP Response
+</div>
 <p>This simplicity is one of HTTP/1.1’s greatest strengths.</p>
 <hr>
 <h2 id="3-http11-and-tcp--a-critical-dependency">3. HTTP/1.1 and TCP — A Critical Dependency</h2>
@@ -174,15 +171,14 @@ sequenceDiagram
 <li>congestion control</li>
 </ul>
 <p>So the actual stack looks like this:</p>
-<pre class="mermaid">
+<div class="mermaid">
 flowchart TB
-    HTTP[&#34;HTTP/1.1&lt;br/&gt;(Request / Response)&#34;]
-    TCP[&#34;TCP&lt;br/&gt;(Reliable, Ordered)&#34;]
-    IP[&#34;IP&lt;br/&gt;(Routing)&#34;]
+    HTTP["HTTP/1.1<br/>(Request / Response)"]
+    TCP["TCP<br/>(Reliable, Ordered)"]
+    IP["IP<br/>(Routing)"]
 
-    HTTP --&gt; TCP --&gt; IP
-</pre>
-
+    HTTP --> TCP --> IP
+</div>
 <p>This dependency has deep consequences for performance.</p>
 <hr>
 <h2 id="4-the-single-request-at-a-time-problem">4. The Single-Request-at-a-Time Problem</h2>
@@ -227,17 +223,16 @@ it did <strong>not</strong> solve the fundamental problem of request blocking.</
 <li>all subsequent requests are blocked</li>
 <li>even if they could be processed quickly</li>
 </ul>
-<pre class="mermaid">
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant Server
 
-    Client-&gt;&gt;Server: Request A (slow)
-    Client-&gt;&gt;Server: Request B (fast)
-    Server--&gt;&gt;Client: Response A (slow)
-    Server--&gt;&gt;Client: Response B (fast, but delayed)
-</pre>
-
+    Client->>Server: Request A (slow)
+    Client->>Server: Request B (fast)
+    Server-->>Client: Response A (slow)
+    Server-->>Client: Response B (fast, but delayed)
+</div>
 <p>This is known as <strong>Head-of-Line (HoL) Blocking at the application layer</strong>.</p>
 <p>The problem is not TCP here —
 it is how HTTP/1.1 uses TCP.</p>
@@ -297,7 +292,7 @@ it is how HTTP/1.1 uses TCP.</p>
 </ul>
 <p>Understanding these constraints is essential before exploring newer protocols.</p>
 <hr>
-<h2 id="-whats-next">🔗 What’s Next?</h2>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>So far, we have looked at HTTP purely from a <strong>functionality and performance</strong> perspective.</p>
 <p>However, modern systems do not operate on trusted networks.</p>
 <p>Before we improve performance with newer protocols, we must answer a more fundamental question:</p>
@@ -410,8 +405,13 @@ the systems built on top of it simply outgrew its original design assumptions.</
   
     <script type="module">
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
-      mermaid.initialize({ startOnLoad: true });
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
     </script>
   
 </body>

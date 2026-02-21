@@ -8,8 +8,8 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1771629458">
-<link rel="stylesheet" href="/css/custom.css?v=1771629458">
+<link rel="stylesheet" href="/css/style.css?v=1771684563">
+<link rel="stylesheet" href="/css/custom.css?v=1771684563">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -116,8 +116,6 @@
         
         <li>10. Key Takeaways</li>
         
-        <li>🔗 What’s Next?</li>
-        
       </ul>
     </div>
   
@@ -125,7 +123,7 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 20 Feb, 2026
+            Last updated on: 21 Feb, 2026
           
         </p>
       </div>
@@ -179,47 +177,44 @@ HTTP/2 treats it as a <strong>multiplexed channel</strong>.</p>
 <li>multiple streams can be active at the same time</li>
 </ul>
 <p>Conceptually:</p>
-<pre class="mermaid">
+<div class="mermaid">
 flowchart TB
     Conn[TCP Connection]
-    S1[Stream 1&lt;br/&gt;Request A / Response A]
-    S2[Stream 2&lt;br/&gt;Request B / Response B]
-    S3[Stream 3&lt;br/&gt;Request C / Response C]
+    S1[Stream 1<br/>Request A / Response A]
+    S2[Stream 2<br/>Request B / Response B]
+    S3[Stream 3<br/>Request C / Response C]
 
-    Conn --&gt; S1
-    Conn --&gt; S2
-    Conn --&gt; S3
-</pre>
-
+    Conn --> S1
+    Conn --> S2
+    Conn --> S3
+</div>
 <p>This removes the application-level serialization seen in HTTP/1.1.</p>
 <hr>
 <h2 id="4-multiplexing-in-action">4. Multiplexing in Action</h2>
 <hr>
 <p>Let’s compare behavior.</p>
 <h3 id="41-http11-sequential">4.1 HTTP/1.1 (Sequential)</h3>
-<pre class="mermaid">
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant Server
 
-    Client-&gt;&gt;Server: Request A
-    Server--&gt;&gt;Client: Response A
-    Client-&gt;&gt;Server: Request B
-    Server--&gt;&gt;Client: Response B
-</pre>
-
+    Client->>Server: Request A
+    Server-->>Client: Response A
+    Client->>Server: Request B
+    Server-->>Client: Response B
+</div>
 <h3 id="42-http2-multiplexed">4.2 HTTP/2 (Multiplexed)</h3>
-<pre class="mermaid">
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant Server
 
-    Client-&gt;&gt;Server: Request A (Stream 1)
-    Client-&gt;&gt;Server: Request B (Stream 2)
-    Server--&gt;&gt;Client: Response B (Stream 2)
-    Server--&gt;&gt;Client: Response A (Stream 1)
-</pre>
-
+    Client->>Server: Request A (Stream 1)
+    Client->>Server: Request B (Stream 2)
+    Server-->>Client: Response B (Stream 2)
+    Server-->>Client: Response A (Stream 1)
+</div>
 <p>Fast responses are no longer blocked by slow ones.</p>
 <hr>
 <h2 id="5-binary-framing-why-it-matters">5. Binary Framing (Why It Matters)</h2>
@@ -315,7 +310,7 @@ but did not eliminate all latency problems.</p>
 </ul>
 <p>HTTP/2 is a major improvement — but not the end of the story.</p>
 <hr>
-<h2 id="-whats-next">🔗 What’s Next?</h2>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>HTTP/2 exposed a deeper limitation:</p>
 <blockquote>
 <p>Even with multiplexing, <strong>TCP itself can become the bottleneck</strong>.</p></blockquote>
@@ -426,8 +421,13 @@ but it could not change how TCP behaves underneath.</p></blockquote>
   
     <script type="module">
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
-      mermaid.initialize({ startOnLoad: true });
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
     </script>
   
 </body>
