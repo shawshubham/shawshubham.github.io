@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Putting It All Together — The End-to-End Request Journey</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771854180">
+<link rel="stylesheet" href="/css/custom.css?v=1771854180">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Putting It All Together — The End-to-End Request Journey</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — From Pieces to a System</li>
+        
+        <li>2. The Scenario We’ll Trace</li>
+        
+        <li>3. Step 1 — DNS: Finding the System</li>
+        
+        <li>4. Step 2 — CDN: Serving from the Edge (If Possible)</li>
+        
+        <li>5. Step 3 — Firewall: Crossing the Trust Boundary</li>
+        
+        <li>6. Step 4 — Proxy / Load Balancer: Traffic Control</li>
+        
+        <li>7. Step 5 — Backend Services: Business Logic</li>
+        
+        <li>8. The Full End-to-End Flow (Mental Model Diagram)</li>
+        
+        <li>9. Why This Layering Matters</li>
+        
+        <li>10. Common Failure Points (Preview of What Comes Next)</li>
+        
+        <li>🎯 End of Networking Essentials</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-introduction--from-pieces-to-a-system">1. Introduction — From Pieces to a System</h2>
+<hr>
+<p>Across Phase 4, we studied individual networking components:</p>
+<ul>
+<li>DNS for discovery</li>
+<li>Load balancers for distribution</li>
+<li>Proxies for traffic control</li>
+<li>Firewalls for boundaries</li>
+<li>CDNs for global performance</li>
+</ul>
+<p>Individually, each component makes sense.</p>
+<p>But <strong>real systems are not built from isolated parts</strong>.</p>
+<p>This chapter exists to answer one final question:</p>
+<blockquote>
+<p><strong>What actually happens when a real user makes a request?</strong></p></blockquote>
+<hr>
+<h2 id="2-the-scenario-well-trace">2. The Scenario We’ll Trace</h2>
+<hr>
+<p>We’ll follow a <strong>single request</strong> to our learning platform from a user anywhere in the world.</p>
+<p>Assumptions:</p>
+<ul>
+<li>Global users</li>
+<li>HTTPS traffic</li>
+<li>Cloud-hosted backend</li>
+<li>CDN + proxy-based architecture</li>
+</ul>
+<p>No edge cases.<br>
+No failures yet.<br>
+Just the <strong>happy path</strong> — clearly and end to end.</p>
+<hr>
+<h2 id="3-step-1--dns-finding-the-system">3. Step 1 — DNS: Finding the System</h2>
+<hr>
+<p>The journey begins before any network connection is made.</p>
+<ol>
+<li>The client requests <code>learning.example.com</code></li>
+<li>DNS resolves the domain</li>
+<li>The response typically points to a <strong>CDN edge</strong>, not the origin server</li>
+</ol>
+<blockquote>
+<p>DNS answers: <strong>“Where should I send this request?”</strong></p></blockquote>
+<p>At this point:</p>
+<ul>
+<li>No backend service is contacted</li>
+<li>No proxy logic is involved yet</li>
+</ul>
+<hr>
+<h2 id="4-step-2--cdn-serving-from-the-edge-if-possible">4. Step 2 — CDN: Serving from the Edge (If Possible)</h2>
+<hr>
+<p>The request reaches the nearest CDN edge location.</p>
+<p>Two possibilities:</p>
+<h3 id="cache-hit">Cache Hit</h3>
+<ul>
+<li>Content is served immediately</li>
+<li>The request never reaches your infrastructure</li>
+</ul>
+<h3 id="cache-miss">Cache Miss</h3>
+<ul>
+<li>The CDN forwards the request to the origin</li>
+</ul>
+<blockquote>
+<p>The fastest request is the one that never reaches your backend.</p></blockquote>
+<p>This step alone:</p>
+<ul>
+<li>reduces latency</li>
+<li>absorbs traffic spikes</li>
+<li>protects origin services</li>
+</ul>
+<blockquote>
+<p>At this point, the request transitions from the public internet into your controlled infrastructure.</p></blockquote>
+<hr>
+<h2 id="5-step-3--firewall-crossing-the-trust-boundary">5. Step 3 — Firewall: Crossing the Trust Boundary</h2>
+<hr>
+<p>If the request must reach the origin:</p>
+<ol>
+<li>It arrives at your network boundary</li>
+<li>Firewall or security group rules are evaluated</li>
+<li>Only allowed traffic is permitted further</li>
+</ol>
+<p>Examples:</p>
+<ul>
+<li>HTTPS (443) allowed</li>
+<li>Everything else blocked</li>
+<li>Only known sources allowed for private endpoints</li>
+</ul>
+<blockquote>
+<p>Firewalls answer: <strong>“Is this traffic allowed to enter?”</strong></p></blockquote>
+<p>Requests that fail here never reach proxies or services.</p>
+<hr>
+<h2 id="6-step-4--proxy--load-balancer-traffic-control">6. Step 4 — Proxy / Load Balancer: Traffic Control</h2>
+<hr>
+<p>Allowed traffic now reaches the <strong>reverse proxy layer</strong>.</p>
+<p>This is where most traffic intelligence lives.</p>
+<p>The proxy may:</p>
+<ul>
+<li>terminate TLS</li>
+<li>authenticate requests</li>
+<li>apply rate limits</li>
+<li>select a backend instance</li>
+<li>retry on failure</li>
+<li>inject observability metadata</li>
+</ul>
+<p>Load balancing happens here as <strong>one responsibility</strong> among many — not the defining feature.</p>
+<blockquote>
+<p>Proxies answer: <strong>“What should we do with this request?”</strong></p></blockquote>
+<hr>
+<h2 id="7-step-5--backend-services-business-logic">7. Step 5 — Backend Services: Business Logic</h2>
+<hr>
+<p>Only now does the request reach application code.</p>
+<p>At this stage:</p>
+<ul>
+<li>networking concerns are largely abstracted away</li>
+<li>services focus on business logic</li>
+<li>responses are generated</li>
+</ul>
+<p>The response then travels <strong>back through the same layers</strong>, often with:</p>
+<ul>
+<li>caching at the CDN</li>
+<li>logging at the proxy</li>
+<li>metrics at multiple points</li>
+</ul>
+<hr>
+<h2 id="8-the-full-end-to-end-flow-mental-model-diagram">8. The Full End-to-End Flow (Mental Model Diagram)</h2>
+<hr>
+<p>This single diagram ties Phase 4 together.</p>
+<div class="mermaid">
+flowchart LR
+    Client --> DNS
+    DNS --> CDN[CDN / Edge]
+    CDN --> FW[Firewall / Security Group]
+    FW --> Proxy[Proxy / Load Balancer]
+    Proxy --> Services[Backend Services]
+</div>
+<p>Each component has a <strong>distinct responsibility</strong>:</p>
+<ul>
+<li>DNS → discovery</li>
+<li>CDN → performance</li>
+<li>Firewall → permission</li>
+<li>Proxy → control</li>
+<li>Services → business logic</li>
+</ul>
+<p>No overlap. No ambiguity.</p>
+<hr>
+<h2 id="9-why-this-layering-matters">9. Why This Layering Matters</h2>
+<hr>
+<p>This layered design provides:</p>
+<ul>
+<li><strong>Scalability</strong> — each layer scales independently</li>
+<li><strong>Security</strong> — multiple enforcement points</li>
+<li><strong>Resilience</strong> — failures are contained</li>
+<li><strong>Performance</strong> — work is done as early as possible</li>
+</ul>
+<p>Removing any layer:</p>
+<ul>
+<li>increases coupling</li>
+<li>shifts responsibility elsewhere</li>
+<li>weakens the system</li>
+</ul>
+<hr>
+<h2 id="10-common-failure-points-preview-of-what-comes-next">10. Common Failure Points (Preview of What Comes Next)</h2>
+<hr>
+<p>Even on the happy path, each layer introduces potential failures:</p>
+<ul>
+<li>DNS misconfiguration</li>
+<li>CDN cache staleness</li>
+<li>Firewall rule errors</li>
+<li>Proxy overload</li>
+<li>Backend saturation</li>
+</ul>
+<p>Understanding <em>where</em> failures occur is the foundation for:</p>
+<ul>
+<li>resilience design</li>
+<li>multi-region systems</li>
+<li>fault tolerance</li>
+</ul>
+<p>We’ll tackle those next — explicitly.</p>
+<hr>
+<h2 id="-end-of-networking-essentials">🎯 End of Networking Essentials</h2>
+<hr>
+<p>You’ve now completed <strong>Networking Essentials</strong>.</p>
+<p>At this point, you should be able to:</p>
+<ul>
+<li>Trace a request end to end (DNS → CDN → Firewall → Proxy → Service)</li>
+<li>Explain why each networking component exists</li>
+<li>Reason about traffic flow, control, security, and performance</li>
+<li>Understand how networking bridges code-level logic and system architecture</li>
+</ul>
+<p>This section answers the question:</p>
+<blockquote>
+<p><strong>“How do different machines and services communicate reliably?”</strong></p></blockquote>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Next, we move into <strong>High-Level Design (HLD)</strong>.</p>
+<p>In HLD, we will <strong>use</strong> the networking concepts you’ve learned — not re-explain them — to design complete systems:</p>
+<ul>
+<li>defining system components</li>
+<li>choosing service boundaries</li>
+<li>placing caches, databases, and APIs</li>
+<li>designing request flows at the system level</li>
+</ul>
+<p>Networking becomes a <strong>tool</strong>, not the topic.</p>
+<p>👉 <strong>Next Section → High-Level Design (HLD)</strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Transition Takeaway</strong></p>
+<p>LLD explains <em>how code works</em>.<br>
+Networking explains <em>how systems talk</em>.<br>
+HLD explains <em>how systems are structured</em>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_11_cdn-and-edge-network/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

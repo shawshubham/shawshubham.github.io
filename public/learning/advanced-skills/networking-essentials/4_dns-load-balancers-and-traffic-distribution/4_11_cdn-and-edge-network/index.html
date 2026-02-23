@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDNs &amp; Edge Networks — Performance Beyond the Origin</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771854180">
+<link rel="stylesheet" href="/css/custom.css?v=1771854180">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">CDNs &amp; Edge Networks — Performance Beyond the Origin</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — When Routing Is Not Enough</li>
+        
+        <li>2. The Core Problem CDNs Solve</li>
+        
+        <li>3. What a CDN Is (System Design Definition)</li>
+        
+        <li>4. Where CDNs Sit in a System</li>
+        
+        <li>5. How CDNs Improve Performance</li>
+        
+        <li>6. Edge Networks vs Traditional CDNs</li>
+        
+        <li>7. CDN vs Proxy vs Load Balancer (Clarifying Roles)</li>
+        
+        <li>8. Common CDN Use Cases</li>
+        
+        <li>9. Caveats &amp;amp; Trade-offs</li>
+        
+        <li>10. Popular CDN &amp;amp; Edge Providers</li>
+        
+        <li>11. How CDNs Fit into Modern Architectures</li>
+        
+        <li>Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-introduction--when-routing-is-not-enough">1. Introduction — When Routing Is Not Enough</h2>
+<hr>
+<p>Up to this point in Phase 4, we’ve focused on:</p>
+<ul>
+<li>discovering services (DNS)</li>
+<li>distributing traffic (load balancers)</li>
+<li>controlling traffic (proxies)</li>
+<li>restricting traffic (firewalls)</li>
+</ul>
+<p>But even with all of this in place, a fundamental problem remains:</p>
+<blockquote>
+<p><strong>Distance.</strong></p></blockquote>
+<p>A user in Asia accessing a server in Europe will always experience higher latency — no matter how well the backend is designed.</p>
+<p>This is where <strong>CDNs and edge networks</strong> enter the picture.</p>
+<hr>
+<h2 id="2-the-core-problem-cdns-solve">2. The Core Problem CDNs Solve</h2>
+<hr>
+<p>Consider our learning platform again.</p>
+<h4 id="without-a-cdn">Without a CDN:</h4>
+<ul>
+<li>every request travels to the origin server</li>
+<li>static assets (images, CSS, JS) are fetched repeatedly</li>
+<li>origin servers handle traffic they shouldn’t need to</li>
+</ul>
+<h4 id="as-traffic-grows-globally-this-results-in">As traffic grows globally, this results in:</h4>
+<ul>
+<li>higher latency for distant users</li>
+<li>unnecessary load on backend systems</li>
+<li>increased failure impact during traffic spikes</li>
+</ul>
+<p>CDNs exist to <strong>move content closer to users</strong>.</p>
+<hr>
+<h2 id="3-what-a-cdn-is-system-design-definition">3. What a CDN Is (System Design Definition)</h2>
+<hr>
+<p>A <strong>Content Delivery Network (CDN)</strong> is a globally distributed network of servers that:</p>
+<ul>
+<li>cache content closer to users</li>
+<li>serve requests without hitting the origin server</li>
+<li>reduce latency and backend load</li>
+<li>absorb traffic spikes and attacks</li>
+</ul>
+<p>At a high level:</p>
+<blockquote>
+<p><strong>A CDN is a distributed proxy layer at the edge of the network.</strong></p></blockquote>
+<hr>
+<h2 id="4-where-cdns-sit-in-a-system">4. Where CDNs Sit in a System</h2>
+<p>Conceptually, a CDN sits <strong>in front of your entire infrastructure</strong>.</p>
+<div class="mermaid">
+flowchart LR
+    Client --> CDN[CDN / Edge Network]
+    CDN --> FW[Firewall / Security Groups]
+    FW --> Proxy[Reverse Proxy / Load Balancer]
+    Proxy --> Services[Backend Services]
+</div>
+<p>Key observations:</p>
+<ul>
+<li>clients never directly reach the origin for cached content</li>
+<li>CDNs act as the <strong>first point of contact</strong></li>
+<li>origin servers handle only cache misses or dynamic requests</li>
+</ul>
+<hr>
+<h2 id="5-how-cdns-improve-performance">5. How CDNs Improve Performance</h2>
+<hr>
+<h3 id="51-latency-reduction">5.1 Latency Reduction</h3>
+<ul>
+<li>Content is served from geographically nearby edge locations</li>
+<li>Fewer network hops between client and server</li>
+<li>Faster response times for users across regions</li>
+</ul>
+<p>Latency is reduced not by faster servers, but by <strong>shorter physical distance</strong>.</p>
+<hr>
+<h3 id="52-origin-load-reduction">5.2 Origin Load Reduction</h3>
+<ul>
+<li>Static content is served directly from cache</li>
+<li>Fewer requests reach backend services</li>
+<li>Backend capacity is preserved for dynamic and critical operations</li>
+</ul>
+<p>This allows backend systems to scale more predictably.</p>
+<hr>
+<h3 id="53-traffic-spike-absorption">5.3 Traffic Spike Absorption</h3>
+<ul>
+<li>CDNs absorb sudden traffic surges</li>
+<li>Protect origin servers from overload</li>
+<li>Smooth out flash crowds and viral traffic</li>
+</ul>
+<p>This is especially important for public-facing systems.</p>
+<hr>
+<h2 id="6-edge-networks-vs-traditional-cdns">6. Edge Networks vs Traditional CDNs</h2>
+<hr>
+<p>Modern CDNs have evolved into <strong>edge networks</strong>.</p>
+<p><strong>Traditional CDNs:</strong></p>
+<ul>
+<li>Focused primarily on static asset caching</li>
+<li>Limited request processing capabilities</li>
+</ul>
+<p><strong>Edge Networks:</strong></p>
+<ul>
+<li>Run logic at the edge</li>
+<li>Perform authentication, routing, and filtering</li>
+<li>Behave like <strong>globally distributed proxies</strong></li>
+</ul>
+<p>This evolution is why many CDN providers now describe themselves as <strong>edge platforms</strong> rather than simple caching layers.</p>
+<hr>
+<h2 id="7-cdn-vs-proxy-vs-load-balancer-clarifying-roles">7. CDN vs Proxy vs Load Balancer (Clarifying Roles)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Component</th>
+          <th>Primary Role</th>
+          <th>Where It Operates</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>CDN</td>
+          <td>Performance &amp; caching</td>
+          <td>Global edge</td>
+      </tr>
+      <tr>
+          <td>Proxy</td>
+          <td>Traffic control &amp; policy</td>
+          <td>Regional / cluster edge</td>
+      </tr>
+      <tr>
+          <td>Load Balancer</td>
+          <td>Traffic distribution</td>
+          <td>Entry to backend</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p>A CDN optimizes <strong>where content is served from</strong>.<br>
+A proxy controls <strong>how requests are handled</strong>.<br>
+A load balancer decides <strong>which backend receives traffic</strong>.</p></blockquote>
+<p>These components complement — not replace — each other.</p>
+<hr>
+<h2 id="8-common-cdn-use-cases">8. Common CDN Use Cases</h2>
+<hr>
+<p>CDNs are commonly used for:</p>
+<ul>
+<li>Static assets (images, CSS, JavaScript)</li>
+<li>Public APIs</li>
+<li>Download endpoints</li>
+<li>Media delivery</li>
+<li>DDoS absorption and traffic shielding</li>
+</ul>
+<p>Even highly dynamic systems often benefit from CDNs at the edge.</p>
+<hr>
+<h2 id="9-caveats--trade-offs">9. Caveats &amp; Trade-offs</h2>
+<hr>
+<p>CDNs are powerful, but they are not free from complexity.</p>
+<h3 id="trade-offs-to-understand">Trade-offs to Understand</h3>
+<ul>
+<li>Cache invalidation is non-trivial</li>
+<li>Content consistency is often eventual</li>
+<li>Debugging becomes harder due to multiple layers</li>
+<li>Vendor-specific behavior can affect portability</li>
+</ul>
+<blockquote>
+<p>CDNs improve performance, but they add another layer that must be understood and operated correctly.</p></blockquote>
+<hr>
+<h2 id="10-popular-cdn--edge-providers">10. Popular CDN &amp; Edge Providers</h2>
+<hr>
+<p>Some widely used CDN and edge providers include:</p>
+<ul>
+<li>Cloudflare</li>
+<li>Akamai</li>
+<li>Fastly</li>
+</ul>
+<p>They differ in:</p>
+<ul>
+<li>Global footprint</li>
+<li>Programmability</li>
+<li>Performance characteristics</li>
+<li>Pricing models</li>
+</ul>
+<p>At the system design level, the <strong>concept matters more than the vendor</strong>.</p>
+<hr>
+<h2 id="11-how-cdns-fit-into-modern-architectures">11. How CDNs Fit into Modern Architectures</h2>
+<hr>
+<p>Once understood, CDNs become a natural outer layer:</p>
+<div class="mermaid">
+flowchart LR
+    Client --> Edge[CDN / Edge]
+    Edge --> FW[Firewall]
+    FW --> Proxy[Proxy / LB]
+    Proxy --> Services[Backend Services]
+</div>
+<p>This layered approach:</p>
+<ul>
+<li>minimizes latency</li>
+<li>reduces blast radius</li>
+<li>improves scalability and resilience</li>
+</ul>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<hr>
+<ul>
+<li>CDNs reduce latency by serving content closer to users</li>
+<li>They offload work from origin servers</li>
+<li>Modern CDNs behave like edge proxies</li>
+<li>CDNs complement proxies, firewalls, and load balancers</li>
+<li>Performance optimization starts <strong>outside</strong> the backend</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>We’ve now covered:</p>
+<ul>
+<li>discovery</li>
+<li>routing</li>
+<li>control</li>
+<li>restriction</li>
+<li>global performance</li>
+</ul>
+<p>Next, we tie <strong>everything together</strong>.</p>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_11_cdn-and-edge-network">Putting It All Together — The End-to-End Request Journey</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>The fastest request is the one that never reaches your backend.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_10_firewalls-and-security-groups/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_12_putting-it-all-together/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

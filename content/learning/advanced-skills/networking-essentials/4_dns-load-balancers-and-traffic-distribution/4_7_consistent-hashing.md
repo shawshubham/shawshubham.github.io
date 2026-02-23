@@ -1,5 +1,5 @@
 ---
-title: "Consistent Hashing — Routing Without Chaos (REVIST FOR DIAGRAM)"
+title: "Consistent Hashing — Routing Without Chaos (REVISIT FOR DIAGRAM)"
 description: "Learn how consistent hashing minimizes traffic reshuffling when instances change, why it matters in distributed systems, and how modern systems actually handle sessions."
 keywords:
   - consistent hashing
@@ -297,15 +297,19 @@ This is the exception, not the norm.
 
 ### 🔗 What’s Next?
 
-Now that we understand:
+So far, we’ve understood:
 
-- Why sticky sessions fail at scale
-- How consistent hashing minimizes reshuffling
-- How modern systems eliminate server-side sessions
+- why sticky sessions break down at scale
+- how consistent hashing reduces traffic reshuffling
+- how modern systems avoid binding users to specific servers
 
-We’re ready to connect theory to real infrastructure.
+At this point, we’ve discussed **what routing decisions should be made** —  
+but not **where those decisions are actually enforced**.
 
-👉 **Next Article: Popular Load Balancers — Nginx, HAProxy, AWS ALB**
+In the next article, we introduce the component that sits directly in the traffic path and applies these strategies in real systems.
+
+👉 **Up Next →**  
+**[Proxies — Traffic Mediation & Control](/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_8_proxies-traffic-mediation)**
 
 ---
 

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Popular Load Balancers — Nginx, HAProxy &amp; AWS ALB</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771852023">
+<link rel="stylesheet" href="/css/custom.css?v=1771852023">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Popular Load Balancers — Nginx, HAProxy &amp; AWS ALB</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — From Concept to Concrete Systems</li>
+        
+        <li>2. Important Framing — These Are All Proxies</li>
+        
+        <li>3. Nginx — The General-Purpose Reverse Proxy</li>
+        
+        <li>4. HAProxy — Performance-Focused Traffic Distribution</li>
+        
+        <li>5. AWS Application Load Balancer — Managed Proxy at Scale</li>
+        
+        <li>6. Comparing the Three (Conceptual View)</li>
+        
+        <li>7. How This Fits into System Design Decisions</li>
+        
+        <li>8. Relationship to Proxies, Gateways, and Meshes</li>
+        
+        <li>Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 22 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-introduction--from-concept-to-concrete-systems">1. Introduction — From Concept to Concrete Systems</h2>
+<hr>
+<p>In the previous chapter, we established a critical idea:</p>
+<blockquote>
+<p><strong>A proxy is a multi-responsibility traffic control component.</strong><br>
+<strong>Load balancing is one responsibility it can perform.</strong></p></blockquote>
+<p>With that mental model in place, we can now look at <strong>real-world systems</strong> that implement these ideas.</p>
+<p>This chapter introduces three widely used load balancers:</p>
+<ul>
+<li>Nginx</li>
+<li>HAProxy</li>
+<li>AWS Application Load Balancer</li>
+</ul>
+<p>Not to teach configuration — but to understand <strong>why they exist and how they differ conceptually</strong>.</p>
+<hr>
+<h2 id="2-important-framing--these-are-all-proxies">2. Important Framing — These Are All Proxies</h2>
+<hr>
+<p>Before comparing tools, we must remove a common misconception:</p>
+<blockquote>
+<p><strong>Nginx, HAProxy, and AWS ALB are not “just load balancers”.</strong><br>
+They are <strong>proxies</strong> that happen to perform load balancing.</p></blockquote>
+<p>All three:</p>
+<ul>
+<li>sit directly in the request path</li>
+<li>inspect traffic</li>
+<li>route requests</li>
+<li>apply policies</li>
+</ul>
+<p>What differs is <strong>where they run, how much they abstract, and what trade-offs they make</strong>.</p>
+<hr>
+<h2 id="3-nginx--the-general-purpose-reverse-proxy">3. Nginx — The General-Purpose Reverse Proxy</h2>
+<hr>
+<p><strong>Nginx</strong> started as a web server, but evolved into a widely used <strong>reverse proxy and L7 load balancer</strong>.</p>
+<h3 id="core-characteristics">Core Characteristics</h3>
+<ul>
+<li>Software-based proxy</li>
+<li>Runs on your infrastructure</li>
+<li>Highly flexible</li>
+<li>Configuration-driven</li>
+</ul>
+<h3 id="what-nginx-is-commonly-used-for">What Nginx Is Commonly Used For</h3>
+<ul>
+<li>Reverse proxy in front of applications</li>
+<li>L7 load balancing</li>
+<li>TLS termination</li>
+<li>Static content serving</li>
+<li>Simple API gateway patterns</li>
+</ul>
+<h3 id="strengths">Strengths</h3>
+<ul>
+<li>Very flexible</li>
+<li>Mature ecosystem</li>
+<li>Easy to reason about</li>
+<li>Can handle multiple proxy responsibilities in one place</li>
+</ul>
+<h3 id="trade-offs">Trade-offs</h3>
+<ul>
+<li>You manage scaling and availability</li>
+<li>Configuration complexity grows with system size</li>
+<li>Operational burden increases at scale</li>
+</ul>
+<blockquote>
+<p>Nginx is often chosen when <strong>control and flexibility</strong> matter more than full automation.</p></blockquote>
+<hr>
+<h2 id="4-haproxy--performance-focused-traffic-distribution">4. HAProxy — Performance-Focused Traffic Distribution</h2>
+<hr>
+<p><strong>HAProxy</strong> was designed from day one as a <strong>high-performance proxy and load balancer</strong>.</p>
+<h3 id="core-characteristics-1">Core Characteristics</h3>
+<ul>
+<li>Extremely efficient</li>
+<li>Designed for high throughput</li>
+<li>Strong at both L4 and L7</li>
+<li>Focused on traffic distribution</li>
+</ul>
+<h3 id="what-haproxy-is-commonly-used-for">What HAProxy Is Commonly Used For</h3>
+<ul>
+<li>High-traffic ingress</li>
+<li>Performance-critical systems</li>
+<li>Large-scale traffic routing</li>
+<li>Environments where latency matters</li>
+</ul>
+<h3 id="strengths-1">Strengths</h3>
+<ul>
+<li>Excellent performance</li>
+<li>Predictable behavior</li>
+<li>Fine-grained control over traffic handling</li>
+</ul>
+<h3 id="trade-offs-1">Trade-offs</h3>
+<ul>
+<li>Less “all-in-one” than Nginx</li>
+<li>Steeper learning curve</li>
+<li>Still self-managed infrastructure</li>
+</ul>
+<blockquote>
+<p>HAProxy is often chosen when <strong>performance and predictability</strong> are the primary concerns.</p></blockquote>
+<hr>
+<h2 id="5-aws-application-load-balancer--managed-proxy-at-scale">5. AWS Application Load Balancer — Managed Proxy at Scale</h2>
+<hr>
+<p><strong>AWS Application Load Balancer</strong> is a <strong>fully managed Layer 7 proxy</strong> provided by AWS.</p>
+<h3 id="core-characteristics-2">Core Characteristics</h3>
+<ul>
+<li>Managed service</li>
+<li>No server management</li>
+<li>Deep AWS integration</li>
+<li>HTTP-aware routing</li>
+</ul>
+<h3 id="what-alb-is-commonly-used-for">What ALB Is Commonly Used For</h3>
+<ul>
+<li>Internet-facing APIs</li>
+<li>Microservices on AWS</li>
+<li>Auto-scaling environments</li>
+<li>Managed ingress for cloud workloads</li>
+</ul>
+<h3 id="strengths-2">Strengths</h3>
+<ul>
+<li>Automatic scaling</li>
+<li>High availability by default</li>
+<li>Tight integration with AWS services</li>
+<li>Reduced operational overhead</li>
+</ul>
+<h3 id="trade-offs-2">Trade-offs</h3>
+<ul>
+<li>Less flexibility than self-managed proxies</li>
+<li>Vendor lock-in</li>
+<li>Limited customization compared to Nginx / HAProxy</li>
+</ul>
+<blockquote>
+<p>ALB is chosen when <strong>operational simplicity and scalability</strong> outweigh fine-grained control.</p></blockquote>
+<hr>
+<h2 id="6-comparing-the-three-conceptual-view">6. Comparing the Three (Conceptual View)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Dimension</th>
+          <th>Nginx</th>
+          <th>HAProxy</th>
+          <th>AWS ALB</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Type</td>
+          <td>Software proxy</td>
+          <td>Software proxy</td>
+          <td>Managed proxy</td>
+      </tr>
+      <tr>
+          <td>Runs where</td>
+          <td>Your servers</td>
+          <td>Your servers</td>
+          <td>AWS</td>
+      </tr>
+      <tr>
+          <td>Layer</td>
+          <td>L7 (primarily)</td>
+          <td>L4 &amp; L7</td>
+          <td>L7</td>
+      </tr>
+      <tr>
+          <td>Control</td>
+          <td>Very high</td>
+          <td>High</td>
+          <td>Moderate</td>
+      </tr>
+      <tr>
+          <td>Ops effort</td>
+          <td>Medium–High</td>
+          <td>Medium–High</td>
+          <td>Low</td>
+      </tr>
+      <tr>
+          <td>Best for</td>
+          <td>Flexibility</td>
+          <td>Performance</td>
+          <td>Cloud-native scale</td>
+      </tr>
+  </tbody>
+</table>
+<p>This comparison is <strong>not about features</strong> — it’s about <strong>design intent</strong>.</p>
+<hr>
+<h2 id="7-how-this-fits-into-system-design-decisions">7. How This Fits into System Design Decisions</h2>
+<hr>
+<p>When choosing between these options, the real questions are:</p>
+<ul>
+<li>Do I want <strong>control or convenience</strong>?</li>
+<li>Do I manage infrastructure myself?</li>
+<li>Is performance or simplicity more important?</li>
+<li>Am I cloud-native or infrastructure-agnostic?</li>
+</ul>
+<p>There is no universally “best” choice — only <strong>context-appropriate choices</strong>.</p>
+<hr>
+<h2 id="8-relationship-to-proxies-gateways-and-meshes">8. Relationship to Proxies, Gateways, and Meshes</h2>
+<hr>
+<p>Once you understand these tools as <strong>proxies</strong>, it becomes easier to see how systems evolve:</p>
+<ul>
+<li>Nginx → API Gateway</li>
+<li>HAProxy → High-performance ingress</li>
+<li>ALB → Managed cloud edge</li>
+<li>Envoy (later) → Service mesh foundation</li>
+</ul>
+<p>Different tools.<br>
+Same underlying idea.</p>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<hr>
+<ul>
+<li>Nginx, HAProxy, and AWS ALB are all proxies</li>
+<li>Load balancing is one responsibility they perform</li>
+<li>They differ in control, performance focus, and operational burden</li>
+<li>Choosing one is a <strong>system design decision</strong>, not a syntax preference</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>We’ve now seen how traffic is:</p>
+<ul>
+<li>discovered</li>
+<li>routed</li>
+<li>distributed</li>
+<li>enforced using proxies</li>
+</ul>
+<p>Next, we introduce <strong>network boundaries and trust zones</strong>.</p>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_10_firewalls-and-security-groups">Firewalls &amp; Security Groups — Network Boundaries Explained</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>Tools change.<br>
+The proxy model remains.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_8_proxies-traffic-mediation/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_10_firewalls-and-security-groups/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

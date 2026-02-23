@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proxies — Traffic Mediation &amp; Control</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771852023">
+<link rel="stylesheet" href="/css/custom.css?v=1771852023">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Proxies — Traffic Mediation &amp; Control</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — The Missing Piece in Traffic Control</li>
+        
+        <li>2. What a Proxy Is (System Design Definition)</li>
+        
+        <li>3. Where a Proxy Sits (Most Important Diagram)</li>
+        
+        <li>4. Forward Proxy vs Reverse Proxy (Conceptual Only)</li>
+        
+        <li>5. Why Proxies Exist (Beyond Load Balancing)</li>
+        
+        <li>6. What Proxies Can Do (Complete but Bounded)</li>
+        
+        <li>7. Caveats &amp;amp; Trade-offs (What Can Go Wrong)</li>
+        
+        <li>8. Proxy vs Load Balancer — Resolving the Confusion</li>
+        
+        <li>9. Why Proxies Come After Algorithms and Hashing</li>
+        
+        <li>10. Proxies as the Foundation of Modern Networking</li>
+        
+        <li>11. Layer Mapping (Explicit)</li>
+        
+        <li>12. Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 22 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-introduction--the-missing-piece-in-traffic-control">1. Introduction — The Missing Piece in Traffic Control</h2>
+<hr>
+<p>So far in Phase 4, we’ve discussed:</p>
+<ul>
+<li>how services are discovered (DNS)</li>
+<li>how traffic is distributed (load balancers)</li>
+<li>how routing strategies work (algorithms, hashing, affinity)</li>
+</ul>
+<p>But one crucial question is still unanswered:</p>
+<blockquote>
+<p><strong>Where do these decisions actually get enforced?</strong></p></blockquote>
+<p>They are enforced by a component that sits <strong>directly in the request path</strong>.</p>
+<p>That component is a <strong>proxy</strong>.</p>
+<p>This chapter explains what proxies are, why they exist, and why so many modern networking components are, at their core, <strong>specialized proxies</strong>.</p>
+<hr>
+<h2 id="2-what-a-proxy-is-system-design-definition">2. What a Proxy Is (System Design Definition)</h2>
+<hr>
+<p>A <strong>proxy</strong> is an intermediary that:</p>
+<ul>
+<li>receives traffic on behalf of another service</li>
+<li>can inspect requests and responses</li>
+<li>can modify, block, or forward traffic</li>
+<li>applies routing and policy decisions centrally</li>
+</ul>
+<p>At the highest level:</p>
+<blockquote>
+<p><strong>A proxy is a programmable traffic control point.</strong></p></blockquote>
+<p>Unlike DNS (discovery) or routing tables (forwarding), proxies actively participate in request handling.</p>
+<hr>
+<h2 id="3-where-a-proxy-sits-most-important-diagram">3. Where a Proxy Sits (Most Important Diagram)</h2>
+<p>The single most important thing to understand about a proxy is <strong>where it lives</strong>.</p>
+<div class="mermaid">
+flowchart LR
+    Client --> Proxy
+    Proxy --> Service[Backend Service]
+</div>
+<p>Key observations:</p>
+<ul>
+<li>All client traffic flows <strong>through</strong> the proxy</li>
+<li>Backend services never talk to clients directly</li>
+<li>This makes the proxy the <strong>ideal place</strong> to apply control, policy, and protection</li>
+</ul>
+<p>In backend system design, this proxy is almost always a <strong>reverse proxy</strong>.</p>
+<hr>
+<h2 id="4-forward-proxy-vs-reverse-proxy-conceptual-only">4. Forward Proxy vs Reverse Proxy (Conceptual Only)</h2>
+<hr>
+<h3 id="forward-proxy">Forward Proxy</h3>
+<ul>
+<li>Sits <strong>in front of clients</strong></li>
+<li>Represents the client to the outside world</li>
+<li>Common in corporate networks and outbound control</li>
+</ul>
+<p>Example intent:</p>
+<blockquote>
+<p>“Clients must go through me to access external services.”</p></blockquote>
+<div class="mermaid">
+flowchart LR
+    C1[Client 1]
+    C2[Client 2]
+    C3[Client 3]
+    CN[Client N]
+
+    FP["Forward Proxy\n(Client-side Control)"]
+    I[(Internet)]
+    S[Server]
+
+    C1 --> FP
+    C2 --> FP
+    C3 --> FP
+    CN --> FP
+
+    FP --> I --> S
+</div>
+<hr>
+<h3 id="reverse-proxy">Reverse Proxy</h3>
+<ul>
+<li>Sits <strong>in front of servers</strong></li>
+<li>Represents servers to the outside world</li>
+<li>This is what most backend systems use</li>
+</ul>
+<p>Example intent:</p>
+<blockquote>
+<p>“All traffic to my services must go through me.”<br>
+In system design, when we say <em>proxy</em>, we almost always mean a <strong>reverse proxy</strong>.</p></blockquote>
+<div class="mermaid">
+flowchart LR
+    C1[Client]
+    I[(Internet)]
+    RP["Reverse Proxy\n(Server-side Control)"]
+
+    S1[Server 1]
+    S2[Server 2]
+    S3[Server 3]
+    S4[Server 4]
+
+    C1 --> I --> RP
+
+    RP --> S1
+    RP --> S2
+    RP --> S3
+    RP --> S4
+</div>
+<h3 id="in-real-world-scenario-the-most-common-strucure-is">In real world scenario, the most common strucure is:</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph Clients
+        direction TB
+        C1[Client 1] ~~~ C2[Client 2] ~~~ C3[Client 3] ~~~ CN[Client N]
+    end
+
+    FP[Forward Proxy]
+    I[(Internet)]
+    RP[Reverse Proxy]
+
+    subgraph Servers
+        direction TB
+        S1[Server 1] ~~~ S2[Server 2] ~~~ S3[Server 3] ~~~ S4[Server 4]
+    end
+
+    Clients --> FP --> I --> RP --> Servers
+</div>
+<hr>
+<h2 id="5-why-proxies-exist-beyond-load-balancing">5. Why Proxies Exist (Beyond Load Balancing)</h2>
+<hr>
+<p>Load balancing is only <strong>one responsibility</strong> a proxy can handle.</p>
+<p>Proxies exist because systems need a place to:</p>
+<ul>
+<li>centralize routing logic</li>
+<li>enforce security and policy</li>
+<li>protect services from overload</li>
+<li>observe and control traffic</li>
+<li>evolve infrastructure without changing clients</li>
+</ul>
+<p>Trying to push this logic into:</p>
+<ul>
+<li>application code, or</li>
+<li>client libraries</li>
+</ul>
+<p>leads to <strong>tight coupling and brittle systems</strong>.</p>
+<hr>
+<h2 id="6-what-proxies-can-do-complete-but-bounded">6. What Proxies Can Do (Complete but Bounded)</h2>
+<hr>
+<p>This is the most important section of the chapter.</p>
+<p>A proxy is <strong>not a single-purpose component</strong>.
+It can perform multiple responsibilities — <strong>load balancing is just one of them</strong>.</p>
+<h3 id="61-traffic-routing">6.1 Traffic Routing</h3>
+<ul>
+<li>Decide <strong>where</strong> a request should go</li>
+<li>Based on:
+<ul>
+<li>paths (/api, /admin)</li>
+<li>headers (tenant, user, region)</li>
+<li>protocol (HTTP vs gRPC)</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="62-load-balancing-one-responsibility">6.2 Load Balancing (One Responsibility)</h3>
+<ul>
+<li>Distribute traffic across instances</li>
+<li>Apply algorithms (round-robin, least connections, hashing)</li>
+<li>Avoid unhealthy backends</li>
+</ul>
+<blockquote>
+<p><strong>Important:</strong><br>
+Load balancing is a <strong>routing policy enforced by the proxy</strong>, not a separate conceptual component.</p></blockquote>
+<hr>
+<h3 id="63-security-enforcement">6.3 Security Enforcement</h3>
+<ul>
+<li>Terminate TLS (offloading encryption from backend services)</li>
+<li>validate authentication headers</li>
+<li>block unauthorized requests</li>
+</ul>
+<p>This answers:</p>
+<blockquote>
+<p>Should this request be allowed to proceed at all?</p></blockquote>
+<hr>
+<h3 id="64-traffic-shaping--protection">6.4 Traffic Shaping &amp; Protection</h3>
+<ul>
+<li>rate limit requests</li>
+<li>Request throttling</li>
+<li>Load shedding during spikes</li>
+</ul>
+<p>These protect backend services from abuse and overload.</p>
+<hr>
+<h3 id="65-reliability-controls">6.5 Reliability Controls</h3>
+<ul>
+<li>Timeouts</li>
+<li>Bounded retries</li>
+<li>Basic circuit breaking (conceptual)</li>
+</ul>
+<p>These prevent <strong>failure propagation</strong>.</p>
+<hr>
+<h3 id="66-observability--context-propagation">6.6 Observability &amp; Context Propagation</h3>
+<ul>
+<li>Request logging</li>
+<li>Latency and error metrics</li>
+<li>Injecting correlation / request IDs</li>
+</ul>
+<p>This is why proxies are often the <strong>best observation point</strong> in a system.</p>
+<hr>
+<h3 id="67-protocol--connection-handling">6.7 Protocol &amp; Connection Handling</h3>
+<ul>
+<li>HTTP ↔ HTTP/2 ↔ gRPC</li>
+<li>Connection pooling</li>
+<li>Keep-alive management</li>
+</ul>
+<p>This is transport optimization — not business logic.</p>
+<blockquote>
+<p>🔑 <strong>Mental Model Lock</strong></p>
+<p>A proxy is a <strong>single component</strong> that can perform many traffic-related responsibilities:</p>
+<ul>
+<li>routing</li>
+<li>load balancing</li>
+<li>security enforcement</li>
+<li>reliability controls</li>
+<li>observability</li>
+</ul>
+<p>A <em>load balancer</em> is not a different box — it is <strong>one responsibility a proxy can perform</strong>.</p></blockquote>
+<hr>
+<h2 id="7-caveats--trade-offs-what-can-go-wrong">7. Caveats &amp; Trade-offs (What Can Go Wrong)</h2>
+<hr>
+<p>Proxies centralize control — which is powerful — but that centralization also introduces important trade-offs that system designers must understand.</p>
+<h3 id="71-forward-proxy-caveat--policy-bypass--visibility">7.1 Forward Proxy Caveat — Policy Bypass &amp; Visibility</h3>
+<h4 id="because-a-forward-proxy-represents-clients-to-the-outside-world-it-can">Because a forward proxy represents clients to the outside world, it can:</h4>
+<ul>
+<li>hide the true origin of requests</li>
+<li>bypass network-level restrictions imposed by organizations or governments</li>
+<li>centralize outbound traffic through a single egress point</li>
+</ul>
+<h4 id="this-is-why-controlled-environments-typically">This is why controlled environments typically:</h4>
+<ul>
+<li>restrict which forward proxies can be used</li>
+<li>require authentication and auditing</li>
+<li>block unknown or untrusted proxy endpoints</li>
+</ul>
+<blockquote>
+<p>Forward proxies increase flexibility and control, but also introduce <strong>policy, compliance, and governance considerations</strong>.</p></blockquote>
+<hr>
+<h3 id="72-reverse-proxy-caveat--bottlenecks--single-point-of-failure">7.2 Reverse Proxy Caveat — Bottlenecks &amp; Single Point of Failure</h3>
+<h4 id="because-all-inbound-traffic-flows-through-a-reverse-proxy">Because all inbound traffic flows through a reverse proxy:</h4>
+<ul>
+<li>a failed proxy can block access to all backend services</li>
+<li>an overloaded proxy can become a performance bottleneck</li>
+<li>misconfiguration can impact every downstream service at once</li>
+</ul>
+<h4 id="for-this-reason-production-systems-usually">For this reason, production systems usually:</h4>
+<ul>
+<li>run multiple proxy instances</li>
+<li>place proxies behind L4 load balancers or DNS-based routing</li>
+<li>design proxies to be stateless and horizontally scalable</li>
+</ul>
+<blockquote>
+<p>Proxies simplify backend systems — but the proxy layer itself must be <strong>highly available</strong>.</p></blockquote>
+<hr>
+<h2 id="8-proxy-vs-load-balancer--resolving-the-confusion">8. Proxy vs Load Balancer — Resolving the Confusion</h2>
+<hr>
+<p>This distinction often causes confusion.</p>
+<h3 id="key-clarification">Key clarification:</h3>
+<blockquote>
+<p><strong>Most modern Layer 7 load balancers are proxies.</strong></p></blockquote>
+<p>A load balancer describes <strong>one job</strong>.<br>
+A proxy describes <strong>the component</strong> doing that job.</p>
+<div class="mermaid">
+flowchart LR
+    Client --> ProxyLB["Proxy (acting as L7 Load Balancer)"]
+    ProxyLB --> S1[Instance A]
+    ProxyLB --> S2[Instance B]
+    ProxyLB --> S3[Instance C]
+</div>
+<p>In practice:</p>
+<ul>
+<li>L7 load balancers are <strong>specialized proxies</strong></li>
+<li>Proxies can act as load balancers</li>
+</ul>
+<p>This is why tools like Nginx and Envoy appear in multiple roles.</p>
+<hr>
+<h2 id="9-why-proxies-come-after-algorithms-and-hashing">9. Why Proxies Come After Algorithms and Hashing</h2>
+<hr>
+<p>In this learning flow, we intentionally placed proxies <strong>after</strong>:</p>
+<ul>
+<li>load balancing algorithms</li>
+<li>sticky sessions</li>
+<li>consistent hashing</li>
+</ul>
+<p>Because:</p>
+<ul>
+<li>algorithms define <strong>what decision should be made</strong></li>
+<li>proxies define <strong>where that decision is enforced</strong></li>
+</ul>
+<p>This separation keeps:</p>
+<ul>
+<li>policy separate from mechanism</li>
+<li>design separate from tooling</li>
+</ul>
+<hr>
+<h2 id="10-proxies-as-the-foundation-of-modern-networking">10. Proxies as the Foundation of Modern Networking</h2>
+<hr>
+<p>Once proxies are understood, many modern systems make sense:</p>
+<ul>
+<li><strong>API Gateways →</strong> policy-focused proxies</li>
+<li><strong>Ingress Controllers →</strong> platform-managed proxies</li>
+<li><strong>Service Meshes →</strong> proxy per service</li>
+<li><strong>Edge Networks →</strong> globally distributed proxies</li>
+</ul>
+<p>Different names.<br>
+Same core idea:</p>
+<blockquote>
+<p><strong>Put intelligence in the traffic path.</strong></p></blockquote>
+<hr>
+<h2 id="11-layer-mapping-explicit">11. Layer Mapping (Explicit)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Mapping</strong></p>
+<p>Proxies typically operate at:</p>
+<ul>
+<li><strong>OSI Layer 7</strong> (HTTP-aware proxies)</li>
+<li>sometimes <strong>Layer 4</strong> (TCP proxies)</li>
+</ul>
+<p>The key distinction is not the layer — it’s <strong>traffic awareness and control</strong>.</p></blockquote>
+<hr>
+<h2 id="12-key-takeaways">12. Key Takeaways</h2>
+<hr>
+<ul>
+<li>Proxies sit directly in the traffic path</li>
+<li>It is a <strong>multi-responsibility traffic control component</strong></li>
+<li>Load balancing is one responsibility, not the definition</li>
+<li>Most L7 load balancers are proxies</li>
+<li>Proxies apply routing strategies defined earlier</li>
+<li>Modern networking is largely proxy-driven</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we understand <strong>what a proxy is</strong>, we can finally look at <strong>real-world implementations</strong>.</p>
+<p>In the next chapter, we explore:</p>
+<ul>
+<li>Nginx</li>
+<li>HAProxy</li>
+<li>AWS ALB</li>
+</ul>
+<p>Not as tools — but as <strong>concrete realizations of proxy concepts</strong>.</p>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_9_popular-load-balancers">Popular Load Balancers — Nginx, HAProxy &amp; AWS ALB</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>Proxies are not just components —<br>
+they are the <strong>control points of modern networks</strong>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_7_consistent-hashing/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_9_popular-load-balancers/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

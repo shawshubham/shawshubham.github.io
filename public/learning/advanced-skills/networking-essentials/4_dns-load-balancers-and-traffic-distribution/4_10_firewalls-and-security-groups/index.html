@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firewalls &amp; Security Groups — Network Boundaries Explained</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771852023">
+<link rel="stylesheet" href="/css/custom.css?v=1771852023">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Firewalls &amp; Security Groups — Network Boundaries Explained</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Introduction — Why Networks Need Boundaries</li>
+        
+        <li>2. What a Firewall Is (System Design Definition)</li>
+        
+        <li>3. Where Firewalls Sit in a System</li>
+        
+        <li>4. Firewall vs Proxy (Critical Distinction)</li>
+        
+        <li>5. Security Groups — Firewalls in the Cloud</li>
+        
+        <li>6. Why Firewalls Come After Proxies (Conceptually)</li>
+        
+        <li>7. Common Firewall Design Patterns</li>
+        
+        <li>8. Caveats &amp;amp; Trade-offs</li>
+        
+        <li>9. How Firewalls Fit into Modern Architectures</li>
+        
+        <li>Key Takeaways</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-introduction--why-networks-need-boundaries">1. Introduction — Why Networks Need Boundaries</h2>
+<hr>
+<p>So far in Phase 4, we’ve focused on <strong>how traffic flows</strong>:</p>
+<ul>
+<li>how services are discovered</li>
+<li>how requests are routed</li>
+<li>how proxies control and distribute traffic</li>
+</ul>
+<p>But before traffic can be <em>controlled</em>, an even more fundamental question must be answered:</p>
+<blockquote>
+<p><strong>Should this traffic be allowed at all?</strong></p></blockquote>
+<p>This is where <strong>firewalls and security groups</strong> come into play.</p>
+<p>They define <strong>network-level trust boundaries</strong> — deciding <em>which traffic is even permitted to reach your system</em>.</p>
+<hr>
+<h2 id="2-what-a-firewall-is-system-design-definition">2. What a Firewall Is (System Design Definition)</h2>
+<hr>
+<p>A <strong>firewall</strong> is a network control mechanism that:</p>
+<ul>
+<li>allows or blocks traffic</li>
+<li>based on predefined rules</li>
+<li>before traffic reaches applications</li>
+</ul>
+<p>At a high level:</p>
+<blockquote>
+<p><strong>A firewall is a gatekeeper that enforces network boundaries.</strong></p></blockquote>
+<p>Firewalls operate on the principle of <strong>default deny</strong>:</p>
+<ul>
+<li>traffic is blocked unless explicitly allowed</li>
+</ul>
+<p>This is fundamentally different from proxies, which assume traffic is allowed and then apply higher-level logic.</p>
+<hr>
+<h2 id="3-where-firewalls-sit-in-a-system">3. Where Firewalls Sit in a System</h2>
+<p>Conceptually, firewalls sit <strong>outside or in front of</strong> your application stack.</p>
+<div class="mermaid">
+flowchart LR
+    Client[Client / Internet] --> FW[Firewall / Security Group Rules]
+    FW --> LB[Proxy / Load Balancer]
+    LB --> S[Backend Services]
+</div>
+<p>Key observation:</p>
+<ul>
+<li>Firewalls decide <strong>whether traffic may enter</strong></li>
+<li>Proxies decide <strong>how allowed traffic is handled</strong></li>
+</ul>
+<p>These responsibilities are complementary, not overlapping.</p>
+<hr>
+<h2 id="4-firewall-vs-proxy-critical-distinction">4. Firewall vs Proxy (Critical Distinction)</h2>
+<hr>
+<p>This distinction is essential for system design clarity.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Firewall</th>
+          <th>Proxy</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Primary role</td>
+          <td>Allow / deny traffic</td>
+          <td>Inspect &amp; control traffic</td>
+      </tr>
+      <tr>
+          <td>Awareness level</td>
+          <td>Network / transport</td>
+          <td>Application-level</td>
+      </tr>
+      <tr>
+          <td>Typical layers</td>
+          <td>L3 / L4</td>
+          <td>L7 (sometimes L4)</td>
+      </tr>
+      <tr>
+          <td>Can modify requests</td>
+          <td>No</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Handles routing</td>
+          <td>No</td>
+          <td>Yes</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p>A firewall answers <strong>“Is this traffic allowed?”</strong><br>
+A proxy answers <strong>“What should we do with this traffic?”</strong></p></blockquote>
+<hr>
+<h2 id="5-security-groups--firewalls-in-the-cloud">5. Security Groups — Firewalls in the Cloud</h2>
+<hr>
+<p>In cloud environments, traditional firewalls appear as <strong>security groups</strong> (or equivalent constructs).</p>
+<p>A <strong>security group</strong> is:</p>
+<ul>
+<li>a virtual firewall</li>
+<li>attached to cloud resources (VMs, load balancers)</li>
+<li>defined using inbound and outbound rules</li>
+</ul>
+<p>Examples (conceptual):</p>
+<ul>
+<li>allow inbound HTTPS (443) from the internet</li>
+<li>allow inbound traffic from a specific subnet</li>
+<li>block all other ports by default</li>
+</ul>
+<blockquote>
+<p>Security groups enforce <strong>network isolation without physical hardware</strong>.</p></blockquote>
+<hr>
+<h2 id="6-why-firewalls-come-after-proxies-conceptually">6. Why Firewalls Come After Proxies (Conceptually)</h2>
+<hr>
+<p>In the learning flow, firewalls appear <strong>after</strong> proxies intentionally.</p>
+<p>Because:</p>
+<ul>
+<li>proxies explain <strong>traffic control</strong></li>
+<li>firewalls explain <strong>traffic permission</strong></li>
+</ul>
+<p>You must understand <em>what traffic wants to do</em> before deciding <em>whether it should be allowed</em>.</p>
+<p>In real systems, both are used together:</p>
+<ul>
+<li>firewall sets the outer boundary</li>
+<li>proxy enforces inner policies</li>
+</ul>
+<hr>
+<h2 id="7-common-firewall-design-patterns">7. Common Firewall Design Patterns</h2>
+<hr>
+<h3 id="71-public-vs-private-boundaries">7.1 Public vs Private Boundaries</h3>
+<ul>
+<li>Internet-facing components are tightly restricted</li>
+<li>Backend services live in private networks</li>
+<li>Only proxies or gateways can reach them</li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    Internet[(Internet)]
+    FW[Firewall]
+    Proxy[Reverse Proxy]
+
+    subgraph Private_Network["Private Network"]
+        S1[Service A]
+        S2[Service B]
+    end
+
+    Internet --> FW --> Proxy --> S1
+    Proxy --> S2
+</div>
+<blockquote>
+<p>Backend services live in private networks and are reachable <strong>only through controlled entry points</strong>.</p></blockquote>
+<h3 id="72-least-privilege-networking">7.2 Least Privilege Networking</h3>
+<ul>
+<li>Only required ports are opened</li>
+<li>Access is limited to known sources</li>
+<li>Everything else is blocked</li>
+</ul>
+<h3 id="73-defense-in-depth">7.3 Defense in Depth</h3>
+<ul>
+<li>Firewalls restrict access</li>
+<li>Proxies validate requests</li>
+<li>Applications enforce business rules</li>
+</ul>
+<p>Each layer assumes the previous one can fail.</p>
+<hr>
+<h2 id="8-caveats--trade-offs">8. Caveats &amp; Trade-offs</h2>
+<hr>
+<p>Firewalls are powerful, but not sufficient on their own.</p>
+<h3 id="what-firewalls-cannot-do">What Firewalls Cannot Do</h3>
+<ul>
+<li>Authenticate users</li>
+<li>Inspect application payloads meaningfully</li>
+<li>Enforce business-level authorization</li>
+</ul>
+<p>Relying solely on firewalls leads to <strong>false security</strong>.</p>
+<h3 id="operational-considerations">Operational Considerations</h3>
+<ul>
+<li>Misconfigured rules can block critical traffic</li>
+<li>Overly permissive rules weaken security</li>
+<li>Changes must be carefully managed to avoid outages</li>
+</ul>
+<blockquote>
+<p>Firewalls reduce attack surface — they do not replace application security.</p></blockquote>
+<hr>
+<h2 id="9-how-firewalls-fit-into-modern-architectures">9. How Firewalls Fit into Modern Architectures</h2>
+<hr>
+<p>Once understood, firewalls appear everywhere:</p>
+<ul>
+<li>Cloud VPC boundaries</li>
+<li>Subnet isolation</li>
+<li>Private service-to-service communication</li>
+<li>Zero-trust architectures (at a high level)</li>
+</ul>
+<p>They quietly enforce the <strong>shape and safety</strong> of your network.</p>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<hr>
+<ul>
+<li>Firewalls define network trust boundaries</li>
+<li>They operate before traffic reaches proxies or applications</li>
+<li>Security groups are cloud-native firewalls</li>
+<li>Firewalls block traffic; proxies control traffic</li>
+<li>Both are required for secure system design</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Traffic is now:</p>
+<ul>
+<li>discovered</li>
+<li>routed</li>
+<li>controlled</li>
+<li>restricted</li>
+</ul>
+<p>Next, we look at how systems improve <strong>performance and availability at global scale</strong>.</p>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_11_cdn-and-edge-network">CDNs &amp; Edge Networks — Performance Beyond the Origin</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<p>Proxies decide <em>how traffic behaves</em>.<br>
+Firewalls decide <em>whether traffic is allowed at all</em>.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_9_popular-load-balancers/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/networking-essentials/" class="btn nav-btn">
+        Networking Essentials for System Design : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_11_cdn-and-edge-network/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>
