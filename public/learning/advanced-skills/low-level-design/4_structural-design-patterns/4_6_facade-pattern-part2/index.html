@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facade Pattern – Orchestrating Employee Offboarding (Part 2)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1772101723">
+<link rel="stylesheet" href="/css/custom.css?v=1772101723">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Facade Pattern – Orchestrating Employee Offboarding (Part 2)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Recap: Why Facade Was Deliberately Delayed</li>
+        
+        <li>2. New Business Requirement: Employee Offboarding</li>
+        
+        <li>3. What Employee Offboarding Actually Involves</li>
+        
+        <li>4. The Naive Approach: Orchestration in the Controller</li>
+        
+        <li>5. “Let’s Put It in a Service” (Still Wrong)</li>
+        
+        <li>6. The Missing Abstraction Becomes Obvious</li>
+        
+        <li>7. Introducing the Facade: EmployeeOffboardingFacade (Orchestration &amp;amp; Call Order)</li>
+        
+        <li>8. Diagram: Correct Design with Facade</li>
+        
+        <li>9. Who Calls the Facade?</li>
+        
+        <li>10. What About Failures and Rollback?</li>
+        
+        <li>11. Why Facade Is a Structural Pattern</li>
+        
+        <li>12. Interview-Grade Explanation</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 26 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-recap-why-facade-was-deliberately-delayed">1. Recap: Why Facade Was Deliberately Delayed</h2>
+<hr>
+<p>In <strong>Part 1</strong>, we made a deliberate decision:</p>
+<blockquote>
+<p><strong>Do not introduce Facade until the system demands it.</strong></p></blockquote>
+<p>At that point:</p>
+<ul>
+<li>EMS had clean, SRP-aligned services</li>
+<li>orchestration was minimal</li>
+<li>adding a Facade would have been ceremony</li>
+</ul>
+<p>Now we introduce <strong>real workflow pressure</strong>.</p>
+<hr>
+<h2 id="2-new-business-requirement-employee-offboarding">2. New Business Requirement: Employee Offboarding</h2>
+<hr>
+<p>HR introduces a new requirement:</p>
+<blockquote>
+<p>“When an employee leaves the organization, we must fully offboard them.”</p></blockquote>
+<p>This is <strong>not a single operation</strong>.</p>
+<p>It is a <strong>business workflow</strong> that spans multiple subsystems.</p>
+<hr>
+<h2 id="3-what-employee-offboarding-actually-involves">3. What Employee Offboarding Actually Involves</h2>
+<hr>
+<p>Employee Offboarding requires coordinated actions across systems:</p>
+<ul>
+<li>
+<p><strong>HR</strong></p>
+<ul>
+<li>mark employee inactive</li>
+<li>record exit reason and date</li>
+</ul>
+</li>
+<li>
+<p><strong>Payroll</strong></p>
+<ul>
+<li>stop salary</li>
+<li>trigger final settlement</li>
+</ul>
+</li>
+<li>
+<p><strong>IT Admin</strong></p>
+<ul>
+<li>revoke system access</li>
+<li>disable credentials</li>
+</ul>
+</li>
+<li>
+<p><strong>Reporting</strong></p>
+<ul>
+<li>generate final employment report</li>
+<li>archive documents</li>
+</ul>
+</li>
+</ul>
+<p>This is <strong>system-level orchestration</strong>, not a local service concern.</p>
+<hr>
+<h2 id="4-the-naive-approach-orchestration-in-the-controller">4. The Naive Approach: Orchestration in the Controller</h2>
+<hr>
+<p>The most common first attempt looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@PostMapping</span>(<span style="color:#e6db74">&#34;/{id}/offboard&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">offboardEmployee</span>(String id, OffboardingRequest request) {
+</span></span><span style="display:flex;"><span>    hrOperations.<span style="color:#a6e22e">deactivateEmployee</span>(id, request.<span style="color:#a6e22e">reason</span>());
+</span></span><span style="display:flex;"><span>    payrollOperations.<span style="color:#a6e22e">stopSalary</span>(id);
+</span></span><span style="display:flex;"><span>    itAdminOperations.<span style="color:#a6e22e">revokeAccess</span>(id);
+</span></span><span style="display:flex;"><span>    reportingOperations.<span style="color:#a6e22e">generateFinalReport</span>(id);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="why-this-is-a-problem">Why this is a problem</h3>
+<ul>
+<li>Controller knows too much</li>
+<li>Orchestration logic leaks outward</li>
+<li>Hard to test</li>
+<li>Impossible to reuse</li>
+<li>No clear ownership of the workflow</li>
+</ul>
+<h3 id="diagram-naive-design-before-facade">Diagram: Naive Design (Before Facade)</h3>
+<div class="mermaid">
+flowchart TD
+    C[Controller] --> HR[HR Operations]
+    C --> P[Payroll Operations]
+    C --> IT[IT Admin Operations]
+    C --> R[Reporting Operations]
+</div>
+<blockquote>
+<p>Controllers should <strong>delegate</strong>, not <strong>coordinate</strong>.</p></blockquote>
+<hr>
+<h2 id="5-lets-put-it-in-a-service-still-wrong">5. “Let’s Put It in a Service” (Still Wrong)</h2>
+<hr>
+<p>Next instinct:</p>
+<blockquote>
+<p>“Let’s put offboarding into HR service.”</p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HROperationsService</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">offboardEmployee</span>(...) {
+</span></span><span style="display:flex;"><span>        payroll.<span style="color:#a6e22e">stopSalary</span>(...);
+</span></span><span style="display:flex;"><span>        itAdmin.<span style="color:#a6e22e">revokeAccess</span>(...);
+</span></span><span style="display:flex;"><span>        reporting.<span style="color:#a6e22e">generateFinalReport</span>(...);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="why-this-is-worse">Why this is worse</h3>
+<ul>
+<li>HR now depends on Payroll, IT, Reporting</li>
+<li>SRP is violated</li>
+<li>HR becomes a god service</li>
+<li>Subsystem boundaries collapse</li>
+</ul>
+<p>This is <strong>structural damage</strong>, not simplification.</p>
+<hr>
+<h2 id="6-the-missing-abstraction-becomes-obvious">6. The Missing Abstraction Becomes Obvious</h2>
+<hr>
+<p>At this point, the design pressure is clear:</p>
+<ul>
+<li>Logic does not belong to any single subsystem</li>
+<li>It represents a <strong>business workflow</strong></li>
+<li>It must coordinate multiple services</li>
+<li>It must be testable and reusable</li>
+</ul>
+<p>This is exactly where <strong>Facade</strong> belongs.</p>
+<hr>
+<h2 id="7-introducing-the-facade-employeeoffboardingfacade-orchestration--call-order">7. Introducing the Facade: EmployeeOffboardingFacade (Orchestration &amp; Call Order)</h2>
+<hr>
+<p>The Facade becomes the <strong>explicit owner of the workflow</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeOffboardingFacade</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> HROperations hr;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PayrollOperations payroll;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ITAdminOperations itAdmin;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportingOperations reporting;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EmployeeOffboardingFacade</span>(
+</span></span><span style="display:flex;"><span>            HROperations hr,
+</span></span><span style="display:flex;"><span>            PayrollOperations payroll,
+</span></span><span style="display:flex;"><span>            ITAdminOperations itAdmin,
+</span></span><span style="display:flex;"><span>            ReportingOperations reporting) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">hr</span> <span style="color:#f92672">=</span> hr;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">payroll</span> <span style="color:#f92672">=</span> payroll;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">itAdmin</span> <span style="color:#f92672">=</span> itAdmin;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">reporting</span> <span style="color:#f92672">=</span> reporting;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">offboardEmployee</span>(String employeeId, OffboardingRequest request) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        hr.<span style="color:#a6e22e">deactivateEmployee</span>(employeeId, request.<span style="color:#a6e22e">reason</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        payroll.<span style="color:#a6e22e">stopSalary</span>(employeeId);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        itAdmin.<span style="color:#a6e22e">revokeAccess</span>(employeeId);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        reporting.<span style="color:#a6e22e">generateFinalReport</span>(employeeId);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The Facade does more than just “call services”.</p>
+<p>It owns the <strong>orchestration contract</strong>:</p>
+<ul>
+<li>execution order</li>
+<li>mandatory steps</li>
+<li>dependency sequencing</li>
+<li>workflow-level failure boundaries</li>
+</ul>
+<p>This logic does <strong>not</strong> belong in controllers or individual services.<br>
+It belongs to a Facade, because it represents a <strong>business workflow</strong>, not a domain rule.</p>
+<h3 id="in-employee-offboarding-the-order-is-not-accidental">In Employee Offboarding, the order is not accidental:</h3>
+<ol>
+<li>HR must mark the employee inactive</li>
+<li>Payroll must stop salary <strong>after</strong> HR confirmation</li>
+<li>IT access must be revoked <strong>after</strong> payroll is stopped</li>
+<li>Reporting must run <strong>after</strong> the employee is fully offboarded</li>
+</ol>
+<p>This ordering logic <strong>does not belong</strong> to:</p>
+<ul>
+<li>controllers</li>
+<li>individual services</li>
+<li>random utility classes</li>
+</ul>
+<p>It belongs to a <strong>Facade</strong>, because it represents a <strong>business workflow</strong>, not a domain rule.</p>
+<hr>
+<h2 id="8-diagram-correct-design-with-facade">8. Diagram: Correct Design with Facade</h2>
+<hr>
+<div class="mermaid">
+flowchart TD
+    A[Controller / Job] --> F[EmployeeOffboardingFacade]
+
+    F --> HR[HR Operations]
+    F --> P[Payroll Operations]
+    F --> IT[IT Admin Operations]
+    F --> R[Reporting Operations]
+</div>
+<h3 id="what-changed">What changed</h3>
+<ul>
+<li>Single orchestration point</li>
+<li>Services remain focused and pure</li>
+<li>Workflow intent is explicit</li>
+<li>System complexity is contained</li>
+</ul>
+<p>The Facade <strong>did not replace services</strong>.
+It <strong>protected them</strong>.</p>
+<hr>
+<h2 id="9-who-calls-the-facade">9. Who Calls the Facade?</h2>
+<hr>
+<p>A Facade is not tied to HTTP.</p>
+<p>It is a <strong>system-level API</strong> and can be invoked from multiple entry points.</p>
+<p>Common callers include:</p>
+<ul>
+<li>REST Controllers</li>
+<li>Scheduled Jobs (cron / batch processing)</li>
+<li>Event Consumers (Kafka / SQS / PubSub)</li>
+<li>Admin Tools</li>
+<li>UI-triggered workflows</li>
+</ul>
+<h3 id="example-1-scheduled-offboarding-job">Example 1: Scheduled Offboarding Job</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OffboardingJob</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeOffboardingFacade offboardingFacade;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span>(List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> exitingEmployeeIds) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (String id : exitingEmployeeIds) {
+</span></span><span style="display:flex;"><span>            offboardingFacade.<span style="color:#a6e22e">offboardEmployee</span>(id, OffboardingRequest.<span style="color:#a6e22e">systemTriggered</span>());
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="example-2-rest-controller">Example 2: REST Controller:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@RequestMapping</span>(<span style="color:#e6db74">&#34;/employees&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeController</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeOffboardingFacade offboardingFacade;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@PostMapping</span>(<span style="color:#e6db74">&#34;/{id}/offboard&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">offboard</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@PathVariable</span> String id,
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@RequestBody</span> OffboardingRequest request) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        offboardingFacade.<span style="color:#a6e22e">offboardEmployee</span>(id, request);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ResponseEntity.<span style="color:#a6e22e">ok</span>().<span style="color:#a6e22e">build</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="controllers">Controllers:</h3>
+<ul>
+<li>translate external input</li>
+<li>delegate to Facade</li>
+<li>stay thin and boring (good!)</li>
+</ul>
+<blockquote>
+<p><strong>The key insight:</strong></p>
+<p>Controllers, jobs, and event handlers are <strong>delivery mechanisms</strong>.<br>
+The Facade is the <strong>business workflow boundary</strong>.</p>
+<p>That boundary stays stable even when entry points change.</p></blockquote>
+<hr>
+<h2 id="10-what-about-failures-and-rollback">10. What About Failures and Rollback?</h2>
+<hr>
+<p>A natural question:</p>
+<blockquote>
+<p>“What if payroll succeeds but IT access revocation fails?”</p></blockquote>
+<p>This is the <strong>right question</strong>, but not for this pattern.</p>
+<p>For now, we intentionally <strong>do not</strong> introduce:
+• distributed transactions
+• saga frameworks
+• compensation engines</p>
+<h3 id="why-this-is-still-correct">Why this is still correct</h3>
+<p>Facade gives us:</p>
+<ul>
+<li>a <strong>single place</strong> to add compensation later</li>
+<li>a stable workflow boundary</li>
+<li>a natural hook for retries, alerts, or async processing</li>
+</ul>
+<p>Facade makes advanced handling <strong>possible</strong>, not mandatory.</p>
+<p>We will revisit this in later HLD / Large-Scale Design sections.</p>
+<hr>
+<h2 id="11-why-facade-is-a-structural-pattern">11. Why Facade Is a Structural Pattern</h2>
+<hr>
+<ul>
+<li><strong>Abstract Factory</strong> → creates compatible object families</li>
+<li><strong>Facade</strong> → composes existing objects into workflows</li>
+</ul>
+<p>Facade does not decide <em>what to create</em>.
+It decides <em>how things work together</em>.</p>
+<hr>
+<h2 id="12-interview-grade-explanation">12. Interview-Grade Explanation</h2>
+<hr>
+<h3 id="when-do-you-introduce-a-facade">When do you introduce a Facade?</h3>
+<blockquote>
+<p>When multiple domain services must collaborate to fulfill a single business use case, and that coordination should not live in controllers or inside any one service.</p></blockquote>
+<p>That answer signals <strong>design maturity</strong>.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>In this part, Facade emerged naturally — not as a pattern choice, but as a necessity.</p>
+<p>Employee Offboarding showed us that:</p>
+<ul>
+<li>orchestration does not belong in controllers</li>
+<li>it does not belong in individual services</li>
+<li>it must have a single, explicit owner</li>
+</ul>
+<p>Facade provided that owner.</p>
+<p>At this stage, our design is <strong>structurally correct</strong>.</p>
+<p>But it is not yet <strong>failure-aware</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>So far, we assumed a happy path:</p>
+<ul>
+<li>every service succeeds</li>
+<li>no partial failures</li>
+<li>no retries</li>
+<li>no compensation</li>
+</ul>
+<p>Real systems are never that simple.</p>
+<p>In <strong>Part 3</strong>, we will zoom out and ask the uncomfortable questions:</p>
+<ul>
+<li>What happens when one step fails mid-workflow?</li>
+<li>Where does compensation logic belong?</li>
+<li>When does Facade stop being enough?</li>
+<li>Why patterns like Saga belong to <strong>Large-Scale System Design</strong>, not basic LLD?</li>
+</ul>
+<p>This next part will not add more code —<br>
+it will add <strong>architectural judgment</strong>.</p>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_7_facade-pattern-part3">Facade Pattern – From Orchestration to Distributed Workflows (Part 3) →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Facade is about orchestration, not delegation</li>
+<li>Controllers and clients often look like facades but aren’t</li>
+<li>Facade becomes obvious only under workflow pressure</li>
+<li>We delay complexity until the design truly demands it</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_5_facade-pattern-part1/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low-Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_7_facade-pattern-part3/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

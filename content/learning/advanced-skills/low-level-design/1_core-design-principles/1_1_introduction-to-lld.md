@@ -25,7 +25,10 @@ Low-Level Design (LLD) refers to the detailed internal design of software compon
 
 The focus of LLD is to create **modular, scalable, and maintainable software**, often represented via **UML diagrams** and object-oriented design principles.
 
-> 📝 **Key Point:** LLD is where your abstract idea turns into actual implementation-ready building blocks.
+> 📝 **Key Point:**  
+> LLD is where your abstract idea turns into actual implementation-ready building blocks.
+
+---
 
 ## 2. HLD vs. LLD
 
@@ -42,6 +45,8 @@ The focus of LLD is to create **modular, scalable, and maintainable software**, 
 > **HLD** answers **“What should the system do?”**  
 > **LLD** answers **“How should we implement it?”**
 
+---
+
 ## ​3. Why Learn Low-Level Design?
 
 ---
@@ -54,6 +59,8 @@ Mastering LLD is a **critical skill** for software engineers and backend develop
 - ✅ **Reduce Technical Debt**: Clean design leads to fewer bugs and easier refactoring.
 
 Good LLD is often what separates **working code** from **production-ready systems**.
+
+---
 
 ## 4. How This Learning Series Is Structured
 
@@ -70,6 +77,8 @@ You will see:
 - How **design patterns naturally emerge**
 - How systems **evolve under new requirements**
 
+---
+
 ### 📂 Hands-On Learning (Highly Recommended)
 
 All examples are implemented in a single GitHub project:
@@ -81,7 +90,6 @@ All examples are implemented in a single GitHub project:
 
 1. Clone the repository
 2. Open it in your preferred IDE
-
    - I use IntelliJ IDEA, but Eclipse / VS Code works just as well
 
 3. Follow each chapter while:
@@ -92,6 +100,8 @@ All examples are implemented in a single GitHub project:
 > **💡 Strong recommendation:**  
 > Try writing your own implementation alongside the tutorial.  
 > LLD skills improve dramatically through hands-on iteration.
+
+---
 
 ## 5. How to Approach Any Low-Level Design Problem
 
@@ -140,7 +150,9 @@ Patterns should **solve problems**, not decorate code.
 - Use proper encapsulation, separation of concerns, and dependency injection.
 - Write testable, extensible, and readable code.
 
-> 💡 Tip: Great designs are discovered through refactoring, not invented upfront.
+> 💡 **Tip:** Great designs are discovered through refactoring, not invented upfront.
+
+---
 
 ## Conclusion
 
@@ -156,6 +168,8 @@ It helps you:
 - perform confidently in interviews
 
 Whether you’re building a small service or a large backend system, **LLD is the foundation that keeps your codebase healthy**.
+
+---
 
 ### 🔗 What’s Next?
 

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maximum Average Subarray I</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1772112978">
+<link rel="stylesheet" href="/css/custom.css?v=1772112978">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Maximum Average Subarray I</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Problem Statement</li>
+        
+        <li>2. Why This Problem Matters</li>
+        
+        <li>3. Clarifying Questions (Interview Thinking)</li>
+        
+        <li>4. Brute Force Idea</li>
+        
+        <li>5. Pattern Recognition</li>
+        
+        <li>6. Optimized Approach (Fixed Sliding Window)</li>
+        
+        <li>7. Time &amp;amp; Space Complexity</li>
+        
+        <li>8. Final Code (Java)</li>
+        
+        <li>9. Interview-Style Explanation</li>
+        
+        <li>10. Common Mistakes</li>
+        
+        <li>11. Alternative (Prefix Sum) — Not Recommended Here</li>
+        
+        <li>12. Key Takeaway</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 12 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    
+    
+      <div class="solution-meta-card">
+        <div class="solution-meta-left">
+          <span class="solution-pill">Easy</span>
+          <span class="solution-pill">LeetCode</span>
+
+          
+          
+          
+              
+          
+
+          
+            <span class="solution-meta-label">Patterns:</span>
+            <span class="solution-meta-value">Sliding Window</span>
+          
+        </div>
+
+        <div class="solution-meta-right">
+          
+            <a class="btn nav-btn" href="https://leetcode.com/problems/maximum-average-subarray-i/" target="_blank" rel="noopener">View Original Problem</a>
+          
+        </div>
+      </div>
+    
+    
+    <article class="topic-content">
+      <h1 id="leetcode-problem-maximum-average-subarray-i">LeetCode Problem: Maximum Average Subarray I</h1>
+<h2 id="1-problem-statement">1. Problem Statement</h2>
+<p>You are given an integer array <code>nums</code> consisting of <code>n</code> elements and an integer <code>k</code>.</p>
+<p>Find the <strong>maximum average value</strong> of any <strong>contiguous subarray of length <code>k</code></strong>.</p>
+<p>Return the maximum average as a floating-point number.</p>
+<hr>
+<h2 id="2-why-this-problem-matters">2. Why This Problem Matters</h2>
+<p>This is the <strong>canonical fixed-size sliding window</strong> problem.</p>
+<p>If you understand this problem well, you understand:</p>
+<ul>
+<li>how to maintain a rolling sum,</li>
+<li>how to slide a window efficiently,</li>
+<li>and how to avoid recomputation.</li>
+</ul>
+<p>It is commonly used as:</p>
+<ul>
+<li>a warm-up in interviews,</li>
+<li>a calibration question in CoderPad rounds.</li>
+</ul>
+<hr>
+<h2 id="3-clarifying-questions-interview-thinking">3. Clarifying Questions (Interview Thinking)</h2>
+<p>Before coding, confirm:</p>
+<ul>
+<li>Is the subarray required to be contiguous? → <strong>Yes</strong></li>
+<li>Is the window size fixed? → <strong>Yes, exactly <code>k</code></strong></li>
+<li>Are negative numbers allowed? → <strong>Yes</strong></li>
+<li>What should be returned? → <strong>Average (double)</strong></li>
+</ul>
+<hr>
+<h2 id="4-brute-force-idea">4. Brute Force Idea</h2>
+<p>Compute the sum of every subarray of size <code>k</code> using a nested loop.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time: O(n * k)
+</span></span><span style="display:flex;"><span>Space: O(1)
+</span></span></code></pre></div><p>Correct but inefficient.</p>
+<hr>
+<h2 id="5-pattern-recognition">5. Pattern Recognition</h2>
+<p>Key observations:</p>
+<ul>
+<li>Subarray → contiguous</li>
+<li>Window size → fixed (k)</li>
+<li>Operation → sum / average</li>
+</ul>
+<p><strong>➡️ Fixed Sliding Window</strong></p>
+<hr>
+<h2 id="6-optimized-approach-fixed-sliding-window">6. Optimized Approach (Fixed Sliding Window)</h2>
+<h3 id="key-idea">Key Idea</h3>
+<p>Instead of recomputing the sum for each window:</p>
+<ul>
+<li>add the new element entering the window,</li>
+<li>subtract the element leaving the window.</li>
+</ul>
+<p>This keeps the window sum updated in <strong>O(1)</strong> time per step.</p>
+<h3 id="algorithm">Algorithm</h3>
+<ol>
+<li>Compute the sum of the first k elements.</li>
+<li>Slide the window one step at a time:
+<ul>
+<li>add nums[i]</li>
+<li>subtract nums[i - k]</li>
+</ul>
+</li>
+<li>Track the maximum sum.</li>
+<li>Divide by k to get the average.</li>
+</ol>
+<hr>
+<h2 id="7-time--space-complexity">7. Time &amp; Space Complexity</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time:  O(n)
+</span></span><span style="display:flex;"><span>Space: O(1)
+</span></span></code></pre></div><p>Each element is processed exactly once.</p>
+<hr>
+<h2 id="8-final-code-java">8. Final Code (Java)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">findMaxAverage</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums, <span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> n <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> windowSum <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Sum of first window</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> k; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            windowSum <span style="color:#f92672">+=</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> maxSum <span style="color:#f92672">=</span> windowSum;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Slide the window</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> k; i <span style="color:#f92672">&lt;</span> n; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            windowSum <span style="color:#f92672">+=</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>            windowSum <span style="color:#f92672">-=</span> nums<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> k<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>            maxSum <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">max</span>(maxSum, windowSum);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (<span style="color:#66d9ef">double</span>) maxSum <span style="color:#f92672">/</span> k;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="9-interview-style-explanation">9. Interview-Style Explanation</h2>
+<blockquote>
+<p>“Because the window size is fixed, I maintain a rolling sum.<br>
+As the window slides, I add the new element and remove the old one.<br>
+This avoids recomputation and keeps the solution linear.”</p></blockquote>
+<hr>
+<h2 id="10-common-mistakes">10. Common Mistakes</h2>
+<ul>
+<li>Recomputing sum for every window</li>
+<li>Using floating-point arithmetic too early</li>
+<li>Off-by-one errors when sliding</li>
+<li>Forgetting negative values</li>
+</ul>
+<hr>
+<h2 id="11-alternative-prefix-sum--not-recommended-here">11. Alternative (Prefix Sum) — Not Recommended Here</h2>
+<p>You can solve this using prefix sums, but it:</p>
+<ul>
+<li>uses extra memory,</li>
+<li>adds unnecessary complexity.</li>
+</ul>
+<p>Fixed sliding window is the <strong>cleanest and most interview-friendly</strong> solution.</p>
+<h3 id="for-reference">For reference</h3>
+<p>Prefix sum is the <strong>“precompute sums so any subarray sum is O(1)”</strong> approach.</p>
+<h4 id="idea">Idea</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Build prefix[i] = sum(nums[0..i-1]) (length n+1, with prefix[0]=0).
+</span></span></code></pre></div><p>Then any subarray sum of length k ending at i is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>sum(i-k .. i-1) = prefix[i] - prefix[i-k]
+</span></span></code></pre></div><h3 id="java-prefix-sum">Java (Prefix Sum)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">findMaxAverage</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums, <span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> n <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span><span style="color:#f92672">[]</span> prefix <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">long</span><span style="color:#f92672">[</span>n <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> n; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            prefix<span style="color:#f92672">[</span>i <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> prefix<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> maxSum <span style="color:#f92672">=</span> Long.<span style="color:#a6e22e">MIN_VALUE</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> k; i <span style="color:#f92672">&lt;=</span> n; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">long</span> windowSum <span style="color:#f92672">=</span> prefix<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">-</span> prefix<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> k<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (windowSum <span style="color:#f92672">&gt;</span> maxSum) maxSum <span style="color:#f92672">=</span> windowSum;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (<span style="color:#66d9ef">double</span>) maxSum <span style="color:#f92672">/</span> k;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="complexity">Complexity</h4>
+<ul>
+<li>Time: <strong>O(n)</strong></li>
+<li>Space: <strong>O(n)</strong> (this is why fixed sliding window is preferred here)</li>
+</ul>
+<hr>
+<h2 id="12-key-takeaway">12. Key Takeaway</h2>
+<p>Fixed-size sliding window problems are about <strong>maintaining state</strong>, not recomputation.</p>
+<p>If you master this pattern, a whole class of problems becomes trivial.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    
+        <a href="/learning/intermediate-skills/problem-solving/5_coderpad-practice/all-problems/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/problem-solving/" class="btn nav-btn">
+        Problem Solving : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

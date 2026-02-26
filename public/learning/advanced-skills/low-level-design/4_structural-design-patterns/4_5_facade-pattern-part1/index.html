@@ -8,7 +8,8 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1771361682">
+<link rel="stylesheet" href="/css/style.css?v=1772101295">
+<link rel="stylesheet" href="/css/custom.css?v=1772101295">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -124,12 +125,12 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 7 Feb, 2026
+            Last updated on: 25 Feb, 2026
           
         </p>
       </div>
     </div>
-    
+
     <article class="topic-content">
       <h2 id="1-why-facade-pattern-exists-the-real-problem">1. Why Facade Pattern Exists (The Real Problem)</h2>
 <hr>
@@ -310,8 +311,8 @@ A Facade must <strong>own the workflow</strong>, not merely forward calls.</p>
 <ul>
 <li>there is only <strong>one orchestration path</strong></li>
 <li>no competing workflows exist</li>
-<li>no coordination logic has leaked into controllers or clients
-• the orchestration is still naturally scoped to a single service</li>
+<li>no coordination logic has leaked into controllers or clients</li>
+<li>the orchestration is still naturally scoped to a single service</li>
 </ul>
 <p>Because of this, introducing a dedicated Facade abstraction <strong>would add indirection without solving a real problem</strong>.</p>
 <blockquote>
@@ -328,12 +329,16 @@ A Facade must <strong>own the workflow</strong>, not merely forward calls.</p>
 <h2 id="7-where-facade-actually-lives-in-real-systems">7. Where Facade Actually Lives in Real Systems</h2>
 <hr>
 <p>In real applications, Facade typically sits:</p>
-<pre tabindex="0"><code class="language-code" data-lang="code">Controller / UI / Job
-        ↓
-     Facade   ←––– this layer
-        ↓
-  Domain Services (HR, Payroll, IT, Reporting, etc.)
-</code></pre><p>Think of Facade as:</p>
+<div class="mermaid">
+flowchart TD
+    A[Controller / UI / Job] -->|Business Use Case| B[Facade]
+
+    B -->|HR Logic| C[HR Operations]
+    B -->|Salary Logic| D[Payroll Operations]
+    B -->|Access Control| E[IT Admin Operations]
+    B -->|Documents| F[Reporting Operations]
+</div>
+<p>Think of Facade as:</p>
 <ul>
 <li>a <strong>use-case boundary</strong></li>
 <li>a <strong>workflow coordinator</strong></li>
@@ -408,7 +413,7 @@ That will change the moment we introduce <strong>multi-step lifecycle workflows<
 <li>Notifications</li>
 </ul>
 <p>We’ll first see the <strong>naive approach</strong>, then refactor it into a proper Facade — and only then will the pattern fully click.</p>
-<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_5_facade-pattern-part2">Up next: Facade Pattern – Orchestrating Employee Offboarding (Part 2) →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_6_facade-pattern-part2">Up next: Facade Pattern – Orchestrating Employee Offboarding (Part 2) →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
@@ -453,10 +458,12 @@ That will change the moment we introduce <strong>multi-step lifecycle workflows<
     
     
     <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
-        Low Level Design (LLD) : Home Page
+        Low-Level Design (LLD) : Home Page
     </a>
     
 
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_6_facade-pattern-part2/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -478,6 +485,38 @@ That will change the moment we introduce <strong>multi-step lifecycle workflows<
     circle.style.strokeDashoffset = offset;
     text.textContent = Math.round(scrollPercent) + "%";
   });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
 </script>
 
   </main>
@@ -506,5 +545,18 @@ That will change the moment we introduce <strong>multi-step lifecycle workflows<
     <p>© 2026 The Shubham Co. All rights reserved.</p>
   </div>
 </footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
 </body>
 </html>

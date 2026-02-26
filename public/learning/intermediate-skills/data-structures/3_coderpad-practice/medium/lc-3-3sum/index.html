@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3Sum</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771855858">
+<link rel="stylesheet" href="/css/custom.css?v=1771855858">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">3Sum</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Problem Statement</li>
+        
+        <li>2. Clarifying Questions (Interview Thinking)</li>
+        
+        <li>3. Constraints &amp;amp; Edge Cases</li>
+        
+        <li>4. Brute Force Idea</li>
+        
+        <li>5. Pattern Recognition</li>
+        
+        <li>6. Handling Duplicates – Naive Thinking → Correct Intuition</li>
+        
+        <li>8. Final Code (Java)</li>
+        
+        <li>9. Interview-Style Explanation</li>
+        
+        <li>10. Common Mistakes</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    
+    
+      <div class="solution-meta-card">
+        <div class="solution-meta-left">
+          <span class="solution-pill">Medium</span>
+          <span class="solution-pill">LeetCode</span>
+
+          
+          
+          
+              
+          
+
+          
+            <span class="solution-meta-label">Patterns:</span>
+            <span class="solution-meta-value">Two Pointers</span>
+          
+        </div>
+
+        <div class="solution-meta-right">
+          
+            <a class="btn nav-btn" href="https://leetcode.com/problems/3sum/" target="_blank" rel="noopener">View Original Problem</a>
+          
+        </div>
+      </div>
+    
+    
+    <article class="topic-content">
+      <h1 id="leetcode-problem-3sum">LeetCode Problem: 3Sum</h1>
+<h2 id="1-problem-statement">1. Problem Statement</h2>
+<p>Given an integer array <code>nums</code>, return all the <strong>unique triplets</strong>
+<code>[nums[i], nums[j], nums[k]]</code> such that:</p>
+<ul>
+<li><code>i</code>, <code>j</code>, and <code>k</code> are distinct indices</li>
+<li><code>nums[i] + nums[j] + nums[k] == 0</code></li>
+</ul>
+<p>The solution set must not contain duplicate triplets.</p>
+<p>Return the answer in any order.</p>
+<hr>
+<h2 id="2-clarifying-questions-interview-thinking">2. Clarifying Questions (Interview Thinking)</h2>
+<p>Before coding, confirm:</p>
+<ul>
+<li>Do we return indices or values? → <strong>Values (triplets)</strong></li>
+<li>Should triplets be unique? → <strong>Yes</strong></li>
+<li>Can the input contain duplicates? → <strong>Yes</strong></li>
+<li>Can the array be modified? → <strong>Yes (sorting allowed)</strong></li>
+<li>Does output order matter? → <strong>No</strong></li>
+</ul>
+<hr>
+<h2 id="3-constraints--edge-cases">3. Constraints &amp; Edge Cases</h2>
+<ul>
+<li><code>nums.length &lt; 3</code> → return empty list</li>
+<li>All zeros (e.g. <code>[0,0,0,0]</code>) → only one triplet <code>[0,0,0]</code></li>
+<li>Multiple duplicates → must be handled carefully</li>
+<li>Large input → brute force is too slow</li>
+</ul>
+<hr>
+<h2 id="4-brute-force-idea">4. Brute Force Idea</h2>
+<p>Try all triplets using three nested loops and store results in a set.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time: O(n³)
+</span></span><span style="display:flex;"><span>Space: O(k) for result set
+</span></span></code></pre></div><p>Correct, but inefficient and not interview-friendly.</p>
+<hr>
+<h2 id="5-pattern-recognition">5. Pattern Recognition</h2>
+<p>Key observations:</p>
+<ul>
+<li>We need triplets</li>
+<li>Duplicate handling is critical</li>
+<li>After sorting, the problem reduces to:
+<ul>
+<li>Fix one number</li>
+<li>Find two numbers whose sum equals -fixed</li>
+</ul>
+</li>
+</ul>
+<p><strong>➡️ Sorting + Two Pointers</strong></p>
+<hr>
+<h2 id="6-handling-duplicates--naive-thinking--correct-intuition">6. Handling Duplicates – Naive Thinking → Correct Intuition</h2>
+<p>Before landing on the final solution, a natural way to think about 3Sum is:</p>
+<h3 id="naive-plan-correct-structure-missing-uniqueness">Naive Plan (Correct Structure, Missing Uniqueness)</h3>
+<ol>
+<li>Sort the array → <code>O(n log n)</code></li>
+<li>Fix one element <code>i</code> (loop) → <code>O(n)</code></li>
+<li>Find the remaining two elements using Two Pointers → <code>O(n)</code> per <code>i</code></li>
+<li>Add the triplet to the results</li>
+</ol>
+<p><strong>Time complexity</strong></p>
+<ul>
+<li>Sorting: <code>O(n log n)</code></li>
+<li>Two pointers inside a loop: <code>O(n * n)</code></li>
+<li>Total: <code>O(n log n + n²)</code> → dominated by <strong><code>O(n²)</code></strong></li>
+</ul>
+<p>This structure is correct and is exactly the intended direction.</p>
+<p>✅ <strong>Problem:</strong> it can produce <strong>duplicate triplets</strong> when the input has duplicates.</p>
+<hr>
+<h3 id="naive-fix-1-remove-duplicates-from-the-array-after-sorting-incorrect">Naive Fix #1: Remove Duplicates From the Array After Sorting (Incorrect)</h3>
+<p>Another idea:</p>
+<ol>
+<li>Sort</li>
+<li>Remove duplicates in-place</li>
+<li>Run 3Sum on the deduplicated array</li>
+</ol>
+<p>This is <strong>wrong</strong> because duplicates are sometimes required to form valid triplets.</p>
+<p>Examples:</p>
+<ul>
+<li><code>[-1, -1, 2]</code> requires two <code>-1</code>s</li>
+<li><code>[0, 0, 0]</code> requires three <code>0</code>s</li>
+</ul>
+<p>Removing duplicates breaks correctness.</p>
+<hr>
+<h3 id="naive-fix-2-deduplicate-the-result-set-afterward-works-but-weak-interview-signal">Naive Fix #2: Deduplicate the Result Set Afterward (Works, But Weak Interview Signal)</h3>
+<p>A tempting fix is:</p>
+<ol>
+<li>Sort</li>
+<li>Fix one element</li>
+<li>Two pointers for the remaining two</li>
+<li>Add triplets</li>
+<li>Remove duplicates from results using a <code>Set</code></li>
+</ol>
+<p>This works because the set can enforce uniqueness.</p>
+<p>However, it is not ideal in interviews because:</p>
+<ul>
+<li>it uses extra memory,</li>
+<li>it hides the real challenge (duplicate control),</li>
+<li>it adds implementation complexity just to “clean up” output.</li>
+</ul>
+<h4 id="how-would-we-implement-this-for-curiosity">How would we implement this (for curiosity)?</h4>
+<ul>
+<li>Keep <code>Set&lt;List&lt;Integer&gt;&gt;</code> (or <code>Set&lt;String&gt;</code> like <code>&quot;a,b,c&quot;</code>)</li>
+<li>Add each triplet to the set instead of a list</li>
+<li>Convert the set back to a list at the end</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">threeSum</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums) {
+</span></span><span style="display:flex;"><span>        Set<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> result <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>(); <span style="color:#75715e">//to remove duplicates</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(nums <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&lt;</span> 3) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// sort</span>
+</span></span><span style="display:flex;"><span>        Arrays.<span style="color:#a6e22e">sort</span>(nums); <span style="color:#75715e">// nlogn</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// fix one element</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 2; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// find two others</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> i<span style="color:#f92672">+</span>1;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> right <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span>1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">while</span>(left <span style="color:#f92672">&lt;</span> right) {
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">if</span>(sum <span style="color:#f92672">==</span> 0){
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">// remove duplicates from result</span>
+</span></span><span style="display:flex;"><span>                result.<span style="color:#a6e22e">add</span>(Arrays.<span style="color:#a6e22e">asList</span>(nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>));
+</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>               }
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(sum <span style="color:#f92672">&gt;</span> 0){
+</span></span><span style="display:flex;"><span>                right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>               }
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>               }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>(result); <span style="color:#75715e">//converting to arrays</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This is straightforward but <strong>less preferred</strong> than controlling duplicates during traversal.</p>
+<hr>
+<h3 id="final-intuition-skip-duplicates-during-traversal-correct-interview-strategy">Final Intuition: Skip Duplicates During Traversal (Correct Interview Strategy)</h3>
+<p>The correct approach is to:</p>
+<ul>
+<li>keep duplicates in the array,</li>
+<li>but skip them at the right moments.</li>
+</ul>
+<p>We remove duplicates <strong>by iteration rules</strong>, not by modifying input or cleaning output later:</p>
+<ol>
+<li>
+<p><strong>Skip duplicate anchors</strong></p>
+<ul>
+<li>If <code>i &gt; 0</code> and <code>nums[i] == nums[i - 1]</code>, skip this <code>i</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Skip duplicate left/right values after finding a valid triplet</strong></p>
+<ul>
+<li>After <code>sum == 0</code>, move both pointers and skip repeated values.</li>
+</ul>
+</li>
+</ol>
+<p>This guarantees:</p>
+<ul>
+<li>uniqueness without a set,</li>
+<li><code>O(1)</code> extra space (excluding output),</li>
+<li>and it matches what interviewers expect.</li>
+</ul>
+<h3 id="time--space-complexity">Time &amp; Space Complexity</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time: O(n²)
+</span></span><span style="display:flex;"><span>Space: O(1) extra (excluding output)
+</span></span></code></pre></div><hr>
+<h2 id="8-final-code-java">8. Final Code (Java)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">threeSum</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums) {
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> result <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(nums <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&lt;</span> 3) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// sort</span>
+</span></span><span style="display:flex;"><span>        Arrays.<span style="color:#a6e22e">sort</span>(nums); <span style="color:#75715e">// nlogn</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// fix one element</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 2; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">//skip the duplicate starting elements</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>(i <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">-</span>1<span style="color:#f92672">]</span>) <span style="color:#66d9ef">continue</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// find two others</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> i<span style="color:#f92672">+</span>1;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> right <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span>1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">while</span>(left <span style="color:#f92672">&lt;</span> right) {
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">if</span>(sum <span style="color:#f92672">==</span> 0){
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">// remove duplicates from result</span>
+</span></span><span style="display:flex;"><span>                result.<span style="color:#a6e22e">add</span>(Arrays.<span style="color:#a6e22e">asList</span>(nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>));
+</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>left <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>right <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>) right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>               }
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(sum <span style="color:#f92672">&gt;</span> 0){
+</span></span><span style="display:flex;"><span>                right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>               }
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>               }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="9-interview-style-explanation">9. Interview-Style Explanation</h2>
+<blockquote>
+<p>“After sorting the array, I fix one element and use Two Pointers to find pairs that sum to the negative of that value.<br>
+The key challenge is handling duplicates.<br>
+I skip duplicate anchor values and also skip duplicate values while moving the pointers after finding a valid triplet.<br>
+This guarantees uniqueness without extra space and reduces time complexity to O(n²).”</p></blockquote>
+<hr>
+<h2 id="10-common-mistakes">10. Common Mistakes</h2>
+<ul>
+<li>Using a Set to deduplicate results instead of controlling traversal</li>
+<li>Removing duplicates from the array itself</li>
+<li>Forgetting to skip duplicate anchors</li>
+<li>Not skipping duplicates after finding a valid triplet</li>
+<li>Moving only one pointer after sum == 0</li>
+</ul>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    
+        <a href="/learning/intermediate-skills/data-structures/3_coderpad-practice/all-problems/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/data-structures/" class="btn nav-btn">
+        Data Structures : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

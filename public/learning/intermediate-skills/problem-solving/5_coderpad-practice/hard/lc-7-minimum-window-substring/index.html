@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimum Window Substring</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1772113332">
+<link rel="stylesheet" href="/css/custom.css?v=1772113332">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Minimum Window Substring</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Problem Statement</li>
+        
+        <li>2. Why This Problem Is Hard</li>
+        
+        <li>3. Clarifying Questions (Interview Thinking)</li>
+        
+        <li>4. Initial Intuition (Correct but Incomplete)</li>
+        
+        <li>5. The Core Insight: Incremental Validity</li>
+        
+        <li>6. Sliding Window Strategy</li>
+        
+        <li>7. Time &amp;amp; Space Complexity</li>
+        
+        <li>8. Final Code (Java)</li>
+        
+        <li>9. Interview-Style Explanation</li>
+        
+        <li>10. Common Mistakes</li>
+        
+        <li>11. Key Takeaway</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 12 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    
+    
+      <div class="solution-meta-card">
+        <div class="solution-meta-left">
+          <span class="solution-pill">Hard</span>
+          <span class="solution-pill">LeetCode</span>
+
+          
+          
+          
+              
+          
+
+          
+            <span class="solution-meta-label">Patterns:</span>
+            <span class="solution-meta-value">Sliding Window</span>
+          
+        </div>
+
+        <div class="solution-meta-right">
+          
+            <a class="btn nav-btn" href="https://leetcode.com/problems/minimum-window-substring/" target="_blank" rel="noopener">View Original Problem</a>
+          
+        </div>
+      </div>
+    
+    
+    <article class="topic-content">
+      <h1 id="leetcode-problem-minimum-window-substring">LeetCode Problem: Minimum Window Substring</h1>
+<h2 id="1-problem-statement">1. Problem Statement</h2>
+<p>Given two strings <code>s</code> and <code>t</code>, return the <strong>minimum window substring</strong> of <code>s</code> such that <strong>every character in <code>t</code> (including duplicates)</strong> is included in the window.</p>
+<p>If no such substring exists, return an empty string <code>&quot;&quot;</code>.</p>
+<hr>
+<h2 id="2-why-this-problem-is-hard">2. Why This Problem Is Hard</h2>
+<p>This problem looks similar to other sliding window questions — but it is <strong>fundamentally different</strong>.</p>
+<p>Most sliding window problems ask:</p>
+<ul>
+<li><em>longest</em> valid window</li>
+<li><em>at most k</em> violations</li>
+</ul>
+<p>This one asks for:</p>
+<ul>
+<li>the <strong>shortest</strong> valid window</li>
+<li><strong>exact frequency matching</strong></li>
+<li><strong>precise shrinking</strong></li>
+</ul>
+<p>The difficulty is <strong>not expanding the window</strong> —<br>
+the difficulty is <strong>knowing exactly when shrinking breaks validity</strong>.</p>
+<hr>
+<h2 id="3-clarifying-questions-interview-thinking">3. Clarifying Questions (Interview Thinking)</h2>
+<p>Before coding, confirm:</p>
+<ul>
+<li>Is the substring contiguous? → <strong>Yes</strong></li>
+<li>Do duplicates in <code>t</code> matter? → <strong>Yes</strong></li>
+<li>If multiple windows exist? → <strong>Return the shortest</strong></li>
+<li>If no window exists? → <strong>Return empty string</strong></li>
+</ul>
+<hr>
+<h2 id="4-initial-intuition-correct-but-incomplete">4. Initial Intuition (Correct but Incomplete)</h2>
+<p>A natural first thought is:</p>
+<ol>
+<li>Count character frequencies in <code>t</code></li>
+<li>Expand a window over <code>s</code></li>
+<li>Track current frequencies</li>
+<li>Once all required characters are present:
+<ul>
+<li>shrink from the left</li>
+<li>update the minimum window</li>
+</ul>
+</li>
+</ol>
+<p>This intuition is <strong>correct</strong>.</p>
+<p>However, the mistake many people (including myself) make is trying to:</p>
+<ul>
+<li>recompute validity repeatedly, or</li>
+<li>scan the target map again and again during shrinking</li>
+</ul>
+<p>That approach quickly becomes fragile and error-prone.</p>
+<hr>
+<h2 id="5-the-core-insight-incremental-validity">5. The Core Insight: Incremental Validity</h2>
+<p>The key idea is:</p>
+<blockquote>
+<p><strong>Window validity must be tracked incrementally — not recomputed.</strong></p></blockquote>
+<p>We do this using two counters:</p>
+<ul>
+<li><code>required</code> → number of distinct characters in <code>t</code></li>
+<li><code>formed</code> → number of characters that currently meet their required frequency in the window</li>
+</ul>
+<h3 id="validity-condition">Validity Condition</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>formed == required
+</span></span></code></pre></div><p>This condition changes <strong>only when frequencies cross a boundary</strong>, not on every iteration.</p>
+<hr>
+<h2 id="6-sliding-window-strategy">6. Sliding Window Strategy</h2>
+<h3 id="step-by-step-approach">Step-by-step approach:</h3>
+<ol>
+<li>Build a frequency map of <code>t</code></li>
+<li>Expand <code>right</code> pointer:
+<ul>
+<li>update current window frequencies</li>
+<li>increment <code>formed</code> only when a character reaches required count</li>
+</ul>
+</li>
+<li>Once window is valid:
+<ul>
+<li>shrink from <code>left</code> as much as possible</li>
+<li>update the best (minimum) window</li>
+</ul>
+</li>
+<li>Stop shrinking when validity breaks</li>
+<li>Continue expanding</li>
+</ol>
+<hr>
+<h2 id="7-time--space-complexity">7. Time &amp; Space Complexity</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Time: O(<span style="color:#f92672">|</span>s<span style="color:#f92672">|</span> <span style="color:#f92672">+</span> <span style="color:#f92672">|</span>t<span style="color:#f92672">|</span>)
+</span></span><span style="display:flex;"><span>Space: O(Σ) <span style="color:#75715e">// number of distinct characters</span>
+</span></span></code></pre></div><p>Each character is added and removed from the window at most once.</p>
+<hr>
+<h2 id="8-final-code-java">8. Final Code (Java)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">minWindow</span>(String s, String t) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Edge conditions</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(s <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> t <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span>  t.<span style="color:#a6e22e">isEmpty</span>() <span style="color:#f92672">||</span> s.<span style="color:#a6e22e">length</span>() <span style="color:#f92672">&lt;</span> t.<span style="color:#a6e22e">length</span>() ) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;&#34;</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Frequency map for target string</span>
+</span></span><span style="display:flex;"><span>        Map<span style="color:#f92672">&lt;</span>Character, Integer<span style="color:#f92672">&gt;</span> need <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">char</span> character : t.<span style="color:#a6e22e">toCharArray</span>()){
+</span></span><span style="display:flex;"><span>            need.<span style="color:#a6e22e">put</span>(character, need.<span style="color:#a6e22e">getOrDefault</span>(character, 0) <span style="color:#f92672">+</span> 1);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Map<span style="color:#f92672">&lt;</span>Character, Integer<span style="color:#f92672">&gt;</span> window <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> required <span style="color:#f92672">=</span> need.<span style="color:#a6e22e">size</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> formed <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> right <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> bestLength <span style="color:#f92672">=</span> Integer.<span style="color:#a6e22e">MAX_VALUE</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> bestStartIndex <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span>(right <span style="color:#f92672">&lt;</span> s.<span style="color:#a6e22e">length</span>()){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">char</span> character <span style="color:#f92672">=</span> s.<span style="color:#a6e22e">charAt</span>(right);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">put</span>(character, window.<span style="color:#a6e22e">getOrDefault</span>(character, 0) <span style="color:#f92672">+</span> 1);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// If this char is needed and we just met the required count, increase formed</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (need.<span style="color:#a6e22e">containsKey</span>(character) <span style="color:#f92672">&amp;&amp;</span> window.<span style="color:#a6e22e">get</span>(character).<span style="color:#a6e22e">intValue</span>() <span style="color:#f92672">==</span> need.<span style="color:#a6e22e">get</span>(character).<span style="color:#a6e22e">intValue</span>()){
+</span></span><span style="display:flex;"><span>                formed<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Try shrining while window is valid</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">while</span>(left <span style="color:#f92672">&lt;=</span> right <span style="color:#f92672">&amp;&amp;</span> formed <span style="color:#f92672">==</span> required) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">int</span> windowLength <span style="color:#f92672">=</span> right <span style="color:#f92672">-</span> left <span style="color:#f92672">+</span> 1;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> (windowLength <span style="color:#f92672">&lt;</span> bestLength) {
+</span></span><span style="display:flex;"><span>                    bestLength <span style="color:#f92672">=</span> windowLength;
+</span></span><span style="display:flex;"><span>                    bestStartIndex <span style="color:#f92672">=</span> left;
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">char</span> leftChar <span style="color:#f92672">=</span> s.<span style="color:#a6e22e">charAt</span>(left);
+</span></span><span style="display:flex;"><span>                window.<span style="color:#a6e22e">put</span>(leftChar, window.<span style="color:#a6e22e">get</span>(leftChar) <span style="color:#f92672">-</span> 1);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">// Character fell below required frequency</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> (need.<span style="color:#a6e22e">containsKey</span>(leftChar) <span style="color:#f92672">&amp;&amp;</span> window.<span style="color:#a6e22e">get</span>(leftChar) <span style="color:#f92672">&lt;</span> need.<span style="color:#a6e22e">get</span>(leftChar)) {
+</span></span><span style="display:flex;"><span>                    formed<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            right<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> bestLength <span style="color:#f92672">==</span> Integer.<span style="color:#a6e22e">MAX_VALUE</span> <span style="color:#f92672">?</span> <span style="color:#e6db74">&#34;&#34;</span> : s.<span style="color:#a6e22e">substring</span>(bestStartIndex, bestStartIndex <span style="color:#f92672">+</span> bestLength);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="9-interview-style-explanation">9. Interview-Style Explanation</h2>
+<blockquote>
+<p>“I expand a sliding window and track character frequencies.<br>
+A window becomes valid once it covers all required characters with correct counts.<br>
+When valid, I shrink it from the left as much as possible while preserving validity,<br>
+updating the minimum window during shrinking.<br>
+This guarantees linear time complexity.”</p></blockquote>
+<hr>
+<h2 id="10-common-mistakes">10. Common Mistakes</h2>
+<ul>
+<li>Recomputing validity on every iteration</li>
+<li>Using equality checks incorrectly for frequency</li>
+<li>Shrinking without updating formed</li>
+<li>Creating substrings repeatedly inside loops</li>
+<li>Treating this like a ‘longest window’ problem</li>
+</ul>
+<hr>
+<h2 id="11-key-takeaway">11. Key Takeaway</h2>
+<p>Minimum Window Substring is <strong>not about tricks</strong>.</p>
+<p>It tests:</p>
+<ul>
+<li>invariant thinking</li>
+<li>precise shrinking</li>
+<li>disciplined state tracking</li>
+</ul>
+<p>Struggling with this problem is normal.
+Understanding why it works is what actually matters.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    
+        <a href="/learning/intermediate-skills/problem-solving/5_coderpad-practice/all-problems/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/problem-solving/" class="btn nav-btn">
+        Problem Solving : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

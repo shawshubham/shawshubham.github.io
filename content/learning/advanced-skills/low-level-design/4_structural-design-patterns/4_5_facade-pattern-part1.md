@@ -253,7 +253,7 @@ At this point in the system:
 - there is only **one orchestration path**
 - no competing workflows exist
 - no coordination logic has leaked into controllers or clients
-  • the orchestration is still naturally scoped to a single service
+- the orchestration is still naturally scoped to a single service
 
 Because of this, introducing a dedicated Facade abstraction **would add indirection without solving a real problem**.
 
@@ -277,12 +277,14 @@ That will change — and when it does, the Facade will become obvious rather tha
 
 In real applications, Facade typically sits:
 
-```code
-Controller / UI / Job
-        ↓
-     Facade   ←––– this layer
-        ↓
-  Domain Services (HR, Payroll, IT, Reporting, etc.)
+```mermaid
+flowchart TD
+    A[Controller / UI / Job] -->|Business Use Case| B[Facade]
+
+    B -->|HR Logic| C[HR Operations]
+    B -->|Salary Logic| D[Payroll Operations]
+    B -->|Access Control| E[IT Admin Operations]
+    B -->|Documents| F[Reporting Operations]
 ```
 
 Think of Facade as:
@@ -391,7 +393,7 @@ A single business action that requires coordination across:
 
 We’ll first see the **naive approach**, then refactor it into a proper Facade — and only then will the pattern fully click.
 
-👉 **[Up next: Facade Pattern – Orchestrating Employee Offboarding (Part 2) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_5_facade-pattern-part2)**
+👉 **[Up next: Facade Pattern – Orchestrating Employee Offboarding (Part 2) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_6_facade-pattern-part2)**
 
 ---
 

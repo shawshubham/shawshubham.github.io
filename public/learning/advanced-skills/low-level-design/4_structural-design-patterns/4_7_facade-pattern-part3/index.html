@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facade Pattern – From Orchestration to Distributed Workflows (Part 3)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1772108910">
+<link rel="stylesheet" href="/css/custom.css?v=1772108910">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Facade Pattern – From Orchestration to Distributed Workflows (Part 3)</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Why This Part Exists</li>
+        
+        <li>2. The Hidden Assumption in Part 2 (The Happy Path)</li>
+        
+        <li>3. Real Failure Scenarios Facade Does Not Solve</li>
+        
+        <li>4. The Wrong Reaction: Stuffing Rollback into Facade</li>
+        
+        <li>5. What Facade Actually Gives You (The Key Insight)</li>
+        
+        <li>6. The Natural Evolution of a Growing Workflow</li>
+        
+        <li>7. Where Failure-Aware and Async Facades Will Be Taught</li>
+        
+        <li>8. Why We Intentionally Stop at Facade in LLD</li>
+        
+        <li>9. How This Connects to the Bigger Learning Path</li>
+        
+        <li>Conclusion</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 26 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h2 id="1-why-this-part-exists">1. Why This Part Exists</h2>
+<hr>
+<p>In <strong>Part 2</strong>, we introduced a Facade to orchestrate <strong>Employee Offboarding</strong>.</p>
+<p>The result was:</p>
+<ul>
+<li>clean orchestration</li>
+<li>SRP-compliant services</li>
+<li>a single workflow owner</li>
+<li>clear call order</li>
+</ul>
+<p>At this point, many tutorials stop.</p>
+<p>But real systems don’t.</p>
+<p>This part exists to answer the next, harder question:</p>
+<blockquote>
+<p><strong>What happens when things go wrong?</strong></p></blockquote>
+<hr>
+<h2 id="2-the-hidden-assumption-in-part-2-the-happy-path">2. The Hidden Assumption in Part 2 (The Happy Path)</h2>
+<hr>
+<p>Our Facade in Part 2 assumed:</p>
+<ul>
+<li>every service call succeeds</li>
+<li>execution is synchronous</li>
+<li>failures are rare or acceptable</li>
+<li>ordering is linear and reliable</li>
+</ul>
+<p>This assumption is common — and reasonable — at <strong>Low-Level Design</strong>.</p>
+<p>But it is still an assumption.</p>
+<blockquote>
+<p>Facade simplified orchestration.<br>
+It did <strong>not</strong> solve failure semantics.</p></blockquote>
+<p>That distinction matters.</p>
+<hr>
+<h2 id="3-real-failure-scenarios-facade-does-not-solve">3. Real Failure Scenarios Facade Does Not Solve</h2>
+<hr>
+<p>Consider Employee Offboarding again.</p>
+<p>What if:</p>
+<ul>
+<li>Payroll stops salary, but IT access revocation fails?</li>
+<li>HR marks employee inactive, but Reporting times out?</li>
+<li>Offboarding is triggered twice concurrently?</li>
+<li>The process crashes halfway through?</li>
+</ul>
+<p>These are not edge cases.
+They are <strong>normal conditions</strong> in real systems.</p>
+<p>At this point, developers often feel:</p>
+<blockquote>
+<p>“Facade isn’t enough anymore.”</p></blockquote>
+<p>That feeling is <strong>correct</strong> — but incomplete.</p>
+<hr>
+<h2 id="4-the-wrong-reaction-stuffing-rollback-into-facade">4. The Wrong Reaction: Stuffing Rollback into Facade</h2>
+<hr>
+<p>A common instinct is to “fix” this by adding:</p>
+<ul>
+<li>try/catch everywhere</li>
+<li>manual rollback calls</li>
+<li>nested compensation logic</li>
+<li>undo methods in services</li>
+</ul>
+<p>Example (❌ do not do this):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    payroll.<span style="color:#a6e22e">stopSalary</span>(id);
+</span></span><span style="display:flex;"><span>    itAdmin.<span style="color:#a6e22e">revokeAccess</span>(id);
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">catch</span> (Exception e) {
+</span></span><span style="display:flex;"><span>    payroll.<span style="color:#a6e22e">restartSalary</span>(id); <span style="color:#75715e">// ❌ naive rollback</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> e;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="41-why-this-fails">4.1 Why this fails</h3>
+<ul>
+<li>rollback is rarely symmetric</li>
+<li>services may not support reversal</li>
+<li>retries introduce duplication</li>
+<li>partial failures create inconsistent state</li>
+<li>Facade turns into a fragile workflow engine</li>
+</ul>
+<blockquote>
+<p><strong>Trying to solve distributed failure inside Facade breaks the pattern.</strong></p></blockquote>
+<hr>
+<h2 id="5-what-facade-actually-gives-you-the-key-insight">5. What Facade Actually Gives You (The Key Insight)</h2>
+<hr>
+<p>At this stage, it’s important to reset expectations.</p>
+<p>Facade’s real value is <strong>not</strong> failure handling.<br>
+Facade’s value is <strong>structural clarity</strong>.</p>
+<p>What Facade gives you is:</p>
+<ul>
+<li>a <strong>single workflow boundary</strong></li>
+<li>a <strong>stable orchestration API</strong></li>
+<li>a <strong>clear owner for business workflows</strong></li>
+<li>a <strong>natural seam for future evolution</strong></li>
+</ul>
+<p>In other words:</p>
+<blockquote>
+<p>Facade does <strong>not</strong> solve failure.<br>
+It creates the <strong>place where failure can be handled later</strong>.</p></blockquote>
+<p>This is a subtle but critical distinction.</p>
+<p>Without a Facade:</p>
+<ul>
+<li>failure handling gets scattered</li>
+<li>compensation logic leaks into services</li>
+<li>controllers start coordinating retries</li>
+<li>workflows become implicit and fragile</li>
+</ul>
+<p>With a Facade:</p>
+<ul>
+<li>all coordination is centralized</li>
+<li>evolution happens in one place</li>
+<li>advanced patterns can be introduced <em>without refactoring the system</em></li>
+</ul>
+<p>Facade is not the end of the journey.<br>
+It is the foundation that makes <em><strong>correct evolution</strong></em> possible.</p>
+<hr>
+<h2 id="6-the-natural-evolution-of-a-growing-workflow">6. The Natural Evolution of a Growing Workflow</h2>
+<hr>
+<p>As systems grow, workflows typically evolve like this:</p>
+<div class="mermaid">
+flowchart LR
+    A[Simple Facade] --> B[Facade + Failure Awareness]
+    B --> C[Async Orchestration]
+    C --> D[Distributed Workflow Management]
+</div>
+<p>Let’s clarify what this means.</p>
+<h3 id="61-simple-facade-lld">6.1 Simple Facade (LLD)</h3>
+<ul>
+<li>synchronous calls</li>
+<li>happy-path focus</li>
+<li>clear orchestration</li>
+<li>what we built in Part 2</li>
+</ul>
+<h3 id="62-failure-aware-facade">6.2 Failure-Aware Facade</h3>
+<ul>
+<li>retries</li>
+<li>alerts</li>
+<li>idempotency</li>
+<li>compensation hooks</li>
+</ul>
+<p>This stage still assumes a single application boundary and does not introduce distributed coordination.</p>
+<h3 id="63-async-orchestration">6.3 Async Orchestration</h3>
+<ul>
+<li>events</li>
+<li>queues</li>
+<li>delayed processing</li>
+<li>eventual consistency</li>
+</ul>
+<h3 id="64-distributed-workflow-management">6.4 Distributed Workflow Management</h3>
+<ul>
+<li>Saga-like coordination</li>
+<li>long-running transactions</li>
+<li>cross-service consistency guarantees</li>
+</ul>
+<p>Each step introduces <strong>new problems</strong> — and <strong>new design responsibilities</strong>.</p>
+<blockquote>
+<p>Importantly, these steps do <strong>not</strong> belong to the same learning layer:</p>
+<ul>
+<li><strong>Step 1: Simple Facade</strong> → Low-Level Design (LLD)</li>
+<li><strong>Step 2: Failure-Aware Facade</strong> → Advanced LLD</li>
+<li><strong>Step 3: Async Orchestration</strong> → High-Level Design (HLD)</li>
+<li><strong>Step 4: Distributed Workflow Management</strong> → Large-Scale System Design</li>
+</ul>
+<p>This article intentionally <strong>implements only Step 1</strong>.</p>
+<p>The remaining steps are <strong>named but not implemented — on purpose</strong>.</p>
+<p>At this stage, our goal is not to solve every failure scenario,<br>
+but to place the system in a structure where those solutions can be added later<br>
+<strong>without rewriting the design</strong>.</p></blockquote>
+<hr>
+<h2 id="7-where-failure-aware-and-async-facades-will-be-taught">7. Where Failure-Aware and Async Facades Will Be Taught</h2>
+<hr>
+<p>To avoid mixing abstraction layers, each workflow evolution is taught in a
+<strong>different part of the learning path</strong>.</p>
+<h3 id="71-failure-aware-facade-advanced-lld">7.1 Failure-Aware Facade (Advanced LLD)</h3>
+<p>In a later <strong>Low-Level Design add-on</strong>, we will revisit Facade and extend it with:</p>
+<ul>
+<li>idempotency guarantees</li>
+<li>retry policies</li>
+<li>timeouts and alerting</li>
+<li><strong>compensation hooks</strong> (not full rollback engines)</li>
+</ul>
+<p>This stage focuses on <strong>making workflows safe</strong>, while still keeping them:</p>
+<ul>
+<li>synchronous</li>
+<li>bounded to a single application</li>
+<li>structurally simple</li>
+</ul>
+<p>This is still <strong>Low-Level Design</strong>, but at a more mature level.</p>
+<hr>
+<h3 id="72-async-orchestration-high-level-design">7.2 Async Orchestration (High-Level Design)</h3>
+<p>Once workflows can no longer remain synchronous, we move to <strong>High-Level Design (HLD)</strong>.</p>
+<p>There, we will introduce:</p>
+<ul>
+<li>event-driven workflows</li>
+<li>background processing</li>
+<li>message queues</li>
+<li>eventual consistency</li>
+</ul>
+<p>At this point:</p>
+<ul>
+<li>Facade still exists</li>
+<li>but it becomes an <strong>orchestration trigger</strong>, not the executor</li>
+</ul>
+<p>This is where <strong>system boundaries</strong> start to matter.</p>
+<hr>
+<h3 id="73-distributed-workflow-management-large-scale-design">7.3 Distributed Workflow Management (Large-Scale Design)</h3>
+<p>Finally, when workflows span <strong>multiple services or systems</strong>, we enter
+<strong>Large-Scale / Distributed System Design</strong>.</p>
+<p>This is where patterns like <strong>Saga</strong> belong.</p>
+<p>Saga addresses:</p>
+<ul>
+<li>long-running workflows</li>
+<li>partial failure recovery</li>
+<li>cross-service consistency</li>
+<li>distributed compensation</li>
+</ul>
+<p>Importantly:</p>
+<blockquote>
+<p><strong>Saga is not a Facade enhancement.</strong><br>
+It is a <em>different class of solution</em> for a <em>different class of problems</em>.</p></blockquote>
+<p>Introducing it earlier would blur architectural boundaries and reduce clarity.</p>
+<hr>
+<h2 id="8-why-we-intentionally-stop-at-facade-in-lld">8. Why We Intentionally Stop at Facade in LLD</h2>
+<hr>
+<p>This tutorial series follows a strict rule:</p>
+<blockquote>
+<p><strong>Solve only the problems introduced so far.</strong></p></blockquote>
+<p>At the Low-Level Design stage, our goals are:</p>
+<ul>
+<li>correct structure</li>
+<li>clear ownership</li>
+<li>maintainable composition</li>
+<li>explicit workflows</li>
+</ul>
+<p>Facade accomplishes all of these.</p>
+<p>Failure handling is a <strong>different class of problem</strong> — and deserves its own context.</p>
+<p>Deferring it is not avoidance.<br>
+It is <strong>design discipline</strong>.</p>
+<hr>
+<h2 id="9-how-this-connects-to-the-bigger-learning-path">9. How This Connects to the Bigger Learning Path</h2>
+<hr>
+<p>Here’s how everything fits together:</p>
+<ul>
+<li><strong>LLD</strong> → structure, correctness, orchestration</li>
+<li><strong>HLD</strong> → async flows, compensation, resilience</li>
+<li><strong>Large-Scale Design</strong> → consistency, latency, fault tolerance</li>
+</ul>
+<p>The <strong>same EMS example</strong> will return later — with:</p>
+<ul>
+<li>async offboarding</li>
+<li>event-driven workflows</li>
+<li>Saga-style coordination</li>
+</ul>
+<p>But only when the reader is ready for it.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Facade is not a silver bullet.</p>
+<p>It is a <strong>boundary</strong>.</p>
+<ul>
+<li>It simplifies orchestration</li>
+<li>It protects services from misuse</li>
+<li>It centralizes workflow intent</li>
+</ul>
+<p>And just as importantly:</p>
+<blockquote>
+<p><strong>Facade tells you when the problem has outgrown Low-Level Design.</strong></p></blockquote>
+<p>That’s not a failure of Facade.<br>
+That’s a signal to move up the abstraction ladder.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<hr>
+<p>With Facade complete, we continue with <strong>Structural Design Patterns</strong>.</p>
+<p>The next problem to solve is not orchestration, but <strong>behavior extension</strong>:</p>
+<blockquote>
+<p><strong>How do we add features dynamically without modifying existing code?</strong></p></blockquote>
+<p>👉 <strong>Up next:</strong><br>
+<strong>Decorator Pattern – Adding Behavior Without Inheritance</strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Final Takeaway</strong></p>
+<ul>
+<li>Facade earns its place under real workflow pressure</li>
+<li>It coordinates, not compensates</li>
+<li>When failure dominates the design, the problem has changed</li>
+<li>Good design knows when to stop — and when to level up</li>
+</ul></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_6_facade-pattern-part2/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+        Low-Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

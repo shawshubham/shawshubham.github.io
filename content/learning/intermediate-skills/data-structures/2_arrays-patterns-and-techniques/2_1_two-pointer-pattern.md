@@ -1,7 +1,0 @@
----
-title: "Two Pointers Pattern"
-weight: 1
-description: ""
-date: 2025-06-14
-layout: "topic-content"
----

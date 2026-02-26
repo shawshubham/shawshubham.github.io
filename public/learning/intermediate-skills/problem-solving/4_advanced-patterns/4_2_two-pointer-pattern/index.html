@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Search on Partition — An Advanced Problem-Solving Pattern</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1772112808">
+<link rel="stylesheet" href="/css/custom.css?v=1772112808">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Binary Search on Partition — An Advanced Problem-Solving Pattern</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. What Makes This Pattern Different?</li>
+        
+        <li>2. When This Pattern Appears</li>
+        
+        <li>3. Core Mental Model</li>
+        
+        <li>4. What Is a Partition?</li>
+        
+        <li>5. Why Binary Search Works Here</li>
+        
+        <li>6. Binary Search on Partition vs Classic Binary Search</li>
+        
+        <li>7. Canonical Problems for This Pattern</li>
+        
+        <li>8. What This Pattern Is NOT Used For</li>
+        
+        <li>9. Why This Is Not a Core Pattern</li>
+        
+        <li>10. How You Should Use This Pattern</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 26 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    <article class="topic-content">
+      <h1 id="binary-search-on-partition--an-advanced-pattern">Binary Search on Partition — An Advanced Pattern</h1>
+<hr>
+<h3 id="-important-context">⚠️ Important Context</h3>
+<p>This is an <strong>advanced and specialized problem-solving pattern</strong>.</p>
+<p>It is:</p>
+<ul>
+<li>pattern-based ✅</li>
+<li>interview-relevant ✅</li>
+<li><strong>not</strong> a core foundational pattern ❌</li>
+</ul>
+<p>You are <strong>not expected</strong> to derive this pattern under pressure unless you have seen it before.</p>
+<p>This article exists to help you:</p>
+<ul>
+<li>recognize the pattern</li>
+<li>categorize problems correctly</li>
+<li>avoid forcing core techniques where they don’t apply</li>
+</ul>
+<hr>
+<h2 id="1-what-makes-this-pattern-different">1. What Makes This Pattern Different?</h2>
+<hr>
+<p>Classic binary search answers:</p>
+<blockquote>
+<p>“Does this value exist?”</p></blockquote>
+<p>Binary Search on Partition answers:</p>
+<blockquote>
+<p><strong>“Is this configuration (split) valid?”</strong></p></blockquote>
+<p>You are not searching for a number.<br>
+You are searching for a <strong>valid partition</strong> that satisfies strict conditions.</p>
+<hr>
+<h2 id="2-when-this-pattern-appears">2. When This Pattern Appears</h2>
+<hr>
+<p>This pattern usually appears when:</p>
+<ul>
+<li>Input data is <strong>sorted</strong></li>
+<li>A linear or merge-based solution is disallowed</li>
+<li>The problem requires <strong>O(log n)</strong> or <strong>O(log (m + n))</strong></li>
+<li>The task involves:
+<ul>
+<li>median</li>
+<li>k-th element</li>
+<li>balanced partition</li>
+<li>minimum / maximum feasible value</li>
+</ul>
+</li>
+</ul>
+<p>If merging or scanning feels “too easy” but is explicitly forbidden, this pattern is a strong candidate.</p>
+<hr>
+<h2 id="3-core-mental-model">3. Core Mental Model</h2>
+<hr>
+<p>Think of this pattern as:</p>
+<blockquote>
+<p><strong>“I am guessing where to cut, not what value to find.”</strong></p></blockquote>
+<p>At each step, binary search is used to adjust the <strong>position of the cut</strong> until the constraints are satisfied.</p>
+<hr>
+<h2 id="4-what-is-a-partition">4. What Is a Partition?</h2>
+<hr>
+<p>A partition divides the data into two parts:</p>
+<ul>
+<li><strong>Left part</strong></li>
+<li><strong>Right part</strong></li>
+</ul>
+<p>A valid partition satisfies an invariant such as:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">max(left_part) ≤ min(right_part)
+</code></pre><p>The exact invariant varies by problem, but the idea remains the same:</p>
+<ul>
+<li>all elements on the left are “valid”</li>
+<li>all elements on the right are “valid”</li>
+<li>nothing is out of order across the boundary</li>
+</ul>
+<hr>
+<h2 id="5-why-binary-search-works-here">5. Why Binary Search Works Here</h2>
+<hr>
+<p>The key property is <strong>monotonicity</strong>.</p>
+<p>If a partition:</p>
+<ul>
+<li>is invalid because it’s too far left<br>
+→ all partitions further left are also invalid</li>
+<li>is invalid because it’s too far right<br>
+→ all partitions further right are also invalid</li>
+</ul>
+<p>This monotonic behavior allows binary search to converge efficiently.</p>
+<hr>
+<h2 id="6-binary-search-on-partition-vs-classic-binary-search">6. Binary Search on Partition vs Classic Binary Search</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Classic Binary Search</th>
+          <th>Binary Search on Partition</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Search for a value</td>
+          <td>Search for a valid split</td>
+      </tr>
+      <tr>
+          <td>Compare mid value</td>
+          <td>Validate configuration</td>
+      </tr>
+      <tr>
+          <td>Value exists / not</td>
+          <td>Partition valid / invalid</td>
+      </tr>
+      <tr>
+          <td>Very common</td>
+          <td>Rare and specialized</td>
+      </tr>
+  </tbody>
+</table>
+<p>This distinction is critical.<br>
+Treating this as “just binary search” leads to wrong approaches.</p>
+<hr>
+<h2 id="7-canonical-problems-for-this-pattern">7. Canonical Problems for This Pattern</h2>
+<hr>
+<p>The following problems use this pattern.<br>
+They are listed here for <strong>recognition and future reference</strong>, not immediate mastery.</p>
+<h3 id="1-core--canonical">1. Core / Canonical</h3>
+<ul>
+<li><strong>Median of Two Sorted Arrays</strong></li>
+<li><strong>Kth Element of Two Sorted Arrays</strong></li>
+</ul>
+<h3 id="2-binary-search-on-answer-same-pattern-different-framing">2. Binary Search on Answer (Same Pattern, Different Framing)</h3>
+<ul>
+<li><strong>Split Array Largest Sum</strong></li>
+<li><strong>Capacity to Ship Packages Within D Days</strong></li>
+<li><strong>Allocate Books</strong></li>
+<li><strong>Aggressive Cows</strong></li>
+</ul>
+<h3 id="3-ordered-statistics-variants">3. Ordered Statistics Variants</h3>
+<ul>
+<li><strong>Kth Smallest Element in a Sorted Matrix</strong></li>
+<li><strong>Find Kth Smallest Pair Distance</strong></li>
+</ul>
+<p>You do <strong>not</strong> need to solve all of these now.</p>
+<hr>
+<h2 id="8-what-this-pattern-is-not-used-for">8. What This Pattern Is NOT Used For</h2>
+<hr>
+<p>This pattern does <strong>not</strong> apply to:</p>
+<ul>
+<li>classic binary search on values</li>
+<li>rotated array search</li>
+<li>peak element</li>
+<li>first / last occurrence</li>
+</ul>
+<p>Those belong to <strong>basic binary search</strong>, not partition-based search.</p>
+<hr>
+<h2 id="9-why-this-is-not-a-core-pattern">9. Why This Is Not a Core Pattern</h2>
+<hr>
+<p>Although this is a real pattern, it is:</p>
+<ul>
+<li>narrow in scope</li>
+<li>precision-heavy</li>
+<li>difficult to derive from first principles</li>
+<li>rarely reusable across many problems</li>
+</ul>
+<p>That is why it lives in <strong>Advanced &amp; Specialized</strong>, not Phase 1.</p>
+<hr>
+<h2 id="10-how-you-should-use-this-pattern">10. How You Should Use This Pattern</h2>
+<hr>
+<ul>
+<li>Learn to <strong>recognize</strong> it</li>
+<li>Understand the <strong>invariant</strong></li>
+<li>Study solutions slowly</li>
+<li>Revisit over time</li>
+</ul>
+<p>Your goal is not speed.</p>
+<p>Your goal is to say:</p>
+<blockquote>
+<p><em>“I know what category this problem belongs to.”</em></p></blockquote>
+<p>That alone removes panic.</p>
+<hr>
+<h3 id="key-takeaway">Key Takeaway</h3>
+<blockquote>
+<p><strong>Binary Search on Partition is about finding a valid split, not a value.</strong></p></blockquote>
+<p>Once you see the split, the solution becomes mechanical.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+      <a href="/learning/intermediate-skills/problem-solving/4_advanced-patterns/4_1_introduction/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/problem-solving/" class="btn nav-btn">
+        Problem Solving : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+<script>
+(() => {
+  const NAV_HEIGHT = 60; 
+  const headings = document.querySelectorAll(".topic-content h2");
+
+  headings.forEach(h => {
+    
+    const sentinel = document.createElement("div");
+    sentinel.className = "sticky-sentinel";
+    sentinel.style.height = "1px";
+
+    h.parentNode.insertBefore(sentinel, h);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        
+        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        
+        
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+      }
+    );
+
+    observer.observe(sentinel);
+  });
+})();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

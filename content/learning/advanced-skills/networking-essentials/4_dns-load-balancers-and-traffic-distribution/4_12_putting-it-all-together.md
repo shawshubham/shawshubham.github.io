@@ -51,6 +51,10 @@ No edge cases.
 No failures yet.  
 Just the **happy path** — clearly and end to end.
 
+> **Note:**  
+> In some environments, client requests may pass through a forward proxy before reaching the internet.  
+> This is outside the system’s control and does not change the backend request flow.
+
 ---
 
 ## 3. Step 1 — DNS: Finding the System
@@ -266,7 +270,8 @@ In HLD, we will **use** the networking concepts you’ve learned — not re-expl
 
 Networking becomes a **tool**, not the topic.
 
-👉 **Next Section → High-Level Design (HLD)**
+👉 **Up Next →**  
+**[High-Level Design (HLD)](/learning/advanced-skills/high-level-design/1_introduction/1_1_introduction)**
 
 ---
 

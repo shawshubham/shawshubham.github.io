@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Min Stack</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/style.css?v=1771855838">
+<link rel="stylesheet" href="/css/custom.css?v=1771855838">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Min Stack</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Problem Statement</li>
+        
+        <li>2. Clarifying Questions (Interview Thinking)</li>
+        
+        <li>3. Constraints &amp;amp; Edge Cases</li>
+        
+        <li>4. Naive Idea (Why It Fails)</li>
+        
+        <li>5. Pattern Recognition</li>
+        
+        <li>6. Optimized Approach (Two-Stack Strategy)</li>
+        
+        <li>7. 🔍 How the push() Logic Really Works (With Example)</li>
+        
+        <li>8. Time &amp;amp; Space Complexity</li>
+        
+        <li>9. Final Code (Java)</li>
+        
+        <li>10. Interview-Style Explanation</li>
+        
+        <li>11. Common Mistakes</li>
+        
+        <li>12. Key Takeaway</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Feb, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    
+    
+      <div class="solution-meta-card">
+        <div class="solution-meta-left">
+          <span class="solution-pill">Easy</span>
+          <span class="solution-pill">LeetCode</span>
+
+          
+          
+          
+              
+          
+
+          
+            <span class="solution-meta-label">Patterns:</span>
+            <span class="solution-meta-value">Stack</span>
+          
+        </div>
+
+        <div class="solution-meta-right">
+          
+            <a class="btn nav-btn" href="https://leetcode.com/problems/min-stack/" target="_blank" rel="noopener">View Original Problem</a>
+          
+        </div>
+      </div>
+    
+    
+    <article class="topic-content">
+      <h1 id="leetcode-problem-min-stack">LeetCode Problem: Min Stack</h1>
+<h2 id="1-problem-statement">1. Problem Statement</h2>
+<p>Design a stack that supports the following operations in <strong>O(1)</strong> time:</p>
+<ul>
+<li><code>push(x)</code> — push element <code>x</code> onto the stack</li>
+<li><code>pop()</code> — remove the top element</li>
+<li><code>top()</code> — get the top element</li>
+<li><code>getMin()</code> — retrieve the minimum element in the stack</li>
+</ul>
+<hr>
+<h2 id="2-clarifying-questions-interview-thinking">2. Clarifying Questions (Interview Thinking)</h2>
+<ul>
+<li>Can duplicate values exist? → <strong>Yes</strong></li>
+<li>Can minimum change after pop? → <strong>Yes</strong></li>
+<li>Are all operations required to be O(1)? → <strong>Yes</strong></li>
+<li>Is the stack ever empty when calling operations? → As per constraints, operations are valid</li>
+</ul>
+<hr>
+<h2 id="3-constraints--edge-cases">3. Constraints &amp; Edge Cases</h2>
+<ul>
+<li>Multiple identical minimum values</li>
+<li>Popping the current minimum</li>
+<li>Interleaved push/pop operations</li>
+</ul>
+<hr>
+<h2 id="4-naive-idea-why-it-fails">4. Naive Idea (Why It Fails)</h2>
+<p>Track the minimum by scanning the stack every time <code>getMin()</code> is called.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time: O(n) for getMin
+</span></span></code></pre></div><p>❌ Violates the O(1) requirement.</p>
+<hr>
+<h2 id="5-pattern-recognition">5. Pattern Recognition</h2>
+<p>This is still a <strong>stack problem</strong>, but with a twist:</p>
+<p>We need to remember <strong>extra information about past state</strong>.</p>
+<p><strong>➡️ Stack + Auxiliary State</strong></p>
+<hr>
+<h2 id="6-optimized-approach-two-stack-strategy">6. Optimized Approach (Two-Stack Strategy)</h2>
+<p>Maintain:</p>
+<ul>
+<li>stack → actual values</li>
+<li>minStack → minimum value at each level</li>
+</ul>
+<p>Rules</p>
+<ul>
+<li>On push:
+<ul>
+<li>push value to stack</li>
+<li>push min(value, currentMin) to minStack</li>
+</ul>
+</li>
+<li>On pop:
+<ul>
+<li>pop from both stacks</li>
+</ul>
+</li>
+<li>getMin() → top of minStack</li>
+</ul>
+<p>Both stacks stay perfectly aligned.</p>
+<h2 id="7--how-the-push-logic-really-works-with-example">7. 🔍 How the push() Logic Really Works (With Example)</h2>
+<p>The key idea behind <strong>Min Stack</strong> is simple but subtle:</p>
+<blockquote>
+<p><strong>Each level of the stack remembers the minimum value up to that point.</strong></p></blockquote>
+<p>To achieve this, we maintain <strong>two stacks</strong>:</p>
+<ul>
+<li>stack → stores actual values</li>
+<li>minStack → stores the minimum value <strong>at the same depth</strong></li>
+</ul>
+<p>Both stacks always <strong>grow and shrink together</strong>.</p>
+<h4 id="push-logic">Push Logic</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">push</span>(<span style="color:#66d9ef">int</span> val) {
+</span></span><span style="display:flex;"><span>    stack.<span style="color:#a6e22e">push</span>(val);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (minStack.<span style="color:#a6e22e">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>        minStack.<span style="color:#a6e22e">push</span>(val);
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        minStack.<span style="color:#a6e22e">push</span>(Math.<span style="color:#a6e22e">min</span>(val, minStack.<span style="color:#a6e22e">peek</span>()));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="what-this-means">What this means:</h4>
+<ul>
+<li>Push the value normally</li>
+<li>Compare it with the previous minimum</li>
+<li>Store the new minimum so far</li>
+</ul>
+<h3 id="71-step-by-step-example">7.1 Step-by-Step Example</h3>
+<p>Let’s push the elements:
+[5, 1, 4, 2]</p>
+<p>We’ll track both stacks.</p>
+<h4 id="-push-5">🔹 Push 5</h4>
+<pre tabindex="0"><code class="language-code" data-lang="code">stack:    [5]
+minStack: [5]
+</code></pre><ul>
+<li>First element → it is the minimum</li>
+</ul>
+<h4 id="-push-1">🔹 Push 1</h4>
+<pre tabindex="0"><code class="language-code" data-lang="code">stack:    [1, 5]
+minStack: [1, 5]
+</code></pre><ul>
+<li>min(1, 5) = 1</li>
+<li>Minimum so far becomes 1</li>
+</ul>
+<h4 id="-push-4">🔹 Push 4</h4>
+<pre tabindex="0"><code class="language-code" data-lang="code">stack:    [4, 1, 5]
+minStack: [1, 1, 5]
+</code></pre><ul>
+<li>min(4, 1) = 1</li>
+<li>Minimum does not change</li>
+</ul>
+<h4 id="-push-2">🔹 Push 2</h4>
+<pre tabindex="0"><code class="language-code" data-lang="code">stack:    [2, 4, 1, 5]
+minStack: [1, 1, 1, 5]
+</code></pre><ul>
+<li>min(2, 1) = 1</li>
+<li>Minimum still remains 1</li>
+</ul>
+<h3 id="72-why-this-design-works">7.2 Why This Design Works</h3>
+<p>Each entry in minStack answers this question:</p>
+<blockquote>
+<p>“If the stack were cut at this level, what would the minimum be?”</p></blockquote>
+<p>So when we pop():</p>
+<ul>
+<li>both stacks pop together</li>
+<li>the previous minimum is <strong>automatically restored</strong></li>
+</ul>
+<p>No scanning. No recomputation.</p>
+<h3 id="73-pop-example">7.3 Pop Example</h3>
+<p>If we now pop twice:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">After popping 2 and 4:
+
+stack: [1, 5]
+minStack: [1, 5]
+</code></pre><p>getMin() correctly returns 1.</p>
+<h3 id="74-mental-model-remember-this">7.4 Mental Model (Remember This)</h3>
+<blockquote>
+<p><strong>Min Stack stores the minimum value at every depth.</strong><br>
+<strong>Popping simply rewinds history.</strong></p></blockquote>
+<p>Once this clicks, Min Stack becomes trivial.</p>
+<h3 id="75-common-misunderstanding">7.5 Common Misunderstanding</h3>
+<p>❌ “Why store the min every time? Isn’t that redundant?”</p>
+<p>✅ It is intentional redundancy — it guarantees O(1) correctness after pops.</p>
+<hr>
+<h2 id="8-time--space-complexity">8. Time &amp; Space Complexity</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time:  O(1) for all operations
+</span></span><span style="display:flex;"><span>Space: O(n)
+</span></span></code></pre></div><hr>
+<h2 id="9-final-code-java">9. Final Code (Java)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MinStack</span> {
+</span></span><span style="display:flex;"><span>    Deque<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> stack;
+</span></span><span style="display:flex;"><span>    Deque<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> minStack;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">MinStack</span>() {
+</span></span><span style="display:flex;"><span>        stack <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        minStack <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">push</span>(<span style="color:#66d9ef">int</span> val) {
+</span></span><span style="display:flex;"><span>        stack.<span style="color:#a6e22e">push</span>(val);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (minStack.<span style="color:#a6e22e">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>            minStack.<span style="color:#a6e22e">push</span>(val);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            minStack.<span style="color:#a6e22e">push</span>(Math.<span style="color:#a6e22e">min</span>(val, minStack.<span style="color:#a6e22e">peek</span>()));
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">pop</span>() {
+</span></span><span style="display:flex;"><span>        stack.<span style="color:#a6e22e">pop</span>();
+</span></span><span style="display:flex;"><span>        minStack.<span style="color:#a6e22e">pop</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">top</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> stack.<span style="color:#a6e22e">peek</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getMin</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> minStack.<span style="color:#a6e22e">peek</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="10-interview-style-explanation">10. Interview-Style Explanation</h2>
+<blockquote>
+<p>“I maintain a second stack that stores the minimum value at each level.<br>
+Every push records the current minimum so getMin() is always O(1).<br>
+Both stacks stay in sync, which makes pop operations safe.”</p></blockquote>
+<hr>
+<h2 id="11-common-mistakes">11. Common Mistakes</h2>
+<ul>
+<li>Forgetting to pop from minStack</li>
+<li>Mishandling duplicate minimum values</li>
+<li>Trying to recompute minimum after pop</li>
+<li>Using a single stack without tracking history</li>
+</ul>
+<hr>
+<h2 id="12-key-takeaway">12. Key Takeaway</h2>
+<blockquote>
+<p>A stack can store <strong>history and state</strong>, not just raw values.</p></blockquote>
+<p>This idea appears again in:</p>
+<ul>
+<li>monotonic stacks</li>
+<li>histogram problems</li>
+<li>undo/redo systems</li>
+</ul>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    
+        <a href="/learning/intermediate-skills/data-structures/3_coderpad-practice/all-problems/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/data-structures/" class="btn nav-btn">
+        Data Structures : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

@@ -147,6 +147,15 @@ Focuses on:
 
 Use this to understand **how systems survive in production**.
 
+> **Recommended background**
+>
+> This section assumes a basic understanding of how requests move across a network
+> (HTTP, DNS, TCP, TLS), which is covered in the **Networking Essentials for System Design**
+> section.
+>
+> If you are already comfortable with request–response flow and network-level concepts,
+> you can proceed directly with High-Level Design.
+
 ---
 
 ## 6. How to Read and Use Each Article
