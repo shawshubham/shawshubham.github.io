@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adapter Pattern – Object vs Class Adapter and Design Trade-offs (Part 2)</title>
+<title>Decorator Pattern – Adding Behavior Without Modifying Code (Part 1)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Adapter Pattern – Object vs Class Adapter and Design Trade-offs (Part 2)</h1>
+    <h1 class="main-heading">Decorator Pattern – Adding Behavior Without Modifying Code (Part 1)</h1>
   </div>
 </section>
 
@@ -276,7 +276,7 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-pattern-part1/">Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2/">Adapter Pattern – Object vs Class Adapter and Design Trade-offs (Part 2)</a>
                                 </li>
                               
@@ -296,7 +296,7 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_7_facade-pattern-part3/">Facade Pattern – From Orchestration to Distributed Workflows (Part 3)</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1/">Decorator Pattern – Adding Behavior Without Modifying Code (Part 1)</a>
                                 </li>
                               
@@ -317,307 +317,359 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 7 Feb, 2026
+            Last updated on: 27 Feb, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-recap-what-adapter-actually-solves">1. Recap: What Adapter Actually Solves</h2>
+          <h2 id="1-why-decorator-pattern-exists-the-real-problem">1. Why Decorator Pattern Exists (The Real Problem)</h2>
 <hr>
-<p>In <strong>Part 1</strong>, we established a key reality:</p>
+<p>Decorator exists to solve a very specific—and very common—problem:</p>
 <blockquote>
-<p>Adapter exists because <strong>systems evolve independently</strong>.</p></blockquote>
-<p>Adapter is not about elegance.
-It is about <strong>integration without damage</strong>.</p>
-<p>You use it when:</p>
+<p><strong>We want to add behavior to an operation dynamically, in different combinations, without modifying existing code.</strong></p></blockquote>
+<p>Not <em>sometimes</em>.<br>
+Not <em>once</em>.<br>
+But <strong>repeatedly</strong>, as requirements evolve.</p>
+<p>If this sounds abstract, don’t worry.<br>
+EMS will make it concrete.</p>
+<hr>
+<h2 id="2-the-new-design-pressure-in-ems">2. The New Design Pressure in EMS</h2>
+<hr>
+<p>So far, EMS reporting works like this:</p>
 <ul>
-<li>interfaces don’t match</li>
-<li>contracts cannot change</li>
-<li>refactoring is risky or impossible</li>
+<li>Generate employee report</li>
+<li>Export it (PDF / HTML / CSV)</li>
+<li>Deliver it (email / download / link)</li>
 </ul>
-<p>Now we go deeper.</p>
-<hr>
-<h2 id="2-two-variants-of-adapter-often-confused">2. Two Variants of Adapter (Often Confused)</h2>
-<hr>
-<p>There are <strong>two legitimate forms</strong> of Adapter:</p>
-<ol>
-<li><strong>Object Adapter</strong> (composition-based)</li>
-<li><strong>Class Adapter</strong> (inheritance-based)</li>
-</ol>
-<p>Most engineers know only one.
-Interviewers expect you to know <strong>why one is preferred</strong>.</p>
-<hr>
-<h2 id="3-object-adapter-preferred-in-practice">3. Object Adapter (Preferred in Practice)</h2>
-<hr>
-<h3 id="31-structure">3.1 Structure</h3>
+<p>Now the business adds a new requirement:</p>
+<blockquote>
+<p><strong>Enterprise customers require optional post-processing on exported reports.</strong></p></blockquote>
+<p>Specifically:</p>
 <ul>
-<li>Adapter implements the target interface</li>
-<li>Adapter wraps the adaptee</li>
-<li>Uses composition</li>
+<li>Some reports must be <strong>encrypted</strong></li>
+<li>Some must be <strong>compressed</strong></li>
+<li>Some must be <strong>watermarked</strong></li>
+<li>Some must be <strong>digitally signed</strong></li>
+<li>Some require <strong>audit logging</strong></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+<p>Important constraint (this is the pressure):</p>
+<blockquote>
+<p>These options can be <strong>combined arbitrarily</strong>, and <strong>will grow over time</strong>.</p></blockquote>
+<p>Examples:</p>
+<ul>
+<li>Encrypt + Compress</li>
+<li>Compress + Encrypt + Audit</li>
+<li>Watermark + Sign</li>
+<li>Audit + Encrypt + Compress + Watermark</li>
+</ul>
+<p>No fixed combinations.
+No single “best” variant.</p>
+<hr>
+<h2 id="3-where-this-pressure-hits-first-report-exporting">3. Where This Pressure Hits First: Report Exporting</h2>
+<hr>
+<p>Let’s isolate the core operation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportExportStrategy</span> {
+</span></span><span style="display:flex;"><span>    ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Concrete exporters already exist:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>PdfReportExportStrategy
+</span></span><span style="display:flex;"><span>HtmlReportExportStrategy
+</span></span><span style="display:flex;"><span>CsvReportExportStrategy
+</span></span></code></pre></div><p>Now the question is:</p>
+<blockquote>
+<p><strong>How do we add encryption, compression, logging, etc. without breaking this design?</strong></p></blockquote>
+<hr>
+<h2 id="4-the-first-wrong-solution-inheritance-explosion">4. The First Wrong Solution: Inheritance Explosion</h2>
+<hr>
+<p>A very common first attempt:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>PdfExporter
+</span></span><span style="display:flex;"><span>EncryptedPdfExporter
+</span></span><span style="display:flex;"><span>CompressedPdfExporter
+</span></span><span style="display:flex;"><span>EncryptedCompressedPdfExporter
+</span></span><span style="display:flex;"><span>EncryptedCompressedSignedPdfExporter
+</span></span><span style="display:flex;"><span>AuditedEncryptedCompressedSignedPdfExporter
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><h3 id="why-this-fails">Why this fails</h3>
+<ul>
+<li>Combinatorial class explosion</li>
+<li>Impossible to reason about</li>
+<li>New feature = N new classes</li>
+<li>Violates Open/Closed Principle</li>
+<li>Maintenance nightmare</li>
+</ul>
+<p>Inheritance encodes <strong>combinations</strong>, not <strong>capabilities</strong>.</p>
+<hr>
+<h2 id="5-the-second-wrong-solution-flag-based-logic">5. The Second Wrong Solution: Flag-Based Logic</h2>
+<hr>
+<p>Next attempt:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>export(
+</span></span><span style="display:flex;"><span>  format <span style="color:#f92672">=</span> PDF,
+</span></span><span style="display:flex;"><span>  encrypt <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>  compress <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>  watermark <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>  sign <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>  audit <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>Inside:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (encrypt) encrypt(...)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (compress) compress(...)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (watermark) watermark(...)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (sign) sign(...)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (audit) audit(...)
+</span></span></code></pre></div><h3 id="why-this-also-fails">Why this also fails</h3>
+<ul>
+<li>One method knows too much</li>
+<li>Every new feature modifies existing code</li>
+<li>Ordering becomes implicit and fragile</li>
+<li>Hard to test individual behaviors</li>
+<li>Violates OCP and SRP</li>
+</ul>
+<p>This is <strong>procedural thinking inside an OO system</strong>.</p>
+<hr>
+<h2 id="6-the-missing-insight-features-are-behaviors-not-types">6. The Missing Insight: Features Are Behaviors, Not Types</h2>
+<hr>
+<p>Let’s pause and reframe the problem.</p>
+<p>Encryption is not a <em>type</em> of exporter.<br>
+Compression is not a <em>type</em> of exporter.<br>
+Audit logging is not a <em>type</em> of exporter.</p>
+<p>They are <strong>behaviors applied to exporting</strong>.</p>
+<p>And crucially:</p>
+<blockquote>
+<p>Each behavior:</p>
+<ul>
+<li>does <strong>one thing</strong></li>
+<li>can wrap another exporter</li>
+<li>does not care what comes before or after</li>
+</ul></blockquote>
+<p>This is the mental shift that leads to <strong>Decorator</strong>.</p>
+<hr>
+<h2 id="7-decorator-pattern-the-core-idea">7. Decorator Pattern: The Core Idea</h2>
+<hr>
+<blockquote>
+<p><strong>Decorator allows you to wrap an object to add behavior, without changing the object itself.</strong></p></blockquote>
+<p>Instead of inheritance:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExporterWithEverything
+</span></span></code></pre></div><p>We use composition:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Exporter
+</span></span><span style="display:flex;"><span>  ↑ wrapped by
+</span></span><span style="display:flex;"><span>EncryptedExporter
+</span></span><span style="display:flex;"><span>  ↑ wrapped by
+</span></span><span style="display:flex;"><span>CompressedExporter
+</span></span><span style="display:flex;"><span>  ↑ wrapped by
+</span></span><span style="display:flex;"><span>AuditedExporter
+</span></span></code></pre></div><p>Each decorator:</p>
+<ul>
+<li>implements the same interface</li>
+<li>delegates to the wrapped object</li>
+<li>adds exactly one responsibility</li>
+</ul>
+<hr>
+<h2 id="8-the-decorator-structure-conceptual">8. The Decorator Structure (Conceptual)</h2>
+<hr>
+<h3 id="81-type-structure-strategy--decorator">8.1 Type structure: Strategy + Decorator</h3>
+<div class="mermaid">
+classDiagram
+direction LR
+
+class ReportExportStrategy {
+  &lt;&lt;interface&gt;&gt;
+  +export(EmployeeReport) ExportedReport
+}
+
+class PdfReportExportStrategy {
+  +export(EmployeeReport) ExportedReport
+}
+class HtmlReportExportStrategy {
+  +export(EmployeeReport) ExportedReport
+}
+class CsvReportExportStrategy {
+  +export(EmployeeReport) ExportedReport
+}
+
+ReportExportStrategy <|.. PdfReportExportStrategy
+ReportExportStrategy <|.. HtmlReportExportStrategy
+ReportExportStrategy <|.. CsvReportExportStrategy
+
+class ReportExportStrategyDecorator {
+  &lt;&lt;abstract&gt;&gt;
+  -delegate: ReportExportStrategy
+  +export(EmployeeReport) ExportedReport
+}
+
+ReportExportStrategy <|.. ReportExportStrategyDecorator
+ReportExportStrategyDecorator o--> ReportExportStrategy : delegates to
+
+class EncryptedReportExportStrategy {
+  +export(EmployeeReport) ExportedReport
+}
+class CompressedReportExportStrategy {
+  +export(EmployeeReport) ExportedReport
+}
+class AuditedReportExportStrategy {
+  +export(EmployeeReport) ExportedReport
+}
+
+ReportExportStrategyDecorator <|-- EncryptedReportExportStrategy
+ReportExportStrategyDecorator <|-- CompressedReportExportStrategy
+ReportExportStrategyDecorator <|-- AuditedReportExportStrategy
+</div>
+<h3 id="82-runtime-structure-decoration-pipeline">8.2 Runtime structure: decoration pipeline</h3>
+<div class="mermaid">
+flowchart LR
+  Audit[AuditedReportExportStrategy] -->|"delegates export()"| Compress[CompressedReportExportStrategy]
+  Compress -->|"delegates export()"| Encrypt[EncryptedReportExportStrategy]
+  Encrypt -->|"delegates export()"| Pdf[PdfReportExportStrategy]
+</div>
+<blockquote>
+<p>“<strong>Call order is outside-in</strong>: the outermost decorator runs first, then delegates inward.”</p></blockquote>
+<h3 id="key-observation">Key observation:</h3>
+<blockquote>
+<p>Every decorator <strong>is-a</strong> ReportExportStrategy (polymorphism)<br>
+and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
+<p>That duality is the pattern.</p>
+<hr>
+<h2 id="9-implementing-decorator-in-ems">9. Implementing Decorator in EMS</h2>
+<hr>
+<h3 id="91-base-decorator">9.1 Base Decorator</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportExportStrategyDecorator</span> <span style="color:#66d9ef">implements</span> ReportExportStrategy {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExternalHRClient externalHRClient;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">final</span> ReportExportStrategy delegate;
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span>(ExternalHRClient externalHRClient) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">externalHRClient</span> <span style="color:#f92672">=</span> externalHRClient;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">ReportExportStrategyDecorator</span>(ReportExportStrategy delegate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">delegate</span> <span style="color:#f92672">=</span> delegate;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="92-encryption-decorator">9.2 Encryption Decorator</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EncryptedReportExportStrategy</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EncryptedReportExportStrategy</span>(ReportExportStrategy delegate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(delegate);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
-</span></span><span style="display:flex;"><span>        HRUserRecord record <span style="color:#f92672">=</span> map(employee);
-</span></span><span style="display:flex;"><span>        externalHRClient.<span style="color:#a6e22e">persistEmployeeData</span>(record);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report) {
+</span></span><span style="display:flex;"><span>        ExportedReport exported <span style="color:#f92672">=</span> delegate.<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> encrypt(exported);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="32-why-object-adapter-is-preferred">3.2 Why Object Adapter Is Preferred</h3>
-<ul>
-<li>Works with <strong>final classes</strong></li>
-<li>Works with <strong>third-party libraries</strong></li>
-<li>Respects <strong>composition over inheritance</strong></li>
-<li>Easy to test and mock</li>
-<li>No inheritance constraints</li>
-</ul>
-<blockquote>
-<p>This is the version you should default to.</p></blockquote>
-<hr>
-<h2 id="4-class-adapter-rare-but-interview-relevant">4. Class Adapter (Rare, but Interview-Relevant)</h2>
-<hr>
-<h3 id="41-structure">4.1 Structure</h3>
-<ul>
-<li>Adapter inherits from adaptee</li>
-<li>Adapter implements target interface</li>
-<li>Uses inheritance</li>
-</ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRClassAdapter</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ExternalHRClient
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span></code></pre></div><hr>
+<h3 id="93-compression-decorator">9.3 Compression Decorator</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CompressedReportExportStrategy</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CompressedReportExportStrategy</span>(ReportExportStrategy delegate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(delegate);
+</span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
-</span></span><span style="display:flex;"><span>        HRUserRecord record <span style="color:#f92672">=</span> map(employee);
-</span></span><span style="display:flex;"><span>        persistEmployeeData(record);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report) {
+</span></span><span style="display:flex;"><span>        ExportedReport exported <span style="color:#f92672">=</span> delegate.<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> compress(exported);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="42-limitations">4.2 Limitations</h3>
-<table>
-  <thead>
-      <tr>
-          <th>Limitation</th>
-          <th>Why it matters</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Single inheritance</td>
-          <td>Cannot extend another class</td>
-      </tr>
-      <tr>
-          <td>Tight coupling</td>
-          <td>Bound to concrete implementation</td>
-      </tr>
-      <tr>
-          <td>Not always possible</td>
-          <td>Adaptee may be final</td>
-      </tr>
-      <tr>
-          <td>Less flexible</td>
-          <td>Harder to evolve</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="5-object-adapter-vs-class-adapter-comparison">5. Object Adapter vs Class Adapter (Comparison)</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Aspect</th>
-          <th>Object Adapter</th>
-          <th>Class Adapter</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Technique</td>
-          <td>Composition</td>
-          <td>Inheritance</td>
-      </tr>
-      <tr>
-          <td>Flexibility</td>
-          <td>High</td>
-          <td>Low</td>
-      </tr>
-      <tr>
-          <td>Works with final classes</td>
-          <td>✅</td>
-          <td>❌</td>
-      </tr>
-      <tr>
-          <td>Multiple adapters</td>
-          <td>Easy</td>
-          <td>Hard</td>
-      </tr>
-      <tr>
-          <td>Real-world usage</td>
-          <td>✅ Common</td>
-          <td>❌ Rare</td>
-      </tr>
-      <tr>
-          <td>Interview relevance</td>
-          <td>✅</td>
-          <td>✅</td>
-      </tr>
-  </tbody>
-</table>
-<blockquote>
-<p><strong>Interview rule:</strong><br>
-Mention class adapter, but recommend object adapter.</p></blockquote>
-<hr>
-<h2 id="6-adapter-placement-in-package-structure">6. Adapter Placement in Package Structure</h2>
-<hr>
-<p>A subtle but important design point.</p>
-<h3 id="-where-adapters-should-not-live">❌ Where adapters should NOT live</h3>
+</span></span></code></pre></div><hr>
+<h3 id="94-audit-logging-decorator">9.4 Audit Logging Decorator</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AuditedReportExportStrategy</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">AuditedReportExportStrategy</span>(ReportExportStrategy delegate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(delegate);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report) {
+</span></span><span style="display:flex;"><span>        ExportedReport exported <span style="color:#f92672">=</span> delegate.<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>        logAudit(exported);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> exported;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Each decorator:</p>
 <ul>
-<li>inside domain models</li>
-<li>inside strategy implementations</li>
-<li>mixed with core business logic</li>
+<li>adds <strong>one behavior</strong></li>
+<li>does not know about others</li>
+<li>does not modify existing exporters</li>
 </ul>
-<h3 id="-correct-placement">✅ Correct placement</h3>
-<p>Adapters belong at <strong>integration boundaries</strong>.</p>
-<p>Typical locations:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>integration/
-</span></span><span style="display:flex;"><span>adapters/
-</span></span><span style="display:flex;"><span>external/
-</span></span><span style="display:flex;"><span>infrastructure/
-</span></span></code></pre></div><p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>persistence/
-</span></span><span style="display:flex;"><span>  ├── EmployeePersistenceStrategy
-</span></span><span style="display:flex;"><span>  ├── EmployeeDBPersistenceStrategy
-</span></span><span style="display:flex;"><span>  ├── EmployeeFilePersistenceStrategy
-</span></span><span style="display:flex;"><span>  └── adapter/
-</span></span><span style="display:flex;"><span>       └── ExternalHRPersistenceAdapter
-</span></span></code></pre></div><blockquote>
-<p>Adapter is <strong>not domain logic</strong>.<br>
-It is <strong>translation logic</strong>.</p></blockquote>
 <hr>
-<h2 id="7-adapter-and-solid-principles">7. Adapter and SOLID Principles</h2>
+<h2 id="10-assembling-the-pipeline-dynamic-composition">10. Assembling the Pipeline (Dynamic Composition)</h2>
 <hr>
-<p>Adapter is a <strong>SOLID enabler</strong>, not a violation.</p>
-<h4 id="single-responsibility-principle-srp">Single Responsibility Principle (SRP)</h4>
-<p>✔ Adapter has exactly one reason to change:</p>
+<p>Now the real power:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportExportStrategy exporter <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> AuditedReportExportStrategy(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> CompressedReportExportStrategy(
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">new</span> EncryptedReportExportStrategy(
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">new</span> PdfReportExportStrategy()
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    );
+</span></span></code></pre></div><p>No new classes.<br>
+No flags.<br>
+No modification to existing code.</p>
+<p>Just <strong>composition</strong>.</p>
+<hr>
+<h2 id="11-why-this-is-a-structural-pattern">11. Why This Is a Structural Pattern</h2>
+<hr>
+<p>Decorator does not create objects (creational).<br>
+Decorator does not control algorithms (behavioral).</p>
+<p>Decorator <strong>structures objects</strong> so behavior can grow safely.</p>
+<p>It is the textbook definition of:</p>
 <blockquote>
-<p>external API changes</p></blockquote>
-<h4 id="openclosed-principle-ocp">Open/Closed Principle (OCP)</h4>
-<p>✔ New integrations added without modifying existing code</p>
-<h4 id="dependency-inversion-principle-dip">Dependency Inversion Principle (DIP)</h4>
-<p>✔ High-level modules depend on abstractions<br>
-✔ Adapter depends on concrete external APIs</p>
+<p><strong>Composition over inheritance</strong></p></blockquote>
 <hr>
-<h2 id="8-adapter-vs-facade-common-interview-trap">8. Adapter vs Facade (Common Interview Trap)</h2>
+<h2 id="12-interview-grade-explanation">12. Interview-Grade Explanation</h2>
 <hr>
-<p>These two are often confused.</p>
-<table>
-  <thead>
-      <tr>
-          <th>Adapter</th>
-          <th>Facade</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Fixes incompatibility</td>
-          <td>Simplifies complexity</td>
-      </tr>
-      <tr>
-          <td>Interface translation</td>
-          <td>Interface simplification</td>
-      </tr>
-      <tr>
-          <td>One-to-one</td>
-          <td>One-to-many</td>
-      </tr>
-      <tr>
-          <td>Structural mismatch</td>
-          <td>Usability improvement</td>
-      </tr>
-  </tbody>
-</table>
+<h3 id="when-should-you-use-decorator">When should you use Decorator?</h3>
 <blockquote>
-<p><strong>Key line:</strong><br>
-Adapter makes things fit.<br>
-Facade makes things easy.</p></blockquote>
-<hr>
-<h2 id="9-adapter-vs-anti-corruption-layer-acl">9. Adapter vs Anti-Corruption Layer (ACL)</h2>
-<hr>
-<p>Adapter is often a <strong>building block</strong> of ACL.</p>
-<ul>
-<li>Adapter → technical translation</li>
-<li>ACL → boundary protecting your domain model</li>
-</ul>
-<p>In large systems:</p>
+<p>When you need to add responsibilities to objects dynamically,<br>
+and inheritance or conditional logic leads to explosion or rigidity.</p></blockquote>
+<h3 id="key-line-to-remember">Key line to remember:</h3>
 <blockquote>
-<p>Multiple adapters may live inside a single anti-corruption layer.</p></blockquote>
-<hr>
-<h2 id="10-when-adapter-is-a-smell">10. When Adapter Is a Smell</h2>
-<hr>
-<p>Adapter can hide <strong>bad modeling</strong>.</p>
-<p>🚫 Red flags</p>
-<ul>
-<li>Adapters inside domain entities</li>
-<li>Adapters doing business logic</li>
-<li>Adapter chains growing uncontrollably</li>
-<li>Adapter used to “fix” poor abstractions</li>
-</ul>
-<p>If you see this, stop and ask:</p>
-<blockquote>
-<p>Is the interface wrong, or is integration genuinely required?</p></blockquote>
-<hr>
-<h2 id="11-interview-grade-summary">11. Interview-Grade Summary</h2>
-<hr>
-<p><strong>If asked:</strong></p>
-<blockquote>
-<p>“Why Adapter and not refactor?”</p></blockquote>
-<p><strong>Strong answer:</strong></p>
-<blockquote>
-<p>Because contracts represent stability boundaries.<br>
-Adapter allows evolution without breaking those boundaries.</p></blockquote>
-<p><strong>If asked:</strong></p>
-<blockquote>
-<p>“Which adapter should I use?”</p></blockquote>
-<p><strong>Strong answer:</strong></p>
-<blockquote>
-<p>Object Adapter by default.<br>
-Class Adapter only when inheritance is unavoidable and safe.</p></blockquote>
+<p><strong>Decorator adds behavior without changing the original class.</strong></p></blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>Adapter Pattern is not optional in real systems.</p>
-<p>It is how:</p>
+<p>Decorator exists because <strong>behavior grows faster than types</strong>.</p>
+<p>In EMS, report exporting was simple—until it wasn’t.</p>
+<p>Encryption, compression, auditing, watermarking:</p>
 <ul>
-<li>legacy meets modern</li>
-<li>third-party meets clean architecture</li>
-<li>evolution happens without breakage</li>
+<li>are optional</li>
+<li>are combinable</li>
+<li>evolve independently</li>
 </ul>
-<p>If you understand Adapter deeply, you understand <strong>real software</strong>.</p>
+<p>Decorator lets us:</p>
+<ul>
+<li>keep exporters simple</li>
+<li>add features safely</li>
+<li>avoid inheritance and flag-based designs</li>
+<li>respect Open/Closed Principle</li>
+</ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>With <strong>Part 1 and Part 2</strong>, the Adapter Pattern is <strong>conceptually complete</strong>.</p>
-<p>If you’re feeling a gap at this point, that’s expected.
-You understand how the pattern works — now you need to recognize <strong>where it already exists in real systems</strong>.</p>
-<p>The natural next step is not more theory or UML.</p>
-<p>It’s pattern recognition.</p>
-<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_4_adapter-pattern-part3">Part 3: Real-World Adapter Pattern Applications →</a></strong><br>
-A hands-on walkthrough of Adapter in libraries, platforms, aggregators, and systems you already use — the “oh… I’ve seen this before” moments.</p>
+<hr>
+<p>So far, we’ve learned <strong>how to add behavior dynamically</strong>.</p>
+<p>But two important questions remain:</p>
+<ol>
+<li>Who decides <strong>which decorators to apply</strong>?</li>
+<li>How do we manage <strong>ordering and configuration</strong> cleanly?</li>
+</ol>
+<p>In <strong>Part 2</strong>, we’ll:</p>
+<ul>
+<li>introduce a clean assembly mechanism</li>
+<li>discuss ordering constraints (encrypt vs compress)</li>
+<li>integrate Decorator with Abstract Factory bundles</li>
+</ul>
+<p>👉 Up next:
+Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</p>
 <hr>
 <blockquote>
-<p>📝 <strong>Takeaway</strong>:</p>
+<p>📝 <strong>Final Takeaway</strong></p>
 <ul>
-<li>Adapter fixes incompatibility, not complexity</li>
-<li>Prefer object adapters</li>
-<li>Place adapters at boundaries</li>
-<li>Adapters protect clean architecture, not pollute it</li>
+<li>Decorator solves combinatorial behavior growth</li>
+<li>It replaces inheritance with composition</li>
+<li>Each decorator does one thing well</li>
+<li>When behavior explodes, Decorator is your friend</li>
 </ul></blockquote>
 
         </article>
@@ -646,67 +698,73 @@ A hands-on walkthrough of Adapter in libraries, platforms, aggregators, and syst
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-recap-what-adapter-actually-solves" data-toc-target="1-recap-what-adapter-actually-solves">1. Recap: What Adapter Actually Solves</a>
+        <a class="toc-link" href="#1-why-decorator-pattern-exists-the-real-problem" data-toc-target="1-why-decorator-pattern-exists-the-real-problem">1. Why Decorator Pattern Exists (The Real Problem)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-two-variants-of-adapter-often-confused" data-toc-target="2-two-variants-of-adapter-often-confused">2. Two Variants of Adapter (Often Confused)</a>
+        <a class="toc-link" href="#2-the-new-design-pressure-in-ems" data-toc-target="2-the-new-design-pressure-in-ems">2. The New Design Pressure in EMS</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-object-adapter-preferred-in-practice" data-toc-target="3-object-adapter-preferred-in-practice">3. Object Adapter (Preferred in Practice)</a>
+        <a class="toc-link" href="#3-where-this-pressure-hits-first-report-exporting" data-toc-target="3-where-this-pressure-hits-first-report-exporting">3. Where This Pressure Hits First: Report Exporting</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-class-adapter-rare-but-interview-relevant" data-toc-target="4-class-adapter-rare-but-interview-relevant">4. Class Adapter (Rare, but Interview-Relevant)</a>
+        <a class="toc-link" href="#4-the-first-wrong-solution-inheritance-explosion" data-toc-target="4-the-first-wrong-solution-inheritance-explosion">4. The First Wrong Solution: Inheritance Explosion</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-object-adapter-vs-class-adapter-comparison" data-toc-target="5-object-adapter-vs-class-adapter-comparison">5. Object Adapter vs Class Adapter (Comparison)</a>
+        <a class="toc-link" href="#5-the-second-wrong-solution-flag-based-logic" data-toc-target="5-the-second-wrong-solution-flag-based-logic">5. The Second Wrong Solution: Flag-Based Logic</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-adapter-placement-in-package-structure" data-toc-target="6-adapter-placement-in-package-structure">6. Adapter Placement in Package Structure</a>
+        <a class="toc-link" href="#6-the-missing-insight-features-are-behaviors-not-types" data-toc-target="6-the-missing-insight-features-are-behaviors-not-types">6. The Missing Insight: Features Are Behaviors, Not Types</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-adapter-and-solid-principles" data-toc-target="7-adapter-and-solid-principles">7. Adapter and SOLID Principles</a>
+        <a class="toc-link" href="#7-decorator-pattern-the-core-idea" data-toc-target="7-decorator-pattern-the-core-idea">7. Decorator Pattern: The Core Idea</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-adapter-vs-facade-common-interview-trap" data-toc-target="8-adapter-vs-facade-common-interview-trap">8. Adapter vs Facade (Common Interview Trap)</a>
+        <a class="toc-link" href="#8-the-decorator-structure-conceptual" data-toc-target="8-the-decorator-structure-conceptual">8. The Decorator Structure (Conceptual)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-adapter-vs-anti-corruption-layer-acl" data-toc-target="9-adapter-vs-anti-corruption-layer-acl">9. Adapter vs Anti-Corruption Layer (ACL)</a>
+        <a class="toc-link" href="#9-implementing-decorator-in-ems" data-toc-target="9-implementing-decorator-in-ems">9. Implementing Decorator in EMS</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#10-when-adapter-is-a-smell" data-toc-target="10-when-adapter-is-a-smell">10. When Adapter Is a Smell</a>
+        <a class="toc-link" href="#10-assembling-the-pipeline-dynamic-composition" data-toc-target="10-assembling-the-pipeline-dynamic-composition">10. Assembling the Pipeline (Dynamic Composition)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#11-interview-grade-summary" data-toc-target="11-interview-grade-summary">11. Interview-Grade Summary</a>
+        <a class="toc-link" href="#11-why-this-is-a-structural-pattern" data-toc-target="11-why-this-is-a-structural-pattern">11. Why This Is a Structural Pattern</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-interview-grade-explanation" data-toc-target="12-interview-grade-explanation">12. Interview-Grade Explanation</a>
       </li>
     
       
@@ -728,7 +786,7 @@ A hands-on walkthrough of Adapter in libraries, platforms, aggregators, and syst
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-pattern-part1/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_7_facade-pattern-part3/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -759,8 +817,6 @@ A hands-on walkthrough of Adapter in libraries, platforms, aggregators, and syst
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_4_adapter-pattern-part3/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -953,6 +1009,17 @@ A hands-on walkthrough of Adapter in libraries, platforms, aggregators, and syst
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

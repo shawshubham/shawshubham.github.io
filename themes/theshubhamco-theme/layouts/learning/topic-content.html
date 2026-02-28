@@ -7,60 +7,119 @@
 </section>
 
 <section class="section topic-content-wrapper">
-    <!-- Progress Ring Floater (absolute in main section) -->
-    <div class="progress-ring-floating">
-      <svg class="ring" width="60" height="60">
-        <circle class="bg" cx="30" cy="30" r="25"></circle>
-        <circle class="progress" cx="30" cy="30" r="25"></circle>
-      </svg>
-      <div class="progress-text">0%</div>
-    </div>
+  <!-- Progress Ring Floater (absolute in main section) -->
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
 
-    <div class="topic-outline">
-      <h2>We will be covering:</h2>
-      <ul>
-        {{ $content := .Content }}
-        {{ $matches := findRE "<h2[^>]*>(.*?)</h2>" $content }}
-        {{ range $i, $match := $matches }}
-        <li>{{ replaceRE "<.*?>" "" $match }}</li>
-        {{ end }}
-      </ul>
-    </div>
-  
-    <div class="container">
-      <div class="topic-meta">
-        <p class="last-updated">
-          {{ if .GitInfo }}
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      <!-- LEFT: SUBJECT TOC -->
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        {{/* Derive: learning/<level>/<subject> from current URL */}}
+            {{ $parts := split (trim .RelPermalink "/") "/" }}
+
+            {{/* Expect at least: learning, <level>, <subject> */}}
+                {{ if ge (len $parts) 3 }}
+                {{ $subjectPath := printf "%s/%s/%s" (index $parts 0) (index $parts 1) (index $parts 2) }}
+                {{ $subjectRoot := .Site.GetPage $subjectPath }}
+
+                {{ if $subjectRoot }}
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">{{ $subjectRoot.Title }}</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      {{/* Phases are sections under the subject root */}}
+                      {{ range $subjectRoot.Sections.ByWeight }}
+                        {{ $isCurrentPhase := and $.CurrentSection (eq .Permalink $.CurrentSection.Permalink) }}
+                        <li class="subject-phase {{ if $isCurrentPhase }}is-open{{ end }}">
+                          <details class="subject-phase-details" {{ if $isCurrentPhase }}open{{ end }}>
+                            <summary class="subject-phase-title">{{ .Title }}</summary>
+
+                            <ul class="subject-phase-topics">
+                              {{ range .RegularPages.ByWeight }}
+                                <li class="{{ if eq .Permalink $.Permalink }}active{{ end }}">
+                                  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                                </li>
+                              {{ end }}
+                            </ul>
+                          </details>
+                        </li>
+                      {{ end }}
+                    </ul>
+                  </nav>
+                </div>
+                {{ end }}
+                {{ end }}
+      </aside>
+
+      <!-- CENTER: MAIN CONTENT -->
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            {{ if .GitInfo }}
             Last updated on: {{ .GitInfo.AuthorDate.Format "2 Jan, 2006" }}
-          {{ else }}
+            {{ else }}
             Last updated on: {{ .Lastmod.Format "2 Jan, 2006" }}
-          {{ end }}
-        </p>
-      </div>
-    </div>
+            {{ end }}
+          </p>
+        </div>
 
-    <article class="topic-content">
-      {{ .Content }}
-    </article>
+        <article class="topic-content">
+          {{ .Content }}
+        </article>
+
+      </div>
+
+      <!-- RIGHT: ARTICLE TOC (existing sidebar) -->
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          {{ partial "topic-toc.html" . }}
+
+        </div>
+      </aside>
+
+    </div>
   </div>
 </section>
 
 <section class="topic-nav">
   <div class="container nav-buttons">
     {{ with .NextInSection }}
-      <a href="{{ .RelPermalink }}" class="btn nav-btn">&larr; Back</a>
+    <a href="{{ .RelPermalink }}" class="btn nav-btn">&larr; Back</a>
     {{ end }}
 
     {{ partial "find-top-section.html" . }}
     {{ $top := .Scratch.Get "topPageObject" }}
     {{ with $top }}
     <a href="{{ .RelPermalink }}" class="btn nav-btn">
-        {{ .Title }} : Home Page
+      {{ .Title }} : Home Page
     </a>
     {{ end }}
 
     {{ with .PrevInSection}}
-      <a href="{{ .RelPermalink }}" class="btn nav-btn">Next &rarr;</a>
+    <a href="{{ .RelPermalink }}" class="btn nav-btn">Next &rarr;</a>
     {{ end }}
   </div>
 </section>
@@ -84,35 +143,149 @@
   });
 </script>
 
+<!-- JS for sticky H2 "is-stuck" class -->
 <script>
-(() => {
-  const NAV_HEIGHT = 60; // match your CSS top (e.g., h2 { top: 150px })
-  const headings = document.querySelectorAll(".topic-content h2");
+  (() => {
+    const NAV_HEIGHT = 60; // match your CSS top (e.g., h2 { top: 150px })
+    const headings = document.querySelectorAll(".topic-content h2");
 
-  headings.forEach(h => {
-    // Create a sentinel just before the heading in normal flow
-    const sentinel = document.createElement("div");
-    sentinel.className = "sticky-sentinel";
-    sentinel.style.height = "1px";
+    headings.forEach(h => {
+      // Create a sentinel just before the heading in normal flow
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
 
-    h.parentNode.insertBefore(sentinel, h);
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          // When sentinel goes above the sticky line, heading is stuck
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          // Move the "top" of the observer down by NAV_HEIGHT
+          // So "not intersecting" means sentinel is above that line.
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+<!-- NEW: Sidebar collapse state + active section highlight + smooth scroll -->
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; // 3-column breakpoint (right sidebar exists)
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    /* =========================
+       Restore Saved State
+    ========================= */
+    function restoreState() {
+      if (window.innerWidth < 1100) return; // no sidebar layout
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      // Article sidebar collapse is meaningful only when right sidebar exists
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    /* =========================
+       Toggle Handlers
+    ========================= */
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    /* =========================
+       Article TOC: Smooth Scroll + Active Highlight
+       (only if right TOC exists)
+    ========================= */
+
+    // Right TOC links (article toc)
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    // Smooth scroll (optional: if you prefer to keep default anchor behavior, remove this block)
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    // Active section highlight
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        // When sentinel goes above the sticky line, heading is stuck
-        h.classList.toggle("is-stuck", !entry.isIntersecting);
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
       },
       {
-        root: null,
-        threshold: 0,
-        // Move the "top" of the observer down by NAV_HEIGHT
-        // So "not intersecting" means sentinel is above that line.
-        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
       }
     );
 
-    observer.observe(sentinel);
-  });
-})();
+    headings.forEach(h => observer.observe(h));
+  })();
 </script>
 {{ end }}

@@ -48,6 +48,8 @@ you are searching for a **valid split**.
 
 ## 1. Problem Statement
 
+---
+
 You are given two sorted arrays `nums1` and `nums2` of sizes `m` and `n`.
 
 Return the **median** of the two sorted arrays.
@@ -57,6 +59,8 @@ The overall runtime complexity must be **O(log (m + n))**.
 ---
 
 ## 2. Clarifying Questions (Interview Thinking)
+
+---
 
 Before coding, confirm:
 
@@ -71,6 +75,8 @@ Before coding, confirm:
 ---
 
 ## 3. Why the Naive Approach Is Not Enough
+
+---
 
 A natural first idea is to:
 
@@ -167,6 +173,8 @@ This is where Binary Search on Partition becomes necessary.
 
 ## 4. Pattern Identification
 
+---
+
 This problem is **not**:
 
 - Two Pointers
@@ -183,68 +191,176 @@ We are searching for a **partition point**, not a number.
 
 ---
 
-## 5. Core Insight (High-Level)
-
-We want to split both arrays into left and right parts such that:
-
-- Left side contains exactly half of the total elements
-- Every element in the left part ≤ every element in the right part
-
-Once such a partition is found, the median can be computed directly.
+## 5. What Are We Actually Trying to Solve?
 
 ---
 
-## 6. Why Binary Search Works
+Before thinking about binary search, pause.
 
-The validity of a partition is **monotonic**:
+If we merged both arrays into one sorted array:
 
-- If the partition is too far left → move right
-- If the partition is too far right → move left
+```text
+[ … combined sorted elements … ]
+```
 
-This monotonic behavior allows binary search.
+The median would simply be:
 
-To simplify:
+- the middle element (if total length is odd)
+- the average of two middle elements (if even)
 
-- Always binary-search on the **smaller array**
-- This keeps bounds tight and logic clean
+So the median is:
+
+> The element(s) that divide the combined sorted array into two equal halves.
+
+This is the key shift.
+
+We are not trying to “find the median directly.”
+
+We are trying to:
+
+> Construct a correct left half.
+
+Once the left half is correct, the median is automatically determined.
 
 ---
 
-## 7. Partition Invariant
+## 6. Reframing the Problem
 
-Let:
+---
 
-- `i` = number of elements taken from `nums1`
-- `j` = number of elements taken from `nums2`
+Let total length = `m + n`.
 
-We want:
+The left half must contain:
 
 ```code
+(m + n + 1) / 2 elements
+```
+
+Why `+1`?
+
+- If total is odd → left half contains one extra element.
+- If total is even → both halves are equal.
+
+Now the real problem becomes:
+
+> How do we split the two arrays so that together they form a valid left half?
+
+---
+
+## 7. What Makes a Split Valid?
+
+---
+
+Suppose we cut:
+
+- `nums1` at index `i`
+- `nums2` at index `j`
+
+Then:
+
+Left side:
+
+- `nums1[0 ... i-1]`
+- `nums2[0 ... j-1]`
+
+Right side:
+
+- `nums1[i ...]`
+- `nums2[j ...]`
+
+Two conditions must hold.
+
+### 7.1 Size Condition
+
+The total number of elements on the left must be correct:
+
+```text
 i + j = (m + n + 1) / 2
 ```
 
-And the partition to satisfy:
+This ensures we split at the correct position.
 
-```code
+---
+
+### 7.2 Order Condition
+
+All elements in the left half must be ≤ all elements in the right half.
+
+Which simplifies to checking only the boundaries:
+
+```text
 max(left1, left2) ≤ min(right1, right2)
 ```
 
-If this holds, we’ve found the correct split.
+Because:
+
+- Arrays are already sorted.
+- Only boundary elements can violate order.
+
+If this condition holds → partition is valid.
+
+Once valid:
+
+- If total length is odd → median = max(left1, left2)
+- If total length is even → median = average of max(left) and min(right)
+
+We never explicitly “search for the median.”
+
+We search for a valid partition.
 
 ---
 
-## 8. Handling Edge Boundaries
-
-To avoid out-of-bounds checks:
-
-- If no elements on left → use `-∞`
-- If no elements on right → use `+∞`
-
-This makes comparisons uniform.
+## 8. Why Binary Search Works
 
 ---
 
-## 9. Time & Space Complexity
+We now have a target:
+
+Find `i` such that the partition is valid.
+
+If:
+
+- `left1 > right2`
+  → we took too many elements from nums1  
+  → move `i` left
+
+If:
+
+- `left2 > right1`
+  → we took too few elements from nums1  
+  → move `i` right
+
+Notice something important:
+
+The partition validity behaves **monotonically**.
+
+If we cut too far right, all further right cuts are invalid.
+If we cut too far left, all further left cuts are invalid.
+
+This monotonic behavior allows binary search.
+
+To simplify the logic:
+
+> Always binary-search on the smaller array.
+
+---
+
+## 9. Handling Edge Boundaries
+
+---
+
+When partition touches edges:
+
+- If no elements exist on the left → treat as `-∞`
+- If no elements exist on the right → treat as `+∞`
+
+This removes special-case logic and keeps comparisons clean.
+
+---
+
+## 10. Time & Space Complexity
+
+---
 
 ```text
 Time:  O(log(min(m, n)))
@@ -255,7 +371,9 @@ This meets the problem’s strict requirement.
 
 ---
 
-## 10. Final Code (Java)
+## 11. Final Code (Java)
+
+---
 
 ```java
 class Solution {
@@ -306,7 +424,7 @@ class Solution {
 
 ---
 
-## 11. Interview-Style Explanation
+## 12. Interview-Style Explanation
 
 > “I binary-search the partition on the smaller array.  
 > For each cut, I check whether the left side’s maximum is less than or equal to the right side’s minimum.  
@@ -314,7 +432,7 @@ class Solution {
 
 ---
 
-## 12. Common Mistakes
+## 13. Common Mistakes
 
 - Trying to merge arrays
 - Binary-searching values instead of partition index
@@ -323,7 +441,7 @@ class Solution {
 
 ---
 
-## 13. Key Takeaway
+## 14. Key Takeaway
 
 > **This problem is about finding a valid split, not searching for a value.**
 

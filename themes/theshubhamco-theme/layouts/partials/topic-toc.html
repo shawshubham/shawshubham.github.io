@@ -1,0 +1,15 @@
+{{/* Simple H2 ToC from rendered content (requires autoHeadingID=true) */}}
+{{ $content := .Content }}
+{{ $h2s := findRE "<h2[^>]*id=\"([^\"]+)\"[^>]*>(.*?)</h2>" $content }}
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    {{ range $h2s }}
+      {{ $id := replaceRE ".*id=\"([^\"]+)\".*" "$1" . }}
+      {{ $title := replaceRE ".*>(.*?)</h2>" "$1" . | replaceRE "<.*?>" "" }}
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#{{ $id }}" data-toc-target="{{ $id }}">{{ $title }}</a>
+      </li>
+    {{ end }}
+  </ul>
+</nav>

@@ -1731,3 +1731,408 @@ circle.progress {
   /* Optional subtle depth */
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
+
+/* =========================
+   Topic Layout: 3 Column Docs Layout
+   ========================= */
+
+/* Mobile-first: stacked layout */
+.topic-layout {
+  display: block;
+}
+
+/* Hide both sidebars by default (mobile) */
+.topic-subject-sidebar,
+.topic-sidebar {
+  display: none;
+}
+
+/* =========================
+   DESKTOP / LARGE TABLET
+   ========================= */
+
+@media (min-width: 1400px) {
+
+  .topic-layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 280px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* LEFT: Subject TOC */
+  .topic-subject-sidebar {
+    display: block;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+
+    background: var(--bg-color);
+    border-right: 1px solid var(--border-color);
+  }
+
+  /* RIGHT: Article TOC */
+  .topic-sidebar {
+    display: block;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 100px);
+    overflow: hidden;
+
+    background: var(--bg-color);
+    border-left: 1px solid var(--border-color);
+  }
+
+  .topic-main {
+    min-width: 0;
+  }
+}
+
+/* =========================
+   MEDIUM SCREENS
+   (Only Subject TOC + Content)
+   ========================= */
+
+@media (min-width: 1100px) and (max-width: 1399px) {
+
+  .topic-layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+
+  .topic-subject-sidebar {
+    display: block;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+
+    background: var(--bg-color);
+    border-right: 1px solid var(--border-color);
+  }
+
+  .topic-sidebar {
+    display: none;
+  }
+}
+
+/* =========================
+   ARTICLE TOC (RIGHT)
+   ========================= */
+
+.topic-sidebar-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-title {
+  font-weight: 700;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.sidebar-toggle.btn {
+  padding: 0.25rem 0.65rem;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* TOC container */
+.sidebar-toc {
+  padding: 10px 10px 14px;
+  overflow: auto;
+}
+
+.sidebar-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc-item {
+  margin: 0;
+  padding: 0;
+}
+
+.toc-link {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.toc-link:hover {
+  background: rgba(89, 206, 179, 0.12);
+}
+
+.toc-link.is-active {
+  background: rgba(89, 206, 179, 0.16);
+  border-left: 3px solid var(--accent-color);
+  padding-left: 8px;
+}
+
+/* =========================
+   SUBJECT TOC (LEFT)
+   ========================= */
+
+.subject-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.subject-toc li a {
+  display: block;
+  padding: 8px 14px;
+  text-decoration: none;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.subject-toc li a:hover {
+  background: rgba(89, 206, 179, 0.12);
+}
+
+.subject-toc li.active a {
+  background: rgba(89, 206, 179, 0.18);
+  border-left: 3px solid var(--accent-color);
+}
+
+/* =========================================
+   SIDEBAR COLLAPSE SYSTEM (3-Column Layout)
+   ========================================= */
+
+.topic-layout {
+  transition: grid-template-columns 0.25s ease;
+}
+
+@media (min-width: 1400px) {
+
+  /* =========================
+     COLLAPSE RIGHT (Article)
+     ========================= */
+  .topic-layout.article-sidebar-collapsed {
+    grid-template-columns: 240px minmax(0, 1fr) 56px;
+  }
+
+  .topic-layout.article-sidebar-collapsed 
+  .topic-sidebar .sidebar-title,
+  .topic-layout.article-sidebar-collapsed 
+  .topic-sidebar .sidebar-toc {
+    display: none;
+  }
+
+  .topic-layout.article-sidebar-collapsed 
+  .topic-sidebar .sidebar-header {
+    justify-content: center;
+  }
+
+  .topic-layout.article-sidebar-collapsed 
+  .topic-sidebar .sidebar-toggle.btn {
+    transform: rotate(180deg);
+    transition: transform 0.2s ease;
+  }
+
+
+  /* =========================
+     COLLAPSE LEFT (Subject)
+     ========================= */
+  .topic-layout.subject-sidebar-collapsed {
+    grid-template-columns: 56px minmax(0, 1fr) 280px;
+  }
+
+  .topic-layout.subject-sidebar-collapsed 
+  .topic-subject-sidebar .sidebar-title,
+  .topic-layout.subject-sidebar-collapsed 
+  .topic-subject-sidebar .subject-toc {
+    display: none;
+  }
+
+  .topic-layout.subject-sidebar-collapsed 
+  .topic-subject-sidebar .sidebar-header {
+    justify-content: center;
+  }
+
+  .topic-layout.subject-sidebar-collapsed 
+  .topic-subject-sidebar .sidebar-toggle.btn {
+    transform: rotate(180deg);
+    transition: transform 0.2s ease;
+  }
+
+
+  /* =========================
+     COLLAPSE BOTH
+     ========================= */
+  .topic-layout.subject-sidebar-collapsed.article-sidebar-collapsed {
+    grid-template-columns: 56px minmax(0, 1fr) 56px;
+  }
+
+
+  /* =========================
+     DEFAULT ARROW RESET
+     (Ensures proper orientation when not collapsed)
+     ========================= */
+
+  .topic-subject-sidebar .sidebar-toggle.btn,
+  .topic-sidebar .sidebar-toggle.btn {
+    transform: rotate(0deg);
+    transition: transform 0.2s ease;
+  }
+
+}
+
+/* =========================
+   SUBJECT TOC (LEFT) — Phase groups + topic links
+   (Make it feel like the right Article TOC)
+   ========================= */
+
+.subject-sidebar-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.subject-toc {
+  padding: 10px 10px 14px;
+  overflow: auto;
+}
+
+.subject-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Phase group wrapper */
+.subject-phase {
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+/* Non-clickable phase title */
+.subject-phase-title {
+  display: block;
+  padding: 8px 10px;
+  margin: 6px 0 6px;
+
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+
+  /* looks like a “section header” */
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Optional: visually mark the open phase */
+.subject-phase.is-open .subject-phase-title {
+  color: var(--text-color);
+  border-bottom-color: var(--accent-color);
+}
+
+/* Topic list under a phase */
+.subject-phase > ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* Topic links (match right TOC link feel) */
+.subject-toc li a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.subject-toc li a:hover {
+  background: rgba(89, 206, 179, 0.12);
+}
+
+/* Current page highlight */
+.subject-toc li.active a {
+  background: rgba(89, 206, 179, 0.16);
+  border-left: 3px solid var(--accent-color);
+  padding-left: 8px; /* compensate for left border */
+}
+
+/* =========================
+   Subject TOC — Phases as <details> (no JS)
+   ========================= */
+
+/* Remove default marker triangle (we’ll style our own) */
+.subject-phase-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.subject-phase-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Phase header (summary) */
+.subject-phase-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 14px;
+  font-weight: 800;
+  color: var(--text-color);
+
+  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+}
+
+/* Small chevron indicator on the right */
+.subject-phase-title::after {
+  content: "▸";
+  font-size: 0.95rem;
+  opacity: 0.7;
+  transform: rotate(0deg);
+  transition: transform 0.15s ease;
+}
+
+/* Rotate chevron when open */
+.subject-phase-details[open] > .subject-phase-title::after {
+  transform: rotate(90deg);
+}
+
+/* Topics inside each phase */
+.subject-phase-topics {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 10px;
+}
+
+/* Optional: subtle indent for topics under phase */
+.subject-phase-topics li a {
+  padding-left: 18px; /* keeps your current spacing feel */
+}
+
+/* Optional: give open phase a soft background */
+.subject-phase-details[open] {
+  background: rgba(89, 206, 179, 0.06);
+}

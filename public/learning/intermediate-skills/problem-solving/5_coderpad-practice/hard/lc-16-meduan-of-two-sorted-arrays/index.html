@@ -8,8 +8,8 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/style.css?v=1772139759">
-<link rel="stylesheet" href="/css/custom.css?v=1772139759">
+<link rel="stylesheet" href="/css/style.css?v=1772207123">
+<link rel="stylesheet" href="/css/custom.css?v=1772207123">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -104,23 +104,25 @@
         
         <li>4. Pattern Identification</li>
         
-        <li>5. Core Insight (High-Level)</li>
+        <li>5. What Are We Actually Trying to Solve?</li>
         
-        <li>6. Why Binary Search Works</li>
+        <li>6. Reframing the Problem</li>
         
-        <li>7. Partition Invariant</li>
+        <li>7. What Makes a Split Valid?</li>
         
-        <li>8. Handling Edge Boundaries</li>
+        <li>8. Why Binary Search Works</li>
         
-        <li>9. Time &amp;amp; Space Complexity</li>
+        <li>9. Handling Edge Boundaries</li>
         
-        <li>10. Final Code (Java)</li>
+        <li>10. Time &amp;amp; Space Complexity</li>
         
-        <li>11. Interview-Style Explanation</li>
+        <li>11. Final Code (Java)</li>
         
-        <li>12. Common Mistakes</li>
+        <li>12. Interview-Style Explanation</li>
         
-        <li>13. Key Takeaway</li>
+        <li>13. Common Mistakes</li>
+        
+        <li>14. Key Takeaway</li>
         
       </ul>
     </div>
@@ -174,11 +176,13 @@
 you are searching for a <strong>valid split</strong>.</p>
 <hr>
 <h2 id="1-problem-statement">1. Problem Statement</h2>
+<hr>
 <p>You are given two sorted arrays <code>nums1</code> and <code>nums2</code> of sizes <code>m</code> and <code>n</code>.</p>
 <p>Return the <strong>median</strong> of the two sorted arrays.</p>
 <p>The overall runtime complexity must be <strong>O(log (m + n))</strong>.</p>
 <hr>
 <h2 id="2-clarifying-questions-interview-thinking">2. Clarifying Questions (Interview Thinking)</h2>
+<hr>
 <p>Before coding, confirm:</p>
 <ul>
 <li>Are both arrays sorted? → <strong>Yes</strong></li>
@@ -194,6 +198,7 @@ you are searching for a <strong>valid split</strong>.</p>
 </ul>
 <hr>
 <h2 id="3-why-the-naive-approach-is-not-enough">3. Why the Naive Approach Is Not Enough</h2>
+<hr>
 <p>A natural first idea is to:</p>
 <ul>
 <li>combine both arrays,</li>
@@ -264,6 +269,7 @@ you are searching for a <strong>valid split</strong>.</p>
 <p>This is where Binary Search on Partition becomes necessary.</p>
 <hr>
 <h2 id="4-pattern-identification">4. Pattern Identification</h2>
+<hr>
 <p>This problem is <strong>not</strong>:</p>
 <ul>
 <li>Two Pointers</li>
@@ -277,53 +283,124 @@ you are searching for a <strong>valid split</strong>.</p>
 <p><strong>Binary Search on Partition</strong></p></blockquote>
 <p>We are searching for a <strong>partition point</strong>, not a number.</p>
 <hr>
-<h2 id="5-core-insight-high-level">5. Core Insight (High-Level)</h2>
-<p>We want to split both arrays into left and right parts such that:</p>
-<ul>
-<li>Left side contains exactly half of the total elements</li>
-<li>Every element in the left part ≤ every element in the right part</li>
-</ul>
-<p>Once such a partition is found, the median can be computed directly.</p>
+<h2 id="5-what-are-we-actually-trying-to-solve">5. What Are We Actually Trying to Solve?</h2>
 <hr>
-<h2 id="6-why-binary-search-works">6. Why Binary Search Works</h2>
-<p>The validity of a partition is <strong>monotonic</strong>:</p>
+<p>Before thinking about binary search, pause.</p>
+<p>If we merged both arrays into one sorted array:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[ … combined sorted elements … ]
+</span></span></code></pre></div><p>The median would simply be:</p>
 <ul>
-<li>If the partition is too far left → move right</li>
-<li>If the partition is too far right → move left</li>
+<li>the middle element (if total length is odd)</li>
+<li>the average of two middle elements (if even)</li>
 </ul>
+<p>So the median is:</p>
+<blockquote>
+<p>The element(s) that divide the combined sorted array into two equal halves.</p></blockquote>
+<p>This is the key shift.</p>
+<p>We are not trying to “find the median directly.”</p>
+<p>We are trying to:</p>
+<blockquote>
+<p>Construct a correct left half.</p></blockquote>
+<p>Once the left half is correct, the median is automatically determined.</p>
+<hr>
+<h2 id="6-reframing-the-problem">6. Reframing the Problem</h2>
+<hr>
+<p>Let total length = <code>m + n</code>.</p>
+<p>The left half must contain:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">(m + n + 1) / 2 elements
+</code></pre><p>Why <code>+1</code>?</p>
+<ul>
+<li>If total is odd → left half contains one extra element.</li>
+<li>If total is even → both halves are equal.</li>
+</ul>
+<p>Now the real problem becomes:</p>
+<blockquote>
+<p>How do we split the two arrays so that together they form a valid left half?</p></blockquote>
+<hr>
+<h2 id="7-what-makes-a-split-valid">7. What Makes a Split Valid?</h2>
+<hr>
+<p>Suppose we cut:</p>
+<ul>
+<li><code>nums1</code> at index <code>i</code></li>
+<li><code>nums2</code> at index <code>j</code></li>
+</ul>
+<p>Then:</p>
+<p>Left side:</p>
+<ul>
+<li><code>nums1[0 ... i-1]</code></li>
+<li><code>nums2[0 ... j-1]</code></li>
+</ul>
+<p>Right side:</p>
+<ul>
+<li><code>nums1[i ...]</code></li>
+<li><code>nums2[j ...]</code></li>
+</ul>
+<p>Two conditions must hold.</p>
+<h3 id="71-size-condition">7.1 Size Condition</h3>
+<p>The total number of elements on the left must be correct:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>i + j = (m + n + 1) / 2
+</span></span></code></pre></div><p>This ensures we split at the correct position.</p>
+<hr>
+<h3 id="72-order-condition">7.2 Order Condition</h3>
+<p>All elements in the left half must be ≤ all elements in the right half.</p>
+<p>Which simplifies to checking only the boundaries:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>max(left1, left2) ≤ min(right1, right2)
+</span></span></code></pre></div><p>Because:</p>
+<ul>
+<li>Arrays are already sorted.</li>
+<li>Only boundary elements can violate order.</li>
+</ul>
+<p>If this condition holds → partition is valid.</p>
+<p>Once valid:</p>
+<ul>
+<li>If total length is odd → median = max(left1, left2)</li>
+<li>If total length is even → median = average of max(left) and min(right)</li>
+</ul>
+<p>We never explicitly “search for the median.”</p>
+<p>We search for a valid partition.</p>
+<hr>
+<h2 id="8-why-binary-search-works">8. Why Binary Search Works</h2>
+<hr>
+<p>We now have a target:</p>
+<p>Find <code>i</code> such that the partition is valid.</p>
+<p>If:</p>
+<ul>
+<li><code>left1 &gt; right2</code>
+→ we took too many elements from nums1<br>
+→ move <code>i</code> left</li>
+</ul>
+<p>If:</p>
+<ul>
+<li><code>left2 &gt; right1</code>
+→ we took too few elements from nums1<br>
+→ move <code>i</code> right</li>
+</ul>
+<p>Notice something important:</p>
+<p>The partition validity behaves <strong>monotonically</strong>.</p>
+<p>If we cut too far right, all further right cuts are invalid.
+If we cut too far left, all further left cuts are invalid.</p>
 <p>This monotonic behavior allows binary search.</p>
-<p>To simplify:</p>
-<ul>
-<li>Always binary-search on the <strong>smaller array</strong></li>
-<li>This keeps bounds tight and logic clean</li>
-</ul>
+<p>To simplify the logic:</p>
+<blockquote>
+<p>Always binary-search on the smaller array.</p></blockquote>
 <hr>
-<h2 id="7-partition-invariant">7. Partition Invariant</h2>
-<p>Let:</p>
-<ul>
-<li><code>i</code> = number of elements taken from <code>nums1</code></li>
-<li><code>j</code> = number of elements taken from <code>nums2</code></li>
-</ul>
-<p>We want:</p>
-<pre tabindex="0"><code class="language-code" data-lang="code">i + j = (m + n + 1) / 2
-</code></pre><p>And the partition to satisfy:</p>
-<pre tabindex="0"><code class="language-code" data-lang="code">max(left1, left2) ≤ min(right1, right2)
-</code></pre><p>If this holds, we’ve found the correct split.</p>
+<h2 id="9-handling-edge-boundaries">9. Handling Edge Boundaries</h2>
 <hr>
-<h2 id="8-handling-edge-boundaries">8. Handling Edge Boundaries</h2>
-<p>To avoid out-of-bounds checks:</p>
+<p>When partition touches edges:</p>
 <ul>
-<li>If no elements on left → use <code>-∞</code></li>
-<li>If no elements on right → use <code>+∞</code></li>
+<li>If no elements exist on the left → treat as <code>-∞</code></li>
+<li>If no elements exist on the right → treat as <code>+∞</code></li>
 </ul>
-<p>This makes comparisons uniform.</p>
+<p>This removes special-case logic and keeps comparisons clean.</p>
 <hr>
-<h2 id="9-time--space-complexity">9. Time &amp; Space Complexity</h2>
+<h2 id="10-time--space-complexity">10. Time &amp; Space Complexity</h2>
+<hr>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time:  O(log(min(m, n)))
 </span></span><span style="display:flex;"><span>Space: O(1)
 </span></span></code></pre></div><p>This meets the problem’s strict requirement.</p>
 <hr>
-<h2 id="10-final-code-java">10. Final Code (Java)</h2>
+<h2 id="11-final-code-java">11. Final Code (Java)</h2>
+<hr>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">findMedianSortedArrays</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums1, <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums2) {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Ensure nums1 is the smaller array</span>
@@ -369,13 +446,13 @@ you are searching for a <strong>valid split</strong>.</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
-<h2 id="11-interview-style-explanation">11. Interview-Style Explanation</h2>
+<h2 id="12-interview-style-explanation">12. Interview-Style Explanation</h2>
 <blockquote>
 <p>“I binary-search the partition on the smaller array.<br>
 For each cut, I check whether the left side’s maximum is less than or equal to the right side’s minimum.<br>
 Once the invariant holds, the median can be derived directly.”</p></blockquote>
 <hr>
-<h2 id="12-common-mistakes">12. Common Mistakes</h2>
+<h2 id="13-common-mistakes">13. Common Mistakes</h2>
 <ul>
 <li>Trying to merge arrays</li>
 <li>Binary-searching values instead of partition index</li>
@@ -383,7 +460,7 @@ Once the invariant holds, the median can be derived directly.”</p></blockquote
 <li>Not enforcing search on the smaller array</li>
 </ul>
 <hr>
-<h2 id="13-key-takeaway">13. Key Takeaway</h2>
+<h2 id="14-key-takeaway">14. Key Takeaway</h2>
 <blockquote>
 <p><strong>This problem is about finding a valid split, not searching for a value.</strong></p></blockquote>
 <p>Recognizing that early is the real solution.</p>
