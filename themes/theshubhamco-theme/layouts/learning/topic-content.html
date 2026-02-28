@@ -41,16 +41,18 @@
                   <nav class="subject-toc">
                     <ul>
                       {{/* Phases are sections under the subject root */}}
-                      {{ range $subjectRoot.Sections.ByWeight }}
-                        {{ $isCurrentPhase := and $.CurrentSection (eq .Permalink $.CurrentSection.Permalink) }}
-                        <li class="subject-phase {{ if $isCurrentPhase }}is-open{{ end }}">
-                          <details class="subject-phase-details" {{ if $isCurrentPhase }}open{{ end }}>
-                            <summary class="subject-phase-title">{{ .Title }}</summary>
+                      {{ range $gi, $group := $subjectRoot.Sections.ByWeight }}
+                        {{ $groupNum := add $gi 1 }}
+                        {{ $isCurrentGroup := and $.CurrentSection (eq $group.Permalink $.CurrentSection.Permalink) }}
+
+                        <li class="subject-phase {{ if $isCurrentGroup }}is-open{{ end }}">
+                          <details class="subject-phase-details" {{ if $isCurrentGroup }}open{{ end }}>
+                            <summary class="subject-phase-title">{{ $groupNum }}. {{ $group.Title }}</summary>
 
                             <ul class="subject-phase-topics">
-                              {{ range .RegularPages.ByWeight }}
-                                <li class="{{ if eq .Permalink $.Permalink }}active{{ end }}">
-                                  <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                              {{ range $i, $p := $group.RegularPages.ByWeight }}
+                                <li class="{{ if eq $p.Permalink $.Permalink }}active{{ end }}">
+                                  <a href="{{ $p.RelPermalink }}">{{ printf "%d.%d" $groupNum (add $i 1) }}. {{ $p.Title }}</a>
                                 </li>
                               {{ end }}
                             </ul>
