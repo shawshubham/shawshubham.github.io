@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1772322536">
+<link rel="stylesheet" href="/css/main.css?v=1772493894">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -308,6 +308,18 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1/">4.8. Decorator Pattern – Adding Behavior Without Modifying Code (Part 1)</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2/">4.9. Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1/">4.10. Composite Pattern – Treating Individuals and Groups Uniformly (Part 1)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_11_composite-pattern-part2/">4.11. Composite Pattern – Avoiding Target Explosion with Filters (Part 2)</a>
+                                </li>
+                              
                             </ul>
                           </details>
                         </li>
@@ -325,7 +337,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 27 Feb, 2026
+            Last updated on: 2 Mar, 2026
             
           </p>
         </div>
@@ -390,15 +402,37 @@ No single “best” variant.</p>
 <hr>
 <h2 id="4-the-first-wrong-solution-inheritance-explosion">4. The First Wrong Solution: Inheritance Explosion</h2>
 <hr>
-<p>A very common first attempt:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>PdfExporter
-</span></span><span style="display:flex;"><span>EncryptedPdfExporter
-</span></span><span style="display:flex;"><span>CompressedPdfExporter
-</span></span><span style="display:flex;"><span>EncryptedCompressedPdfExporter
-</span></span><span style="display:flex;"><span>EncryptedCompressedSignedPdfExporter
-</span></span><span style="display:flex;"><span>AuditedEncryptedCompressedSignedPdfExporter
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><h3 id="why-this-fails">Why this fails</h3>
+<p>A very common first attempt is creating combinatory subclasses:</p>
+<div class="mermaid">
+classDiagram
+direction TB
+
+class ReportExportStrategy {
+  &lt;&lt;interface&gt;&gt;
+  +export(EmployeeReport) ExportedReport
+}
+
+class PdfReportExportStrategy
+class EncryptedPdfReportExportStrategy
+class CompressedPdfReportExportStrategy
+
+class MoreVariants {
+  ...
+}
+
+class EncryptedCompressedSignedPdfReportExportStrategy
+
+ReportExportStrategy <|.. PdfReportExportStrategy
+ReportExportStrategy <|.. EncryptedPdfReportExportStrategy
+ReportExportStrategy <|.. CompressedPdfReportExportStrategy
+ReportExportStrategy <|.. EncryptedCompressedSignedPdfReportExportStrategy
+ReportExportStrategy <|.. MoreVariants
+
+note "Every new feature multiplies combinations.<br/> N features → up to 2^N variants per format."
+</div>
+<blockquote>
+<p>Each additional <strong>cross-cutting feature</strong> (encryption, compression, signing, auditing) multiplies the number of required subclasses — leading to combinatorial explosion.</p></blockquote>
+<h3 id="why-this-fails">Why this fails</h3>
 <ul>
 <li>Combinatorial class explosion</li>
 <li>Impossible to reason about</li>
@@ -459,14 +493,18 @@ Audit logging is not a <em>type</em> of exporter.</p>
 <p>Instead of inheritance:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExporterWithEverything
 </span></span></code></pre></div><p>We use composition:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Exporter
-</span></span><span style="display:flex;"><span>  ↑ wrapped by
-</span></span><span style="display:flex;"><span>EncryptedExporter
-</span></span><span style="display:flex;"><span>  ↑ wrapped by
-</span></span><span style="display:flex;"><span>CompressedExporter
-</span></span><span style="display:flex;"><span>  ↑ wrapped by
-</span></span><span style="display:flex;"><span>AuditedExporter
-</span></span></code></pre></div><p>Each decorator:</p>
+<div class="mermaid">
+flowchart TB
+
+subgraph Audited["AuditedReportExportDecorator (outermost)"]
+    subgraph Compressed["CompressedReportExportDecorator"]
+        subgraph Encrypted["EncryptedReportExportDecorator"]
+            Base["PdfReportExportStrategy (core)"]
+        end
+    end
+end
+</div>
+<p>Each decorator:</p>
 <ul>
 <li>implements the same interface</li>
 <li>delegates to the wrapped object</li>
@@ -508,26 +546,37 @@ class ReportExportStrategyDecorator {
 ReportExportStrategy <|.. ReportExportStrategyDecorator
 ReportExportStrategyDecorator o--> ReportExportStrategy : delegates to
 
-class EncryptedReportExportStrategy {
+class EncryptedReportExportDecorator {
   +export(EmployeeReport) ExportedReport
 }
-class CompressedReportExportStrategy {
+class CompressedReportExportDecorator {
   +export(EmployeeReport) ExportedReport
 }
-class AuditedReportExportStrategy {
+class AuditedReportExportDecorator {
   +export(EmployeeReport) ExportedReport
 }
 
-ReportExportStrategyDecorator <|-- EncryptedReportExportStrategy
-ReportExportStrategyDecorator <|-- CompressedReportExportStrategy
-ReportExportStrategyDecorator <|-- AuditedReportExportStrategy
+ReportExportStrategyDecorator <|-- EncryptedReportExportDecorator
+ReportExportStrategyDecorator <|-- CompressedReportExportDecorator
+ReportExportStrategyDecorator <|-- AuditedReportExportDecorator
 </div>
 <h3 id="82-runtime-structure-decoration-pipeline">8.2 Runtime structure: decoration pipeline</h3>
 <div class="mermaid">
-flowchart LR
-  Audit[AuditedReportExportStrategy] -->|"delegates export()"| Compress[CompressedReportExportStrategy]
-  Compress -->|"delegates export()"| Encrypt[EncryptedReportExportStrategy]
-  Encrypt -->|"delegates export()"| Pdf[PdfReportExportStrategy]
+sequenceDiagram
+    participant Caller
+    participant Audit
+    participant Compress
+    participant Encrypt
+    participant PDF
+
+    Caller->>Audit: export()
+    Audit->>Compress: delegates export()
+    Compress->>Encrypt: delegates export()
+    Encrypt->>PDF: delegates export()
+    PDF-->>Encrypt: result
+    Encrypt-->>Compress: result
+    Compress-->>Audit: result
+    Audit-->>Caller: result
 </div>
 <blockquote>
 <p>“<strong>Call order is outside-in</strong>: the outermost decorator runs first, then delegates inward.”</p></blockquote>
@@ -550,10 +599,10 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="92-encryption-decorator">9.2 Encryption Decorator</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EncryptedReportExportStrategy</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EncryptedReportExportDecorator</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EncryptedReportExportStrategy</span>(ReportExportStrategy delegate) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EncryptedReportExportDecorator</span>(ReportExportStrategy delegate) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(delegate);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
@@ -565,10 +614,10 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="93-compression-decorator">9.3 Compression Decorator</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CompressedReportExportStrategy</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CompressedReportExportDecorator</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CompressedReportExportStrategy</span>(ReportExportStrategy delegate) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CompressedReportExportDecorator</span>(ReportExportStrategy delegate) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(delegate);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
@@ -580,10 +629,10 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="94-audit-logging-decorator">9.4 Audit Logging Decorator</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AuditedReportExportStrategy</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AuditedReportExportDecorator</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">AuditedReportExportStrategy</span>(ReportExportStrategy delegate) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">AuditedReportExportDecorator</span>(ReportExportStrategy delegate) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(delegate);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
@@ -605,9 +654,9 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 <hr>
 <p>Now the real power:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportExportStrategy exporter <span style="color:#f92672">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> AuditedReportExportStrategy(
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> CompressedReportExportStrategy(
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">new</span> EncryptedReportExportStrategy(
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> AuditedReportExportDecorator(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> CompressedReportExportDecorator(
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">new</span> EncryptedReportExportDecorator(
 </span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">new</span> PdfReportExportStrategy()
 </span></span><span style="display:flex;"><span>            )
 </span></span><span style="display:flex;"><span>        )
@@ -668,8 +717,8 @@ and inheritance or conditional logic leads to explosion or rigidity.</p></blockq
 <li>discuss ordering constraints (encrypt vs compress)</li>
 <li>integrate Decorator with Abstract Factory bundles</li>
 </ul>
-<p>👉 Up next:
-Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</p>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2">Decorator Pattern – Building Configurable Processing Pipelines (Part 2) →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Final Takeaway</strong></p>
@@ -825,6 +874,8 @@ Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</p>
     </a>
     
 
+    
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

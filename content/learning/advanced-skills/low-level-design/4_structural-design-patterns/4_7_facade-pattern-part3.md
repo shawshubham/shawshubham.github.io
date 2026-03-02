@@ -364,8 +364,8 @@ The next problem to solve is not orchestration, but **behavior extension**:
 
 > **How do we add features dynamically without modifying existing code?**
 
-👉 **Up next:**  
-**Decorator Pattern – Adding Behavior Without Inheritance**
+👉 **Up Next →**  
+**[Decorator Pattern – Adding Behavior Without Inheritance (Part 1) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1)**
 
 ---
 

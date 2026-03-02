@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</title>
+<title>Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</h1>
+    <h1 class="main-heading">Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</h1>
     <h3>
   </div>
 </section>
@@ -280,7 +280,7 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview/">4.1. Structural Design Patterns – Assemble Objects into Maintainable Systems</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-pattern-part1/">4.2. Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</a>
                                 </li>
                               
@@ -308,7 +308,7 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1/">4.8. Decorator Pattern – Adding Behavior Without Modifying Code (Part 1)</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2/">4.9. Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</a>
                                 </li>
                               
@@ -337,274 +337,371 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 7 Feb, 2026
+            Last updated on: 2 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-structural-patterns-start-with-adapter">1. Why Structural Patterns Start with Adapter</h2>
+          <h2 id="1-recap-what-part-1-solved">1. Recap: What Part 1 Solved</h2>
 <hr>
-<p>In the previous phase, we focused on <strong>creating objects correctly</strong>:</p>
+<p>In Part 1, we solved:</p>
 <ul>
-<li>Builder → safe construction</li>
-<li>Factory Method → implementation selection</li>
-<li>Abstract Factory → compatible object families</li>
+<li>❌ Inheritance explosion</li>
+<li>❌ Flag-based procedural logic</li>
+<li>❌ Combinatorial subclass growth</li>
 </ul>
-<p>Now a different problem appears:</p>
-<blockquote>
-<p><strong>Objects already exist — but they don’t fit together.</strong></p></blockquote>
-<p>This is where <strong>Structural Design Patterns</strong> begin.</p>
-<p>And the first, most fundamental one is <strong>Adapter</strong>.</p>
-<hr>
-<h2 id="2-the-problem-clean-code-meets-reality">2. The Problem: Clean Code Meets Reality</h2>
-<hr>
-<p>In textbooks, systems are designed end-to-end.</p>
-<p>In real systems:</p>
+<p>We introduced:</p>
 <ul>
-<li>APIs already exist</li>
-<li>libraries evolve independently</li>
-<li>legacy code cannot be rewritten</li>
-<li>third-party contracts are fixed</li>
+<li>ReportExportStrategy</li>
+<li>ReportExportStrategyDecorator</li>
+<li>Concrete decorators (Encryption, Compression, Audit)</li>
+<li>Runtime wrapping</li>
 </ul>
-<p>You often face this situation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Your system expects: Interface A
-</span></span><span style="display:flex;"><span>The dependency provides: Interface B
-</span></span><span style="display:flex;"><span>You cannot change either
-</span></span></code></pre></div><p>Yet… they must work together.</p>
-<p>This is not a failure of design.<br>
-It is <strong>normal system evolution</strong>.</p>
-<hr>
-<h2 id="3-a-concrete-ems-scenario">3. A Concrete EMS Scenario</h2>
-<hr>
-<p>In EMS, suppose we already have this clean abstraction:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee);
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>And our system uses it everywhere:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>persistenceStrategy.<span style="color:#a6e22e">save</span>(employee);
-</span></span></code></pre></div><p>Now a new requirement arrives:</p>
+<p>We achieved:</p>
 <blockquote>
-<p><strong>“We must integrate with an external HR system.</strong><br>
-<strong>They provide an API client we cannot modify.”</strong></p></blockquote>
-<p>That external client looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRClient</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">persistEmployeeData</span>(HRUserRecord record) {
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// calls external system</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h4 id="the-mismatch">The mismatch</h4>
+<p>Dynamic behavior composition without modifying existing exporters.</p></blockquote>
+<p>But we left two critical questions unanswered.</p>
+<hr>
+<h2 id="2-the-real-problem-now-assembly-chaos">2. The Real Problem Now: Assembly Chaos</h2>
+<hr>
+<p>If decorators are powerful, this becomes possible:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> AuditedReportExportDecorator(
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> CompressedReportExportDecorator(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> EncryptedReportExportDecorator(
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">new</span> PdfReportExportStrategy()
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><p>This works.</p>
+<p>But ask yourself:</p>
+<ul>
+<li>Who decides this?</li>
+<li>Where does this live?</li>
+<li>What if order must change?</li>
+<li>What if some bundles forbid encryption?</li>
+<li>What if enterprise customers configure this?</li>
+</ul>
+<p>If assembly logic leaks into controllers or services, we just replaced one mess with another.</p>
+<blockquote>
+<p>Decorator solves behavior explosion.<br>
+It does NOT solve pipeline assembly responsibility.</p></blockquote>
+<hr>
+<h2 id="3-design-constraint-ems-already-uses-abstract-factory">3. Design Constraint: EMS Already Uses Abstract Factory</h2>
+<hr>
+<p>Recall from earlier sections:</p>
+<p>We introduced <strong>ReportBundleFactory</strong>.</p>
+<p>Each bundle defines:</p>
+<ul>
+<li>Export strategy</li>
+<li>Delivery strategy</li>
+<li>Notification strategy</li>
+</ul>
+<p>Now we add a new requirement:</p>
+<blockquote>
+<p><strong>Enterprise bundle may optionally apply post-processing decorators.</strong></p></blockquote>
+<p>This is not a new pattern.</p>
+<p>This is composition pressure.</p>
+<hr>
+<h2 id="4-where-should-decorator-assembly-live">4. Where Should Decorator Assembly Live?</h2>
+<hr>
+<p>Let’s reason structurally.</p>
+<p>Possible places:</p>
 <table>
   <thead>
       <tr>
-          <th>Our System Expects</th>
-          <th>External System Provides</th>
+          <th>Location</th>
+          <th>Good?</th>
+          <th>Why</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>Employee</td>
-          <td>HRUserRecord</td>
+          <td>Controller</td>
+          <td>❌</td>
+          <td>leaks orchestration outward</td>
       </tr>
       <tr>
-          <td>save()</td>
-          <td>persistEmployeeData()</td>
+          <td>ReportingOperationsService</td>
+          <td>❌</td>
+          <td>violates SRP</td>
       </tr>
       <tr>
-          <td>Strategy contract</td>
-          <td>Concrete API client</td>
+          <td>Inside exporter</td>
+          <td>❌</td>
+          <td>breaks OCP</td>
+      </tr>
+      <tr>
+          <td>Separate builder</td>
+          <td>🤔</td>
+          <td>possible</td>
+      </tr>
+      <tr>
+          <td>Inside Abstract Factory</td>
+          <td>✅</td>
+          <td>correct boundary</td>
       </tr>
   </tbody>
 </table>
-<p>They are <strong>conceptually compatible</strong>, but <strong>technically incompatible</strong>.</p>
-<hr>
-<h2 id="4-naive-solutions-and-why-theyre-wrong">4. Naive Solutions (and Why They’re Wrong)</h2>
-<hr>
-<h3 id="-option-1-modify-the-existing-interface">❌ Option 1: Modify the existing interface</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee, ExternalHRClient client);
-</span></span></code></pre></div><p>This breaks:</p>
+<h3 id="why-abstract-factory">Why Abstract Factory?</h3>
+<p>Because it already:</p>
 <ul>
-<li>SRP</li>
-<li>OCP</li>
-<li>every existing implementation</li>
+<li>owns export strategy creation</li>
+<li>enforces bundle compatibility</li>
+<li>represents business workflow intent</li>
 </ul>
-<h3 id="-option-2-add-conditionals-everywhere">❌ Option 2: Add conditionals everywhere</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (type <span style="color:#f92672">==</span> EXTERNAL_HR) {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// call ExternalHRClient</span>
-</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// normal save</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>This introduces:</p>
-<ul>
-<li>branching logic</li>
-<li>tight coupling</li>
-<li>cascading changes</li>
-</ul>
-<h3 id="-option-3-rewrite-the-external-client">❌ Option 3: Rewrite the external client</h3>
-<p>Not possible.<br>
-Not allowed.<br>
-Not realistic.</p>
-<hr>
-<h2 id="5-the-adapter-insight">5. The Adapter Insight</h2>
-<hr>
-<p>The core insight of Adapter is simple:</p>
 <blockquote>
-<p><strong>Don’t change either side. Translate between them.</strong></p></blockquote>
-<p>The adapter:</p>
-<ul>
-<li>implements your expected interface</li>
-<li>internally delegates to the incompatible API</li>
-<li>performs any required translation</li>
-</ul>
+<p>The bundle factory should assemble the final export pipeline.</p></blockquote>
 <hr>
-<h2 id="6-adapter-pattern-definition-practical">6. Adapter Pattern Definition (Practical)</h2>
+<h2 id="5-integrating-decorator-with-abstract-factory">5. Integrating Decorator with Abstract Factory</h2>
 <hr>
-<blockquote>
-<p><strong>Adapter Pattern</strong> converts the interface of a class into another interface the client expects.</p></blockquote>
-<p>Key idea:</p>
-<ul>
-<li>Client code stays unchanged</li>
-<li>Existing abstractions stay intact</li>
-<li>Integration logic is isolated</li>
-</ul>
-<hr>
-<h2 id="7-adapter-implementation-ems-example">7. Adapter Implementation (EMS Example)</h2>
-<hr>
-<h3 id="step-1-keep-your-abstraction-unchanged">Step 1: Keep your abstraction unchanged</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee);
+<p>Let’s evolve PortalDownloadBundleFactory.</p>
+<p>Before (Part 2 of Abstract Factory):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> ReportExportStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(format);
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="step-2-create-an-adapter">Step 2: Create an Adapter</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span> <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
+</span></span></code></pre></div><p>Now we enhance it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExternalHRClient externalHRClient;
+</span></span><span style="display:flex;"><span>    ReportExportStrategy base <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            ReportExportStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(format);
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span>(ExternalHRClient externalHRClient) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">externalHRClient</span> <span style="color:#f92672">=</span> externalHRClient;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (enterpriseFeatures.<span style="color:#a6e22e">isEncryptionEnabled</span>()) {
+</span></span><span style="display:flex;"><span>        base <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EncryptedReportExportDecorator(base);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
-</span></span><span style="display:flex;"><span>        HRUserRecord record <span style="color:#f92672">=</span> mapToHRRecord(employee);
-</span></span><span style="display:flex;"><span>        externalHRClient.<span style="color:#a6e22e">persistEmployeeData</span>(record);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (enterpriseFeatures.<span style="color:#a6e22e">isCompressionEnabled</span>()) {
+</span></span><span style="display:flex;"><span>        base <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CompressedReportExportDecorator(base);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> HRUserRecord <span style="color:#a6e22e">mapToHRRecord</span>(Employee employee) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HRUserRecord(
-</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getId</span>(),
-</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getName</span>(),
-</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getDepartment</span>().<span style="color:#a6e22e">name</span>()
-</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (enterpriseFeatures.<span style="color:#a6e22e">isAuditEnabled</span>()) {
+</span></span><span style="display:flex;"><span>        base <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AuditedReportExportDecorator(base);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> base;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Notice:</p>
+<ul>
+<li>No exporter classes changed.</li>
+<li>No controller changed.</li>
+<li>No service changed.</li>
+<li>Only the factory evolved.</li>
+</ul>
+<p>This is <strong>pattern synergy</strong>.</p>
+<hr>
+<h2 id="6-ordering-is-not-arbitrary-critical-insight">6. Ordering Is Not Arbitrary (Critical Insight)</h2>
+<hr>
+<p>Compression and encryption are not interchangeable.</p>
+<div class="mermaid">
+flowchart LR
+
+  subgraph Best["✅ Recommended:<br>Compress → Encrypt"]
+    direction LR
+    P1[Report Data] --> C1[Compress]
+    C1 -->|"Lower entropy, still compressible"| E1[Encrypt]
+    E1 --> OUT1["Compressed + Encrypted Output"]
+  end
+
+  subgraph Bad["❌ Avoid:<br>Encrypt → Compress"]
+    direction LR
+    P2[Report Data] --> E2[Encrypt]
+    E2 -->|High entropy ciphertext| C2[Compress]
+    C2 --> OUT2["Encryption Only (Compression Ineffective)"]
+  end
+</div>
+<p>Encryption intentionally produces high-entropy output (ciphertext), which removes predictable patterns — and compression relies on predictable patterns.</p>
+<p>So pipeline assembly must:</p>
+<ul>
+<li>Respect domain constraints</li>
+<li>Enforce valid ordering</li>
+<li>Remain explicit</li>
+</ul>
+<blockquote>
+<p><strong>Decorator gives flexibility.</strong><br>
+<strong>Factory enforces correctness.</strong></p></blockquote>
+<p>Without a controlled assembly boundary, Decorator makes invalid pipelines just as easy as valid ones.</p>
+<hr>
+<h2 id="7-cleaner-assembly-using-a-pipeline-builder-optional-refinement">7. Cleaner Assembly: Using a Pipeline Builder (Optional Refinement)</h2>
+<hr>
+<p>If factory code grows complex, introduce a small helper:</p>
+<blockquote>
+<p><strong>NOTE:</strong> This is a fluent composer helper, not the GoF Builder Pattern.</p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExportPipelineAssembler</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> ReportExportStrategy current;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExportPipelineAssembler</span>(ReportExportStrategy base) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">current</span> <span style="color:#f92672">=</span> base;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportPipelineAssembler <span style="color:#a6e22e">apply</span>(ExportPostProcessingConfig cfg) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// enforce correct order here</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (cfg.<span style="color:#a6e22e">compression</span>()) current <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CompressedReportExportDecorator(current);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (cfg.<span style="color:#a6e22e">encryption</span>())  current <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EncryptedReportExportDecorator(current);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (cfg.<span style="color:#a6e22e">audit</span>())       current <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AuditedReportExportDecorator(current);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">build</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> current;
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="step-3-use-it-like-any-other-strategy">Step 3: Use it like any other strategy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeePersistenceStrategy strategy <span style="color:#f92672">=</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> ExternalHRPersistenceAdapter(<span style="color:#66d9ef">new</span> ExternalHRClient());
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>strategy.<span style="color:#a6e22e">save</span>(employee);
-</span></span></code></pre></div><p>No caller knows — or cares — that an external system is involved.</p>
+</span></span></code></pre></div><p>Then factory becomes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
+</span></span><span style="display:flex;"><span>    ReportExportStrategy base <span style="color:#f92672">=</span> ReportExportStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(format);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ExportPipelineAssembler(base)
+</span></span><span style="display:flex;"><span>            .<span style="color:#a6e22e">apply</span>(postProcessingConfig)
+</span></span><span style="display:flex;"><span>            .<span style="color:#a6e22e">build</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This improves readability without introducing a new pattern.</p>
 <hr>
-<h2 id="8-why-adapter-is-a-structural-pattern">8. Why Adapter Is a Structural Pattern</h2>
+<h2 id="8-diagram-final-structural-composition">8. Diagram: Final Structural Composition</h2>
 <hr>
-<p>Adapter does <strong>not</strong>:</p>
+<div class="mermaid">
+flowchart TD
+    C([Client / Controller / Job]) --> S[ReportingOperationsService]
+    S --> BF["ReportBundleFactory<br/>(Composition Boundary)"]
+
+    BF -->|assembles| D1
+
+    subgraph Stack [Decorator Stack]
+        direction TB
+        D1[AuditedExportDecorator]
+        D2[EncryptedExportDecorator]
+        D3[CompressedExportDecorator]
+
+        subgraph Core [Core Export Strategy]
+            Base["PdfReportExportStrategy<br/>(Generates Raw Report)"]
+        end
+    end
+
+    %% Structural wrapping
+    D1 -->|wraps| D2
+    D2 -->|wraps| D3
+    D3 -->|wraps| Base
+
+    %% Execution flow (downward call)
+    D1 -. export() .-> D2
+    D2 -. export() .-> D3
+    D3 -. export() .-> Base
+
+    %% Result flow (upward return)
+    Base -. Raw PDF .-> D3
+    D3 -. Compressed PDF .-> D2
+    D2 -. Encrypted PDF .-> D1
+    D1 -. Audited & Final Report .-> S
+
+    %% Styling
+    style Stack fill:#fdfefe,stroke:#333,stroke-dasharray: 5 5
+    style Core fill:#e8f8f5,stroke:#16a085,stroke-width:2px
+    style D1 fill:#ebf5fb,stroke:#2e86c1
+    style D2 fill:#f4f6f7,stroke:#7f8c8d
+    style D3 fill:#fef9e7,stroke:#f1c40f
+    style BF fill:#ffffff,stroke:#333,stroke-dasharray: 5 5
+    style S fill:#f6ddcc,stroke:#a04000
+</div>
+<p>Responsibility separation:</p>
 <ul>
-<li>create objects</li>
-<li>change behavior</li>
-<li>add business logic</li>
+<li>Client → expresses intent</li>
+<li>Factory → assembles pipeline</li>
+<li>Decorators → add behavior</li>
+<li>Strategy → performs core export</li>
 </ul>
-<p>Instead, it focuses on:</p>
+<p>Clean layering.</p>
+<hr>
+<h2 id="9-why-this-is-architecturally-powerful">9. Why This Is Architecturally Powerful</h2>
+<hr>
+<p>We now have:</p>
 <ul>
-<li><strong>how objects are connected</strong></li>
-<li><strong>how responsibilities are bridged</strong></li>
-<li><strong>how systems evolve without breaking</strong></li>
+<li><strong>Strategy</strong> → varies core algorithm</li>
+<li><strong>Decorator</strong> → adds cross-cutting behaviors</li>
+<li><strong>Abstract Factory</strong> → enforces valid combinations</li>
+<li><strong>Facade</strong> → orchestrates workflow</li>
 </ul>
-<p>This is the essence of <strong>structural design</strong>.</p>
+<p>These patterns are not isolated.<br>
+They collaborate.</p>
+<p>This is real-world object-oriented design.</p>
 <hr>
-<h2 id="9-adapter-vs-just-a-wrapper-interview-trap">9. Adapter vs “Just a Wrapper” (Interview Trap)</h2>
-<hr>
-<p>Adapters are often dismissed as “just wrappers”.</p>
-<p>That’s incomplete.</p>
-<table>
-  <thead>
-      <tr>
-          <th>Wrapper</th>
-          <th>Adapter</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Delegates calls</td>
-          <td>Translates interfaces</td>
-      </tr>
-      <tr>
-          <td>Same abstraction</td>
-          <td>Different abstractions</td>
-      </tr>
-      <tr>
-          <td>Convenience</td>
-          <td>Compatibility</td>
-      </tr>
-  </tbody>
-</table>
-<blockquote>
-<p><strong>All adapters wrap something, but not all wrappers are adapters.</strong></p></blockquote>
-<hr>
-<h2 id="10-when-you-should-use-adapter">10. When You Should Use Adapter</h2>
-<hr>
-<h3 id="-use-adapter-when">✅ Use Adapter when:</h3>
-<ul>
-<li>integrating legacy or third-party APIs</li>
-<li>interfaces are incompatible</li>
-<li>you cannot modify one or both sides</li>
-<li>you want to preserve clean abstractions</li>
-</ul>
-<h3 id="-avoid-adapter-when">❌ Avoid Adapter when:</h3>
-<ul>
-<li>you control both interfaces</li>
-<li>the mismatch is conceptual, not technical</li>
-<li>you’re hiding poor domain modeling</li>
-</ul>
-<hr>
-<h2 id="11-interview-perspective">11. Interview Perspective</h2>
+<h2 id="10-interview-level-insight">10. Interview-Level Insight</h2>
 <hr>
 <p>If asked:</p>
 <blockquote>
-<p>“Why not change the interface?”</p></blockquote>
-<p>A strong answer:</p>
+<p>“How would you extend export behavior without modifying existing classes?”</p></blockquote>
+<p>Strong answer:</p>
 <blockquote>
-<p>Because interfaces represent <strong>contracts</strong>.<br>
-Adapters allow systems to evolve without breaking those contracts.</p></blockquote>
+<p>I would use Decorator for cross-cutting behaviors and let the Abstract Factory assemble valid pipelines based on business rules.</p></blockquote>
+<p>That answer signals:</p>
+<ul>
+<li>OCP understanding</li>
+<li>Responsibility boundaries</li>
+<li>Pattern composition maturity</li>
+</ul>
+<hr>
+<h2 id="11-when-not-to-use-decorator">11. When NOT to Use Decorator</h2>
+<hr>
+<p>Decorator is powerful, but:</p>
+<p>Do <strong>NOT</strong> use it when:</p>
+<ul>
+<li>behavior combinations are fixed</li>
+<li>ordering is irrelevant</li>
+<li>feature set is small and stable</li>
+<li>performance overhead is unacceptable</li>
+</ul>
+<p>Decorator introduces:</p>
+<ul>
+<li>more objects</li>
+<li>more indirection</li>
+<li>harder debugging if abused</li>
+</ul>
+<p>Use Decorator under <strong>real combinatorial pressure</strong> — not by default.</p>
+<p>If the system does not have growing optional behaviors, introducing Decorator is unnecessary abstraction.</p>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>Adapter Pattern is not about elegance.</p>
-<p>It is about <strong>survival</strong> in real systems.</p>
-<p>It allows you to:</p>
+<p><strong>Part 1</strong> showed <strong>how to wrap behavior</strong>.</p>
+<p><strong>Part 2</strong> showed <strong>how to assemble behavior responsibly</strong>.</p>
+<p>Decorator alone is not enough.<br>
+Factory alone is not enough.</p>
+<p>Together, they create:</p>
+<blockquote>
+<p>A configurable, extensible, maintainable processing pipeline.</p></blockquote>
+<p>EMS reporting is now:</p>
 <ul>
-<li>integrate without refactoring</li>
-<li>preserve clean design</li>
-<li>isolate change</li>
-<li>respect existing contracts</li>
+<li>extensible</li>
+<li>SRP compliant</li>
+<li>OCP aligned</li>
+<li>structurally clean</li>
 </ul>
-<p>This is why Adapter is often the <strong>first structural pattern engineers actually use</strong>.</p>
+<p>And we achieved this <strong>without modifying existing exporters</strong>.</p>
+<p>That is the real power of structural design patterns.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>In the next article, we’ll go deeper:</p>
-<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2">Adapter Pattern – Object Adapter vs Class Adapter + Trade-offs (Part 2) →</a></strong></p>
-<p>We’ll cover:</p>
+<hr>
+<p>We’ve now covered:</p>
 <ul>
-<li>object vs inheritance-based adapters</li>
-<li>where adapters should live in package structure</li>
-<li>how adapters relate to DIP and anti-corruption layers</li>
+<li><strong>Strategy</strong></li>
+<li><strong>Abstract Factory</strong></li>
+<li><strong>Facade</strong></li>
+<li><strong>Decorator</strong></li>
+<li><strong>Adapter</strong></li>
 </ul>
+<p>The next structural question is:</p>
+<blockquote>
+<p>How do we manage object structures when systems grow beyond single-object composition?</p></blockquote>
+<p>That naturally leads to the Composite structural patterns.</p>
+<p>👉 <strong>Up Next →</strong><br>
+<strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1">Composite Pattern – Treating Individuals and Groups Uniformly (Part 1) →</a></strong></p>
 <hr>
 <blockquote>
-<p>📝 <strong>Takeaway</strong>:</p>
+<p>📝 <strong>Final Takeaway</strong></p>
 <ul>
-<li>Adapter bridges incompatibility, not behavior</li>
-<li>It preserves existing contracts</li>
-<li>It isolates integration pain</li>
-<li>Most real systems need adapters — whether named or not</li>
+<li>Decorator solves combinatorial behavior growth</li>
+<li>Factory ensures valid pipeline assembly</li>
+<li>Ordering must be enforced intentionally</li>
+<li>Patterns become most powerful when composed together</li>
 </ul></blockquote>
 
         </article>
@@ -633,67 +730,67 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-structural-patterns-start-with-adapter" data-toc-target="1-why-structural-patterns-start-with-adapter">1. Why Structural Patterns Start with Adapter</a>
+        <a class="toc-link" href="#1-recap-what-part-1-solved" data-toc-target="1-recap-what-part-1-solved">1. Recap: What Part 1 Solved</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-problem-clean-code-meets-reality" data-toc-target="2-the-problem-clean-code-meets-reality">2. The Problem: Clean Code Meets Reality</a>
+        <a class="toc-link" href="#2-the-real-problem-now-assembly-chaos" data-toc-target="2-the-real-problem-now-assembly-chaos">2. The Real Problem Now: Assembly Chaos</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-a-concrete-ems-scenario" data-toc-target="3-a-concrete-ems-scenario">3. A Concrete EMS Scenario</a>
+        <a class="toc-link" href="#3-design-constraint-ems-already-uses-abstract-factory" data-toc-target="3-design-constraint-ems-already-uses-abstract-factory">3. Design Constraint: EMS Already Uses Abstract Factory</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-naive-solutions-and-why-theyre-wrong" data-toc-target="4-naive-solutions-and-why-theyre-wrong">4. Naive Solutions (and Why They’re Wrong)</a>
+        <a class="toc-link" href="#4-where-should-decorator-assembly-live" data-toc-target="4-where-should-decorator-assembly-live">4. Where Should Decorator Assembly Live?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-the-adapter-insight" data-toc-target="5-the-adapter-insight">5. The Adapter Insight</a>
+        <a class="toc-link" href="#5-integrating-decorator-with-abstract-factory" data-toc-target="5-integrating-decorator-with-abstract-factory">5. Integrating Decorator with Abstract Factory</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-adapter-pattern-definition-practical" data-toc-target="6-adapter-pattern-definition-practical">6. Adapter Pattern Definition (Practical)</a>
+        <a class="toc-link" href="#6-ordering-is-not-arbitrary-critical-insight" data-toc-target="6-ordering-is-not-arbitrary-critical-insight">6. Ordering Is Not Arbitrary (Critical Insight)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-adapter-implementation-ems-example" data-toc-target="7-adapter-implementation-ems-example">7. Adapter Implementation (EMS Example)</a>
+        <a class="toc-link" href="#7-cleaner-assembly-using-a-pipeline-builder-optional-refinement" data-toc-target="7-cleaner-assembly-using-a-pipeline-builder-optional-refinement">7. Cleaner Assembly: Using a Pipeline Builder (Optional Refinement)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-why-adapter-is-a-structural-pattern" data-toc-target="8-why-adapter-is-a-structural-pattern">8. Why Adapter Is a Structural Pattern</a>
+        <a class="toc-link" href="#8-diagram-final-structural-composition" data-toc-target="8-diagram-final-structural-composition">8. Diagram: Final Structural Composition</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-adapter-vs-just-a-wrapper-interview-trap" data-toc-target="9-adapter-vs-just-a-wrapper-interview-trap">9. Adapter vs “Just a Wrapper” (Interview Trap)</a>
+        <a class="toc-link" href="#9-why-this-is-architecturally-powerful" data-toc-target="9-why-this-is-architecturally-powerful">9. Why This Is Architecturally Powerful</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#10-when-you-should-use-adapter" data-toc-target="10-when-you-should-use-adapter">10. When You Should Use Adapter</a>
+        <a class="toc-link" href="#10-interview-level-insight" data-toc-target="10-interview-level-insight">10. Interview-Level Insight</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#11-interview-perspective" data-toc-target="11-interview-perspective">11. Interview Perspective</a>
+        <a class="toc-link" href="#11-when-not-to-use-decorator" data-toc-target="11-when-not-to-use-decorator">11. When NOT to Use Decorator</a>
       </li>
     
       
@@ -715,7 +812,7 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -747,7 +844,7 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
     
 
     
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -940,6 +1037,17 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

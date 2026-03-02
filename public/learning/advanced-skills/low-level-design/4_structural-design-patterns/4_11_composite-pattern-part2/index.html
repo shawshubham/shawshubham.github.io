@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</title>
+<title>Composite Pattern – Avoiding Target Explosion with Filters (Part 2)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</h1>
+    <h1 class="main-heading">Composite Pattern – Avoiding Target Explosion with Filters (Part 2)</h1>
     <h3>
   </div>
 </section>
@@ -280,7 +280,7 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview/">4.1. Structural Design Patterns – Assemble Objects into Maintainable Systems</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-pattern-part1/">4.2. Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</a>
                                 </li>
                               
@@ -316,7 +316,7 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1/">4.10. Composite Pattern – Treating Individuals and Groups Uniformly (Part 1)</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_11_composite-pattern-part2/">4.11. Composite Pattern – Avoiding Target Explosion with Filters (Part 2)</a>
                                 </li>
                               
@@ -337,275 +337,270 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 7 Feb, 2026
+            Last updated on: 2 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-structural-patterns-start-with-adapter">1. Why Structural Patterns Start with Adapter</h2>
+          <h2 id="1-why-this-part-exists">1. Why This Part Exists</h2>
 <hr>
-<p>In the previous phase, we focused on <strong>creating objects correctly</strong>:</p>
-<ul>
-<li>Builder → safe construction</li>
-<li>Factory Method → implementation selection</li>
-<li>Abstract Factory → compatible object families</li>
-</ul>
-<p>Now a different problem appears:</p>
+<p>In <strong>Part 1</strong>, Composite solved a structural problem:</p>
 <blockquote>
-<p><strong>Objects already exist — but they don’t fit together.</strong></p></blockquote>
-<p>This is where <strong>Structural Design Patterns</strong> begin.</p>
-<p>And the first, most fundamental one is <strong>Adapter</strong>.</p>
-<hr>
-<h2 id="2-the-problem-clean-code-meets-reality">2. The Problem: Clean Code Meets Reality</h2>
-<hr>
-<p>In textbooks, systems are designed end-to-end.</p>
-<p>In real systems:</p>
-<ul>
-<li>APIs already exist</li>
-<li>libraries evolve independently</li>
-<li>legacy code cannot be rewritten</li>
-<li>third-party contracts are fixed</li>
-</ul>
-<p>You often face this situation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Your system expects: Interface A
-</span></span><span style="display:flex;"><span>The dependency provides: Interface B
-</span></span><span style="display:flex;"><span>You cannot change either
-</span></span></code></pre></div><p>Yet… they must work together.</p>
-<p>This is not a failure of design.<br>
-It is <strong>normal system evolution</strong>.</p>
-<hr>
-<h2 id="3-a-concrete-ems-scenario">3. A Concrete EMS Scenario</h2>
-<hr>
-<p>In EMS, suppose we already have this clean abstraction:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee);
+<p>Treat a single employee and a group of employees uniformly.</p></blockquote>
+<p>We introduced:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportTarget</span> {
+</span></span><span style="display:flex;"><span>    Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repository);
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>And our system uses it everywhere:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>persistenceStrategy.<span style="color:#a6e22e">save</span>(employee);
-</span></span></code></pre></div><p>Now a new requirement arrives:</p>
+</span></span></code></pre></div><p>This allowed:</p>
+<ul>
+<li>EmployeeTarget</li>
+<li>DepartmentTarget</li>
+<li>TeamTarget</li>
+<li>CompositeReportTarget</li>
+</ul>
+<p>Everything looked clean.</p>
+<p>But real business rules rarely stop there.</p>
+<hr>
+<h2 id="2-new-design-pressure-target-explosion">2. New Design Pressure: Target Explosion</h2>
+<hr>
+<p>The business now says:</p>
+<ul>
+<li>“Export Engineering department, but only London employees.”</li>
+<li>“Export Backend team with tenure &gt; 2 years.”</li>
+<li>“Export HR department, active employees only.”</li>
+<li>“Export Engineering + HR, but only managers.”</li>
+</ul>
+<p>Naively, we might start creating:</p>
+<ul>
+<li>LondonDepartmentTarget</li>
+<li>EngineeringLondonTarget</li>
+<li>ActiveDepartmentTarget</li>
+<li>SeniorBackendTeamTarget</li>
+<li>EngineeringManagersTarget</li>
+</ul>
+<p>This quickly becomes absurd.</p>
+<p>We just replaced inheritance explosion (Decorator Part 1) with <strong>target type explosion</strong>.</p>
+<hr>
+<h2 id="3-the-core-insight">3. The Core Insight</h2>
+<hr>
+<p>Department is a domain concept.</p>
+<p>Location is a filter.</p>
+<p>Tenure is a filter.</p>
+<p>Active/inactive is a filter.</p>
+<p>These are not new structural targets.</p>
+<p>They are <strong>selection criteria applied to an existing target</strong>.</p>
+<p>That means:</p>
 <blockquote>
-<p><strong>“We must integrate with an external HR system.</strong><br>
-<strong>They provide an API client we cannot modify.”</strong></p></blockquote>
-<p>That external client looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRClient</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">persistEmployeeData</span>(HRUserRecord record) {
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// calls external system</span>
+<p>We must separate structural composition from filtering logic.</p></blockquote>
+<hr>
+<h2 id="4-keep-structural-targets-minimal">4. Keep Structural Targets Minimal</h2>
+<hr>
+<p>Structural targets represent <strong>identity-based selection</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">EmployeeTarget</span>(String employeeId)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> ReportTarget {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repo) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Stream.<span style="color:#a6e22e">of</span>(repo.<span style="color:#a6e22e">getById</span>(employeeId));
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h4 id="the-mismatch">The mismatch</h4>
-<table>
-  <thead>
-      <tr>
-          <th>Our System Expects</th>
-          <th>External System Provides</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Employee</td>
-          <td>HRUserRecord</td>
-      </tr>
-      <tr>
-          <td>save()</td>
-          <td>persistEmployeeData()</td>
-      </tr>
-      <tr>
-          <td>Strategy contract</td>
-          <td>Concrete API client</td>
-      </tr>
-  </tbody>
-</table>
-<p>They are <strong>conceptually compatible</strong>, but <strong>technically incompatible</strong>.</p>
-<hr>
-<h2 id="4-naive-solutions-and-why-theyre-wrong">4. Naive Solutions (and Why They’re Wrong)</h2>
-<hr>
-<h3 id="-option-1-modify-the-existing-interface">❌ Option 1: Modify the existing interface</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee, ExternalHRClient client);
-</span></span></code></pre></div><p>This breaks:</p>
-<ul>
-<li>SRP</li>
-<li>OCP</li>
-<li>every existing implementation</li>
-</ul>
-<h3 id="-option-2-add-conditionals-everywhere">❌ Option 2: Add conditionals everywhere</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (type <span style="color:#f92672">==</span> EXTERNAL_HR) {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// call ExternalHRClient</span>
-</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// normal save</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>This introduces:</p>
-<ul>
-<li>branching logic</li>
-<li>tight coupling</li>
-<li>cascading changes</li>
-</ul>
-<h3 id="-option-3-rewrite-the-external-client">❌ Option 3: Rewrite the external client</h3>
-<p>Not possible.<br>
-Not allowed.<br>
-Not realistic.</p>
-<hr>
-<h2 id="5-the-adapter-insight">5. The Adapter Insight</h2>
-<hr>
-<p>The core insight of Adapter is simple:</p>
-<blockquote>
-<p><strong>Don’t change either side. Translate between them.</strong></p></blockquote>
-<p>The adapter:</p>
-<ul>
-<li>implements your expected interface</li>
-<li>internally delegates to the incompatible API</li>
-<li>performs any required translation</li>
-</ul>
-<hr>
-<h2 id="6-adapter-pattern-definition-practical">6. Adapter Pattern Definition (Practical)</h2>
-<hr>
-<blockquote>
-<p><strong>Adapter Pattern</strong> converts the interface of a class into another interface the client expects.</p></blockquote>
-<p>Key idea:</p>
-<ul>
-<li>Client code stays unchanged</li>
-<li>Existing abstractions stay intact</li>
-<li>Integration logic is isolated</li>
-</ul>
-<hr>
-<h2 id="7-adapter-implementation-ems-example">7. Adapter Implementation (EMS Example)</h2>
-<hr>
-<h3 id="step-1-keep-your-abstraction-unchanged">Step 1: Keep your abstraction unchanged</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee);
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="step-2-create-an-adapter">Step 2: Create an Adapter</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span> <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExternalHRClient externalHRClient;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">DepartmentTarget</span>(String departmentId)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> ReportTarget {
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExternalHRPersistenceAdapter</span>(ExternalHRClient externalHRClient) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">externalHRClient</span> <span style="color:#f92672">=</span> externalHRClient;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repo) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> repo.<span style="color:#a6e22e">streamByDepartment</span>(departmentId);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>These remain stable.</p>
+<p>We do <strong>not</strong> create new subclasses for every variation.</p>
+<hr>
+<h2 id="5-introducing-filteredtarget-composite--decorator-synergy">5. Introducing FilteredTarget (Composite + Decorator Synergy)</h2>
+<hr>
+<p>Now we introduce a new kind of target:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FilteredTarget</span> <span style="color:#66d9ef">implements</span> ReportTarget {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportTarget base;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Predicate<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> filter;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">FilteredTarget</span>(ReportTarget base,
+</span></span><span style="display:flex;"><span>                          Predicate<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> filter) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">base</span> <span style="color:#f92672">=</span> base;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">filter</span> <span style="color:#f92672">=</span> filter;
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(Employee employee) {
-</span></span><span style="display:flex;"><span>        HRUserRecord record <span style="color:#f92672">=</span> mapToHRRecord(employee);
-</span></span><span style="display:flex;"><span>        externalHRClient.<span style="color:#a6e22e">persistEmployeeData</span>(record);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> HRUserRecord <span style="color:#a6e22e">mapToHRRecord</span>(Employee employee) {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HRUserRecord(
-</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getId</span>(),
-</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getName</span>(),
-</span></span><span style="display:flex;"><span>            employee.<span style="color:#a6e22e">getDepartment</span>().<span style="color:#a6e22e">name</span>()
-</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repo) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> base.<span style="color:#a6e22e">resolveEmployees</span>(repo)
+</span></span><span style="display:flex;"><span>                   .<span style="color:#a6e22e">filter</span>(filter);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="step-3-use-it-like-any-other-strategy">Step 3: Use it like any other strategy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeePersistenceStrategy strategy <span style="color:#f92672">=</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> ExternalHRPersistenceAdapter(<span style="color:#66d9ef">new</span> ExternalHRClient());
+</span></span></code></pre></div><p>Key properties:</p>
+<ul>
+<li>Implements ReportTarget</li>
+<li>Wraps another ReportTarget</li>
+<li>Adds filtering behavior</li>
+</ul>
+<p>This is structurally similar to <strong>Decorator</strong>, but applied to target selection.</p>
+<hr>
+<h2 id="6-example-department--location">6. Example: Department + Location</h2>
+<hr>
+<p>Instead of creating LondonDepartmentTarget:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportTarget londonEngineering <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> FilteredTarget(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> DepartmentTarget(<span style="color:#e6db74">&#34;engineering&#34;</span>),
+</span></span><span style="display:flex;"><span>        emp <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;London&#34;</span>.<span style="color:#a6e22e">equals</span>(emp.<span style="color:#a6e22e">getLocation</span>())
+</span></span><span style="display:flex;"><span>    );
+</span></span></code></pre></div><p>No new subclasses.<br>
+No type explosion.<br>
+Full composability.</p>
+<hr>
+<h2 id="7-structural-diagram">7. Structural Diagram</h2>
+<hr>
+<div class="mermaid">
+classDiagram
+direction TB
+
+class ReportTarget {
+  &lt;&lt;interface&gt;&gt;
+  +resolveEmployees(EmployeeRepository) Stream~Employee~
+}
+
+class DepartmentTarget
+class EmployeeTarget
+class CompositeReportTarget
+class FilteredTarget
+
+ReportTarget <|.. DepartmentTarget
+ReportTarget <|.. EmployeeTarget
+ReportTarget <|.. CompositeReportTarget
+ReportTarget <|.. FilteredTarget
+
+FilteredTarget o--> ReportTarget
+CompositeReportTarget o--> ReportTarget
+</div>
+<p>Notice:</p>
+<ul>
+<li>Composite handles grouping</li>
+<li>FilteredTarget handles criteria</li>
+<li>Both implement the same abstraction</li>
+<li>Composition is recursive</li>
+</ul>
+<hr>
+<h2 id="8-composite--filter-together">8. Composite + Filter Together</h2>
+<hr>
+<p>Now we can build complex structures:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportTarget engineeringAndHR <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> CompositeReportTarget(List.<span style="color:#a6e22e">of</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> DepartmentTarget(<span style="color:#e6db74">&#34;engineering&#34;</span>),
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> DepartmentTarget(<span style="color:#e6db74">&#34;hr&#34;</span>)
+</span></span><span style="display:flex;"><span>    ));
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>strategy.<span style="color:#a6e22e">save</span>(employee);
-</span></span></code></pre></div><p>No caller knows — or cares — that an external system is involved.</p>
+</span></span><span style="display:flex;"><span>ReportTarget londonEngineeringAndHR <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> FilteredTarget(
+</span></span><span style="display:flex;"><span>        engineeringAndHR,
+</span></span><span style="display:flex;"><span>        emp <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;London&#34;</span>.<span style="color:#a6e22e">equals</span>(emp.<span style="color:#a6e22e">getLocation</span>())
+</span></span><span style="display:flex;"><span>    );
+</span></span></code></pre></div><p>No new types.<br>
+No special cases.</p>
+<p>Structural + behavioral composition working together.</p>
 <hr>
-<h2 id="8-why-adapter-is-a-structural-pattern">8. Why Adapter Is a Structural Pattern</h2>
+<h2 id="9-when-filtering-should-move-to-repository">9. When Filtering Should Move to Repository</h2>
 <hr>
-<p>Adapter does <strong>not</strong>:</p>
+<p>The in-memory filtering shown above is fine for:</p>
 <ul>
-<li>create objects</li>
-<li>change behavior</li>
-<li>add business logic</li>
+<li>moderate datasets</li>
+<li>in-memory repositories</li>
+<li>simple LLD discussions</li>
 </ul>
-<p>Instead, it focuses on:</p>
+<p>But at scale (10k+ employees), filtering should be pushed down:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">EmployeeCriteria</span>(
+</span></span><span style="display:flex;"><span>        String departmentId,
+</span></span><span style="display:flex;"><span>        String location,
+</span></span><span style="display:flex;"><span>        Boolean activeOnly
+</span></span><span style="display:flex;"><span>) {}
+</span></span></code></pre></div><p>Then:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">CriteriaTarget</span>(EmployeeCriteria criteria)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> ReportTarget {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repo) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> repo.<span style="color:#a6e22e">streamByCriteria</span>(criteria);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This avoids:</p>
 <ul>
-<li><strong>how objects are connected</strong></li>
-<li><strong>how responsibilities are bridged</strong></li>
-<li><strong>how systems evolve without breaking</strong></li>
+<li>loading entire departments into memory</li>
+<li>filtering inefficiently</li>
+<li>unnecessary object materialization</li>
 </ul>
-<p>This is the essence of <strong>structural design</strong>.</p>
+<p>We will address scale explicitly in Part 3.</p>
 <hr>
-<h2 id="9-adapter-vs-just-a-wrapper-interview-trap">9. Adapter vs “Just a Wrapper” (Interview Trap)</h2>
+<h2 id="10-why-this-is-architecturally-correct">10. Why This Is Architecturally Correct</h2>
 <hr>
-<p>Adapters are often dismissed as “just wrappers”.</p>
-<p>That’s incomplete.</p>
-<table>
-  <thead>
-      <tr>
-          <th>Wrapper</th>
-          <th>Adapter</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Delegates calls</td>
-          <td>Translates interfaces</td>
-      </tr>
-      <tr>
-          <td>Same abstraction</td>
-          <td>Different abstractions</td>
-      </tr>
-      <tr>
-          <td>Convenience</td>
-          <td>Compatibility</td>
-      </tr>
-  </tbody>
-</table>
+<p>Composite handles:</p>
 <blockquote>
-<p><strong>All adapters wrap something, but not all wrappers are adapters.</strong></p></blockquote>
-<hr>
-<h2 id="10-when-you-should-use-adapter">10. When You Should Use Adapter</h2>
-<hr>
-<h3 id="-use-adapter-when">✅ Use Adapter when:</h3>
+<p>Structural hierarchy (single vs group).</p></blockquote>
+<p>FilteredTarget handles:</p>
+<blockquote>
+<p>Behavioral refinement (criteria).</p></blockquote>
+<p>This separation prevents:</p>
 <ul>
-<li>integrating legacy or third-party APIs</li>
-<li>interfaces are incompatible</li>
-<li>you cannot modify one or both sides</li>
-<li>you want to preserve clean abstractions</li>
+<li>Type explosion</li>
+<li>SRP violation</li>
+<li>Domain concept pollution</li>
+<li>Complex branching logic</li>
 </ul>
-<h3 id="-avoid-adapter-when">❌ Avoid Adapter when:</h3>
-<ul>
-<li>you control both interfaces</li>
-<li>the mismatch is conceptual, not technical</li>
-<li>you’re hiding poor domain modeling</li>
-</ul>
+<p>And it keeps your reporting pipeline untouched.</p>
 <hr>
-<h2 id="11-interview-perspective">11. Interview Perspective</h2>
+<h2 id="11-interview-grade-explanation">11. Interview-Grade Explanation</h2>
 <hr>
 <p>If asked:</p>
 <blockquote>
-<p>“Why not change the interface?”</p></blockquote>
-<p>A strong answer:</p>
+<p>“How would you avoid creating too many subclasses when combining filters?”</p></blockquote>
+<p>Strong answer:</p>
 <blockquote>
-<p>Because interfaces represent <strong>contracts</strong>.<br>
-Adapters allow systems to evolve without breaking those contracts.</p></blockquote>
+<p>I would keep structural targets minimal and introduce composable filtering, either using predicates or a specification pattern, instead of encoding every variation as a new type.</p></blockquote>
+<p>Bonus:</p>
+<blockquote>
+<p>Composite handles grouping; filtering should be data-driven, not type-driven.</p></blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>Adapter Pattern is not about elegance.</p>
-<p>It is about <strong>survival</strong> in real systems.</p>
-<p>It allows you to:</p>
+<p>Part 1 gave us structural uniformity.</p>
+<p>Part 2 prevents structural bloat.</p>
+<p>We now have:</p>
 <ul>
-<li>integrate without refactoring</li>
-<li>preserve clean design</li>
-<li>isolate change</li>
-<li>respect existing contracts</li>
+<li>Minimal structural targets</li>
+<li>Composable filtering</li>
+<li>Recursive grouping</li>
+<li>No subclass explosion</li>
+<li>Clean separation of concerns</li>
 </ul>
-<p>This is why Adapter is often the <strong>first structural pattern engineers actually use</strong>.</p>
+<p>Composite remains clean because we resisted turning every business rule into a new class.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>In the next article, we’ll go deeper:</p>
-<p>👉 <strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2">Adapter Pattern – Object Adapter vs Class Adapter + Trade-offs (Part 2) →</a></strong></p>
-<p>We’ll cover:</p>
-<ul>
-<li>object vs inheritance-based adapters</li>
-<li>where adapters should live in package structure</li>
-<li>how adapters relate to DIP and anti-corruption layers</li>
-</ul>
 <hr>
-<blockquote>
-<p>📝 <strong>Takeaway</strong>:</p>
+<p>So far we solved modeling problems.</p>
+<p>Now we face operational pressure:</p>
 <ul>
-<li>Adapter bridges incompatibility, not behavior</li>
-<li>It preserves existing contracts</li>
-<li>It isolates integration pain</li>
-<li>Most real systems need adapters — whether named or not</li>
-</ul></blockquote>
+<li>10k+ employees</li>
+<li>Streaming constraints</li>
+<li>Batching</li>
+<li>Partial failure handling</li>
+<li>Aggregated vs per-employee export modes</li>
+</ul>
+<p>In Part 3, we will:</p>
+<ul>
+<li>Make Composite scale-ready</li>
+<li>Introduce batching strategies</li>
+<li>Integrate with Decorator export pipelines</li>
+<li>Define failure policies</li>
+</ul>
+<p>👉 Up next:
+Composite Pattern – Scaling Hierarchical Reporting (Part 3)</p>
 
         </article>
 
@@ -633,67 +628,67 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-structural-patterns-start-with-adapter" data-toc-target="1-why-structural-patterns-start-with-adapter">1. Why Structural Patterns Start with Adapter</a>
+        <a class="toc-link" href="#1-why-this-part-exists" data-toc-target="1-why-this-part-exists">1. Why This Part Exists</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-problem-clean-code-meets-reality" data-toc-target="2-the-problem-clean-code-meets-reality">2. The Problem: Clean Code Meets Reality</a>
+        <a class="toc-link" href="#2-new-design-pressure-target-explosion" data-toc-target="2-new-design-pressure-target-explosion">2. New Design Pressure: Target Explosion</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-a-concrete-ems-scenario" data-toc-target="3-a-concrete-ems-scenario">3. A Concrete EMS Scenario</a>
+        <a class="toc-link" href="#3-the-core-insight" data-toc-target="3-the-core-insight">3. The Core Insight</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-naive-solutions-and-why-theyre-wrong" data-toc-target="4-naive-solutions-and-why-theyre-wrong">4. Naive Solutions (and Why They’re Wrong)</a>
+        <a class="toc-link" href="#4-keep-structural-targets-minimal" data-toc-target="4-keep-structural-targets-minimal">4. Keep Structural Targets Minimal</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-the-adapter-insight" data-toc-target="5-the-adapter-insight">5. The Adapter Insight</a>
+        <a class="toc-link" href="#5-introducing-filteredtarget-composite--decorator-synergy" data-toc-target="5-introducing-filteredtarget-composite--decorator-synergy">5. Introducing FilteredTarget (Composite &#43; Decorator Synergy)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-adapter-pattern-definition-practical" data-toc-target="6-adapter-pattern-definition-practical">6. Adapter Pattern Definition (Practical)</a>
+        <a class="toc-link" href="#6-example-department--location" data-toc-target="6-example-department--location">6. Example: Department &#43; Location</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-adapter-implementation-ems-example" data-toc-target="7-adapter-implementation-ems-example">7. Adapter Implementation (EMS Example)</a>
+        <a class="toc-link" href="#7-structural-diagram" data-toc-target="7-structural-diagram">7. Structural Diagram</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-why-adapter-is-a-structural-pattern" data-toc-target="8-why-adapter-is-a-structural-pattern">8. Why Adapter Is a Structural Pattern</a>
+        <a class="toc-link" href="#8-composite--filter-together" data-toc-target="8-composite--filter-together">8. Composite &#43; Filter Together</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-adapter-vs-just-a-wrapper-interview-trap" data-toc-target="9-adapter-vs-just-a-wrapper-interview-trap">9. Adapter vs “Just a Wrapper” (Interview Trap)</a>
+        <a class="toc-link" href="#9-when-filtering-should-move-to-repository" data-toc-target="9-when-filtering-should-move-to-repository">9. When Filtering Should Move to Repository</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#10-when-you-should-use-adapter" data-toc-target="10-when-you-should-use-adapter">10. When You Should Use Adapter</a>
+        <a class="toc-link" href="#10-why-this-is-architecturally-correct" data-toc-target="10-why-this-is-architecturally-correct">10. Why This Is Architecturally Correct</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#11-interview-perspective" data-toc-target="11-interview-perspective">11. Interview Perspective</a>
+        <a class="toc-link" href="#11-interview-grade-explanation" data-toc-target="11-interview-grade-explanation">11. Interview-Grade Explanation</a>
       </li>
     
       
@@ -715,7 +710,7 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -746,8 +741,6 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -940,6 +933,17 @@ Adapters allow systems to evolve without breaking those contracts.</p></blockquo
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

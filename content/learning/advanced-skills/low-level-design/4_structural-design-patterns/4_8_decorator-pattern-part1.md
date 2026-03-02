@@ -97,17 +97,37 @@ Now the question is:
 
 ---
 
-A very common first attempt:
+A very common first attempt is creating combinatory subclasses:
 
-```text
-PdfExporter
-EncryptedPdfExporter
-CompressedPdfExporter
-EncryptedCompressedPdfExporter
-EncryptedCompressedSignedPdfExporter
-AuditedEncryptedCompressedSignedPdfExporter
-...
+```mermaid
+classDiagram
+direction TB
+
+class ReportExportStrategy {
+  &lt;&lt;interface&gt;&gt;
+  +export(EmployeeReport) ExportedReport
+}
+
+class PdfReportExportStrategy
+class EncryptedPdfReportExportStrategy
+class CompressedPdfReportExportStrategy
+
+class MoreVariants {
+  ...
+}
+
+class EncryptedCompressedSignedPdfReportExportStrategy
+
+ReportExportStrategy <|.. PdfReportExportStrategy
+ReportExportStrategy <|.. EncryptedPdfReportExportStrategy
+ReportExportStrategy <|.. CompressedPdfReportExportStrategy
+ReportExportStrategy <|.. EncryptedCompressedSignedPdfReportExportStrategy
+ReportExportStrategy <|.. MoreVariants
+
+note "Every new feature multiplies combinations.<br/> N features → up to 2^N variants per format."
 ```
+
+> Each additional **cross-cutting feature** (encryption, compression, signing, auditing) multiplies the number of required subclasses — leading to combinatorial explosion.
 
 ### Why this fails
 
@@ -198,14 +218,16 @@ ExporterWithEverything
 
 We use composition:
 
-```text
-Exporter
-  ↑ wrapped by
-EncryptedExporter
-  ↑ wrapped by
-CompressedExporter
-  ↑ wrapped by
-AuditedExporter
+```mermaid
+flowchart TB
+
+subgraph Audited["AuditedReportExportDecorator (outermost)"]
+    subgraph Compressed["CompressedReportExportDecorator"]
+        subgraph Encrypted["EncryptedReportExportDecorator"]
+            Base["PdfReportExportStrategy (core)"]
+        end
+    end
+end
 ```
 
 Each decorator:
@@ -254,28 +276,39 @@ class ReportExportStrategyDecorator {
 ReportExportStrategy <|.. ReportExportStrategyDecorator
 ReportExportStrategyDecorator o--> ReportExportStrategy : delegates to
 
-class EncryptedReportExportStrategy {
+class EncryptedReportExportDecorator {
   +export(EmployeeReport) ExportedReport
 }
-class CompressedReportExportStrategy {
+class CompressedReportExportDecorator {
   +export(EmployeeReport) ExportedReport
 }
-class AuditedReportExportStrategy {
+class AuditedReportExportDecorator {
   +export(EmployeeReport) ExportedReport
 }
 
-ReportExportStrategyDecorator <|-- EncryptedReportExportStrategy
-ReportExportStrategyDecorator <|-- CompressedReportExportStrategy
-ReportExportStrategyDecorator <|-- AuditedReportExportStrategy
+ReportExportStrategyDecorator <|-- EncryptedReportExportDecorator
+ReportExportStrategyDecorator <|-- CompressedReportExportDecorator
+ReportExportStrategyDecorator <|-- AuditedReportExportDecorator
 ```
 
 ### 8.2 Runtime structure: decoration pipeline
 
 ```mermaid
-flowchart LR
-  Audit[AuditedReportExportStrategy] -->|"delegates export()"| Compress[CompressedReportExportStrategy]
-  Compress -->|"delegates export()"| Encrypt[EncryptedReportExportStrategy]
-  Encrypt -->|"delegates export()"| Pdf[PdfReportExportStrategy]
+sequenceDiagram
+    participant Caller
+    participant Audit
+    participant Compress
+    participant Encrypt
+    participant PDF
+
+    Caller->>Audit: export()
+    Audit->>Compress: delegates export()
+    Compress->>Encrypt: delegates export()
+    Encrypt->>PDF: delegates export()
+    PDF-->>Encrypt: result
+    Encrypt-->>Compress: result
+    Compress-->>Audit: result
+    Audit-->>Caller: result
 ```
 
 > “**Call order is outside-in**: the outermost decorator runs first, then delegates inward.”
@@ -311,10 +344,10 @@ public abstract class ReportExportStrategyDecorator implements ReportExportStrat
 ### 9.2 Encryption Decorator
 
 ```java
-public class EncryptedReportExportStrategy
+public class EncryptedReportExportDecorator
         extends ReportExportStrategyDecorator {
 
-    public EncryptedReportExportStrategy(ReportExportStrategy delegate) {
+    public EncryptedReportExportDecorator(ReportExportStrategy delegate) {
         super(delegate);
     }
 
@@ -331,10 +364,10 @@ public class EncryptedReportExportStrategy
 ### 9.3 Compression Decorator
 
 ```java
-public class CompressedReportExportStrategy
+public class CompressedReportExportDecorator
         extends ReportExportStrategyDecorator {
 
-    public CompressedReportExportStrategy(ReportExportStrategy delegate) {
+    public CompressedReportExportDecorator(ReportExportStrategy delegate) {
         super(delegate);
     }
 
@@ -351,10 +384,10 @@ public class CompressedReportExportStrategy
 ### 9.4 Audit Logging Decorator
 
 ```java
-public class AuditedReportExportStrategy
+public class AuditedReportExportDecorator
         extends ReportExportStrategyDecorator {
 
-    public AuditedReportExportStrategy(ReportExportStrategy delegate) {
+    public AuditedReportExportDecorator(ReportExportStrategy delegate) {
         super(delegate);
     }
 
@@ -383,9 +416,9 @@ Now the real power:
 
 ```java
 ReportExportStrategy exporter =
-    new AuditedReportExportStrategy(
-        new CompressedReportExportStrategy(
-            new EncryptedReportExportStrategy(
+    new AuditedReportExportDecorator(
+        new CompressedReportExportDecorator(
+            new EncryptedReportExportDecorator(
                 new PdfReportExportStrategy()
             )
         )
@@ -470,8 +503,8 @@ In **Part 2**, we’ll:
 - discuss ordering constraints (encrypt vs compress)
 - integrate Decorator with Abstract Factory bundles
 
-👉 Up next:
-Decorator Pattern – Building Configurable Processing Pipelines (Part 2)
+👉 **Up Next →**  
+**[Decorator Pattern – Building Configurable Processing Pipelines (Part 2) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2)**
 
 ---
 
