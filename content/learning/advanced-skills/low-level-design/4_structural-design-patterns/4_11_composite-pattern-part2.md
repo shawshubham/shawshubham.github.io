@@ -365,5 +365,5 @@ In Part 3, we will:
 - Integrate with Decorator export pipelines
 - Define failure policies
 
-👉 Up next:
-Composite Pattern – Scaling Hierarchical Reporting (Part 3)
+👉 **Up next:**  
+**[Composite Pattern – Scaling Hierarchical Reporting (Part 3) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_12_composite-pattern-part3)**
