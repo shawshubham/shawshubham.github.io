@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern – From Orchestration to Distributed Workflows (Part 3)</title>
+<title>Composite Pattern – Scaling Hierarchical Reporting (Part 3)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1772583114">
+<link rel="stylesheet" href="/css/main.css?v=1772577937">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Facade Pattern – From Orchestration to Distributed Workflows (Part 3)</h1>
+    <h1 class="main-heading">Composite Pattern – Scaling Hierarchical Reporting (Part 3)</h1>
     <h3>
   </div>
 </section>
@@ -300,7 +300,7 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_6_facade-pattern-part2/">4.6. Facade Pattern – Orchestrating Employee Offboarding (Part 2)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_7_facade-pattern-part3/">4.7. Facade Pattern – From Orchestration to Distributed Workflows (Part 3)</a>
                                 </li>
                               
@@ -312,20 +312,20 @@
                                   <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2/">4.9. Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</a>
                                 </li>
                               
-                                <li class="">
-                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_12_composite-pattern-part3/">4.10. Composite Pattern – Scaling Hierarchical Reporting (Part 3)</a>
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_12_composite-pattern-part3-copy/">4.10. Composite Pattern – Scaling Hierarchical Reporting (Part 3)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1/">4.11. Composite Pattern – Treating Individuals and Groups Uniformly (Part 1)</a>
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_12_composite-pattern-part3/">4.11. Composite Pattern – Scaling Hierarchical Reporting (Part 3)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_11_composite-pattern-part2/">4.12. Composite Pattern – Avoiding Target Explosion with Filters (Part 2)</a>
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1/">4.12. Composite Pattern – Treating Individuals and Groups Uniformly (Part 1)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_13_proxy-pattern-part1/">4.13. Proxy Pattern – Controlling Access Without Changing Clients (Part 1)</a>
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_11_composite-pattern-part2/">4.13. Composite Pattern – Avoiding Target Explosion with Filters (Part 2)</a>
                                 </li>
                               
                             </ul>
@@ -436,7 +436,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 1 Mar, 2026
+            Last updated on: 3 Mar, 2026
             
           </p>
         </div>
@@ -444,285 +444,363 @@
         <article class="topic-content">
           <h2 id="1-why-this-part-exists">1. Why This Part Exists</h2>
 <hr>
-<p>In <strong>Part 2</strong>, we introduced a Facade to orchestrate <strong>Employee Offboarding</strong>.</p>
-<p>The result was:</p>
+<p>Part 1 solved <strong>structural uniformity</strong>.<br>
+Part 2 prevented <strong>target type explosion</strong>.</p>
+<p>Now we apply real-world pressure:</p>
 <ul>
-<li>clean orchestration</li>
-<li>SRP-compliant services</li>
-<li>a single workflow owner</li>
-<li>clear call order</li>
+<li>Departments with 10k+ employees</li>
+<li>Memory constraints</li>
+<li>Per-employee vs aggregated exports</li>
+<li>Partial failures during long runs</li>
+<li>Integration with Decorator-based export pipelines</li>
 </ul>
-<p>At this point, many tutorials stop.</p>
-<p>But real systems don’t.</p>
-<p>This part exists to answer the next, harder question:</p>
-<blockquote>
-<p><strong>What happens when things go wrong?</strong></p></blockquote>
+<p>This part is about making Composite <strong>production-capable</strong>,<br>
+without polluting it with execution logic.</p>
 <hr>
-<h2 id="2-the-hidden-assumption-in-part-2-the-happy-path">2. The Hidden Assumption in Part 2 (The Happy Path)</h2>
+<h2 id="2-reconfirm-the-structural-contract-unchanged">2. Reconfirm the Structural Contract (Unchanged)</h2>
 <hr>
-<p>Our Facade in Part 2 assumed:</p>
-<ul>
-<li>every service call succeeds</li>
-<li>execution is synchronous</li>
-<li>failures are rare or acceptable</li>
-<li>ordering is linear and reliable</li>
-</ul>
-<p>This assumption is common — and reasonable — at <strong>Low-Level Design</strong>.</p>
-<p>But it is still an assumption.</p>
-<blockquote>
-<p>Facade simplified orchestration.<br>
-It did <strong>not</strong> solve failure semantics.</p></blockquote>
-<p>That distinction matters.</p>
-<hr>
-<h2 id="3-real-failure-scenarios-facade-does-not-solve">3. Real Failure Scenarios Facade Does Not Solve</h2>
-<hr>
-<p>Consider Employee Offboarding again.</p>
-<p>What if:</p>
-<ul>
-<li>Payroll stops salary, but IT access revocation fails?</li>
-<li>HR marks employee inactive, but Reporting times out?</li>
-<li>Offboarding is triggered twice concurrently?</li>
-<li>The process crashes halfway through?</li>
-</ul>
-<p>These are not edge cases.
-They are <strong>normal conditions</strong> in real systems.</p>
-<p>At this point, developers often feel:</p>
-<blockquote>
-<p>“Facade isn’t enough anymore.”</p></blockquote>
-<p>That feeling is <strong>correct</strong> — but incomplete.</p>
-<hr>
-<h2 id="4-the-wrong-reaction-stuffing-rollback-into-facade">4. The Wrong Reaction: Stuffing Rollback into Facade</h2>
-<hr>
-<p>A common instinct is to “fix” this by adding:</p>
-<ul>
-<li>try/catch everywhere</li>
-<li>manual rollback calls</li>
-<li>nested compensation logic</li>
-<li>undo methods in services</li>
-</ul>
-<p>Example (❌ do not do this):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
-</span></span><span style="display:flex;"><span>    payroll.<span style="color:#a6e22e">stopSalary</span>(id);
-</span></span><span style="display:flex;"><span>    itAdmin.<span style="color:#a6e22e">revokeAccess</span>(id);
-</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">catch</span> (Exception e) {
-</span></span><span style="display:flex;"><span>    payroll.<span style="color:#a6e22e">restartSalary</span>(id); <span style="color:#75715e">// ❌ naive rollback</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> e;
+<p>Composite remains clean and minimal:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportTarget</span> {
+</span></span><span style="display:flex;"><span>    Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repository);
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="41-why-this-fails">4.1 Why this fails</h3>
-<ul>
-<li>rollback is rarely symmetric</li>
-<li>services may not support reversal</li>
-<li>retries introduce duplication</li>
-<li>partial failures create inconsistent state</li>
-<li>Facade turns into a fragile workflow engine</li>
-</ul>
+</span></span></code></pre></div><p>Key rule:</p>
 <blockquote>
-<p><strong>Trying to solve distributed failure inside Facade breaks the pattern.</strong></p></blockquote>
+<p>ReportTarget defines <strong>who is included</strong>, not how they are processed.</p></blockquote>
+<p>We will not modify this interface.</p>
+<p>Execution belongs elsewhere.</p>
 <hr>
-<h2 id="5-what-facade-actually-gives-you-the-key-insight">5. What Facade Actually Gives You (The Key Insight)</h2>
+<h2 id="3-the-new-pressure-scale-changes-everything">3. The New Pressure: Scale Changes Everything</h2>
 <hr>
-<p>At this stage, it’s important to reset expectations.</p>
-<p>Facade’s real value is <strong>not</strong> failure handling.<br>
-Facade’s value is <strong>structural clarity</strong>.</p>
-<p>What Facade gives you is:</p>
+<p>When exporting a full department:</p>
 <ul>
-<li>a <strong>single workflow boundary</strong></li>
-<li>a <strong>stable orchestration API</strong></li>
-<li>a <strong>clear owner for business workflows</strong></li>
-<li>a <strong>natural seam for future evolution</strong></li>
+<li>You cannot materialize everything into a List</li>
+<li>You cannot assume no failures</li>
+<li>You cannot assume identical output modes</li>
 </ul>
-<p>In other words:</p>
-<blockquote>
-<p>Facade does <strong>not</strong> solve failure.<br>
-It creates the <strong>place where failure can be handled later</strong>.</p></blockquote>
-<p>This is a subtle but critical distinction.</p>
-<p>Without a Facade:</p>
-<ul>
-<li>failure handling gets scattered</li>
-<li>compensation logic leaks into services</li>
-<li>controllers start coordinating retries</li>
-<li>workflows become implicit and fragile</li>
-</ul>
-<p>With a Facade:</p>
-<ul>
-<li>all coordination is centralized</li>
-<li>evolution happens in one place</li>
-<li>advanced patterns can be introduced <em>without refactoring the system</em></li>
-</ul>
-<p>Facade is not the end of the journey.<br>
-It is the foundation that makes <em><strong>correct evolution</strong></em> possible.</p>
+<p>So we introduce execution semantics — <strong>outside Composite</strong>.</p>
 <hr>
-<h2 id="6-the-natural-evolution-of-a-growing-workflow">6. The Natural Evolution of a Growing Workflow</h2>
+<h2 id="4-batching-as-an-execution-concern">4. Batching as an Execution Concern</h2>
 <hr>
-<p>As systems grow, workflows typically evolve like this:</p>
+<p>Batching is not a structural feature of targets.<br>
+It is a runtime execution strategy.</p>
+<p>We keep it in a utility class:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StreamBatcher</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">StreamBatcher</span>() {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Stream<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">batch</span>(Stream<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> source, <span style="color:#66d9ef">int</span> batchSize) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Iterator<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> iterator <span style="color:#f92672">=</span> source.<span style="color:#a6e22e">iterator</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Iterable<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;&gt;</span> iterable <span style="color:#f92672">=</span> () <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> Iterator<span style="color:#f92672">&lt;&gt;</span>() {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">hasNext</span>() {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> iterator.<span style="color:#a6e22e">hasNext</span>();
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">next</span>() {
+</span></span><span style="display:flex;"><span>                List<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> batch <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>(batchSize);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">while</span> (iterator.<span style="color:#a6e22e">hasNext</span>() <span style="color:#f92672">&amp;&amp;</span> count<span style="color:#f92672">++</span> <span style="color:#f92672">&lt;</span> batchSize) {
+</span></span><span style="display:flex;"><span>                    batch.<span style="color:#a6e22e">add</span>(iterator.<span style="color:#a6e22e">next</span>());
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> batch;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> StreamSupport.<span style="color:#a6e22e">stream</span>(iterable.<span style="color:#a6e22e">spliterator</span>(), <span style="color:#66d9ef">false</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This ensures:</p>
+<ul>
+<li>Memory remains bounded</li>
+<li>Backpressure can be controlled</li>
+<li>Composite remains pure</li>
+</ul>
+<hr>
+<h2 id="5-export-modes-flatten-vs-aggregate">5. Export Modes: Flatten vs Aggregate</h2>
+<hr>
+<p>Hierarchical reporting typically requires two distinct behaviors.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> ExportMode {
+</span></span><span style="display:flex;"><span>    PER_EMPLOYEE,
+</span></span><span style="display:flex;"><span>    AGGREGATED
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="per_employee">PER_EMPLOYEE</h3>
+<ul>
+<li>One file per employee</li>
+<li>Suitable for payslips, compliance docs</li>
+</ul>
+<h3 id="aggregated">AGGREGATED</h3>
+<ul>
+<li>One file for entire target</li>
+<li>Suitable for summaries, departmental reports</li>
+</ul>
+<p>Composite remains unchanged.<br>
+Export mode affects only execution.</p>
+<hr>
+<h2 id="6-failure-policies-make-behavior-explicit">6. Failure Policies: Make Behavior Explicit</h2>
+<hr>
+<p>Long-running exports require clear semantics.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> FailurePolicy {
+</span></span><span style="display:flex;"><span>    FAIL_FAST,
+</span></span><span style="display:flex;"><span>    SKIP_FAILED_EMPLOYEES,
+</span></span><span style="display:flex;"><span>    RETRY_BATCH_THEN_SKIP
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This prevents:</p>
+<ul>
+<li>Hidden retry logic</li>
+<li>Implicit assumptions</li>
+<li>Scattered exception handling</li>
+</ul>
+<p>Execution rules must be explicit.</p>
+<hr>
+<h2 id="7-execution-flow-clean-separation">7. Execution Flow (Clean Separation)</h2>
+<hr>
 <div class="mermaid">
-flowchart LR
-    A[Simple Facade] --> B[Facade + Failure Awareness]
-    B --> C[Async Orchestration]
-    C --> D[Distributed Workflow Management]
+flowchart TD
+    A[ReportTarget] --> B[Stream &lt; Employee &gt;]
+    B --> C[StreamBatcher]
+    C --> D{ExportMode}
+    D -->|PER_EMPLOYEE| E[Generate + Export per employee]
+    D -->|AGGREGATED| F[Aggregate then Export]
+    E --> G{FailurePolicy}
+    F --> G
+    G --> H[Delivery + Notification]
 </div>
-<p>Let’s clarify what this means.</p>
-<h3 id="61-simple-facade-lld">6.1 Simple Facade (LLD)</h3>
+<p>Composite remains untouched.</p>
+<hr>
+<h2 id="8-integrating-with-the-decorator-export-pipeline-without-extra-abstractions">8. Integrating with the Decorator Export Pipeline (Without Extra Abstractions)</h2>
+<hr>
+<p>Up to this point, we already have:</p>
 <ul>
-<li>synchronous calls</li>
-<li>happy-path focus</li>
-<li>clear orchestration</li>
-<li>what we built in Part 2</li>
+<li><code>ReportExportStrategy</code> (PDF / CSV / HTML)</li>
+<li>Decorator wrappers (Encrypt / Compress / Audit)</li>
+<li><code>ReportBundleFactory</code> assembling compatible strategies</li>
 </ul>
-<h3 id="62-failure-aware-facade">6.2 Failure-Aware Facade</h3>
-<ul>
-<li>retries</li>
-<li>alerts</li>
-<li>idempotency</li>
-<li>compensation hooks</li>
-</ul>
-<p>This stage still assumes a single application boundary and does not introduce distributed coordination.</p>
-<h3 id="63-async-orchestration">6.3 Async Orchestration</h3>
-<ul>
-<li>events</li>
-<li>queues</li>
-<li>delayed processing</li>
-<li>eventual consistency</li>
-</ul>
-<h3 id="64-distributed-workflow-management">6.4 Distributed Workflow Management</h3>
-<ul>
-<li>Saga-like coordination</li>
-<li>long-running transactions</li>
-<li>cross-service consistency guarantees</li>
-</ul>
-<p>Each step introduces <strong>new problems</strong> — and <strong>new design responsibilities</strong>.</p>
+<p>The important clarification:</p>
 <blockquote>
-<p>Importantly, these steps do <strong>not</strong> belong to the same learning layer:</p>
+<p>The decorator chain <strong>is already the export pipeline</strong>.</p></blockquote>
+<p>We do <strong>not</strong> need an additional <code>ExportPipeline</code> abstraction.</p>
+<p>Instead, the execution layer depends directly on:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportExportStrategy
+</span></span></code></pre></div><p>The runner does not need to know:</p>
 <ul>
-<li><strong>Step 1: Simple Facade</strong> → Low-Level Design (LLD)</li>
-<li><strong>Step 2: Failure-Aware Facade</strong> → Advanced LLD</li>
-<li><strong>Step 3: Async Orchestration</strong> → High-Level Design (HLD)</li>
-<li><strong>Step 4: Distributed Workflow Management</strong> → Large-Scale System Design</li>
+<li>whether the strategy is base or decorated</li>
+<li>how many decorators are applied</li>
+<li>what format is used</li>
 </ul>
-<p>This article intentionally <strong>implements only Step 1</strong>.</p>
-<p>The remaining steps are <strong>named but not implemented — on purpose</strong>.</p>
-<p>At this stage, our goal is not to solve every failure scenario,<br>
-but to place the system in a structure where those solutions can be added later<br>
-<strong>without rewriting the design</strong>.</p></blockquote>
+<p>It simply calls:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>exportStrategy.<span style="color:#a6e22e">export</span>(report);
+</span></span></code></pre></div><p>This keeps the architecture honest and minimal.</p>
 <hr>
-<h2 id="7-where-failure-aware-and-async-facades-will-be-taught">7. Where Failure-Aware and Async Facades Will Be Taught</h2>
+<h2 id="9-production-ready-execution-layer-clean-version">9. Production-Ready Execution Layer (Clean Version)</h2>
 <hr>
-<p>To avoid mixing abstraction layers, each workflow evolution is taught in a
-<strong>different part of the learning path</strong>.</p>
-<h3 id="71-failure-aware-facade-advanced-lld">7.1 Failure-Aware Facade (Advanced LLD)</h3>
-<p>In a later <strong>Low-Level Design add-on</strong>, we will revisit Facade and extend it with:</p>
-<ul>
-<li>idempotency guarantees</li>
-<li>retry policies</li>
-<li>timeouts and alerting</li>
-<li><strong>compensation hooks</strong> (not full rollback engines)</li>
-</ul>
-<p>This stage focuses on <strong>making workflows safe</strong>, while still keeping them:</p>
-<ul>
-<li>synchronous</li>
-<li>bounded to a single application</li>
-<li>structurally simple</li>
-</ul>
-<p>This is still <strong>Low-Level Design</strong>, but at a more mature level.</p>
+<p>To prevent <strong>ReportingOperationsService</strong> from becoming overloaded with batching and failure logic, we extract execution mechanics into a dedicated executor.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingExportExecutor</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeRepository repository;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeReportService reportService;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportExportStrategy exportStrategy;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> DeliveryStrategy deliveryStrategy;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ReportingExportExecutor</span>(EmployeeRepository repository,
+</span></span><span style="display:flex;"><span>                                   EmployeeReportService reportService,
+</span></span><span style="display:flex;"><span>                                   ReportExportStrategy exportStrategy,
+</span></span><span style="display:flex;"><span>                                   DeliveryStrategy deliveryStrategy) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">repository</span> <span style="color:#f92672">=</span> repository;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">reportService</span> <span style="color:#f92672">=</span> reportService;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">exportStrategy</span> <span style="color:#f92672">=</span> exportStrategy;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">deliveryStrategy</span> <span style="color:#f92672">=</span> deliveryStrategy;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportSummary <span style="color:#a6e22e">execute</span>(ReportTarget target,
+</span></span><span style="display:flex;"><span>                                 ExportMode mode,
+</span></span><span style="display:flex;"><span>                                 FailurePolicy failurePolicy,
+</span></span><span style="display:flex;"><span>                                 <span style="color:#66d9ef">int</span> batchSize,
+</span></span><span style="display:flex;"><span>                                 String deliveryAddress) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> stream <span style="color:#f92672">=</span> target.<span style="color:#a6e22e">resolveEmployees</span>(repository);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">switch</span> (mode) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> PER_EMPLOYEE <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                executePerEmployee(stream, failurePolicy, batchSize, deliveryAddress);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> AGGREGATED <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>                executeAggregated(stream, deliveryAddress);
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> ExportSummary <span style="color:#a6e22e">executePerEmployee</span>(Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> stream,
+</span></span><span style="display:flex;"><span>                                             FailurePolicy policy,
+</span></span><span style="display:flex;"><span>                                             <span style="color:#66d9ef">int</span> batchSize,
+</span></span><span style="display:flex;"><span>                                             String deliveryAddress) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ExportSummary summary <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ExportSummary();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        StreamBatcher.<span style="color:#a6e22e">batch</span>(stream, batchSize)
+</span></span><span style="display:flex;"><span>            .<span style="color:#a6e22e">forEach</span>(batch <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">for</span> (Employee employee : batch) {
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>                        EmployeeReport report <span style="color:#f92672">=</span> reportService.<span style="color:#a6e22e">generate</span>(employee);
+</span></span><span style="display:flex;"><span>                        ExportedReport exported <span style="color:#f92672">=</span> exportStrategy.<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>                        deliveryStrategy.<span style="color:#a6e22e">deliver</span>(exported, deliveryAddress);
+</span></span><span style="display:flex;"><span>                        summary.<span style="color:#a6e22e">markSuccess</span>(employee.<span style="color:#a6e22e">getId</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                    } <span style="color:#66d9ef">catch</span> (Exception e) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        summary.<span style="color:#a6e22e">markFailure</span>(employee.<span style="color:#a6e22e">getId</span>(), e);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#66d9ef">if</span> (policy <span style="color:#f92672">==</span> FailurePolicy.<span style="color:#a6e22e">FAIL_FAST</span>) {
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">throw</span> e;
+</span></span><span style="display:flex;"><span>                        }
+</span></span><span style="display:flex;"><span>                        <span style="color:#75715e">// SKIP_FAILED_EMPLOYEES continues automatically</span>
+</span></span><span style="display:flex;"><span>                    }
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> summary;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> ExportSummary <span style="color:#a6e22e">executeAggregated</span>(Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> stream,
+</span></span><span style="display:flex;"><span>                                            String deliveryAddress) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        AggregateReport aggregate <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            reportService.<span style="color:#a6e22e">aggregate</span>(stream);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ExportedReport exported <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            exportStrategy.<span style="color:#a6e22e">export</span>(aggregate.<span style="color:#a6e22e">toEmployeeReport</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        deliveryStrategy.<span style="color:#a6e22e">deliver</span>(exported, deliveryAddress);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ExportSummary.<span style="color:#a6e22e">aggregateSuccess</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="10-where-this-executor-fits-in-ems">10. Where This Executor Fits in EMS</h2>
 <hr>
-<h3 id="72-async-orchestration-high-level-design">7.2 Async Orchestration (High-Level Design)</h3>
-<p>Once workflows can no longer remain synchronous, we move to <strong>High-Level Design (HLD)</strong>.</p>
-<p>There, we will introduce:</p>
+<p>The final structure now looks like this:</p>
+<div class="mermaid">
+flowchart TD
+    A["Controller / Facade"] --> B[ReportingOperationsService]
+    B --> C[ReportBundleFactory]
+    B --> D["ReportTarget + Filters"]
+    B --> E["ReportExportStrategy (Decorated)"]
+    B --> F[ReportingExportExecutor]
+    F --> G[DeliveryStrategy]
+</div>
+<h3 id="responsibilities">Responsibilities:</h3>
 <ul>
-<li>event-driven workflows</li>
-<li>background processing</li>
-<li>message queues</li>
-<li>eventual consistency</li>
-</ul>
-<p>At this point:</p>
+<li><strong>ReportingOperationsService</strong>
 <ul>
-<li>Facade still exists</li>
-<li>but it becomes an <strong>orchestration trigger</strong>, not the executor</li>
+<li>Interprets request</li>
+<li>Builds target</li>
+<li>Assembles decorated export strategy</li>
+<li>Chooses failure policy</li>
+<li>Delegates execution</li>
 </ul>
-<p>This is where <strong>system boundaries</strong> start to matter.</p>
+</li>
+<li><strong>ReportingExportExecutor</strong>
+<ul>
+<li>Handles batching</li>
+<li>Applies export mode</li>
+<li>Enforces failure policy</li>
+<li>Executes delivery</li>
+</ul>
+</li>
+<li><strong>Composite</strong>
+<ul>
+<li>Defines structural inclusion</li>
+</ul>
+</li>
+<li><strong>Decorator</strong>
+<ul>
+<li>Defines behavioral enhancement</li>
+</ul>
+</li>
+</ul>
+<p>Each layer now has exactly one reason to change.</p>
 <hr>
-<h3 id="73-distributed-workflow-management-large-scale-design">7.3 Distributed Workflow Management (Large-Scale Design)</h3>
-<p>Finally, when workflows span <strong>multiple services or systems</strong>, we enter
-<strong>Large-Scale / Distributed System Design</strong>.</p>
-<p>This is where patterns like <strong>Saga</strong> belong.</p>
-<p>Saga addresses:</p>
-<ul>
-<li>long-running workflows</li>
-<li>partial failure recovery</li>
-<li>cross-service consistency</li>
-<li>distributed compensation</li>
-</ul>
-<p>Importantly:</p>
-<blockquote>
-<p><strong>Saga is not a Facade enhancement.</strong><br>
-It is a <em>different class of solution</em> for a <em>different class of problems</em>.</p></blockquote>
-<p>Introducing it earlier would blur architectural boundaries and reduce clarity.</p>
+<h2 id="11-what-we-achieved">11. What We Achieved</h2>
 <hr>
-<h2 id="8-why-we-intentionally-stop-at-facade-in-lld">8. Why We Intentionally Stop at Facade in LLD</h2>
-<hr>
-<p>This tutorial series follows a strict rule:</p>
-<blockquote>
-<p><strong>Solve only the problems introduced so far.</strong></p></blockquote>
-<p>At the Low-Level Design stage, our goals are:</p>
+<p>By the end of Composite:</p>
+<h4 id="structural-modeling">Structural Modeling</h4>
 <ul>
-<li>correct structure</li>
-<li>clear ownership</li>
-<li>maintainable composition</li>
-<li>explicit workflows</li>
+<li>Uniform handling of leaf and group targets</li>
+<li>Recursive composition</li>
+<li>Filter-based refinement</li>
 </ul>
-<p>Facade accomplishes all of these.</p>
-<p>Failure handling is a <strong>different class of problem</strong> — and deserves its own context.</p>
-<p>Deferring it is not avoidance.<br>
-It is <strong>design discipline</strong>.</p>
-<hr>
-<h2 id="9-how-this-connects-to-the-bigger-learning-path">9. How This Connects to the Bigger Learning Path</h2>
-<hr>
-<p>Here’s how everything fits together:</p>
+<h4 id="execution-semantics">Execution Semantics</h4>
 <ul>
-<li><strong>LLD</strong> → structure, correctness, orchestration</li>
-<li><strong>HLD</strong> → async flows, compensation, resilience</li>
-<li><strong>Large-Scale Design</strong> → consistency, latency, fault tolerance</li>
+<li>Batching</li>
+<li>Explicit export modes</li>
+<li>Explicit failure policies</li>
 </ul>
-<p>The <strong>same EMS example</strong> will return later — with:</p>
+<h4 id="clean-separation">Clean Separation</h4>
 <ul>
-<li>async offboarding</li>
-<li>event-driven workflows</li>
-<li>Saga-style coordination</li>
+<li>No batching logic inside Composite</li>
+<li>No failure semantics inside Decorator</li>
+<li>No structural logic inside executor</li>
+<li>No artificial pipeline abstraction</li>
 </ul>
-<p>But only when the reader is ready for it.</p>
+<p>This is disciplined Low-Level Design.</p>
+<hr>
+<h2 id="12-what-we-intentionally-did-not-introduce">12. What We Intentionally Did NOT Introduce</h2>
+<hr>
+<p>We did not introduce:</p>
+<ul>
+<li>Async export orchestration</li>
+<li>Distributed retries</li>
+<li>Event-driven coordination</li>
+<li>Saga-style workflow management</li>
+</ul>
+<p>Those belong to:</p>
+<ul>
+<li>High-Level Design (HLD)</li>
+<li>Large-Scale System Design</li>
+</ul>
+<p>At LLD, our goal is:</p>
+<ul>
+<li>structural clarity</li>
+<li>predictable execution semantics</li>
+<li>clean seams for evolution</li>
+</ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>Facade is not a silver bullet.</p>
-<p>It is a <strong>boundary</strong>.</p>
+<p>Composite started as a structural pattern.</p>
+<p>In production systems, it becomes the foundation for scalable hierarchical execution.</p>
+<p>By separating:</p>
 <ul>
-<li>It simplifies orchestration</li>
-<li>It protects services from misuse</li>
-<li>It centralizes workflow intent</li>
+<li>structure (Composite)</li>
+<li>behavior (Decorator)</li>
+<li>orchestration (Service)</li>
+<li>execution semantics (Executor)</li>
 </ul>
-<p>And just as importantly:</p>
-<blockquote>
-<p><strong>Facade tells you when the problem has outgrown Low-Level Design.</strong></p></blockquote>
-<p>That’s not a failure of Facade.<br>
-That’s a signal to move up the abstraction ladder.</p>
+<p>we built a reporting system that can evolve without rewriting its core.</p>
+<p>That is mature object-oriented design.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <hr>
-<p>With Facade complete, we continue with <strong>Structural Design Patterns</strong>.</p>
-<p>The next problem to solve is not orchestration, but <strong>behavior extension</strong>:</p>
-<blockquote>
-<p><strong>How do we add features dynamically without modifying existing code?</strong></p></blockquote>
-<p>👉 <strong>Up Next →</strong><br>
-<strong><a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1">Decorator Pattern – Adding Behavior Without Inheritance (Part 1) →</a></strong></p>
-<hr>
-<blockquote>
-<p>📝 <strong>Final Takeaway</strong></p>
+<p>We have now covered major structural pressures:</p>
 <ul>
-<li>Facade earns its place under real workflow pressure</li>
-<li>It coordinates, not compensates</li>
-<li>When failure dominates the design, the problem has changed</li>
-<li>Good design knows when to stop — and when to level up</li>
-</ul></blockquote>
+<li>Simplifying subsystems → <strong>Facade</strong></li>
+<li>Adapting incompatible APIs → <strong>Adapter</strong></li>
+<li>Extending behavior dynamically → <strong>Decorator</strong></li>
+<li>Modeling hierarchical structures → <strong>Composite</strong></li>
+</ul>
+<p>The next structural pressure in real systems is:</p>
+<blockquote>
+<p>Controlled access without modifying clients.</p></blockquote>
+<p>Caching.<br>
+Lazy loading.<br>
+Permission checks.<br>
+Remote boundaries.</p>
+<p>👉 Up next:
+Proxy Pattern – Controlled Access and Lazy Boundaries (Part 1)</p>
 
         </article>
 
@@ -756,49 +834,67 @@ That’s a signal to move up the abstraction ladder.</p>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-hidden-assumption-in-part-2-the-happy-path" data-toc-target="2-the-hidden-assumption-in-part-2-the-happy-path">2. The Hidden Assumption in Part 2 (The Happy Path)</a>
+        <a class="toc-link" href="#2-reconfirm-the-structural-contract-unchanged" data-toc-target="2-reconfirm-the-structural-contract-unchanged">2. Reconfirm the Structural Contract (Unchanged)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-real-failure-scenarios-facade-does-not-solve" data-toc-target="3-real-failure-scenarios-facade-does-not-solve">3. Real Failure Scenarios Facade Does Not Solve</a>
+        <a class="toc-link" href="#3-the-new-pressure-scale-changes-everything" data-toc-target="3-the-new-pressure-scale-changes-everything">3. The New Pressure: Scale Changes Everything</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-the-wrong-reaction-stuffing-rollback-into-facade" data-toc-target="4-the-wrong-reaction-stuffing-rollback-into-facade">4. The Wrong Reaction: Stuffing Rollback into Facade</a>
+        <a class="toc-link" href="#4-batching-as-an-execution-concern" data-toc-target="4-batching-as-an-execution-concern">4. Batching as an Execution Concern</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-facade-actually-gives-you-the-key-insight" data-toc-target="5-what-facade-actually-gives-you-the-key-insight">5. What Facade Actually Gives You (The Key Insight)</a>
+        <a class="toc-link" href="#5-export-modes-flatten-vs-aggregate" data-toc-target="5-export-modes-flatten-vs-aggregate">5. Export Modes: Flatten vs Aggregate</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-the-natural-evolution-of-a-growing-workflow" data-toc-target="6-the-natural-evolution-of-a-growing-workflow">6. The Natural Evolution of a Growing Workflow</a>
+        <a class="toc-link" href="#6-failure-policies-make-behavior-explicit" data-toc-target="6-failure-policies-make-behavior-explicit">6. Failure Policies: Make Behavior Explicit</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-where-failure-aware-and-async-facades-will-be-taught" data-toc-target="7-where-failure-aware-and-async-facades-will-be-taught">7. Where Failure-Aware and Async Facades Will Be Taught</a>
+        <a class="toc-link" href="#7-execution-flow-clean-separation" data-toc-target="7-execution-flow-clean-separation">7. Execution Flow (Clean Separation)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-why-we-intentionally-stop-at-facade-in-lld" data-toc-target="8-why-we-intentionally-stop-at-facade-in-lld">8. Why We Intentionally Stop at Facade in LLD</a>
+        <a class="toc-link" href="#8-integrating-with-the-decorator-export-pipeline-without-extra-abstractions" data-toc-target="8-integrating-with-the-decorator-export-pipeline-without-extra-abstractions">8. Integrating with the Decorator Export Pipeline (Without Extra Abstractions)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-how-this-connects-to-the-bigger-learning-path" data-toc-target="9-how-this-connects-to-the-bigger-learning-path">9. How This Connects to the Bigger Learning Path</a>
+        <a class="toc-link" href="#9-production-ready-execution-layer-clean-version" data-toc-target="9-production-ready-execution-layer-clean-version">9. Production-Ready Execution Layer (Clean Version)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-where-this-executor-fits-in-ems" data-toc-target="10-where-this-executor-fits-in-ems">10. Where This Executor Fits in EMS</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-what-we-achieved" data-toc-target="11-what-we-achieved">11. What We Achieved</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-what-we-intentionally-did-not-introduce" data-toc-target="12-what-we-intentionally-did-not-introduce">12. What We Intentionally Did NOT Introduce</a>
       </li>
     
       
@@ -820,7 +916,7 @@ That’s a signal to move up the abstraction ladder.</p>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_6_facade-pattern-part2/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -852,7 +948,7 @@ That’s a signal to move up the abstraction ladder.</p>
     
 
     
-    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_12_composite-pattern-part3/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

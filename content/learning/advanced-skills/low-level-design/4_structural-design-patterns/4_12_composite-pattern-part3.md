@@ -452,5 +452,5 @@ Lazy loading.
 Permission checks.  
 Remote boundaries.
 
-👉 Up next:
-Proxy Pattern – Controlled Access and Lazy Boundaries (Part 1)
+👉 **Up next:**  
+**[Proxy Pattern – Controlled Access and Lazy Boundaries (Part 1) →](/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_13_proxy-pattern-part1)**
