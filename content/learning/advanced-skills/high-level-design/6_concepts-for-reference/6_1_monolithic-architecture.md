@@ -261,7 +261,7 @@ These trade-offs explain **why monoliths are chosen early** and **revisited late
 Next, we’ll explore how **structure inside a monolith** improves maintainability.
 
 👉 **Next Concept:**  
-**Layered (N-Tier) Architecture**
+**[Layered (N-Tier) Architecture](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_2_layered-n-tier-architecture)**
 
 ---
 

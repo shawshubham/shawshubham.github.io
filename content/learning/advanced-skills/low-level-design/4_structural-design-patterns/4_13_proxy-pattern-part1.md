@@ -446,6 +446,8 @@ Each pattern solves **one structural pressure**.
 
 Together, they produce a system that remains **extensible, testable, and maintainable**.
 
+> This is how real systems evolve: patterns emerge incrementally as new design pressures appear.
+
 ---
 
 ## 13. What We Achieved

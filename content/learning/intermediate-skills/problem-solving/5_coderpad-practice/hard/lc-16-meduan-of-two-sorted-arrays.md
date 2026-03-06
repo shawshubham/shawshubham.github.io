@@ -310,7 +310,143 @@ We search for a valid partition.
 
 ---
 
-## 8. Why Binary Search Works
+## 8. Example — Visualizing the Partition
+
+---
+
+#### Problem:
+
+Consider the arrays:
+
+```text
+nums1 = [1, 3, 8]
+nums2 = [7, 9, 10, 11]
+```
+
+Total length = **7**
+
+So the left side must contain:
+
+```text
+(7 + 1) / 2 = 4 elements
+```
+
+#### Step 1:
+
+Suppose we partition like this:
+
+```text
+nums1: [1, 3 | 8]
+nums2: [7, 9 | 10, 11]
+```
+
+Left side:
+
+```text
+[1, 3, 7, 9]
+```
+
+Right side:
+
+```text
+[8, 10, 11]
+```
+
+#### Step 2:
+
+Now check the **partition validity condition**.
+
+Left max:
+
+```text
+max(3, 9) = 9
+```
+
+Right min:
+
+```text
+min(8, 10) = 8
+```
+
+Since:
+
+```text
+9 > 8
+```
+
+the partition is **invalid**.
+
+This means we took **too many elements from nums2** or **too few from nums1**.
+
+So we move the partition in `nums1` to the **right**.
+
+#### Repeat Step 1:
+
+Now try another partition:
+
+```text
+nums1: [1, 3, 8 | ]
+nums2: [7 | 9, 10, 11]
+```
+
+Left side:
+
+```text
+[1, 3, 8, 7]
+```
+
+Right side:
+
+```text
+[9, 10, 11]
+```
+
+#### Repeat Step 2:
+Now check the **partition validity condition**.
+
+```text
+max(left) = max(8,7) = 8
+min(right) = min(∞,9) = 9
+```
+
+Since:
+
+```text
+8 ≤ 9
+```
+
+the partition is **valid**.
+
+So the median is:
+
+```text
+max(left) = 8
+```
+
+### 8.1 Visualizing the Partition Search
+
+The algorithm is essentially performing a binary search on the partition of the smaller array.
+
+```mermaid
+flowchart TD
+
+A["Choose partition index i in nums1"] --> B["Compute<br>j = (m+n+1)/2 - i"]
+
+B --> C{Is partition valid?}
+
+C -->|"left1 ≤ right2<br>AND<br>left2 ≤ right1"| D[Correct partition found → Compute Median]
+
+C -->|left1 > right2| E[Move partition left in nums1]
+
+C -->|left2 > right1| F[Move partition right in nums1]
+
+E --> A
+F --> A
+```
+
+---
+
+## 9. Why Binary Search Works
 
 ---
 
@@ -345,7 +481,61 @@ To simplify the logic:
 
 ---
 
-## 9. Handling Edge Boundaries
+## 10. Why We Always Binary Search the Smaller Array
+
+---
+
+We are searching for the correct partition index `i` in one array.
+
+The corresponding partition in the second array is determined by the size condition:
+
+```code
+j = (m + n + 1) / 2 - i
+```
+
+If we binary search on the **larger array**, the value of `i` could force `j` to fall **outside the bounds** of the second array.
+
+For example:
+
+```code
+nums1 length = 100
+nums2 length = 5
+```
+
+If we search on `nums1`, the partition index `i` could become large, which would make:
+
+```code
+j = (m + n + 1) / 2 - i
+```
+
+negative or greater than `nums2.length`.
+
+This introduces unnecessary boundary checks and complicates the logic.
+
+Instead, we enforce a simple rule:
+
+> Always binary search on the **smaller array**.
+
+This guarantees:
+
+- `i` stays within `[0, m]`
+- `j` automatically stays within `[0, n]`
+- the partition logic remains clean
+- edge cases are minimized
+
+That is why the algorithm begins with:
+
+```java
+if (nums1.length > nums2.length) {
+    return findMedianSortedArrays(nums2, nums1);
+}
+```
+
+This swap ensures the binary search always runs on the smaller array.
+
+---
+
+## 11. Handling Edge Boundaries
 
 ---
 
@@ -358,7 +548,7 @@ This removes special-case logic and keeps comparisons clean.
 
 ---
 
-## 10. Time & Space Complexity
+## 12. Time & Space Complexity
 
 ---
 
@@ -371,7 +561,7 @@ This meets the problem’s strict requirement.
 
 ---
 
-## 11. Final Code (Java)
+## 13. Final Code (Java)
 
 ---
 
@@ -424,7 +614,7 @@ class Solution {
 
 ---
 
-## 12. Interview-Style Explanation
+## 14. Interview-Style Explanation
 
 > “I binary-search the partition on the smaller array.  
 > For each cut, I check whether the left side’s maximum is less than or equal to the right side’s minimum.  
@@ -432,7 +622,7 @@ class Solution {
 
 ---
 
-## 13. Common Mistakes
+## 15. Common Mistakes
 
 - Trying to merge arrays
 - Binary-searching values instead of partition index
@@ -441,7 +631,7 @@ class Solution {
 
 ---
 
-## 14. Key Takeaway
+### Key Takeaway
 
 > **This problem is about finding a valid split, not searching for a value.**
 

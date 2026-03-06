@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Phase 2: Scaling for Reads — Designing a News Feed System on The Shubham Co</title>
+    <link>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/</link>
+    <description>Recent content in Phase 2: Scaling for Reads — Designing a News Feed System on The Shubham Co</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Introduction</title>
+      <link>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_1_introduction/</link>
+      <pubDate>Fri, 06 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_1_introduction/</guid>
+      <description>&lt;h2 id=&#34;1-why-this-phase-exists&#34;&gt;1. Why This Phase Exists&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;In Phase 1, we designed a &lt;strong&gt;simple web system&lt;/strong&gt; that handled requests correctly.&lt;/p&gt;&#xA;&lt;p&gt;The architecture was intentionally simple:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;a monolithic application&lt;/li&gt;&#xA;&lt;li&gt;a single database&lt;/li&gt;&#xA;&lt;li&gt;synchronous communication&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;This architecture works well when traffic is low.&lt;/p&gt;&#xA;&lt;p&gt;However, real systems eventually face &lt;strong&gt;growing traffic and increased demand&lt;/strong&gt;.&lt;/p&gt;&#xA;&lt;p&gt;When this happens, the system begins to experience new problems:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;slower response times&lt;/li&gt;&#xA;&lt;li&gt;database bottlenecks&lt;/li&gt;&#xA;&lt;li&gt;overloaded application servers&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Phase 2 focuses on &lt;strong&gt;how systems evolve when traffic increases&lt;/strong&gt;, particularly when systems experience &lt;strong&gt;read-heavy workloads&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Example 2: News Feed System — Problem &amp; Requirements</title>
+      <link>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_2_problem-and-requirement/</link>
+      <pubDate>Fri, 06 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_2_problem-and-requirement/</guid>
+      <description>&lt;h2 id=&#34;1-problem-overview&#34;&gt;1. Problem Overview&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;In this phase, we design a &lt;strong&gt;News Feed System&lt;/strong&gt; similar to those used by social media platforms.&lt;/p&gt;&#xA;&lt;p&gt;Examples include:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Twitter timeline&lt;/li&gt;&#xA;&lt;li&gt;Facebook news feed&lt;/li&gt;&#xA;&lt;li&gt;Instagram home feed&lt;/li&gt;&#xA;&lt;li&gt;LinkedIn feed&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;A news feed allows users to &lt;strong&gt;view a continuously updated list of posts from people they follow&lt;/strong&gt;.&lt;/p&gt;&#xA;&lt;p&gt;When users open the application, they expect to immediately see:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;recent posts&lt;/li&gt;&#xA;&lt;li&gt;updates from friends&lt;/li&gt;&#xA;&lt;li&gt;newly published content&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;The challenge is that &lt;strong&gt;millions of users may request their feed at the same time&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Example 2: News Feed System — Baseline Architecture</title>
+      <link>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_3_baseline-architecture/</link>
+      <pubDate>Fri, 06 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_3_baseline-architecture/</guid>
+      <description>&lt;h2 id=&#34;1-starting-with-a-simple-architecture&#34;&gt;1. Starting with a Simple Architecture&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;Before introducing complex scaling strategies, it is important to begin with the &lt;strong&gt;simplest architecture that works&lt;/strong&gt;.&lt;/p&gt;&#xA;&lt;p&gt;At an early stage, the system can follow the same structure used in Phase 1:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;a client application&lt;/li&gt;&#xA;&lt;li&gt;an application server&lt;/li&gt;&#xA;&lt;li&gt;a single database&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;This design is simple, easy to understand, and quick to implement.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;2-baseline-system-architecture&#34;&gt;2. Baseline System Architecture&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;div class=&#34;mermaid&#34;&gt;&#xA;flowchart TB&#xA;&#xA;Client[&#34;Users&lt;br&gt;(Mobile / Web App)&#34;]&#xA;&#xA;Server[&#34;Application Server&#34;]&#xA;&#xA;Database[&#34;Database&#34;]&#xA;&#xA;Client --&gt;|Request Feed| Server&#xA;Server --&gt;|Fetch Posts| Database&#xA;Database --&gt;|Return Data| Server&#xA;Server --&gt;|Feed Response| Client&#xA;&lt;/div&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;3-diagram-explanation&#34;&gt;3. Diagram Explanation&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;The request flow works as follows:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Example 2: News Feed System — Database Bottleneck</title>
+      <link>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_4_database-bottleneck/</link>
+      <pubDate>Fri, 06 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_4_database-bottleneck/</guid>
+      <description>&lt;h2 id=&#34;1-growing-system-traffic&#34;&gt;1. Growing System Traffic&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;In the early stages of a system, the baseline architecture works well.&lt;/p&gt;&#xA;&lt;p&gt;However, as the platform grows, the number of users increases dramatically.&lt;/p&gt;&#xA;&lt;p&gt;Consider a platform with:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;millions of users&lt;/li&gt;&#xA;&lt;li&gt;frequent feed refreshes&lt;/li&gt;&#xA;&lt;li&gt;continuous scrolling behavior&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Every time a user refreshes their feed, the system must &lt;strong&gt;query the database for posts&lt;/strong&gt;.&lt;/p&gt;&#xA;&lt;p&gt;This creates a significant amount of &lt;strong&gt;read traffic&lt;/strong&gt;.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;2-increasing-read-requests&#34;&gt;2. Increasing Read Requests&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;In a news feed system, most operations are &lt;strong&gt;read operations&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Example 2: News Feed System — Introducing Caching</title>
+      <link>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_5_introducing-caching/</link>
+      <pubDate>Fri, 06 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_5_introducing-caching/</guid>
+      <description>&lt;h2 id=&#34;1-the-problem-recap&#34;&gt;1. The Problem Recap&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;In the previous article, we observed that the &lt;strong&gt;database becomes the first major bottleneck&lt;/strong&gt; in a read-heavy system.&lt;/p&gt;&#xA;&lt;p&gt;Every request for the news feed requires the application server to query the database:&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;User → Application Server → Database&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;When millions of users request the same data repeatedly, the database must execute &lt;strong&gt;the same expensive queries over and over again&lt;/strong&gt;.&lt;/p&gt;&#xA;&lt;p&gt;This creates:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;high database load&lt;/li&gt;&#xA;&lt;li&gt;increased latency&lt;/li&gt;&#xA;&lt;li&gt;slower user experience&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;To solve this problem, systems introduce an intermediate layer called a &lt;strong&gt;cache&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Example 2: News Feed System — Application Server Bottleneck &amp; Load Balancing</title>
+      <link>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_6_application-server-bottleneck/</link>
+      <pubDate>Fri, 06 Mar 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_6_application-server-bottleneck/</guid>
+      <description>&lt;h2 id=&#34;1-the-next-bottleneck&#34;&gt;1. The Next Bottleneck&lt;/h2&gt;&#xA;&lt;p&gt;Caching significantly reduced the load on the database.&lt;/p&gt;&#xA;&lt;p&gt;The architecture now looks like this:&lt;/p&gt;&#xA;&lt;div class=&#34;mermaid&#34;&gt;&#xA;flowchart TD&#xA;    Users([Users]) --&gt; Server[Application Server]&#xA;    Server --&gt; Cache[(Cache)]&#xA;    Cache --&gt; Database[(Database)]&#xA;&lt;/div&gt;</description>
+    </item>
+  </channel>
+</rss>

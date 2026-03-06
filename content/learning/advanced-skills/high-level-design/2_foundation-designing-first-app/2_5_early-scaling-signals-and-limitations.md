@@ -224,8 +224,8 @@ In the next phase, we will redesign this system to:
 - improve performance
 - scale horizontally
 
-👉 **Next Phase:**  
-**Phase 2 — Scaling for Reads: Designing a News Feed System**
+👉 **Next:**  
+**[Phase 1 Summary: Concepts Introduced](/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_6_phase1-summary)**
 
 ---
 

@@ -165,7 +165,7 @@ These concepts are **not abandoned** — they are **refined and evolved**.
 With a strong foundation in place, we are ready to design systems that **must scale**.
 
 👉 **Next Phase:**  
-**Phase 2 — Scaling for Reads: Designing a News Feed System**
+**[Phase 2 — Scaling for Reads: Designing a News Feed System](/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_1_introduction)**
 
 ---
 
@@ -173,10 +173,13 @@ With a strong foundation in place, we are ready to design systems that **must sc
 
 If you’d like to explore these concepts in more detail, you can visit the **Concepts** section:
 
-- [Monolithic Architecture](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_1_monolithic-architecture)
-- [Layered (N-Tier) Architecture](/learning/advanced-skills/high-level-design/concepts/layered-architecture)
-- [Stateless vs Stateful Applications](/learning/advanced-skills/high-level-design/concepts/stateless-vs-stateful)
-- [Client–Server Architecture](/learning/advanced-skills/high-level-design/concepts/client-server)
+1. [Monolithic Architecture](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_1_monolithic-architecture)
+2. [Layered (N-Tier) Architecture](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_2_layered-n-tier-architecture)
+3. [Client–Server Architecture](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_3_client-server-architecture)
+4. [Stateless vs Stateful Applications](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_4_stateless-vs-stateful-applications)
+5. [Synchronous vs Asynchronous Communication](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_5_sync-vs-async-communication)
+6. [Single Database as Source of Truth](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_6_single-database)
+7. [Architectural Trade-offs](/learning/advanced-skills/high-level-design/6_concepts-for-reference/6_7_architectural-trade-offs)
 
 ---
 
