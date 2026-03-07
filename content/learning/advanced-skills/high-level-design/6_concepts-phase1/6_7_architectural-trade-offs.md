@@ -211,7 +211,7 @@ These concepts form the **foundation for more advanced system design decisions**
 
 ---
 
-## What's Next
+### 🔗 What’s Next?
 
 In **Phase 2**, we begin designing systems that must handle **much larger traffic and data volumes**.
 
@@ -221,4 +221,5 @@ This will introduce new architectural techniques such as:
 - caching
 - scaling strategies
 
-👉 **Up Next → Phase 2: Scaling for Reads**
+👉 **Next Concept:**  
+**[Phase 2: Scaling for Reads - Caching](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_caching)**

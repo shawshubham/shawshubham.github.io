@@ -338,7 +338,7 @@ Load balancing enables scalable architectures by spreading traffic across multip
 ### 🔗 What’s Next?
 
 👉 **Up Next →**  
-**[Global Users & Content Delivery Networks (CDN)](/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_6_application-server-bottleneck)**
+**[Global Users & Content Delivery Networks (CDN)](/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_7_global-users-and-cdn)**
 
 As systems grow globally, users may experience latency due to geographic distance.
 
