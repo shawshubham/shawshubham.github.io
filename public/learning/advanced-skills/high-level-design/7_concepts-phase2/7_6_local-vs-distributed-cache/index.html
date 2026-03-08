@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caching — What is Caching ?</title>
+<title>Caching — Local vs Distributed Cache</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Caching — What is Caching ?</h1>
+    <h1 class="main-heading">Caching — Local vs Distributed Cache</h1>
     <h3>
   </div>
 </section>
@@ -269,7 +269,7 @@
 
                             <ul class="subject-phase-topics">
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching/">5.1. Caching — What is Caching ?</a>
                                 </li>
                               
@@ -289,7 +289,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/">5.5. Caching — Cache Eviction Policies</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/">5.6. Caching — Local vs Distributed Cache</a>
                                 </li>
                               
@@ -318,111 +318,253 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 7 Mar, 2026
+            Last updated on: 8 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-what-is-caching">1. What Is Caching?</h2>
+          <h2 id="1-why-multiple-cache-layers-exist">1. Why Multiple Cache Layers Exist</h2>
 <hr>
-<p>Caching is the technique of storing <strong>frequently accessed data in a faster storage layer</strong> so that future requests can be served more quickly.</p>
-<p>Instead of repeatedly fetching the same data from a slower system such as a database, the application first checks whether that data already exists in a cache.</p>
-<p>If it does, the system returns the cached result immediately.</p>
-<p>At a high level, caching is about one simple idea:</p>
-<blockquote>
-<p><strong>Do not recompute or refetch expensive data if you already have it available in a faster place.</strong></p></blockquote>
-<hr>
-<h2 id="2-why-caching-exists">2. Why Caching Exists</h2>
-<hr>
-<p>As systems grow, the same data is often requested again and again.</p>
-<p>Examples include:</p>
+<p>As systems scale, a single cache layer is often not enough to achieve both <strong>low latency</strong> and <strong>horizontal scalability</strong>.</p>
+<p>To address this, modern systems frequently use <strong>multiple layers of caching</strong>.</p>
+<p>A common architecture uses:</p>
 <ul>
-<li>a user’s home feed</li>
-<li>product details on an e-commerce site</li>
-<li>profile information</li>
-<li>trending posts</li>
-<li>static website assets</li>
+<li><strong>Local Cache (L1)</strong> – memory inside each application server</li>
+<li><strong>Distributed Cache (L2)</strong> – a shared cache such as Redis or Memcached</li>
 </ul>
-<p>If every request goes all the way to the database or backend system, the system begins to suffer from:</p>
-<ul>
-<li>high latency</li>
-<li>repeated computation</li>
-<li>unnecessary database load</li>
-<li>reduced scalability</li>
-</ul>
-<p>Caching exists to solve these problems.</p>
-<p>It allows systems to:</p>
-<ul>
-<li>respond faster</li>
-<li>reduce backend pressure</li>
-<li>support more traffic</li>
-<li>improve user experience</li>
-</ul>
+<p>These layers work together to balance <strong>speed, consistency, and scalability</strong>.</p>
 <hr>
-<h2 id="3-a-simple-mental-model">3. A Simple Mental Model</h2>
+<h2 id="2-local-cache-l1-cache">2. Local Cache (L1 Cache)</h2>
 <hr>
-<p>Without caching:</p>
+<p>A <strong>local cache</strong> is stored directly in the memory of an application instance.</p>
+<p>Each server maintains its own independent cache.</p>
+<h3 id="example">Example</h3>
 <div class="mermaid">
 flowchart LR
-    User([User]) --> App[Application Server]
-    App --> DB[(Database)]
-    DB --> App
-    App --> User
-</div>
-<p>Every request requires a database query.</p>
-<p>With caching:</p>
-<div class="mermaid">
-flowchart LR
-    User([User]) <--> App[Application Server]
 
-    subgraph DataStorage [Data Tier]
-        direction TB
-        Cache[(Cache)]
-        DB[(Database)]
+    User --> LB[Load Balancer]
+
+    subgraph AppTier[Application Servers]
+        direction LR
+        A[Server A<br>+ Local Cache]
+        B[Server B<br>+ Local Cache]
+        C[Server C<br>+ Local Cache]
     end
 
-    App <-->|1. Check / Update| Cache
-    App <-->|2. Fallback Query| DB
-
-    %% Styling
-    style Cache fill:#fff3e0,stroke:#ff9800
-    style DB fill:#e8f5e9,stroke:#2e7d32
-    style DataStorage fill:#f9f9f9,stroke:#333,stroke-dasharray: 5 5
+    LB --> A
+    LB --> B
+    LB --> C
 </div>
-<p>The application checks the cache first.<br>
-Only if the data is missing does it query the database.</p>
-<hr>
-<h2 id="4-why-caching-is-so-powerful">4. Why Caching Is So Powerful</h2>
-<hr>
-<p>Caching is powerful because it attacks one of the biggest problems in system design:</p>
-<blockquote>
-<p><strong>Repeated access to the same data</strong></p></blockquote>
-<p>In many systems, read traffic is much higher than write traffic.</p>
-<p>For example:</p>
+<h3 id="characteristics">Characteristics</h3>
 <ul>
-<li>millions of users may read a post</li>
-<li>only one user wrote it</li>
-<li>many users view the same profile</li>
-<li>thousands of users request the same homepage data</li>
+<li>extremely fast (memory access)</li>
+<li>no network latency</li>
+<li>simple to implement</li>
 </ul>
-<p>Without caching, the backend repeats the same work many times.</p>
-<p>With caching, the system performs the expensive operation once and reuses the result.</p>
+<h3 id="limitations">Limitations</h3>
+<p>Each server has <strong>its own independent cache</strong>.</p>
+<p>This means:</p>
+<ul>
+<li>data may become inconsistent across servers</li>
+<li>cache updates on one server are not visible to others</li>
+</ul>
+<p>Example issue:</p>
+<pre tabindex="0"><code>Server A cache → new value
+Server B cache → old value
+</code></pre><p>This problem becomes more severe as the number of servers grows.</p>
 <hr>
-<h2 id="5-key-takeaways">5. Key Takeaways</h2>
+<h2 id="3-distributed-cache-l2-cache">3. Distributed Cache (L2 Cache)</h2>
+<hr>
+<p>A <strong>distributed cache</strong> is shared across multiple application servers.</p>
+<p>Instead of storing cache entries inside each application instance, the cache is stored in a <strong>separate system</strong>.</p>
+<p>Examples include:</p>
+<ul>
+<li>Redis</li>
+<li>Memcached</li>
+</ul>
+<h3 id="example-architecture">Example Architecture</h3>
+<div class="mermaid">
+flowchart LR
+
+    User --> LB[Load Balancer]
+
+    subgraph AppTier[Application Servers]
+        direction LR
+        A[Server A]
+        B[Server B]
+        C[Server C]
+    end
+
+    LB --> A
+    LB --> B
+    LB --> C
+
+    A --> Redis[(Distributed Cache)]
+    B --> Redis
+    C --> Redis
+
+    Redis --> DB[(Database)]
+</div>
+<h3 id="characteristics-1">Characteristics</h3>
+<ul>
+<li>shared across all application servers</li>
+<li>consistent view of cached data</li>
+<li>scalable across multiple nodes</li>
+</ul>
+<h3 id="trade-offs">Trade-offs</h3>
+<ul>
+<li>network latency compared to local cache</li>
+<li>additional infrastructure to manage</li>
+</ul>
+<p>Despite these trade-offs, distributed caches are essential for <strong>large-scale systems</strong>.</p>
+<hr>
+<h2 id="4-multi-layer-caching-l1--l2">4. Multi-Layer Caching (L1 + L2)</h2>
+<hr>
+<p>High-performance systems often combine both caching strategies.</p>
+<p>Example architecture:</p>
+<div class="mermaid">
+flowchart LR
+
+    User --> LB[Load Balancer]
+
+    subgraph AppTier[Application Servers]
+        direction LR
+        A[Server A<br>+ Local Cache]
+        B[Server B<br>+ Local Cache]
+        C[Server C<br>+ Local Cache]
+    end
+
+    LB --> A
+    LB --> B
+    LB --> C
+
+    A --> Redis[(Distributed Cache)]
+    B --> Redis
+    C --> Redis
+
+    Redis --> DB[(Database)]
+</div>
+<p>Request flow:</p>
+<ol>
+<li>Application checks <strong>local cache (L1)</strong>.</li>
+<li>If missing, it checks <strong>distributed cache (L2)</strong>.</li>
+<li>If still missing, it queries the <strong>database</strong>.</li>
+</ol>
+<p>This approach provides both:</p>
+<ul>
+<li>extremely fast reads (L1)</li>
+<li>shared cache consistency (L2)</li>
+</ul>
+<hr>
+<h2 id="5-cache-invalidation-in-multi-layer-systems">5. Cache Invalidation in Multi-Layer Systems</h2>
+<hr>
+<p>When multiple cache layers exist, invalidation becomes more complex.</p>
+<p>Example scenario:</p>
+<pre tabindex="0"><code>Database updated
+</code></pre><p>The system must ensure that:</p>
+<ul>
+<li>distributed cache entries are invalidated</li>
+<li>local caches across all application servers are refreshed</li>
+</ul>
+<p>A common approach uses <strong>event-driven cache invalidation</strong>.</p>
+<div class="mermaid">
+flowchart LR
+
+    App --> DB[(Database)]
+
+    DB -->|Publish Event| Queue[(Event Stream)]
+
+    Queue --> Worker[Cache Invalidation Service]
+
+    Worker --> Redis[(Distributed Cache)]
+
+    Worker --> LocalA[Server A Local Cache]
+    Worker --> LocalB[Server B Local Cache]
+</div>
+<p>This ensures all cache layers eventually reflect the latest data.</p>
+<hr>
+<h2 id="6-when-to-use-local-vs-distributed-cache">6. When to Use Local vs Distributed Cache</h2>
+<hr>
+<p>The choice depends on system requirements.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Cache Type</th>
+          <th>Best For</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Local Cache</td>
+          <td>extremely fast access to frequently used data</td>
+      </tr>
+      <tr>
+          <td>Distributed Cache</td>
+          <td>shared cache across multiple servers</td>
+      </tr>
+  </tbody>
+</table>
+<p>In practice, many systems use <strong>both layers together</strong>.</p>
+<hr>
+<h2 id="7-real-world-example">7. Real-World Example</h2>
+<hr>
+<p>A typical production architecture might look like this:</p>
+<div class="mermaid">
+flowchart LR
+
+    User --> CDN
+
+    CDN --> LB[Load Balancer]
+
+    subgraph AppTier[Application Servers]
+        direction LR
+        A[Server A<br>+ Local Cache]
+        B[Server B<br>+ Local Cache]
+        C[Server C<br>+ Local Cache]
+    end
+
+    LB --> A
+    LB --> B
+    LB --> C
+
+    A --> Redis[(Redis L2 Cache)]
+    B --> Redis
+    C --> Redis
+
+    Redis --> DB[(Primary Database)]
+</div>
+<p>In this architecture:</p>
+<ul>
+<li><strong>CDN</strong> caches static assets</li>
+<li><strong>L1 caches</strong> store frequently accessed data locally</li>
+<li><strong>Redis (L2)</strong> provides shared caching</li>
+<li><strong>Database</strong> remains the source of truth</li>
+</ul>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Caching stores frequently accessed data in a faster storage layer.</li>
-<li>It reduces latency and protects backend systems such as databases.</li>
-<li>Read-heavy systems benefit the most from caching.</li>
-<li>Caching avoids repeating expensive computations or database queries.</li>
+<li>Local caches (L1) store data inside application servers.</li>
+<li>Distributed caches (L2) provide a shared cache across services.</li>
+<li>Multi-layer caching combines the speed of local caches with the consistency of distributed caches.</li>
+<li>Event-driven invalidation is often required to keep multiple cache layers synchronized.</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we understand <strong>why caching exists</strong>, the next step is understanding <strong>how caching behaves during requests</strong>.</p>
-<p>👉 <strong>Next Concept:</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss">Cache Hit vs Cache Miss</a></strong></p>
-<p>This next article explains how requests interact with the cache and why the <strong>cache hit rate</strong> is one of the most important performance metrics in distributed systems.</p>
+<p>Caching significantly reduces pressure on the database and improves read performance.<br>
+However, caching alone cannot solve every scalability problem.</p>
+<p>As traffic grows, a single application server can still become a bottleneck:</p>
+<ul>
+<li>CPU resources become saturated</li>
+<li>memory usage increases</li>
+<li>concurrent requests exceed what one machine can handle</li>
+</ul>
+<p>At this stage, improving performance is no longer about <strong>serving data faster</strong>, but about <strong>handling more requests in parallel</strong>.</p>
+<p>This is where <strong>Horizontal Scaling</strong> becomes essential.</p>
+<p>Instead of relying on a single server, the system begins distributing traffic across <strong>multiple application instances</strong>, allowing the workload to be shared.</p>
+<p>👉 <strong>Up next we explore:</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling">Horizontal Scaling</a></strong>, where systems move from <strong>one server to many servers</strong>, enabling applications to handle growing traffic reliably.</p>
 
         </article>
 
@@ -450,31 +592,49 @@ Only if the data is missing does it query the database.</p>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-what-is-caching" data-toc-target="1-what-is-caching">1. What Is Caching?</a>
+        <a class="toc-link" href="#1-why-multiple-cache-layers-exist" data-toc-target="1-why-multiple-cache-layers-exist">1. Why Multiple Cache Layers Exist</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-why-caching-exists" data-toc-target="2-why-caching-exists">2. Why Caching Exists</a>
+        <a class="toc-link" href="#2-local-cache-l1-cache" data-toc-target="2-local-cache-l1-cache">2. Local Cache (L1 Cache)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-a-simple-mental-model" data-toc-target="3-a-simple-mental-model">3. A Simple Mental Model</a>
+        <a class="toc-link" href="#3-distributed-cache-l2-cache" data-toc-target="3-distributed-cache-l2-cache">3. Distributed Cache (L2 Cache)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-caching-is-so-powerful" data-toc-target="4-why-caching-is-so-powerful">4. Why Caching Is So Powerful</a>
+        <a class="toc-link" href="#4-multi-layer-caching-l1--l2" data-toc-target="4-multi-layer-caching-l1--l2">4. Multi-Layer Caching (L1 &#43; L2)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-key-takeaways" data-toc-target="5-key-takeaways">5. Key Takeaways</a>
+        <a class="toc-link" href="#5-cache-invalidation-in-multi-layer-systems" data-toc-target="5-cache-invalidation-in-multi-layer-systems">5. Cache Invalidation in Multi-Layer Systems</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-when-to-use-local-vs-distributed-cache" data-toc-target="6-when-to-use-local-vs-distributed-cache">6. When to Use Local vs Distributed Cache</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-real-world-example" data-toc-target="7-real-world-example">7. Real-World Example</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
       </li>
     
   </ul>
@@ -489,6 +649,8 @@ Only if the data is missing does it query the database.</p>
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -520,7 +682,7 @@ Only if the data is missing does it query the database.</p>
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

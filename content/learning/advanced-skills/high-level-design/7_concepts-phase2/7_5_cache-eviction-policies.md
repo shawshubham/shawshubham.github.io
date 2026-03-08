@@ -30,6 +30,8 @@ This process is called **cache eviction**.
 
 ## 2. Cache Eviction vs Cache Invalidation
 
+---
+
 Cache eviction is often confused with cache invalidation, but they solve different problems.
 
 | Concept            | Purpose                                              |
@@ -47,20 +49,38 @@ Both mechanisms work together to maintain a healthy caching system.
 
 ## 3. What Happens When a Cache Is Full?
 
+---
+
 When a cache reaches its capacity, the system must perform an eviction decision.
 
 Example flow:
 
 ```mermaid
-flowchart LR
+flowchart TD
+    Req([New Write Request]) --> App[Application]
+    App --> Space{Is Cache Full?}
 
-    App[Application Request] --> Cache[(Cache)]
+    %% The Eviction Branch
+    Space -- "Yes" --> Policy{Eviction Policy}
+    subgraph Eviction_Logic [Selection Logic]
+        Policy -- "LRU" --> Target[Least Recently Used]
+        Policy -- "LFU" --> Target2[Least Frequently Used]
+        Policy -- "FIFO" --> Target3[First In, First Out]
+    end
 
-    Cache -->|Cache Full| Policy{Eviction Policy}
+    Target & Target2 & Target3 --> Remove[1. Remove Entry]
+    Remove --> Store[2. Store New Item]
 
-    Policy -->|Remove Entry| Cache
+    %% The Direct Path
+    Space -- "No" --> Store
 
-    Cache -->|Store New Item| Cache
+    Store --> Success([Success])
+
+    %% Styling
+    style Policy fill:#fff3e0,stroke:#ef6c00
+    style Eviction_Logic fill:#fafafa,stroke:#ccc,stroke-dasharray: 5 5
+    style Remove fill:#ffebee,stroke:#c62828
+    style Store fill:#e8f5e9,stroke:#2e7d32
 ```
 
 The **eviction policy** determines which existing cache entry will be removed.
@@ -70,6 +90,8 @@ Different eviction strategies aim to remove the data that is **least likely to b
 ---
 
 ## 4. Least Recently Used (LRU)
+
+---
 
 The **Least Recently Used (LRU)** policy removes the item that has not been accessed for the longest time.
 
@@ -114,6 +136,8 @@ LRU is commonly used in:
 
 ## 5. Least Frequently Used (LFU)
 
+---
+
 The **Least Frequently Used (LFU)** policy removes the item with the lowest access frequency.
 
 ### Idea
@@ -148,6 +172,8 @@ LFU is often preferred when access patterns are **highly skewed toward popular i
 ---
 
 ## 6. First In First Out (FIFO)
+
+---
 
 The **First In First Out (FIFO)** policy removes the item that entered the cache earliest.
 
@@ -190,6 +216,8 @@ Because of this limitation, FIFO is less commonly used in modern high‑performa
 
 ## 7. Time‑Based Eviction
 
+---
+
 Some systems evict items based on **expiration time**.
 
 Example:
@@ -206,6 +234,8 @@ This strategy is commonly combined with other policies such as LRU.
 ---
 
 ## 8. Real‑World Eviction Strategies
+
+---
 
 Production caching systems often combine multiple eviction mechanisms.
 
@@ -224,6 +254,8 @@ These options allow engineers to tune caching behavior based on workload charact
 
 ## 9. Choosing the Right Eviction Policy
 
+---
+
 The ideal eviction strategy depends on the system's access patterns.
 
 | Workload Type                           | Recommended Policy |
@@ -238,6 +270,8 @@ In most web architectures, **LRU is the default choice** because it balances sim
 
 ## Key Takeaways
 
+---
+
 - Cache eviction occurs when a cache runs out of memory.
 - Eviction removes entries to make room for new data.
 - LRU removes the least recently used items.
@@ -247,10 +281,11 @@ In most web architectures, **LRU is the default choice** because it balances sim
 
 ---
 
-## What’s Next
+### 🔗 What’s Next?
 
 So far we explored how caching works, how data is invalidated, and how memory is managed.
 
 The final concept in this caching section explains **how caches are deployed across multiple servers and systems**.
 
-👉 Up Next: **Local vs Distributed Cache**
+👉 **Next Concept:**  
+**[Local vs Distributed Cache](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache)**

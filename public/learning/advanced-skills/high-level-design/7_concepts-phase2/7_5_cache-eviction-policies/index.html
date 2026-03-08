@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1772925055">
+<link rel="stylesheet" href="/css/main.css?v=1772929178">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -289,6 +289,18 @@
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/">5.5. Caching — Cache Eviction Policies</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/">5.6. Caching — Local vs Distributed Cache</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/">5.7. Horizontal Scaling</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/">5.8. Load Balancing</a>
+                                </li>
+                              
                             </ul>
                           </details>
                         </li>
@@ -321,6 +333,7 @@
 <p>This process is called <strong>cache eviction</strong>.</p>
 <hr>
 <h2 id="2-cache-eviction-vs-cache-invalidation">2. Cache Eviction vs Cache Invalidation</h2>
+<hr>
 <p>Cache eviction is often confused with cache invalidation, but they solve different problems.</p>
 <table>
   <thead>
@@ -345,23 +358,41 @@
 <p>Both mechanisms work together to maintain a healthy caching system.</p>
 <hr>
 <h2 id="3-what-happens-when-a-cache-is-full">3. What Happens When a Cache Is Full?</h2>
+<hr>
 <p>When a cache reaches its capacity, the system must perform an eviction decision.</p>
 <p>Example flow:</p>
 <div class="mermaid">
-flowchart LR
+flowchart TD
+    Req([New Write Request]) --> App[Application]
+    App --> Space{Is Cache Full?}
 
-    App[Application Request] --> Cache[(Cache)]
+    %% The Eviction Branch
+    Space -- "Yes" --> Policy{Eviction Policy}
+    subgraph Eviction_Logic [Selection Logic]
+        Policy -- "LRU" --> Target[Least Recently Used]
+        Policy -- "LFU" --> Target2[Least Frequently Used]
+        Policy -- "FIFO" --> Target3[First In, First Out]
+    end
 
-    Cache -->|Cache Full| Policy{Eviction Policy}
+    Target & Target2 & Target3 --> Remove[1. Remove Entry]
+    Remove --> Store[2. Store New Item]
 
-    Policy -->|Remove Entry| Cache
+    %% The Direct Path
+    Space -- "No" --> Store
 
-    Cache -->|Store New Item| Cache
+    Store --> Success([Success])
+
+    %% Styling
+    style Policy fill:#fff3e0,stroke:#ef6c00
+    style Eviction_Logic fill:#fafafa,stroke:#ccc,stroke-dasharray: 5 5
+    style Remove fill:#ffebee,stroke:#c62828
+    style Store fill:#e8f5e9,stroke:#2e7d32
 </div>
 <p>The <strong>eviction policy</strong> determines which existing cache entry will be removed.</p>
 <p>Different eviction strategies aim to remove the data that is <strong>least likely to be needed again</strong>.</p>
 <hr>
 <h2 id="4-least-recently-used-lru">4. Least Recently Used (LRU)</h2>
+<hr>
 <p>The <strong>Least Recently Used (LRU)</strong> policy removes the item that has not been accessed for the longest time.</p>
 <h3 id="idea">Idea</h3>
 <p>If data has not been used recently, it is less likely to be used again soon.</p>
@@ -389,6 +420,7 @@ A → B → C → A → D
 </ul>
 <hr>
 <h2 id="5-least-frequently-used-lfu">5. Least Frequently Used (LFU)</h2>
+<hr>
 <p>The <strong>Least Frequently Used (LFU)</strong> policy removes the item with the lowest access frequency.</p>
 <h3 id="idea-1">Idea</h3>
 <p>Items that are rarely used are less valuable to keep in the cache.</p>
@@ -413,6 +445,7 @@ C = 7
 <p>LFU is often preferred when access patterns are <strong>highly skewed toward popular items</strong>.</p>
 <hr>
 <h2 id="6-first-in-first-out-fifo">6. First In First Out (FIFO)</h2>
+<hr>
 <p>The <strong>First In First Out (FIFO)</strong> policy removes the item that entered the cache earliest.</p>
 <h3 id="idea-2">Idea</h3>
 <p>The oldest cached entry is removed first.</p>
@@ -439,6 +472,7 @@ New item arrives → D
 <p>Because of this limitation, FIFO is less commonly used in modern high‑performance caches.</p>
 <hr>
 <h2 id="7-timebased-eviction">7. Time‑Based Eviction</h2>
+<hr>
 <p>Some systems evict items based on <strong>expiration time</strong>.</p>
 <p>Example:</p>
 <pre tabindex="0"><code>Cache Entry
@@ -447,6 +481,7 @@ TTL = 60 seconds
 <p>This strategy is commonly combined with other policies such as LRU.</p>
 <hr>
 <h2 id="8-realworld-eviction-strategies">8. Real‑World Eviction Strategies</h2>
+<hr>
 <p>Production caching systems often combine multiple eviction mechanisms.</p>
 <p>Example: <strong>Redis eviction policies</strong></p>
 <table>
@@ -478,6 +513,7 @@ TTL = 60 seconds
 <p>These options allow engineers to tune caching behavior based on workload characteristics.</p>
 <hr>
 <h2 id="9-choosing-the-right-eviction-policy">9. Choosing the Right Eviction Policy</h2>
+<hr>
 <p>The ideal eviction strategy depends on the system&rsquo;s access patterns.</p>
 <table>
   <thead>
@@ -504,6 +540,7 @@ TTL = 60 seconds
 <p>In most web architectures, <strong>LRU is the default choice</strong> because it balances simplicity and effectiveness.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
+<hr>
 <ul>
 <li>Cache eviction occurs when a cache runs out of memory.</li>
 <li>Eviction removes entries to make room for new data.</li>
@@ -513,10 +550,11 @@ TTL = 60 seconds
 <li>Real systems often combine multiple eviction strategies.</li>
 </ul>
 <hr>
-<h2 id="whats-next">What’s Next</h2>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>So far we explored how caching works, how data is invalidated, and how memory is managed.</p>
 <p>The final concept in this caching section explains <strong>how caches are deployed across multiple servers and systems</strong>.</p>
-<p>👉 Up Next: <strong>Local vs Distributed Cache</strong></p>
+<p>👉 <strong>Next Concept:</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache">Local vs Distributed Cache</a></strong></p>
 
         </article>
 
@@ -601,12 +639,6 @@ TTL = 60 seconds
         <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
       </li>
     
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#whats-next" data-toc-target="whats-next">What’s Next</a>
-      </li>
-    
   </ul>
 </nav>
 
@@ -651,6 +683,8 @@ TTL = 60 seconds
     </a>
     
 
+    
+    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

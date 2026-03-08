@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caching — What is Caching ?</title>
+<title>Horizontal Scaling</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Caching — What is Caching ?</h1>
+    <h1 class="main-heading">Horizontal Scaling</h1>
     <h3>
   </div>
 </section>
@@ -269,7 +269,7 @@
 
                             <ul class="subject-phase-topics">
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching/">5.1. Caching — What is Caching ?</a>
                                 </li>
                               
@@ -293,7 +293,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/">5.6. Caching — Local vs Distributed Cache</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/">5.7. Horizontal Scaling</a>
                                 </li>
                               
@@ -318,111 +318,168 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 7 Mar, 2026
+            Last updated on: 8 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-what-is-caching">1. What Is Caching?</h2>
+          <h2 id="1-why-scaling-becomes-necessary">1. Why Scaling Becomes Necessary</h2>
 <hr>
-<p>Caching is the technique of storing <strong>frequently accessed data in a faster storage layer</strong> so that future requests can be served more quickly.</p>
-<p>Instead of repeatedly fetching the same data from a slower system such as a database, the application first checks whether that data already exists in a cache.</p>
-<p>If it does, the system returns the cached result immediately.</p>
-<p>At a high level, caching is about one simple idea:</p>
-<blockquote>
-<p><strong>Do not recompute or refetch expensive data if you already have it available in a faster place.</strong></p></blockquote>
-<hr>
-<h2 id="2-why-caching-exists">2. Why Caching Exists</h2>
-<hr>
-<p>As systems grow, the same data is often requested again and again.</p>
-<p>Examples include:</p>
+<p>Caching helps reduce the load on the database, but it does not solve every scalability problem.</p>
+<p>As an application grows, the <strong>application server itself can become a bottleneck</strong>.</p>
+<p>Common symptoms include:</p>
 <ul>
-<li>a user’s home feed</li>
-<li>product details on an e-commerce site</li>
-<li>profile information</li>
-<li>trending posts</li>
-<li>static website assets</li>
+<li>CPU saturation</li>
+<li>memory pressure</li>
+<li>long request queues</li>
+<li>increased response latency</li>
 </ul>
-<p>If every request goes all the way to the database or backend system, the system begins to suffer from:</p>
-<ul>
-<li>high latency</li>
-<li>repeated computation</li>
-<li>unnecessary database load</li>
-<li>reduced scalability</li>
-</ul>
-<p>Caching exists to solve these problems.</p>
-<p>It allows systems to:</p>
-<ul>
-<li>respond faster</li>
-<li>reduce backend pressure</li>
-<li>support more traffic</li>
-<li>improve user experience</li>
-</ul>
+<p>At some point, a single server can no longer handle the incoming traffic.</p>
+<p>To support more users and requests, the system must scale.</p>
 <hr>
-<h2 id="3-a-simple-mental-model">3. A Simple Mental Model</h2>
+<h2 id="2-two-ways-to-scale-a-system">2. Two Ways to Scale a System</h2>
 <hr>
-<p>Without caching:</p>
+<p>Systems typically scale in two fundamental ways.</p>
+<h3 id="vertical-scaling-scale-up">Vertical Scaling (Scale Up)</h3>
+<p>Vertical scaling means <strong>increasing the resources of a single machine</strong>.</p>
+<p>Example:</p>
+<ul>
+<li>more CPU cores</li>
+<li>more RAM</li>
+<li>faster storage</li>
+</ul>
+<p>Example progression:</p>
+<pre tabindex="0"><code>Small Server → Larger Server → Even Larger Server
+</code></pre><h3 id="vertical-scaling-architecture">Vertical Scaling Architecture</h3>
 <div class="mermaid">
 flowchart LR
-    User([User]) --> App[Application Server]
-    App --> DB[(Database)]
-    DB --> App
-    App --> User
-</div>
-<p>Every request requires a database query.</p>
-<p>With caching:</p>
-<div class="mermaid">
-flowchart LR
-    User([User]) <--> App[Application Server]
 
-    subgraph DataStorage [Data Tier]
-        direction TB
-        Cache[(Cache)]
-        DB[(Database)]
+    User --> App[Single Powerful Server]
+
+    App --> DB[(Database)]
+</div>
+<h3 id="advantages">Advantages</h3>
+<ul>
+<li>simple to implement</li>
+<li>minimal architectural changes</li>
+</ul>
+<h3 id="limitations">Limitations</h3>
+<ul>
+<li>hardware limits eventually reached</li>
+<li>expensive at large scale</li>
+<li>single point of failure</li>
+</ul>
+<p>Because of these limitations, large systems rarely rely solely on vertical scaling.</p>
+<hr>
+<h2 id="3-horizontal-scaling-scale-out">3. Horizontal Scaling (Scale Out)</h2>
+<hr>
+<p>Horizontal scaling means <strong>adding more machines to share the workload</strong>.</p>
+<p>Instead of upgrading a single server, the system runs <strong>multiple instances of the application</strong>.</p>
+<p>Example progression:</p>
+<pre tabindex="0"><code>1 Server
+→ 3 Servers
+→ 10 Servers
+→ 100 Servers
+</code></pre><h3 id="horizontal-scaling-architecture">Horizontal Scaling Architecture</h3>
+<div class="mermaid">
+flowchart LR
+
+    User --> LB[Load Balancer]
+
+    LB --> A[Server A]
+    LB --> B[Server B]
+    LB --> C[Server C]
+
+    A --> DB[(Database)]
+    B --> DB
+    C --> DB
+</div>
+<p>Here, incoming requests are distributed across multiple servers.</p>
+<p>Each server handles a portion of the traffic.</p>
+<hr>
+<h2 id="4-benefits-of-horizontal-scaling">4. Benefits of Horizontal Scaling</h2>
+<hr>
+<p>Horizontal scaling offers several important advantages.</p>
+<h3 id="increased-capacity">Increased Capacity</h3>
+<p>Adding more servers increases the system&rsquo;s ability to handle concurrent requests.</p>
+<h3 id="fault-tolerance">Fault Tolerance</h3>
+<p>If one server fails, other servers can continue serving traffic.</p>
+<h3 id="elastic-growth">Elastic Growth</h3>
+<p>Servers can be added or removed depending on demand.</p>
+<p>This enables modern <strong>cloud auto-scaling systems</strong>.</p>
+<hr>
+<h2 id="5-new-challenges-introduced-by-horizontal-scaling">5. New Challenges Introduced by Horizontal Scaling</h2>
+<hr>
+<p>While horizontal scaling improves capacity, it also introduces new architectural challenges.</p>
+<h3 id="request-distribution">Request Distribution</h3>
+<p>Requests must be routed across servers efficiently.</p>
+<p>This requires a <strong>load balancer</strong>, which we will explore in the next concept.</p>
+<hr>
+<h3 id="state-management">State Management</h3>
+<p>If application servers store session data locally, users must be routed to the same server.</p>
+<p>This limits scalability.</p>
+<p>The common solution is to design <strong>stateless application servers</strong>, which we will discuss later.</p>
+<hr>
+<h3 id="shared-resources">Shared Resources</h3>
+<p>Multiple servers now share the same resources such as:</p>
+<ul>
+<li>databases</li>
+<li>distributed caches</li>
+<li>message queues</li>
+</ul>
+<p>These shared systems must also be designed to handle higher traffic.</p>
+<hr>
+<h2 id="6-horizontal-scaling-in-modern-architectures">6. Horizontal Scaling in Modern Architectures</h2>
+<hr>
+<p>A typical horizontally scaled architecture may look like this:</p>
+<div class="mermaid">
+flowchart LR
+
+    User --> CDN
+
+    CDN --> LB[Load Balancer]
+
+    subgraph AppTier[Application Servers]
+        direction LR
+        A[Server A]
+        B[Server B]
+        C[Server C]
     end
 
-    App <-->|1. Check / Update| Cache
-    App <-->|2. Fallback Query| DB
+    LB --> A
+    LB --> B
+    LB --> C
 
-    %% Styling
-    style Cache fill:#fff3e0,stroke:#ff9800
-    style DB fill:#e8f5e9,stroke:#2e7d32
-    style DataStorage fill:#f9f9f9,stroke:#333,stroke-dasharray: 5 5
+    A --> Redis[(Distributed Cache)]
+    B --> Redis
+    C --> Redis
+
+    Redis --> DB[(Primary Database)]
 </div>
-<p>The application checks the cache first.<br>
-Only if the data is missing does it query the database.</p>
-<hr>
-<h2 id="4-why-caching-is-so-powerful">4. Why Caching Is So Powerful</h2>
-<hr>
-<p>Caching is powerful because it attacks one of the biggest problems in system design:</p>
-<blockquote>
-<p><strong>Repeated access to the same data</strong></p></blockquote>
-<p>In many systems, read traffic is much higher than write traffic.</p>
-<p>For example:</p>
+<p>In this architecture:</p>
 <ul>
-<li>millions of users may read a post</li>
-<li>only one user wrote it</li>
-<li>many users view the same profile</li>
-<li>thousands of users request the same homepage data</li>
+<li><strong>CDN</strong> reduces latency for static assets</li>
+<li><strong>Load balancer</strong> distributes requests</li>
+<li><strong>multiple application servers</strong> handle traffic</li>
+<li><strong>Redis</strong> provides shared caching</li>
+<li><strong>database</strong> remains the source of truth</li>
 </ul>
-<p>Without caching, the backend repeats the same work many times.</p>
-<p>With caching, the system performs the expensive operation once and reuses the result.</p>
+<p>This is the foundation of most modern web architectures.</p>
 <hr>
-<h2 id="5-key-takeaways">5. Key Takeaways</h2>
+<h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Caching stores frequently accessed data in a faster storage layer.</li>
-<li>It reduces latency and protects backend systems such as databases.</li>
-<li>Read-heavy systems benefit the most from caching.</li>
-<li>Caching avoids repeating expensive computations or database queries.</li>
+<li>Horizontal scaling increases capacity by adding more servers.</li>
+<li>It improves availability and fault tolerance.</li>
+<li>It allows systems to grow elastically as traffic increases.</li>
+<li>However, it introduces new challenges such as request distribution and state management.</li>
 </ul>
 <hr>
-<h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we understand <strong>why caching exists</strong>, the next step is understanding <strong>how caching behaves during requests</strong>.</p>
-<p>👉 <strong>Next Concept:</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss">Cache Hit vs Cache Miss</a></strong></p>
-<p>This next article explains how requests interact with the cache and why the <strong>cache hit rate</strong> is one of the most important performance metrics in distributed systems.</p>
+<h2 id="whats-next">What’s Next</h2>
+<p>Once multiple servers are introduced, the system must decide <strong>how incoming requests are distributed across them</strong>.</p>
+<p>👉 <strong>Up next:</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing">Load Balancing</a></strong>, where we explore how traffic is intelligently routed across application servers.</p>
 
         </article>
 
@@ -450,31 +507,49 @@ Only if the data is missing does it query the database.</p>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-what-is-caching" data-toc-target="1-what-is-caching">1. What Is Caching?</a>
+        <a class="toc-link" href="#1-why-scaling-becomes-necessary" data-toc-target="1-why-scaling-becomes-necessary">1. Why Scaling Becomes Necessary</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-why-caching-exists" data-toc-target="2-why-caching-exists">2. Why Caching Exists</a>
+        <a class="toc-link" href="#2-two-ways-to-scale-a-system" data-toc-target="2-two-ways-to-scale-a-system">2. Two Ways to Scale a System</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-a-simple-mental-model" data-toc-target="3-a-simple-mental-model">3. A Simple Mental Model</a>
+        <a class="toc-link" href="#3-horizontal-scaling-scale-out" data-toc-target="3-horizontal-scaling-scale-out">3. Horizontal Scaling (Scale Out)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-caching-is-so-powerful" data-toc-target="4-why-caching-is-so-powerful">4. Why Caching Is So Powerful</a>
+        <a class="toc-link" href="#4-benefits-of-horizontal-scaling" data-toc-target="4-benefits-of-horizontal-scaling">4. Benefits of Horizontal Scaling</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-key-takeaways" data-toc-target="5-key-takeaways">5. Key Takeaways</a>
+        <a class="toc-link" href="#5-new-challenges-introduced-by-horizontal-scaling" data-toc-target="5-new-challenges-introduced-by-horizontal-scaling">5. New Challenges Introduced by Horizontal Scaling</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-horizontal-scaling-in-modern-architectures" data-toc-target="6-horizontal-scaling-in-modern-architectures">6. Horizontal Scaling in Modern Architectures</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#whats-next" data-toc-target="whats-next">What’s Next</a>
       </li>
     
   </ul>
@@ -489,6 +564,8 @@ Only if the data is missing does it query the database.</p>
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -520,7 +597,7 @@ Only if the data is missing does it query the database.</p>
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caching — What is Caching ?</title>
+<title>Load Balancing</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Caching — What is Caching ?</h1>
+    <h1 class="main-heading">Load Balancing</h1>
     <h3>
   </div>
 </section>
@@ -269,7 +269,7 @@
 
                             <ul class="subject-phase-topics">
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching/">5.1. Caching — What is Caching ?</a>
                                 </li>
                               
@@ -297,7 +297,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/">5.7. Horizontal Scaling</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/">5.8. Load Balancing</a>
                                 </li>
                               
@@ -318,111 +318,199 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 7 Mar, 2026
+            Last updated on: 8 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-what-is-caching">1. What Is Caching?</h2>
+          <h2 id="1-why-load-balancing-is-needed">1. Why Load Balancing Is Needed</h2>
 <hr>
-<p>Caching is the technique of storing <strong>frequently accessed data in a faster storage layer</strong> so that future requests can be served more quickly.</p>
-<p>Instead of repeatedly fetching the same data from a slower system such as a database, the application first checks whether that data already exists in a cache.</p>
-<p>If it does, the system returns the cached result immediately.</p>
-<p>At a high level, caching is about one simple idea:</p>
-<blockquote>
-<p><strong>Do not recompute or refetch expensive data if you already have it available in a faster place.</strong></p></blockquote>
+<p>In the previous article we introduced <strong>Horizontal Scaling</strong>, where systems add multiple servers to handle growing traffic.</p>
+<p>However, once multiple servers exist, a new question appears:</p>
+<p><strong>How does the system decide which server should handle each request?</strong></p>
+<p>If all traffic still goes to one server, the benefits of horizontal scaling disappear.</p>
+<p>This is where <strong>Load Balancers</strong> become essential.</p>
+<p>A <strong>load balancer</strong> is responsible for <strong>distributing incoming traffic across multiple servers</strong>, ensuring that no single machine becomes overloaded.</p>
 <hr>
-<h2 id="2-why-caching-exists">2. Why Caching Exists</h2>
+<h2 id="2-basic-load-balancing-architecture">2. Basic Load Balancing Architecture</h2>
 <hr>
-<p>As systems grow, the same data is often requested again and again.</p>
-<p>Examples include:</p>
-<ul>
-<li>a user’s home feed</li>
-<li>product details on an e-commerce site</li>
-<li>profile information</li>
-<li>trending posts</li>
-<li>static website assets</li>
-</ul>
-<p>If every request goes all the way to the database or backend system, the system begins to suffer from:</p>
-<ul>
-<li>high latency</li>
-<li>repeated computation</li>
-<li>unnecessary database load</li>
-<li>reduced scalability</li>
-</ul>
-<p>Caching exists to solve these problems.</p>
-<p>It allows systems to:</p>
-<ul>
-<li>respond faster</li>
-<li>reduce backend pressure</li>
-<li>support more traffic</li>
-<li>improve user experience</li>
-</ul>
-<hr>
-<h2 id="3-a-simple-mental-model">3. A Simple Mental Model</h2>
-<hr>
-<p>Without caching:</p>
+<p>A load balancer sits between users and application servers.</p>
 <div class="mermaid">
 flowchart LR
-    User([User]) --> App[Application Server]
-    App --> DB[(Database)]
-    DB --> App
-    App --> User
-</div>
-<p>Every request requires a database query.</p>
-<p>With caching:</p>
-<div class="mermaid">
-flowchart LR
-    User([User]) <--> App[Application Server]
 
-    subgraph DataStorage [Data Tier]
-        direction TB
-        Cache[(Cache)]
-        DB[(Database)]
+    User --> LB[Load Balancer]
+
+    LB --> A[Server A]
+    LB --> B[Server B]
+    LB --> C[Server C]
+
+    A --> DB[(Database)]
+    B --> DB
+    C --> DB
+</div>
+<p>Instead of users connecting directly to servers, all requests first go through the <strong>load balancer</strong>, which decides where the request should be routed.</p>
+<hr>
+<h2 id="3-what-a-load-balancer-actually-does">3. What a Load Balancer Actually Does</h2>
+<hr>
+<p>A load balancer performs several critical functions.</p>
+<h3 id="31-traffic-distribution">3.1 Traffic Distribution</h3>
+<p>The primary job of a load balancer is to distribute requests evenly across servers.</p>
+<p>Example:</p>
+<pre tabindex="0"><code>Request 1 → Server A
+Request 2 → Server B
+Request 3 → Server C
+Request 4 → Server A
+</code></pre><p>This prevents a single server from becoming overwhelmed.</p>
+<hr>
+<h3 id="32-health-checks">3.2 Health Checks</h3>
+<p>Load balancers continuously monitor the health of servers.</p>
+<p>If a server becomes unavailable, the load balancer stops sending traffic to it.</p>
+<div class="mermaid">
+flowchart LR
+
+    User --> LB
+
+    LB --> A[Server A ✓]
+    LB --> B[Server B ✗]
+    LB --> C[Server C ✓]
+
+    style B fill:#ffebee,stroke:#c62828
+</div>
+<p>This improves <strong>system reliability and fault tolerance</strong>.</p>
+<hr>
+<h3 id="33-high-availability">3.3 High Availability</h3>
+<p>If one server crashes, traffic automatically shifts to other servers.</p>
+<p>Users may not even notice the failure.</p>
+<hr>
+<h2 id="4-load-balancing-algorithms">4. Load Balancing Algorithms</h2>
+<hr>
+<p>Load balancers use different algorithms to decide where to route requests.</p>
+<h3 id="41-round-robin">4.1 Round Robin</h3>
+<p>Requests are distributed sequentially across servers.</p>
+<pre tabindex="0"><code>Request 1 → A
+Request 2 → B
+Request 3 → C
+Request 4 → A
+</code></pre><p>Simple and widely used.</p>
+<hr>
+<h3 id="42-least-connections">4.2 Least Connections</h3>
+<p>Traffic is sent to the server with the <strong>fewest active connections</strong>.</p>
+<p>This works well when requests have different processing times.</p>
+<hr>
+<h3 id="43-ip-hash">4.3 IP Hash</h3>
+<p>The client’s IP address determines which server receives the request.</p>
+<p>This ensures that requests from the same user often reach the same server.</p>
+<hr>
+<h3 id="44-weighted-distribution">4.4 Weighted Distribution</h3>
+<p>Servers can receive different traffic weights.</p>
+<p>Example:</p>
+<pre tabindex="0"><code>Server A (weight 3)
+Server B (weight 1)
+</code></pre><p>Server A receives more requests because it has more capacity.</p>
+<hr>
+<h2 id="5-types-of-load-balancers">5. Types of Load Balancers</h2>
+<hr>
+<p>Load balancers can operate at different layers of the network stack.</p>
+<h3 id="51-layer-4-load-balancer-transport-layer">5.1 Layer 4 Load Balancer (Transport Layer)</h3>
+<p>Operates at the <strong>TCP/UDP level</strong>.</p>
+<p>Routing decisions are based on:</p>
+<ul>
+<li>IP address</li>
+<li>port numbers</li>
+</ul>
+<p>Example technologies:</p>
+<ul>
+<li>AWS Network Load Balancer</li>
+<li>HAProxy (TCP mode)</li>
+</ul>
+<p>Layer 4 load balancers are <strong>extremely fast</strong> because they do not inspect application data.</p>
+<hr>
+<h3 id="52-layer-7-load-balancer-application-layer">5.2 Layer 7 Load Balancer (Application Layer)</h3>
+<p>Operates at the <strong>HTTP/HTTPS level</strong>.</p>
+<p>Routing decisions can be based on:</p>
+<ul>
+<li>URL paths</li>
+<li>headers</li>
+<li>cookies</li>
+<li>hostnames</li>
+</ul>
+<p>Example:</p>
+<pre tabindex="0"><code>/api → API servers
+/images → image servers
+</code></pre><p>Example technologies:</p>
+<ul>
+<li>Nginx</li>
+<li>AWS Application Load Balancer</li>
+<li>Traefik</li>
+</ul>
+<p>Layer 7 load balancers enable <strong>smarter routing strategies</strong>.</p>
+<hr>
+<h2 id="6-load-balancers-in-modern-architectures">6. Load Balancers in Modern Architectures</h2>
+<hr>
+<p>A typical production architecture may look like this:</p>
+<div class="mermaid">
+flowchart LR
+
+    User --> CDN
+
+    CDN --> LB[Load Balancer]
+
+    subgraph AppTier[Application Servers]
+        direction LR
+        A[Server A]
+        B[Server B]
+        C[Server C]
     end
 
-    App <-->|1. Check / Update| Cache
-    App <-->|2. Fallback Query| DB
+    LB --> A
+    LB --> B
+    LB --> C
 
-    %% Styling
-    style Cache fill:#fff3e0,stroke:#ff9800
-    style DB fill:#e8f5e9,stroke:#2e7d32
-    style DataStorage fill:#f9f9f9,stroke:#333,stroke-dasharray: 5 5
+    A --> Redis[(Distributed Cache)]
+    B --> Redis
+    C --> Redis
+
+    Redis --> DB[(Primary Database)]
 </div>
-<p>The application checks the cache first.<br>
-Only if the data is missing does it query the database.</p>
-<hr>
-<h2 id="4-why-caching-is-so-powerful">4. Why Caching Is So Powerful</h2>
-<hr>
-<p>Caching is powerful because it attacks one of the biggest problems in system design:</p>
-<blockquote>
-<p><strong>Repeated access to the same data</strong></p></blockquote>
-<p>In many systems, read traffic is much higher than write traffic.</p>
-<p>For example:</p>
+<p>In this architecture:</p>
 <ul>
-<li>millions of users may read a post</li>
-<li>only one user wrote it</li>
-<li>many users view the same profile</li>
-<li>thousands of users request the same homepage data</li>
+<li><strong>CDN</strong> handles static content</li>
+<li><strong>Load balancer</strong> distributes application traffic</li>
+<li><strong>multiple servers</strong> process requests</li>
+<li><strong>Redis</strong> provides caching</li>
+<li><strong>database</strong> stores persistent data</li>
 </ul>
-<p>Without caching, the backend repeats the same work many times.</p>
-<p>With caching, the system performs the expensive operation once and reuses the result.</p>
+<p>This structure allows systems to handle <strong>large amounts of traffic reliably</strong>.</p>
 <hr>
-<h2 id="5-key-takeaways">5. Key Takeaways</h2>
+<h2 id="7-load-balancers-and-system-evolution">7. Load Balancers and System Evolution</h2>
+<hr>
+<p>As systems scale, load balancers become central infrastructure components.</p>
+<p>A typical evolution looks like this:</p>
+<pre tabindex="0"><code>Single Server
+↓
+Multiple Servers
+↓
+Load Balancer introduced
+↓
+Traffic distributed across servers
+</code></pre><p>Without load balancing, horizontal scaling would not work effectively.</p>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Caching stores frequently accessed data in a faster storage layer.</li>
-<li>It reduces latency and protects backend systems such as databases.</li>
-<li>Read-heavy systems benefit the most from caching.</li>
-<li>Caching avoids repeating expensive computations or database queries.</li>
+<li>Load balancers distribute incoming traffic across multiple servers.</li>
+<li>They prevent individual servers from becoming overloaded.</li>
+<li>They improve system reliability through health checks and failover.</li>
+<li>Load balancing algorithms determine how requests are distributed.</li>
+<li>Layer 4 and Layer 7 load balancers operate at different levels of the network stack.</li>
 </ul>
 <hr>
-<h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we understand <strong>why caching exists</strong>, the next step is understanding <strong>how caching behaves during requests</strong>.</p>
-<p>👉 <strong>Next Concept:</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss">Cache Hit vs Cache Miss</a></strong></p>
-<p>This next article explains how requests interact with the cache and why the <strong>cache hit rate</strong> is one of the most important performance metrics in distributed systems.</p>
+<h2 id="whats-next">What’s Next</h2>
+<p>Load balancing introduces another important design consideration.</p>
+<p>If application servers store <strong>session state locally</strong>, the load balancer may be forced to send the same user to the same server.</p>
+<p>This reduces the flexibility of traffic distribution.</p>
+<p>👉 Up next we explore <strong>Stateless Application Servers</strong>, a design approach that allows load balancers to distribute requests freely across servers.</p>
 
         </article>
 
@@ -450,31 +538,55 @@ Only if the data is missing does it query the database.</p>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-what-is-caching" data-toc-target="1-what-is-caching">1. What Is Caching?</a>
+        <a class="toc-link" href="#1-why-load-balancing-is-needed" data-toc-target="1-why-load-balancing-is-needed">1. Why Load Balancing Is Needed</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-why-caching-exists" data-toc-target="2-why-caching-exists">2. Why Caching Exists</a>
+        <a class="toc-link" href="#2-basic-load-balancing-architecture" data-toc-target="2-basic-load-balancing-architecture">2. Basic Load Balancing Architecture</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-a-simple-mental-model" data-toc-target="3-a-simple-mental-model">3. A Simple Mental Model</a>
+        <a class="toc-link" href="#3-what-a-load-balancer-actually-does" data-toc-target="3-what-a-load-balancer-actually-does">3. What a Load Balancer Actually Does</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-caching-is-so-powerful" data-toc-target="4-why-caching-is-so-powerful">4. Why Caching Is So Powerful</a>
+        <a class="toc-link" href="#4-load-balancing-algorithms" data-toc-target="4-load-balancing-algorithms">4. Load Balancing Algorithms</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-key-takeaways" data-toc-target="5-key-takeaways">5. Key Takeaways</a>
+        <a class="toc-link" href="#5-types-of-load-balancers" data-toc-target="5-types-of-load-balancers">5. Types of Load Balancers</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-load-balancers-in-modern-architectures" data-toc-target="6-load-balancers-in-modern-architectures">6. Load Balancers in Modern Architectures</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-load-balancers-and-system-evolution" data-toc-target="7-load-balancers-and-system-evolution">7. Load Balancers and System Evolution</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#whats-next" data-toc-target="whats-next">What’s Next</a>
       </li>
     
   </ul>
@@ -489,6 +601,8 @@ Only if the data is missing does it query the database.</p>
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -519,8 +633,6 @@ Only if the data is missing does it query the database.</p>
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -535,7 +535,7 @@ This approach is common in **large distributed systems**.
 
 ---
 
-## What’s Next
+### 🔗 What’s Next?
 
 Caching systems must also decide **which items to remove when memory is full**.
 
