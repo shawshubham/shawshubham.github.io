@@ -8,7 +8,7 @@ keywords:
   - head of line blocking http
   - system design http2
   - networking protocol evolution
-weight: 3
+weight: 4
 date: 2026-02-20
 layout: "topic-content"
 ---
@@ -258,7 +258,7 @@ In the next chapter, we explore:
 - and why HTTP/3 moved to UDP
 
 👉 **Up Next →**  
-**[HTTP/3 & QUIC — Rethinking Transport](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-3-and-quic)**
+**[HTTP/3 & QUIC — Rethinking Transport](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic)**
 
 ---
 

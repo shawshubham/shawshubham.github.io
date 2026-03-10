@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>gRPC — High-Performance Service-to-Service Communication</title>
+<title>Choosing the Right Protocol — REST vs WebSockets vs gRPC vs HTTP/2 vs HTTP/3</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773089199">
+<link rel="stylesheet" href="/css/main.css?v=1773150429">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">gRPC — High-Performance Service-to-Service Communication</h1>
+    <h1 class="main-heading">Choosing the Right Protocol — REST vs WebSockets vs gRPC vs HTTP/2 vs HTTP/3</h1>
     <h3>
   </div>
 </section>
@@ -191,16 +191,20 @@
                                   <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/">3.4. HTTP/2 — Multiplexing and Performance</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.5. HTTP/3 &amp; QUIC — Rethinking Transport</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_websockets/">3.6. WebSockets — Persistent Bidirectional Communication</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_7_grpc-service-to-service-communication/">3.7. gRPC — High-Performance Service-to-Service Communication</a>
+                                </li>
+                              
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication/">3.5. gRPC — High-Performance Service-to-Service Communication</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.6. HTTP/3 &amp; QUIC — Rethinking Transport</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol/">3.7. Choosing the Right Protocol — REST vs gRPC vs HTTP/2 vs HTTP/3</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_8_choosing-right-protocol/">3.8. Choosing the Right Protocol — REST vs WebSockets vs gRPC vs HTTP/2 vs HTTP/3</a>
                                 </li>
                               
                             </ul>
@@ -281,273 +285,279 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Feb, 2026
+            Last updated on: 10 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-introduction--why-rest-isnt-always-ideal-internally">1. Introduction — Why REST Isn’t Always Ideal Internally</h2>
+          <h2 id="1-introduction--protocol-choice-is-a-design-decision">1. Introduction — Protocol Choice Is a Design Decision</h2>
 <hr>
-<p>HTTP + REST + JSON is a great default for <strong>public APIs</strong> because it is:</p>
+<p>By now, we have studied:</p>
 <ul>
-<li>universal</li>
-<li>debuggable</li>
-<li>browser-friendly</li>
-<li>easy to integrate</li>
+<li>HTTP/1.1 and its limitations</li>
+<li>TLS and security as a baseline</li>
+<li>HTTP/2 and multiplexing</li>
+<li>HTTP/3 and QUIC</li>
+<li>WebSockets for real-time communication</li>
+<li>gRPC for internal communication</li>
 </ul>
-<p>But inside a distributed system (service-to-service), teams often hit limits:</p>
-<ul>
-<li>Too much JSON overhead for high-throughput calls</li>
-<li>Weak contracts (breaking changes slip through)</li>
-<li>Inefficient multi-call workflows</li>
-<li>Streaming requirements (events, progress updates) feel awkward</li>
-</ul>
-<p>This is where <strong>gRPC</strong> shines.</p>
+<p>At this point, a common question arises:</p>
 <blockquote>
-<p>gRPC is not “the next version of REST”.<br>
-It’s a different communication style optimized for <strong>internal services</strong>.</p></blockquote>
-<hr>
-<h2 id="2-what-grpc-actually-is">2. What gRPC Actually Is</h2>
-<hr>
-<p><strong>gRPC</strong> is an RPC (Remote Procedure Call) framework that:</p>
+<p><strong>Which protocol should I actually use?</strong></p></blockquote>
+<p>There is no universally “best” protocol.</p>
+<p>Protocol selection depends on:</p>
 <ul>
-<li>uses <strong>HTTP/2</strong> as the transport substrate</li>
-<li>typically uses <strong>Protocol Buffers (Protobuf)</strong> as the message format</li>
-<li>supports unary calls and multiple forms of <strong>streaming</strong></li>
-<li>generates strongly-typed client/server stubs from a contract</li>
+<li>who the clients are</li>
+<li>where communication happens</li>
+<li>performance requirements</li>
+<li>reliability and security needs</li>
 </ul>
-<p>Mental model:</p>
-<blockquote>
-<p>REST: “Resources over HTTP”<br>
-gRPC: “Typed function calls over the network”</p></blockquote>
+<p>This chapter turns knowledge into <strong>design judgment</strong>.</p>
 <hr>
-<h2 id="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</h2>
+<h2 id="2-first-principle-external-vs-internal-communication">2. First Principle: External vs Internal Communication</h2>
 <hr>
-<p>gRPC is an <strong>application-layer protocol</strong> running on top of <strong>HTTP/2</strong>.</p>
-<div class="mermaid">
-flowchart TB
-    App["gRPC API<br/>(RPC methods, streaming)"]
-    H2["HTTP/2<br/>(Streams, multiplexing)"]
-    TLS["TLS<br/>(Encryption, auth)"]
-    TCP["TCP<br/>(Reliable delivery)"]
-    IP["IP<br/>(Routing)"]
-
-    App --> H2 --> TLS --> TCP --> IP
-</div>
-<blockquote>
-<p>This is why Phase 3 matters:<br>
-gRPC makes the most sense after you understand HTTP/2.</p></blockquote>
+<p>The most important distinction is <strong>where the communication happens</strong>.</p>
+<h3 id="external-communication">External Communication</h3>
+<ul>
+<li>Unknown or third-party clients</li>
+<li>Browsers, mobile apps, partners</li>
+<li>Long-lived compatibility expectations</li>
+</ul>
+<h3 id="internal-communication">Internal Communication</h3>
+<ul>
+<li>Services owned by the same organization</li>
+<li>Controlled deployment environment</li>
+<li>Performance and efficiency matter more</li>
+</ul>
+<p>This single distinction eliminates many wrong choices early.</p>
 <hr>
-<h2 id="4-the-contract-first-model-why-teams-love-it">4. The Contract-First Model (Why Teams Love It)</h2>
+<h2 id="3-rest-over-http--the-default-for-external-apis">3. REST Over HTTP — The Default for External APIs</h2>
 <hr>
-<p>In REST-based systems, the “contract” often lives in:</p>
+<h3 id="when-rest-is-the-right-choice">When REST Is the Right Choice</h3>
+<p>Use REST when:</p>
 <ul>
-<li>documentation</li>
-<li>OpenAPI specs (sometimes)</li>
-<li>shared understanding or tribal knowledge</li>
+<li>APIs are consumed by external clients</li>
+<li>Browser compatibility is required</li>
+<li>Human readability matters</li>
+<li>Debugging with curl/Postman is valuable</li>
+<li>Caching (GET, CDN) is important</li>
 </ul>
-<p>This creates room for:</p>
+<p>REST works best with:</p>
 <ul>
-<li>accidental breaking changes</li>
-<li>runtime failures</li>
-<li>misaligned expectations between teams</li>
-</ul>
-<p>gRPC takes a <strong>contract-first</strong> approach.</p>
-<p>You define:</p>
-<ul>
-<li>service methods (RPCs)</li>
-<li>request and response message schemas</li>
-</ul>
-<p>from a single, authoritative contract.</p>
-<p>From this contract, tooling generates:</p>
-<ul>
-<li>client stubs</li>
-<li>server interfaces</li>
-<li>serialization and deserialization logic</li>
-</ul>
-<p>The result is:</p>
-<ul>
-<li>strong typing across service boundaries</li>
-<li>compile-time validation instead of runtime surprises</li>
-<li>clear, enforceable API evolution rules</li>
+<li>HTTP/1.1 or HTTP/2</li>
+<li>HTTPS as the default</li>
+<li>Stateless request–response patterns</li>
 </ul>
 <blockquote>
-<p>Contract-first design doesn’t eliminate breaking changes —<br>
-it makes them <strong>explicit, detectable, and intentional</strong>.</p></blockquote>
+<p>REST optimizes for <strong>reach and simplicity</strong>, not raw performance.</p></blockquote>
 <hr>
-<h2 id="5-protobuf-vs-json-system-design-view">5. Protobuf vs JSON (System Design View)</h2>
+<h2 id="4-websockets--real-time-client-communication">4. WebSockets — Real-Time Client Communication</h2>
 <hr>
-<p>Both JSON and Protobuf are widely used, but they optimize for different priorities.</p>
-<h3 id="json--strengths">JSON — Strengths</h3>
+<h3 id="when-websockets-are-the-right-choice">When WebSockets Are the Right Choice</h3>
+<p>Use WebSockets when:</p>
 <ul>
-<li>Human-readable and easy to inspect</li>
-<li>Simple debugging with tools like curl and Postman</li>
-<li>Extremely broad ecosystem support</li>
+<li>the server must <strong>push updates to clients</strong></li>
+<li>low-latency real-time communication is required</li>
+<li>bidirectional communication is needed</li>
+<li>persistent connections are acceptable</li>
 </ul>
-<h3 id="protobuf--strengths">Protobuf — Strengths</h3>
+<p>Typical WebSocket environments:</p>
 <ul>
-<li>Compact binary encoding (smaller payloads)</li>
-<li>Faster serialization and deserialization</li>
-<li>Strongly typed schemas with explicit evolution rules</li>
+<li>chat systems</li>
+<li>collaborative editing tools</li>
+<li>live dashboards</li>
+<li>multiplayer games</li>
+<li>notification systems</li>
 </ul>
-<p>From a system design perspective:</p>
+<p>WebSockets are typically used <strong>alongside REST APIs</strong>, not instead of them.</p>
+<p>Example architecture:</p>
+<ul>
+<li>REST → authentication, CRUD APIs</li>
+<li>WebSockets → real-time updates</li>
+</ul>
 <blockquote>
-<p>Protobuf is not “better” in all cases.<br>
-It is better when <strong>performance, efficiency, and strict contracts</strong> matter more than human readability.</p></blockquote>
-<p>In high-throughput internal systems, the cumulative benefits of Protobuf<br>
-— smaller payloads, faster parsing, fewer errors — often outweigh the convenience of text-based formats.</p>
+<p>WebSockets optimize for <strong>persistent bidirectional communication</strong>.</p></blockquote>
 <hr>
-<h2 id="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</h2>
+<h2 id="5-grpc--optimized-for-internal-service-communication">5. gRPC — Optimized for Internal Service Communication</h2>
 <hr>
-<p>REST is great for request/response.<br>
-But when you need continuous or bidirectional communication, it gets awkward.</p>
-<p>gRPC supports <strong>four communication patterns</strong>:</p>
-<div class="mermaid">
-flowchart LR
-    U[Unary<br/>1 request → 1 response]
-    CS[Client Streaming<br/>many requests → 1 response]
-    SS[Server Streaming<br/>1 request → many responses]
-    BI[Bidirectional Streaming<br/>many ↔ many]
-
-    U --- CS --- SS --- BI
-</div>
-<h3 id="when-streaming-matters">When streaming matters</h3>
+<h3 id="when-grpc-is-the-better-choice">When gRPC Is the Better Choice</h3>
+<p>Use gRPC when:</p>
 <ul>
-<li>live progress updates (report generation, large jobs)</li>
-<li>market data / price feeds</li>
-<li>chat / collaboration</li>
-<li>high-frequency telemetry</li>
-<li>pushing partial results as they become available</li>
+<li>You control both client and server</li>
+<li>Communication is service-to-service</li>
+<li>High throughput or low latency matters</li>
+<li>Strong contracts are required</li>
+<li>Streaming is part of the workflow</li>
 </ul>
-<p>This is one reason gRPC is common in:</p>
+<p>Typical gRPC environments:</p>
 <ul>
-<li>trading platforms</li>
-<li>data infrastructure</li>
-<li>internal microservice ecosystems</li>
+<li>microservices</li>
+<li>data processing pipelines</li>
+<li>trading systems</li>
+<li>internal platforms</li>
 </ul>
-<hr>
-<h2 id="7-why-http2-makes-grpc-efficient">7. Why HTTP/2 Makes gRPC Efficient</h2>
-<hr>
-<p>HTTP/2 enables gRPC performance and scalability because it provides:</p>
-<ul>
-<li>multiplexed streams over a single connection</li>
-<li>efficient framing (binary)</li>
-<li>lower connection overhead under concurrent load</li>
-</ul>
-<p>Conceptually:</p>
-<div class="mermaid">
-sequenceDiagram
-    participant Client
-    participant H2 as HTTP/2 Connection
-    participant Svc as Service
-
-    Client->>H2: RPC A (Stream 1)
-    Client->>H2: RPC B (Stream 2)
-    Client->>H2: RPC C (Stream 3)
-    H2->>Svc: A, B, C concurrently
-    Svc-->>H2: Responses interleaved
-    H2-->>Client: A, B, C delivered
-</div>
-<p>This is a very natural fit for microservices making many parallel calls.</p>
-<hr>
-<h2 id="8-grpc-vs-rest--when-to-use-what">8. gRPC vs REST — When to Use What</h2>
-<hr>
-<h3 id="use-rest-when">Use REST when</h3>
-<ul>
-<li>You expose public APIs to third parties</li>
-<li>Browser compatibility matters</li>
-<li>You want cache-friendly GET semantics</li>
-<li>Consumers vary widely (unknown clients)</li>
-<li>Debugging via curl/Postman is a priority</li>
-</ul>
-<h3 id="use-grpc-when">Use gRPC when</h3>
-<ul>
-<li>You control both client and server (internal systems)</li>
-<li>Performance and efficiency matter</li>
-<li>Strict contracts and type safety matter</li>
-<li>You need streaming</li>
-<li>You want consistent client libraries generated from schema</li>
-</ul>
-<p>A common mature architecture looks like this:</p>
 <blockquote>
-<p><strong>External:</strong> REST over HTTPS (compatibility and reach)<br>
-<strong>Internal:</strong> gRPC (performance, contracts, streaming)</p></blockquote>
+<p>gRPC optimizes for <strong>performance, contracts, and efficiency</strong>.</p></blockquote>
 <hr>
-<h2 id="9-operational-reality-important-for-hld">9. Operational Reality (Important for HLD)</h2>
+<h2 id="6-choosing-between-http11-http2-and-http3">6. Choosing Between HTTP/1.1, HTTP/2, and HTTP/3</h2>
 <hr>
-<p>Adopting gRPC comes with real operational considerations.</p>
-<h3 id="91-observability">9.1 Observability</h3>
+<h3 id="http11">HTTP/1.1</h3>
+<p>Use when:</p>
 <ul>
-<li>Metrics and latency tracked per RPC method</li>
-<li>Distributed tracing across service boundaries</li>
+<li>simplicity matters</li>
+<li>legacy systems are involved</li>
+<li>low concurrency is expected</li>
 </ul>
-<h3 id="92-load-balancing">9.2 Load Balancing</h3>
+<p>Limitations:</p>
 <ul>
-<li>Long-lived connections with multiplexed streams</li>
-<li>Layer 4 vs Layer 7 load balancing decisions matter</li>
+<li>sequential request handling</li>
+<li>inefficient under high concurrency</li>
 </ul>
-<h3 id="93-timeouts--retries">9.3 Timeouts &amp; Retries</h3>
-<ul>
-<li>Retries must be carefully designed</li>
-<li>Poor retry strategy can cause retry storms</li>
-</ul>
-<h3 id="94-versioning">9.4 Versioning</h3>
-<ul>
-<li>Additive schema changes are easiest</li>
-<li>Breaking changes require coordination and planning</li>
-</ul>
-<p>These are not drawbacks —<br>
-they are the <strong>cost of high-performance, strongly-typed communication</strong>.</p>
 <hr>
-<h2 id="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</h2>
+<h3 id="http2">HTTP/2</h3>
+<p>Use when:</p>
+<ul>
+<li>clients support it (most modern ones do)</li>
+<li>concurrency is high</li>
+<li>reducing latency matters</li>
+<li>infrastructure supports long-lived connections</li>
+</ul>
+<p>HTTP/2 is often the <strong>best default</strong> today for REST APIs.</p>
+<hr>
+<h3 id="http3">HTTP/3</h3>
+<p>Use when:</p>
+<ul>
+<li>clients are mobile or on unreliable networks</li>
+<li>latency variability is high</li>
+<li>packet loss is common</li>
+<li>first-request performance matters</li>
+</ul>
+<p>HTTP/3 is powerful but not always necessary.</p>
 <blockquote>
-<p>📍 <strong>Layer Mapping</strong></p>
-<p>gRPC is an <strong>Application-layer protocol</strong><br>
-(OSI Layer 7 / TCP-IP Application layer).</p>
-<p>It typically runs over <strong>HTTP/2</strong>, which itself operates at the Application layer but depends on:</p>
+<p>Use HTTP/3 where the network is the bottleneck — not by default everywhere.</p></blockquote>
+<hr>
+<h2 id="7-decision-matrix-quick-reference">7. Decision Matrix (Quick Reference)</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Recommended Choice</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Public API (browser, mobile)</td>
+          <td>REST + HTTPS (HTTP/2)</td>
+      </tr>
+      <tr>
+          <td>Public API, mobile-heavy</td>
+          <td>REST + HTTPS (HTTP/3)</td>
+      </tr>
+      <tr>
+          <td>Internal microservices</td>
+          <td>gRPC over HTTP/2</td>
+      </tr>
+      <tr>
+          <td>Real-time browser apps</td>
+          <td>WebSockets</td>
+      </tr>
+      <tr>
+          <td>Streaming / real-time internal</td>
+          <td>gRPC</td>
+      </tr>
+      <tr>
+          <td>Simple internal admin APIs</td>
+          <td>REST</td>
+      </tr>
+      <tr>
+          <td>Legacy compatibility</td>
+          <td>HTTP/1.1</td>
+      </tr>
+      <tr>
+          <td>High-latency / lossy networks</td>
+          <td>HTTP/3</td>
+      </tr>
+  </tbody>
+</table>
+<p>This table is <strong>not a rulebook</strong> — it’s a starting point.</p>
+<hr>
+<h2 id="8-common-mistakes-to-avoid">8. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-choosing-grpc-for-public-apis">❌ Choosing gRPC for Public APIs</h3>
 <ul>
-<li><strong>TLS</strong> (cross-layer security boundary)</li>
-<li><strong>TCP</strong> (OSI Layer 4) for reliable delivery</li>
-</ul></blockquote>
-<p>This explains why:</p>
-<ul>
-<li>Understanding HTTP/2 is a prerequisite for gRPC</li>
-<li>TCP behavior still affects gRPC performance under packet loss</li>
+<li>Browser support is limited</li>
+<li>Tooling and debugging become harder</li>
+<li>Client friction increases</li>
 </ul>
+<h3 id="-using-http3-everywhere">❌ Using HTTP/3 Everywhere</h3>
+<ul>
+<li>Adds complexity</li>
+<li>Benefits may be negligible in data centers</li>
+</ul>
+<h3 id="-treating-protocols-as-trends">❌ Treating Protocols as Trends</h3>
+<ul>
+<li>“Everyone is using X” is not a design reason</li>
+<li>Context matters more than popularity</li>
+</ul>
+<p>Good systems choose protocols <strong>intentionally</strong>.</p>
 <hr>
-<h2 id="11-key-takeaways">11. Key Takeaways</h2>
+<h2 id="9-how-to-explain-your-choice-in-interviews">9. How to Explain Your Choice in Interviews</h2>
+<hr>
+<p>Interviewers care less about <em>what</em> you chose<br>
+and more about <em>why</em> you chose it.</p>
+<p>Strong answers sound like this:</p>
+<blockquote>
+<p>“Externally, we expose REST APIs over HTTPS for compatibility.<br>
+Internally, we use gRPC over HTTP/2 for performance and strong contracts.”</p></blockquote>
+<p>Or:</p>
+<blockquote>
+<p>“We chose HTTP/2 by default, and HTTP/3 only for mobile clients where packet loss is common.”</p></blockquote>
+<p>Clarity of reasoning &gt; protocol names.</p>
+<hr>
+<h2 id="10-layer-mapping-final-synthesis">10. Layer Mapping (Final Synthesis)</h2>
+<hr>
+<blockquote>
+<p>📍 <strong>Layer Perspective</strong></p>
+<ul>
+<li>REST, WebSockets, and gRPC operate at the <strong>Application layer</strong></li>
+<li>HTTP/1.1, HTTP/2, HTTP/3 define application-level transport semantics</li>
+<li>TLS provides cross-layer security</li>
+<li>TCP or QUIC handle delivery guarantees</li>
+</ul>
+<p>Protocol choice is about <strong>how these layers interact</strong>, not isolated decisions.</p></blockquote>
+<p>This layered thinking is the hallmark of strong system design.</p>
+<hr>
+<h2 id="final-takeaways">Final Takeaways</h2>
 <hr>
 <ul>
-<li>gRPC is RPC-style communication built on <strong>HTTP/2</strong></li>
-<li>It is optimized for <strong>internal service-to-service</strong> calls</li>
-<li>Protobuf enables compact payloads and strong contracts</li>
-<li>Streaming is a major differentiator</li>
-<li>REST remains ideal for public APIs</li>
-<li>Protocol choice is an architectural decision, not a trend</li>
+<li>There is no single “best” protocol</li>
+<li>External and internal communication have different needs</li>
+<li><strong>REST</strong> prioritizes compatibility</li>
+<li><strong>WebSockets</strong> enable real-time client communication</li>
+<li><strong>gRPC</strong> prioritizes performance and contracts</li>
+<li><strong>HTTP/2</strong> is a strong default</li>
+<li><strong>HTTP/3</strong> shines in unreliable networks</li>
+<li>Protocol choice should be justified, not assumed</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we’ve covered:</p>
+<p>Phase 3 focused on <strong>how data is communicated efficiently and securely</strong>.</p>
+<p>In the next phase, we move outward into <strong>network-scale components</strong>:</p>
 <ul>
-<li>HTTP evolution (1.1 → 2 → 3)</li>
-<li>TLS as a security baseline</li>
-<li>gRPC for internal communication</li>
-</ul>
-<p>we synthesize everything into a <strong>practical decision guide</strong>:</p>
-<ul>
-<li>HTTP/1.1 vs HTTP/2 vs HTTP/3</li>
-<li>REST vs gRPC</li>
-<li>Internet vs mobile vs data-center environments</li>
-<li>Trade-offs, defaults, and when to deviate</li>
+<li>DNS and service discovery</li>
+<li>Load balancers (L4 vs L7)</li>
+<li>CDNs and edge networks</li>
+<li>Cloud and private networking</li>
 </ul>
 <p>👉 <strong>Up Next →</strong><br>
-<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol">Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)</a></strong></p>
+<strong><a href="/learning/advanced-skills/networking-essentials/4_dns-load-balancers-and-traffic-distribution/4_1_why-service-discovery">Phase 4: DNS, Load Balancers &amp; Traffic Distribution</a></strong></p>
 <hr>
 <blockquote>
-<p>📝 <strong>Takeaway</strong></p>
-<p>gRPC is not about “modernizing APIs”.<br>
-It’s about building <strong>fast, safe, contract-driven communication</strong> inside distributed systems.</p></blockquote>
+<p>📝 <strong>Capstone Takeaway</strong></p>
+<p>Strong system design is not about knowing more protocols —<br>
+it’s about choosing the <strong>right one for the right context</strong>.</p></blockquote>
 
         </article>
 
@@ -575,67 +585,67 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-introduction--why-rest-isnt-always-ideal-internally" data-toc-target="1-introduction--why-rest-isnt-always-ideal-internally">1. Introduction — Why REST Isn’t Always Ideal Internally</a>
+        <a class="toc-link" href="#1-introduction--protocol-choice-is-a-design-decision" data-toc-target="1-introduction--protocol-choice-is-a-design-decision">1. Introduction — Protocol Choice Is a Design Decision</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-grpc-actually-is" data-toc-target="2-what-grpc-actually-is">2. What gRPC Actually Is</a>
+        <a class="toc-link" href="#2-first-principle-external-vs-internal-communication" data-toc-target="2-first-principle-external-vs-internal-communication">2. First Principle: External vs Internal Communication</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-where-grpc-fits-in-the-stack" data-toc-target="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</a>
+        <a class="toc-link" href="#3-rest-over-http--the-default-for-external-apis" data-toc-target="3-rest-over-http--the-default-for-external-apis">3. REST Over HTTP — The Default for External APIs</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-the-contract-first-model-why-teams-love-it" data-toc-target="4-the-contract-first-model-why-teams-love-it">4. The Contract-First Model (Why Teams Love It)</a>
+        <a class="toc-link" href="#4-websockets--real-time-client-communication" data-toc-target="4-websockets--real-time-client-communication">4. WebSockets — Real-Time Client Communication</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-protobuf-vs-json-system-design-view" data-toc-target="5-protobuf-vs-json-system-design-view">5. Protobuf vs JSON (System Design View)</a>
+        <a class="toc-link" href="#5-grpc--optimized-for-internal-service-communication" data-toc-target="5-grpc--optimized-for-internal-service-communication">5. gRPC — Optimized for Internal Service Communication</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-streaming-the-killer-feature-for-many-systems" data-toc-target="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</a>
+        <a class="toc-link" href="#6-choosing-between-http11-http2-and-http3" data-toc-target="6-choosing-between-http11-http2-and-http3">6. Choosing Between HTTP/1.1, HTTP/2, and HTTP/3</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-why-http2-makes-grpc-efficient" data-toc-target="7-why-http2-makes-grpc-efficient">7. Why HTTP/2 Makes gRPC Efficient</a>
+        <a class="toc-link" href="#7-decision-matrix-quick-reference" data-toc-target="7-decision-matrix-quick-reference">7. Decision Matrix (Quick Reference)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-grpc-vs-rest--when-to-use-what" data-toc-target="8-grpc-vs-rest--when-to-use-what">8. gRPC vs REST — When to Use What</a>
+        <a class="toc-link" href="#8-common-mistakes-to-avoid" data-toc-target="8-common-mistakes-to-avoid">8. Common Mistakes to Avoid</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-operational-reality-important-for-hld" data-toc-target="9-operational-reality-important-for-hld">9. Operational Reality (Important for HLD)</a>
+        <a class="toc-link" href="#9-how-to-explain-your-choice-in-interviews" data-toc-target="9-how-to-explain-your-choice-in-interviews">9. How to Explain Your Choice in Interviews</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#10-layer-mapping-explicit" data-toc-target="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</a>
+        <a class="toc-link" href="#10-layer-mapping-final-synthesis" data-toc-target="10-layer-mapping-final-synthesis">10. Layer Mapping (Final Synthesis)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#11-key-takeaways" data-toc-target="11-key-takeaways">11. Key Takeaways</a>
+        <a class="toc-link" href="#final-takeaways" data-toc-target="final-takeaways">Final Takeaways</a>
       </li>
     
   </ul>
@@ -651,7 +661,7 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_7_grpc-service-to-service-communication/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -682,8 +692,6 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -876,17 +884,6 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
   </div>
 </footer>
 
-  
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: isDark ? "dark" : "default",
-        flowchart: { curve: "basis" }
-      });
-    </script>
   
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caching — Cache Eviction Policies</title>
+<title>Stateless Application Servers</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Caching — Cache Eviction Policies</h1>
+    <h1 class="main-heading">Stateless Application Servers</h1>
     <h3>
   </div>
 </section>
@@ -285,7 +285,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_4_cache-invalidation/">5.4. Caching — Cache Invalidation</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/">5.5. Caching — Cache Eviction Policies</a>
                                 </li>
                               
@@ -301,7 +301,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/">5.8. Load Balancing</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_9_stateless-application-servers/">5.9. Stateless Application Servers</a>
                                 </li>
                               
@@ -322,243 +322,278 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 7 Mar, 2026
+            Last updated on: 9 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-cache-eviction-exists">1. Why Cache Eviction Exists</h2>
+          <h2 id="1-why-stateless-servers-matter">1. Why Stateless Servers Matter</h2>
 <hr>
-<p>Caches store data in <strong>fast but limited memory</strong>.</p>
-<p>Unlike databases, which store data on disk and can scale to very large sizes, most caches operate primarily in <strong>RAM</strong>, which is significantly faster but also much smaller.</p>
-<p>Because of this limitation, a cache cannot store every piece of data indefinitely.</p>
-<p>When the cache reaches its memory limit, it must decide <strong>which existing items should be removed to make room for new data</strong>.</p>
-<p>This process is called <strong>cache eviction</strong>.</p>
-<hr>
-<h2 id="2-cache-eviction-vs-cache-invalidation">2. Cache Eviction vs Cache Invalidation</h2>
-<hr>
-<p>Cache eviction is often confused with cache invalidation, but they solve different problems.</p>
-<table>
-  <thead>
-      <tr>
-          <th>Concept</th>
-          <th>Purpose</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Cache Invalidation</td>
-          <td>Removes data because it is <strong>outdated or incorrect</strong></td>
-      </tr>
-      <tr>
-          <td>Cache Eviction</td>
-          <td>Removes data because the <strong>cache is full</strong></td>
-      </tr>
-  </tbody>
-</table>
-<p>Invalidation protects <strong>correctness</strong>.</p>
-<p>Eviction manages <strong>memory capacity</strong>.</p>
-<p>Both mechanisms work together to maintain a healthy caching system.</p>
-<hr>
-<h2 id="3-what-happens-when-a-cache-is-full">3. What Happens When a Cache Is Full?</h2>
-<hr>
-<p>When a cache reaches its capacity, the system must perform an eviction decision.</p>
-<p>Example flow:</p>
-<div class="mermaid">
-flowchart TD
-    Req([New Write Request]) --> App[Application]
-    App --> Space{Is Cache Full?}
-
-    %% The Eviction Branch
-    Space -- "Yes" --> Policy{Eviction Policy}
-    subgraph Eviction_Logic [Selection Logic]
-        Policy -- "LRU" --> Target[Least Recently Used]
-        Policy -- "LFU" --> Target2[Least Frequently Used]
-        Policy -- "FIFO" --> Target3[First In, First Out]
-    end
-
-    Target & Target2 & Target3 --> Remove[1. Remove Entry]
-    Remove --> Store[2. Store New Item]
-
-    %% The Direct Path
-    Space -- "No" --> Store
-
-    Store --> Success([Success])
-
-    %% Styling
-    style Policy fill:#fff3e0,stroke:#ef6c00
-    style Eviction_Logic fill:#fafafa,stroke:#ccc,stroke-dasharray: 5 5
-    style Remove fill:#ffebee,stroke:#c62828
-    style Store fill:#e8f5e9,stroke:#2e7d32
-</div>
-<p>The <strong>eviction policy</strong> determines which existing cache entry will be removed.</p>
-<p>Different eviction strategies aim to remove the data that is <strong>least likely to be needed again</strong>.</p>
-<hr>
-<h2 id="4-least-recently-used-lru">4. Least Recently Used (LRU)</h2>
-<hr>
-<p>The <strong>Least Recently Used (LRU)</strong> policy removes the item that has not been accessed for the longest time.</p>
-<h3 id="idea">Idea</h3>
-<p>If data has not been used recently, it is less likely to be used again soon.</p>
-<h3 id="example">Example</h3>
-<pre tabindex="0"><code>Cache Capacity = 3
-
-Access order:
-A → B → C → A → D
-</code></pre><p>When <strong>D</strong> arrives, the cache is full.</p>
-<p>The least recently used item is <strong>B</strong>, so it is removed.</p>
-<p>Result:</p>
-<pre tabindex="0"><code>Cache = A, C, D
-</code></pre><h3 id="advantages">Advantages</h3>
+<p>In the previous articles we introduced:</p>
 <ul>
-<li>simple and effective</li>
-<li>adapts well to typical access patterns</li>
-<li>widely used in real systems</li>
+<li><strong>Horizontal Scaling</strong> — running multiple application servers</li>
+<li><strong>Load Balancing</strong> — distributing traffic across those servers</li>
 </ul>
-<h3 id="realworld-usage">Real‑World Usage</h3>
-<p>LRU is commonly used in:</p>
+<p>However, this architecture introduces a new challenge.</p>
+<p>If application servers store <strong>user session data locally</strong>, the load balancer may need to route requests from the same user to the <strong>same server</strong> every time.</p>
+<p>This limits the flexibility of load balancing and reduces system scalability.</p>
+<p>To solve this problem, modern systems are designed with <strong>stateless application servers</strong>.</p>
+<hr>
+<h2 id="2-what-stateless-means">2. What “Stateless” Means</h2>
+<hr>
+<p>A <strong>stateless server</strong> does not store any user session information between requests.</p>
+<p>Each request contains all the information required for processing.</p>
+<p>Example request:</p>
+<pre tabindex="0"><code>GET /profile
+Authorization: Bearer &lt;token&gt;
+</code></pre><p>Because the server does not rely on stored session state, <strong>any server in the cluster can process the request</strong>.</p>
+<hr>
+<h2 id="3-stateless-architecture">3. Stateless Architecture</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+
+    User --> LB[Load Balancer]
+
+    LB --> A[Server A]
+    LB --> B[Server B]
+    LB --> C[Server C]
+
+    A --> DB[(Database)]
+    B --> DB
+    C --> DB
+</div>
+<p>In this architecture:</p>
+<ul>
+<li>requests can go to <strong>any server</strong></li>
+<li>servers do not depend on previous requests</li>
+<li>the system scales easily by adding more servers</li>
+</ul>
+<hr>
+<h2 id="4-what-happens-if-servers-store-sessions">4. What Happens If Servers Store Sessions</h2>
+<hr>
+<p>Many early web architectures stored <strong>session state directly in server memory</strong>.</p>
+<p>Example:</p>
+<pre tabindex="0"><code>User logs in
+Session stored in Server A memory
+</code></pre><p>Now every future request from that user must go back to <strong>Server A</strong>.</p>
+<p>This creates a dependency between the user and the server.</p>
+<hr>
+<h2 id="5-sticky-sessions-session-affinity">5. Sticky Sessions (Session Affinity)</h2>
+<hr>
+<p>To support server-side sessions, load balancers sometimes use <strong>sticky sessions</strong>.</p>
+<p>Sticky sessions ensure that requests from the same user are routed to the same server.</p>
+<h3 id="sticky-session-architecture">Sticky Session Architecture</h3>
+<div class="mermaid">
+flowchart LR
+
+    User --> LB[Load Balancer]
+
+    LB --> A[Server A - Session Stored]
+
+    LB -.-> B[Server B]
+    LB -.-> C[Server C]
+</div>
+<p>Here the load balancer remembers which server handled the user’s first request.</p>
+<p>Future requests from that user are always routed to the same server.</p>
+<hr>
+<h2 id="6-problems-with-sticky-sessions">6. Problems With Sticky Sessions</h2>
+<hr>
+<p>Sticky sessions introduce several problems in distributed systems.</p>
+<h3 id="uneven-traffic-distribution">Uneven Traffic Distribution</h3>
+<p>Some servers may receive more traffic than others.</p>
+<h3 id="reduced-fault-tolerance">Reduced Fault Tolerance</h3>
+<p>If the server storing the session crashes, the user session is lost.</p>
+<h3 id="poor-scalability">Poor Scalability</h3>
+<p>Adding new servers does not help existing sessions because users remain bound to their original servers.</p>
+<p>For these reasons, modern architectures try to <strong>avoid sticky sessions whenever possible</strong>.</p>
+<hr>
+<h2 id="7-modern-solution-external-session-storage">7. Modern Solution: External Session Storage</h2>
+<hr>
+<p>Instead of storing sessions inside application servers, modern systems often move session data to <strong>external shared storage</strong>.</p>
+<p>Common options include:</p>
 <ul>
 <li>Redis</li>
 <li>Memcached</li>
-<li>operating system page caches</li>
+<li>distributed databases</li>
 </ul>
-<hr>
-<h2 id="5-least-frequently-used-lfu">5. Least Frequently Used (LFU)</h2>
-<hr>
-<p>The <strong>Least Frequently Used (LFU)</strong> policy removes the item with the lowest access frequency.</p>
-<h3 id="idea-1">Idea</h3>
-<p>Items that are rarely used are less valuable to keep in the cache.</p>
-<h3 id="example-1">Example</h3>
-<pre tabindex="0"><code>Cache Capacity = 3
+<p>In this model the <strong>session still exists on the server side</strong>, but it is stored in a <strong>shared infrastructure component</strong> instead of inside a single application server.</p>
+<h3 id="architecture">Architecture</h3>
+<div class="mermaid">
+flowchart LR
 
-Access frequency:
-A = 10
-B = 2
-C = 7
-</code></pre><p>If a new item arrives, <strong>B</strong> will be evicted because it has the lowest usage count.</p>
-<h3 id="advantages-1">Advantages</h3>
-<ul>
-<li>retains frequently accessed &ldquo;hot&rdquo; data</li>
-<li>useful for workloads with strong popularity patterns</li>
-</ul>
-<h3 id="tradeoffs">Trade‑offs</h3>
-<ul>
-<li>more complex to implement</li>
-<li>frequency counters must be maintained</li>
-</ul>
-<p>LFU is often preferred when access patterns are <strong>highly skewed toward popular items</strong>.</p>
-<hr>
-<h2 id="6-first-in-first-out-fifo">6. First In First Out (FIFO)</h2>
-<hr>
-<p>The <strong>First In First Out (FIFO)</strong> policy removes the item that entered the cache earliest.</p>
-<h3 id="idea-2">Idea</h3>
-<p>The oldest cached entry is removed first.</p>
-<h3 id="example-2">Example</h3>
-<pre tabindex="0"><code>Cache Capacity = 3
+    User --> LB
 
-Insert order:
-A → B → C
+    LB --> A[Server A]
+    LB --> B[Server B]
+    LB --> C[Server C]
 
-New item arrives → D
-</code></pre><p>The first item inserted (<strong>A</strong>) is removed.</p>
-<p>Result:</p>
-<pre tabindex="0"><code>Cache = B, C, D
-</code></pre><h3 id="advantages-2">Advantages</h3>
-<ul>
-<li>extremely simple</li>
-<li>minimal bookkeeping</li>
-</ul>
-<h3 id="tradeoffs-1">Trade‑offs</h3>
-<ul>
-<li>ignores usage patterns</li>
-<li>may evict frequently used data</li>
-</ul>
-<p>Because of this limitation, FIFO is less commonly used in modern high‑performance caches.</p>
+    A --> Redis[(Session Store)]
+    B --> Redis
+    C --> Redis
+
+    Redis --> DB[(Database)]
+</div>
+<h3 id="how-it-works">How It Works</h3>
+<ol>
+<li>A user logs in.</li>
+<li>The server creates a <strong>session object</strong>.</li>
+<li>The session is stored in <strong>Redis (or another shared store)</strong>.</li>
+<li>The client receives a <strong>session ID cookie</strong>.</li>
+<li>On each request, the server retrieves the session from Redis.</li>
+</ol>
+<p>Because all servers share the same session store, <strong>any server can process the request</strong>.</p>
+<h3 id="important-clarification">Important Clarification</h3>
+<p>Even though sessions are no longer stored inside the application server, the system is <strong>still considered stateful</strong>.</p>
+<p>This is because <strong>user session state is still maintained by server-side infrastructure (Redis or a database)</strong>.</p>
+<p>The server must perform a <strong>session lookup on every request</strong>, which means the system still maintains user state.</p>
+<p>This approach removes the need for sticky sessions and improves scalability, but it is <strong>not fully stateless</strong>.</p>
 <hr>
-<h2 id="7-timebased-eviction">7. Time‑Based Eviction</h2>
+<h2 id="8-token-based-stateless-authentication">8. Token-Based Stateless Authentication</h2>
 <hr>
-<p>Some systems evict items based on <strong>expiration time</strong>.</p>
+<p>Another approach removes server-side session storage entirely.</p>
+<p>Instead of storing session data on the server, authentication state is encoded inside a <strong>token</strong> that the client sends with every request.</p>
 <p>Example:</p>
-<pre tabindex="0"><code>Cache Entry
-TTL = 60 seconds
-</code></pre><p>After 60 seconds, the item is automatically removed from the cache.</p>
-<p>This strategy is commonly combined with other policies such as LRU.</p>
+<pre tabindex="0"><code>JWT Token
+</code></pre><p>The token typically contains information such as:</p>
+<ul>
+<li>user identity</li>
+<li>permissions</li>
+<li>expiration time</li>
+</ul>
+<p>Because this information travels <strong>with every request</strong>, the server does not need to store session data or perform a session lookup.</p>
+<p>Instead, the server simply <strong>verifies the token</strong>.</p>
 <hr>
-<h2 id="8-realworld-eviction-strategies">8. Real‑World Eviction Strategies</h2>
+<h3 id="81-token-verification">8.1 Token Verification</h3>
+<p>Each application server is able to verify the token <strong>independently</strong>.</p>
+<p>This works because JWT tokens are <strong>cryptographically signed</strong>.</p>
+<p>During authentication:</p>
+<ol>
+<li>The authentication service generates a JWT.</li>
+<li>The token is signed using a <strong>secret key or private key</strong>.</li>
+<li>The client stores the token.</li>
+<li>The token is sent with each request.</li>
+</ol>
+<p>When a request arrives, the application server:</p>
+<ol>
+<li>extracts the token</li>
+<li>verifies the <strong>signature</strong></li>
+<li>checks expiration time</li>
+<li>reads the claims (user id, roles, etc.)</li>
+</ol>
+<p>Because the verification only requires the <strong>signing key</strong>, every server can validate the token without contacting another system.</p>
+<div class="mermaid">
+flowchart LR
+
+    User --> LB
+
+    LB --> A[Server A]
+    LB --> B[Server B]
+    LB --> C[Server C]
+
+    A --> Verify[Verify JWT Signature]
+    B --> Verify
+    C --> Verify
+</div>
+<p>This makes the system <strong>fully stateless</strong>, because user state is no longer stored in server infrastructure.</p>
+<p>This approach is widely used in <strong>modern APIs and microservices architectures</strong>.</p>
 <hr>
-<p>Production caching systems often combine multiple eviction mechanisms.</p>
-<p>Example: <strong>Redis eviction policies</strong></p>
-<table>
-  <thead>
-      <tr>
-          <th>Policy</th>
-          <th>Behavior</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>allkeys‑lru</td>
-          <td>Evict least recently used keys</td>
-      </tr>
-      <tr>
-          <td>allkeys‑lfu</td>
-          <td>Evict least frequently used keys</td>
-      </tr>
-      <tr>
-          <td>volatile‑ttl</td>
-          <td>Evict keys with shortest TTL</td>
-      </tr>
-      <tr>
-          <td>noeviction</td>
-          <td>Reject writes when memory limit is reached</td>
-      </tr>
-  </tbody>
-</table>
-<p>These options allow engineers to tune caching behavior based on workload characteristics.</p>
+<h3 id="82-why-jwt-alone-is-sometimes-not-enough">8.2 Why JWT Alone Is Sometimes Not Enough</h3>
+<p>While JWT eliminates server-side session storage, it introduces a new challenge.</p>
+<p>Because the token is self-contained, <strong>the server cannot easily revoke it</strong>.</p>
+<p>Example scenario:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User logs out
+</span></span><span style="display:flex;"><span>JWT token still valid until expiry
+</span></span></code></pre></div><p>The server has no built-in way to invalidate the token before its expiration.</p>
+<p>This creates operational problems such as:</p>
+<ul>
+<li>logout handling</li>
+<li>token revocation</li>
+<li>compromised account recovery</li>
+<li>refresh token management</li>
+</ul>
 <hr>
-<h2 id="9-choosing-the-right-eviction-policy">9. Choosing the Right Eviction Policy</h2>
+<h3 id="83-why-systems-still-use-redis">8.3 Why Systems Still Use Redis</h3>
+<p>To solve these problems, many systems introduce <strong>shared storage such as Redis</strong> alongside JWT.</p>
+<p>Example uses include:</p>
+<ul>
+<li>storing <strong>refresh tokens</strong></li>
+<li>maintaining <strong>token revocation lists</strong></li>
+<li>managing <strong>login sessions</strong></li>
+<li>tracking <strong>active devices</strong></li>
+</ul>
+<p>Architecture example:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">Access Token → JWT (short lived)
+Refresh Token → stored in Redis or database
+</code></pre><p>This allows the system to remain <strong>stateless for normal requests</strong>, while still maintaining <strong>control over authentication sessions</strong>.</p>
 <hr>
-<p>The ideal eviction strategy depends on the system&rsquo;s access patterns.</p>
-<table>
-  <thead>
-      <tr>
-          <th>Workload Type</th>
-          <th>Recommended Policy</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>General web applications</td>
-          <td>LRU</td>
-      </tr>
-      <tr>
-          <td>Highly skewed popularity (&ldquo;hot&rdquo; items)</td>
-          <td>LFU</td>
-      </tr>
-      <tr>
-          <td>Simple systems with predictable inserts</td>
-          <td>FIFO</td>
-      </tr>
-  </tbody>
-</table>
-<p>In most web architectures, <strong>LRU is the default choice</strong> because it balances simplicity and effectiveness.</p>
+<h3 id="84-when-systems-use-both">8.4 When Systems Use Both</h3>
+<p>In many real systems, both approaches are combined:</p>
+<ul>
+<li><strong>JWT</strong> is used for authentication</li>
+<li><strong>Redis or a database</strong> may still store refresh tokens, revocation lists, or other shared data</li>
+</ul>
+<p>This hybrid approach balances:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">stateless request handling
++
+centralized session control
+</code></pre><p>It is widely used in modern <strong>API gateways and microservice architectures</strong>.</p>
+<hr>
+<h2 id="9-stateless-systems-in-practice">9. Stateless Systems in Practice</h2>
+<hr>
+<p>A typical modern architecture combines several concepts we have covered so far.</p>
+<div class="mermaid">
+flowchart LR
+
+    User --> CDN
+
+    CDN --> LB[Load Balancer]
+
+    subgraph AppTier[Stateless Application Servers]
+        direction LR
+        A[Server A]
+        B[Server B]
+        C[Server C]
+    end
+
+    LB --> A
+    LB --> B
+    LB --> C
+
+    A --> Redis[(Distributed Cache / Auth State)]
+    B --> Redis
+    C --> Redis
+
+    Redis --> DB[(Primary Database)]
+</div>
+<p>Here:</p>
+<ul>
+<li>servers remain <strong>stateless</strong></li>
+<li>Redis may store shared data such as caches, sessions, refresh tokens, or other distributed state.</li>
+<li>the load balancer can route traffic freely</li>
+</ul>
+<p>This architecture supports <strong>high scalability and reliability</strong>.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Cache eviction occurs when a cache runs out of memory.</li>
-<li>Eviction removes entries to make room for new data.</li>
-<li>LRU removes the least recently used items.</li>
-<li>LFU removes the least frequently used items.</li>
-<li>FIFO removes the oldest inserted entries.</li>
-<li>Real systems often combine multiple eviction strategies.</li>
+<li>Stateless servers do not store session state between requests.</li>
+<li>This allows load balancers to route requests to any server.</li>
+<li>Sticky sessions bind users to specific servers and reduce scalability.</li>
+<li>Modern systems use shared session storage or tokens instead of server-side sessions.</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>So far we explored how caching works, how data is invalidated, and how memory is managed.</p>
-<p>The final concept in this caching section explains <strong>how caches are deployed across multiple servers and systems</strong>.</p>
-<p>👉 <strong>Next Concept:</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache">Local vs Distributed Cache</a></strong></p>
+<p>So far we scaled systems using:</p>
+<ul>
+<li>caching</li>
+<li>horizontal scaling</li>
+<li>load balancing</li>
+<li>stateless servers</li>
+</ul>
+<p>The next step is improving <strong>global performance and latency</strong>.</p>
+<p>👉 Up Next: <strong>Content Delivery Networks (CDN)</strong>, which allow systems to serve users from locations closer to them.</p>
 
         </article>
 
@@ -586,55 +621,55 @@ TTL = 60 seconds
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-cache-eviction-exists" data-toc-target="1-why-cache-eviction-exists">1. Why Cache Eviction Exists</a>
+        <a class="toc-link" href="#1-why-stateless-servers-matter" data-toc-target="1-why-stateless-servers-matter">1. Why Stateless Servers Matter</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-cache-eviction-vs-cache-invalidation" data-toc-target="2-cache-eviction-vs-cache-invalidation">2. Cache Eviction vs Cache Invalidation</a>
+        <a class="toc-link" href="#2-what-stateless-means" data-toc-target="2-what-stateless-means">2. What “Stateless” Means</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-what-happens-when-a-cache-is-full" data-toc-target="3-what-happens-when-a-cache-is-full">3. What Happens When a Cache Is Full?</a>
+        <a class="toc-link" href="#3-stateless-architecture" data-toc-target="3-stateless-architecture">3. Stateless Architecture</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-least-recently-used-lru" data-toc-target="4-least-recently-used-lru">4. Least Recently Used (LRU)</a>
+        <a class="toc-link" href="#4-what-happens-if-servers-store-sessions" data-toc-target="4-what-happens-if-servers-store-sessions">4. What Happens If Servers Store Sessions</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-least-frequently-used-lfu" data-toc-target="5-least-frequently-used-lfu">5. Least Frequently Used (LFU)</a>
+        <a class="toc-link" href="#5-sticky-sessions-session-affinity" data-toc-target="5-sticky-sessions-session-affinity">5. Sticky Sessions (Session Affinity)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-first-in-first-out-fifo" data-toc-target="6-first-in-first-out-fifo">6. First In First Out (FIFO)</a>
+        <a class="toc-link" href="#6-problems-with-sticky-sessions" data-toc-target="6-problems-with-sticky-sessions">6. Problems With Sticky Sessions</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-timebased-eviction" data-toc-target="7-timebased-eviction">7. Time‑Based Eviction</a>
+        <a class="toc-link" href="#7-modern-solution-external-session-storage" data-toc-target="7-modern-solution-external-session-storage">7. Modern Solution: External Session Storage</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-realworld-eviction-strategies" data-toc-target="8-realworld-eviction-strategies">8. Real‑World Eviction Strategies</a>
+        <a class="toc-link" href="#8-token-based-stateless-authentication" data-toc-target="8-token-based-stateless-authentication">8. Token-Based Stateless Authentication</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-choosing-the-right-eviction-policy" data-toc-target="9-choosing-the-right-eviction-policy">9. Choosing the Right Eviction Policy</a>
+        <a class="toc-link" href="#9-stateless-systems-in-practice" data-toc-target="9-stateless-systems-in-practice">9. Stateless Systems in Practice</a>
       </li>
     
       
@@ -656,7 +691,7 @@ TTL = 60 seconds
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_4_cache-invalidation/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -687,8 +722,6 @@ TTL = 60 seconds
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

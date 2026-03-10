@@ -7,7 +7,7 @@ keywords:
   - head of line blocking
   - system design http basics
   - networking performance fundamentals
-weight: 1
+weight: 2
 date: 2026-02-20
 layout: "topic-content"
 ---
@@ -248,7 +248,7 @@ In the next chapter, we explore:
 - and why security changes system behavior without changing HTTP semantics
 
 👉 **Up Next →**  
-**[HTTPS & TLS — Security Without Changing HTTP](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_2_https-and-tls)**
+**[HTTPS & TLS — Security Without Changing HTTP](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_3_https-and-tls)**
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: "Choosing the Right Protocol — REST vs gRPC vs HTTP/2 vs HTTP/3"
+title: "Choosing the Right Protocol — REST vs WebSockets vs gRPC vs HTTP/2 vs HTTP/3"
 description: "A practical decision guide for choosing the right protocol in system design, based on environment, performance, security, and communication patterns."
 keywords:
   - rest vs grpc
@@ -8,7 +8,7 @@ keywords:
   - grpc or rest
   - http protocol decision guide
   - backend architecture protocols
-weight: 6
+weight: 8
 date: 2026-02-20
 layout: "topic-content"
 ---
@@ -23,6 +23,7 @@ By now, we have studied:
 - TLS and security as a baseline
 - HTTP/2 and multiplexing
 - HTTP/3 and QUIC
+- WebSockets for real-time communication
 - gRPC for internal communication
 
 At this point, a common question arises:
@@ -88,7 +89,39 @@ REST works best with:
 
 ---
 
-## 4. gRPC — Optimized for Internal Service Communication
+## 4. WebSockets — Real-Time Client Communication
+
+---
+
+### When WebSockets Are the Right Choice
+
+Use WebSockets when:
+
+- the server must **push updates to clients**
+- low-latency real-time communication is required
+- bidirectional communication is needed
+- persistent connections are acceptable
+
+Typical WebSocket environments:
+
+- chat systems
+- collaborative editing tools
+- live dashboards
+- multiplayer games
+- notification systems
+
+WebSockets are typically used **alongside REST APIs**, not instead of them.
+
+Example architecture:
+
+- REST → authentication, CRUD APIs
+- WebSockets → real-time updates
+
+> WebSockets optimize for **persistent bidirectional communication**.
+
+---
+
+## 5. gRPC — Optimized for Internal Service Communication
 
 ---
 
@@ -113,7 +146,7 @@ Typical gRPC environments:
 
 ---
 
-## 5. Choosing Between HTTP/1.1, HTTP/2, and HTTP/3
+## 6. Choosing Between HTTP/1.1, HTTP/2, and HTTP/3
 
 ---
 
@@ -160,7 +193,7 @@ HTTP/3 is powerful but not always necessary.
 
 ---
 
-## 6. Decision Matrix (Quick Reference)
+## 7. Decision Matrix (Quick Reference)
 
 ---
 
@@ -169,6 +202,7 @@ HTTP/3 is powerful but not always necessary.
 | Public API (browser, mobile)   | REST + HTTPS (HTTP/2) |
 | Public API, mobile-heavy       | REST + HTTPS (HTTP/3) |
 | Internal microservices         | gRPC over HTTP/2      |
+| Real-time browser apps         | WebSockets            |
 | Streaming / real-time internal | gRPC                  |
 | Simple internal admin APIs     | REST                  |
 | Legacy compatibility           | HTTP/1.1              |
@@ -178,7 +212,7 @@ This table is **not a rulebook** — it’s a starting point.
 
 ---
 
-## 7. Common Mistakes to Avoid
+## 8. Common Mistakes to Avoid
 
 ---
 
@@ -202,7 +236,7 @@ Good systems choose protocols **intentionally**.
 
 ---
 
-## 8. How to Explain Your Choice in Interviews
+## 9. How to Explain Your Choice in Interviews
 
 ---
 
@@ -222,13 +256,13 @@ Clarity of reasoning > protocol names.
 
 ---
 
-## 9. Layer Mapping (Final Synthesis)
+## 10. Layer Mapping (Final Synthesis)
 
 ---
 
 > 📍 **Layer Perspective**
 >
-> - REST and gRPC operate at the **Application layer**
+> - REST, WebSockets, and gRPC operate at the **Application layer**
 > - HTTP/1.1, HTTP/2, HTTP/3 define application-level transport semantics
 > - TLS provides cross-layer security
 > - TCP or QUIC handle delivery guarantees
@@ -245,10 +279,11 @@ This layered thinking is the hallmark of strong system design.
 
 - There is no single “best” protocol
 - External and internal communication have different needs
-- REST prioritizes compatibility
-- gRPC prioritizes performance and contracts
-- HTTP/2 is a strong default
-- HTTP/3 shines in unreliable networks
+- **REST** prioritizes compatibility
+- **WebSockets** enable real-time client communication
+- **gRPC** prioritizes performance and contracts
+- **HTTP/2** is a strong default
+- **HTTP/3** shines in unreliable networks
 - Protocol choice should be justified, not assumed
 
 ---

@@ -288,7 +288,7 @@ Without load balancing, horizontal scaling would not work effectively.
 
 ---
 
-## What’s Next
+### 🔗 What’s Next?
 
 Load balancing introduces another important design consideration.
 
@@ -296,4 +296,5 @@ If application servers store **session state locally**, the load balancer may be
 
 This reduces the flexibility of traffic distribution.
 
-👉 Up next we explore **Stateless Application Servers**, a design approach that allows load balancers to distribute requests freely across servers.
+👉 **Up next:**  
+**[Stateless Application Servers](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_9_stateless-application-servers)**, a design approach that allows load balancers to distribute requests freely across servers.

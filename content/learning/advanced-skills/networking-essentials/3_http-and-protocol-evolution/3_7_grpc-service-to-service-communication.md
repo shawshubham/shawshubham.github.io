@@ -8,7 +8,7 @@ keywords:
   - http2 grpc
   - system design grpc
   - microservices communication
-weight: 5
+weight: 7
 date: 2026-02-20
 layout: "topic-content"
 ---
@@ -24,7 +24,14 @@ HTTP + REST + JSON is a great default for **public APIs** because it is:
 - browser-friendly
 - easy to integrate
 
-But inside a distributed system (service-to-service), teams often hit limits:
+However, different communication patterns require different protocols.
+
+For example:
+
+- **WebSockets** enable real-time bidirectional communication between clients and servers.
+- **gRPC** focuses on efficient **service-to-service communication** inside distributed systems.
+
+Inside large backend systems, teams often hit limits with REST-based APIs:
 
 - Too much JSON overhead for high-throughput calls
 - Weak contracts (breaking changes slip through)
@@ -53,6 +60,43 @@ Mental model:
 
 > REST: “Resources over HTTP”  
 > gRPC: “Typed function calls over the network”
+
+```mermaid
+flowchart TB
+
+    %% REST
+    subgraph HTTP_REST ["REST<br>&nbsp;&nbsp;(HTTP/1.1 or HTTP/2)"]
+        direction TB
+        R1[Client] -- Request --> S1[Server]
+        S1 -- Response JSON --> R1
+        Note1["<i>Stateless & Standard Resource-based</i>"]
+    end
+
+    %% WebSockets
+    subgraph WS ["WebSockets<br>(HTTP Upgrade)"]
+        direction TB
+        R2[Client] <-->|Bidirectional Stream| S2[Server]
+        Note2["<i>Persistent Connection</i>"]
+    end
+
+    %% gRPC
+    subgraph GRPC ["gRPC<br>&nbsp;(HTTP/2 + Protobuf)"]
+        direction TB
+        R3[Client] -- RPC Call --> S3[Server]
+        S3 -- Unary / Streaming --> R3
+        Note3["<i>High-performance Service Calls</i>"]
+    end
+
+    %% Typical usage
+    HTTP_REST --> Use1["Public APIs"]
+    WS --> Use2["Realtime Applications"]
+    GRPC --> Use3["Internal Microservices"]
+
+    %% Styling
+    style HTTP_REST fill:#e3f2fd,stroke:#1565c0
+    style WS fill:#fff3e0,stroke:#e65100
+    style GRPC fill:#e8f5e9,stroke:#2e7d32
+```
 
 ---
 
@@ -152,8 +196,16 @@ In high-throughput internal systems, the cumulative benefits of Protobuf
 
 ---
 
-REST is great for request/response.  
-But when you need continuous or bidirectional communication, it gets awkward.
+REST is great for request/response communication.
+
+For real-time client communication, systems often use **WebSockets**.
+
+However, internal service-to-service systems sometimes need streaming communication as well — for example:
+
+- continuous telemetry
+- event pipelines
+- partial results
+- high-frequency updates
 
 gRPC supports **four communication patterns**:
 
@@ -309,7 +361,8 @@ Now that we’ve covered:
 
 - HTTP evolution (1.1 → 2 → 3)
 - TLS as a security baseline
-- gRPC for internal communication
+- WebSockets for real-time communication
+- gRPC for service-to-service communication
 
 we synthesize everything into a **practical decision guide**:
 
@@ -319,7 +372,7 @@ we synthesize everything into a **practical decision guide**:
 - Trade-offs, defaults, and when to deviate
 
 👉 **Up Next →**  
-**[Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol)**
+**[Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_8_choosing-right-protocol)**
 
 ---
 

@@ -237,7 +237,7 @@ In the next phase, we examine:
 - and why newer protocols were introduced
 
 👉 **Up Next →**  
-**[HTTP, HTTPS & Protocol Evolution (HTTP/1.1 → HTTP/2 → HTTP/3)](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_1_http-1.1-original-model)**
+**[HTTP, HTTPS & Protocol Evolution (HTTP/1.1 → HTTP/2 → HTTP/3)](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_1_http-fundamentals)**
 
 ---
 

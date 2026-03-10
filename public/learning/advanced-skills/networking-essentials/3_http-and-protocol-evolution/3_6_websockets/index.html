@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>gRPC — High-Performance Service-to-Service Communication</title>
+<title>WebSockets — Persistent Bidirectional Communication</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773089199">
+<link rel="stylesheet" href="/css/main.css?v=1773150429">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">gRPC — High-Performance Service-to-Service Communication</h1>
+    <h1 class="main-heading">WebSockets — Persistent Bidirectional Communication</h1>
     <h3>
   </div>
 </section>
@@ -191,16 +191,20 @@
                                   <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/">3.4. HTTP/2 — Multiplexing and Performance</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.5. HTTP/3 &amp; QUIC — Rethinking Transport</a>
+                                </li>
+                              
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication/">3.5. gRPC — High-Performance Service-to-Service Communication</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_websockets/">3.6. WebSockets — Persistent Bidirectional Communication</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.6. HTTP/3 &amp; QUIC — Rethinking Transport</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_7_grpc-service-to-service-communication/">3.7. gRPC — High-Performance Service-to-Service Communication</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol/">3.7. Choosing the Right Protocol — REST vs gRPC vs HTTP/2 vs HTTP/3</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_8_choosing-right-protocol/">3.8. Choosing the Right Protocol — REST vs WebSockets vs gRPC vs HTTP/2 vs HTTP/3</a>
                                 </li>
                               
                             </ul>
@@ -281,273 +285,258 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Feb, 2026
+            Last updated on: 9 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-introduction--why-rest-isnt-always-ideal-internally">1. Introduction — Why REST Isn’t Always Ideal Internally</h2>
+          <h2 id="1-introduction--when-http-requestresponse-is-not-enough">1. Introduction — When HTTP Request/Response Is Not Enough</h2>
 <hr>
-<p>HTTP + REST + JSON is a great default for <strong>public APIs</strong> because it is:</p>
+<p>In the previous chapters we explored how HTTP evolved:</p>
 <ul>
-<li>universal</li>
-<li>debuggable</li>
-<li>browser-friendly</li>
-<li>easy to integrate</li>
+<li><strong>HTTP/1.1</strong> — the original request–response model</li>
+<li><strong>HTTP/2</strong> — multiplexing requests over a single connection</li>
+<li><strong>HTTP/3 / QUIC</strong> — reducing transport latency</li>
 </ul>
-<p>But inside a distributed system (service-to-service), teams often hit limits:</p>
+<p>These improvements make web communication <strong>faster and more efficient</strong>, but the fundamental interaction model remains the same:</p>
+<ol>
+<li>the client sends a request</li>
+<li>the server returns a response</li>
+<li>the interaction ends</li>
+</ol>
+<p>This model works well for most use cases such as:</p>
 <ul>
-<li>Too much JSON overhead for high-throughput calls</li>
-<li>Weak contracts (breaking changes slip through)</li>
-<li>Inefficient multi-call workflows</li>
-<li>Streaming requirements (events, progress updates) feel awkward</li>
+<li>loading webpages</li>
+<li>calling APIs</li>
+<li>downloading resources</li>
 </ul>
-<p>This is where <strong>gRPC</strong> shines.</p>
-<blockquote>
-<p>gRPC is not “the next version of REST”.<br>
-It’s a different communication style optimized for <strong>internal services</strong>.</p></blockquote>
+<p>However, some applications require <strong>continuous real-time updates</strong>, such as:</p>
+<ul>
+<li>chat applications</li>
+<li>collaborative editors</li>
+<li>live dashboards</li>
+<li>multiplayer games</li>
+</ul>
+<p>In these systems, the server must be able to <strong>send updates to clients instantly</strong> when new data appears.</p>
+<p>Traditional HTTP cannot do this easily because communication always begins with a client request.</p>
+<p>To support <strong>persistent, bidirectional communication</strong>, a different protocol is needed.</p>
+<p>This is where <strong>WebSockets</strong> come in.</p>
 <hr>
-<h2 id="2-what-grpc-actually-is">2. What gRPC Actually Is</h2>
+<h2 id="2-the-problem-with-http-for-realtime-communication">2. The Problem with HTTP for Real‑Time Communication</h2>
 <hr>
-<p><strong>gRPC</strong> is an RPC (Remote Procedure Call) framework that:</p>
-<ul>
-<li>uses <strong>HTTP/2</strong> as the transport substrate</li>
-<li>typically uses <strong>Protocol Buffers (Protobuf)</strong> as the message format</li>
-<li>supports unary calls and multiple forms of <strong>streaming</strong></li>
-<li>generates strongly-typed client/server stubs from a contract</li>
-</ul>
-<p>Mental model:</p>
-<blockquote>
-<p>REST: “Resources over HTTP”<br>
-gRPC: “Typed function calls over the network”</p></blockquote>
-<hr>
-<h2 id="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</h2>
-<hr>
-<p>gRPC is an <strong>application-layer protocol</strong> running on top of <strong>HTTP/2</strong>.</p>
-<div class="mermaid">
-flowchart TB
-    App["gRPC API<br/>(RPC methods, streaming)"]
-    H2["HTTP/2<br/>(Streams, multiplexing)"]
-    TLS["TLS<br/>(Encryption, auth)"]
-    TCP["TCP<br/>(Reliable delivery)"]
-    IP["IP<br/>(Routing)"]
-
-    App --> H2 --> TLS --> TCP --> IP
-</div>
-<blockquote>
-<p>This is why Phase 3 matters:<br>
-gRPC makes the most sense after you understand HTTP/2.</p></blockquote>
-<hr>
-<h2 id="4-the-contract-first-model-why-teams-love-it">4. The Contract-First Model (Why Teams Love It)</h2>
-<hr>
-<p>In REST-based systems, the “contract” often lives in:</p>
-<ul>
-<li>documentation</li>
-<li>OpenAPI specs (sometimes)</li>
-<li>shared understanding or tribal knowledge</li>
-</ul>
-<p>This creates room for:</p>
-<ul>
-<li>accidental breaking changes</li>
-<li>runtime failures</li>
-<li>misaligned expectations between teams</li>
-</ul>
-<p>gRPC takes a <strong>contract-first</strong> approach.</p>
-<p>You define:</p>
-<ul>
-<li>service methods (RPCs)</li>
-<li>request and response message schemas</li>
-</ul>
-<p>from a single, authoritative contract.</p>
-<p>From this contract, tooling generates:</p>
-<ul>
-<li>client stubs</li>
-<li>server interfaces</li>
-<li>serialization and deserialization logic</li>
-</ul>
-<p>The result is:</p>
-<ul>
-<li>strong typing across service boundaries</li>
-<li>compile-time validation instead of runtime surprises</li>
-<li>clear, enforceable API evolution rules</li>
-</ul>
-<blockquote>
-<p>Contract-first design doesn’t eliminate breaking changes —<br>
-it makes them <strong>explicit, detectable, and intentional</strong>.</p></blockquote>
-<hr>
-<h2 id="5-protobuf-vs-json-system-design-view">5. Protobuf vs JSON (System Design View)</h2>
-<hr>
-<p>Both JSON and Protobuf are widely used, but they optimize for different priorities.</p>
-<h3 id="json--strengths">JSON — Strengths</h3>
-<ul>
-<li>Human-readable and easy to inspect</li>
-<li>Simple debugging with tools like curl and Postman</li>
-<li>Extremely broad ecosystem support</li>
-</ul>
-<h3 id="protobuf--strengths">Protobuf — Strengths</h3>
-<ul>
-<li>Compact binary encoding (smaller payloads)</li>
-<li>Faster serialization and deserialization</li>
-<li>Strongly typed schemas with explicit evolution rules</li>
-</ul>
-<p>From a system design perspective:</p>
-<blockquote>
-<p>Protobuf is not “better” in all cases.<br>
-It is better when <strong>performance, efficiency, and strict contracts</strong> matter more than human readability.</p></blockquote>
-<p>In high-throughput internal systems, the cumulative benefits of Protobuf<br>
-— smaller payloads, faster parsing, fewer errors — often outweigh the convenience of text-based formats.</p>
-<hr>
-<h2 id="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</h2>
-<hr>
-<p>REST is great for request/response.<br>
-But when you need continuous or bidirectional communication, it gets awkward.</p>
-<p>gRPC supports <strong>four communication patterns</strong>:</p>
-<div class="mermaid">
-flowchart LR
-    U[Unary<br/>1 request → 1 response]
-    CS[Client Streaming<br/>many requests → 1 response]
-    SS[Server Streaming<br/>1 request → many responses]
-    BI[Bidirectional Streaming<br/>many ↔ many]
-
-    U --- CS --- SS --- BI
-</div>
-<h3 id="when-streaming-matters">When streaming matters</h3>
-<ul>
-<li>live progress updates (report generation, large jobs)</li>
-<li>market data / price feeds</li>
-<li>chat / collaboration</li>
-<li>high-frequency telemetry</li>
-<li>pushing partial results as they become available</li>
-</ul>
-<p>This is one reason gRPC is common in:</p>
-<ul>
-<li>trading platforms</li>
-<li>data infrastructure</li>
-<li>internal microservice ecosystems</li>
-</ul>
-<hr>
-<h2 id="7-why-http2-makes-grpc-efficient">7. Why HTTP/2 Makes gRPC Efficient</h2>
-<hr>
-<p>HTTP/2 enables gRPC performance and scalability because it provides:</p>
-<ul>
-<li>multiplexed streams over a single connection</li>
-<li>efficient framing (binary)</li>
-<li>lower connection overhead under concurrent load</li>
-</ul>
-<p>Conceptually:</p>
+<p>With standard HTTP, communication looks like this:</p>
 <div class="mermaid">
 sequenceDiagram
     participant Client
-    participant H2 as HTTP/2 Connection
-    participant Svc as Service
+    participant Server
 
-    Client->>H2: RPC A (Stream 1)
-    Client->>H2: RPC B (Stream 2)
-    Client->>H2: RPC C (Stream 3)
-    H2->>Svc: A, B, C concurrently
-    Svc-->>H2: Responses interleaved
-    H2-->>Client: A, B, C delivered
+    Client->>Server: Request
+    Server->>Client: Response
+
+    Client->>Server: Request
+    Server->>Client: Response
 </div>
-<p>This is a very natural fit for microservices making many parallel calls.</p>
+<p>If the server needs to notify the client about new data, it cannot do so directly.</p>
+<p>Instead, the client must repeatedly ask:</p>
+<pre tabindex="0"><code>&#34;Is there new data?&#34;
+</code></pre><p>This pattern is known as <strong>polling</strong>.</p>
+<p>Problems with polling:</p>
+<ul>
+<li>unnecessary network requests</li>
+<li>increased latency</li>
+<li>inefficient server usage</li>
+</ul>
+<p>To solve this, we need a connection where <strong>both sides can send messages anytime</strong>.</p>
 <hr>
-<h2 id="8-grpc-vs-rest--when-to-use-what">8. gRPC vs REST — When to Use What</h2>
+<h2 id="3-what-websockets-are">3. What WebSockets Are</h2>
 <hr>
-<h3 id="use-rest-when">Use REST when</h3>
+<p>WebSockets provide a <strong>persistent, bidirectional communication channel</strong> between a client and server.</p>
+<p>Key characteristics:</p>
 <ul>
-<li>You expose public APIs to third parties</li>
-<li>Browser compatibility matters</li>
-<li>You want cache-friendly GET semantics</li>
-<li>Consumers vary widely (unknown clients)</li>
-<li>Debugging via curl/Postman is a priority</li>
+<li>a <strong>single long‑lived connection</strong></li>
+<li>both client and server can send messages</li>
+<li>very low communication overhead</li>
 </ul>
-<h3 id="use-grpc-when">Use gRPC when</h3>
-<ul>
-<li>You control both client and server (internal systems)</li>
-<li>Performance and efficiency matter</li>
-<li>Strict contracts and type safety matter</li>
-<li>You need streaming</li>
-<li>You want consistent client libraries generated from schema</li>
-</ul>
-<p>A common mature architecture looks like this:</p>
-<blockquote>
-<p><strong>External:</strong> REST over HTTPS (compatibility and reach)<br>
-<strong>Internal:</strong> gRPC (performance, contracts, streaming)</p></blockquote>
+<p>Unlike HTTP, where every request opens a new interaction, WebSockets maintain an <strong>ongoing conversation</strong>.</p>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client->>Server: Message
+    Server->>Client: Message
+    Client->>Server: Message
+    Server->>Client: Message
+</div>
+<p>This enables true <strong>real‑time communication</strong>.</p>
 <hr>
-<h2 id="9-operational-reality-important-for-hld">9. Operational Reality (Important for HLD)</h2>
+<h2 id="4-the-http-upgrade-mechanism">4. The HTTP Upgrade Mechanism</h2>
 <hr>
-<p>Adopting gRPC comes with real operational considerations.</p>
-<h3 id="91-observability">9.1 Observability</h3>
+<p>Interestingly, WebSockets begin as a normal HTTP request.</p>
+<p>The client asks the server to <strong>upgrade the connection</strong>.</p>
+<p>Example handshake:</p>
+<pre tabindex="0"><code>GET /chat HTTP/1.1
+Host: example.com
+Upgrade: websocket
+Connection: Upgrade
+</code></pre><p>If the server supports WebSockets, it responds:</p>
+<pre tabindex="0"><code>HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+</code></pre><p>After this handshake, the connection switches from <strong>HTTP → WebSocket protocol</strong>.</p>
+<p>From this point onward, messages flow freely in both directions.</p>
+<hr>
+<h2 id="5-persistent-connection-model">5. Persistent Connection Model</h2>
+<hr>
+<p>Once established, the WebSocket connection stays open.</p>
+<div class="mermaid">
+flowchart LR
+    Client <-- Persistent Connection --> Server
+</div>
+<p>Messages can now travel in either direction at any time.</p>
+<p>Advantages:</p>
 <ul>
-<li>Metrics and latency tracked per RPC method</li>
-<li>Distributed tracing across service boundaries</li>
+<li>minimal latency</li>
+<li>reduced overhead</li>
+<li>efficient real‑time updates</li>
 </ul>
-<h3 id="92-load-balancing">9.2 Load Balancing</h3>
+<p>This makes WebSockets ideal for systems that require <strong>frequent, low‑latency communication</strong>.</p>
+<hr>
+<h2 id="6-where-websockets-are-used">6. Where WebSockets Are Used</h2>
+<hr>
+<p>Common real‑world uses include:</p>
+<h3 id="realtime-chat">Real‑Time Chat</h3>
+<p>Messages must appear instantly across all connected clients.</p>
+<h3 id="live-data-streams">Live Data Streams</h3>
+<p>Examples:</p>
 <ul>
-<li>Long-lived connections with multiplexed streams</li>
-<li>Layer 4 vs Layer 7 load balancing decisions matter</li>
+<li>stock market dashboards</li>
+<li>sports score updates</li>
+<li>analytics dashboards</li>
 </ul>
-<h3 id="93-timeouts--retries">9.3 Timeouts &amp; Retries</h3>
+<h3 id="collaborative-applications">Collaborative Applications</h3>
+<p>Examples:</p>
 <ul>
-<li>Retries must be carefully designed</li>
-<li>Poor retry strategy can cause retry storms</li>
+<li>Google Docs style editing</li>
+<li>shared whiteboards</li>
 </ul>
-<h3 id="94-versioning">9.4 Versioning</h3>
+<h3 id="multiplayer-games">Multiplayer Games</h3>
+<p>Game state must synchronize continuously between players.</p>
+<hr>
+<h2 id="7-tradeoffs-and-limitations">7. Trade‑offs and Limitations</h2>
+<hr>
+<p>Despite their advantages, WebSockets are not always the best choice.</p>
+<h3 id="connection-management">Connection Management</h3>
+<p>Each connected client maintains a <strong>long‑lived connection</strong>, which consumes server resources.</p>
+<h3 id="scaling-complexity">Scaling Complexity</h3>
+<p>Load balancing WebSocket connections can be more complex than stateless HTTP requests.</p>
+<h3 id="infrastructure-compatibility">Infrastructure Compatibility</h3>
+<p>Some proxies, firewalls, and older network infrastructure historically handled WebSockets poorly.</p>
+<p>Modern platforms generally support them well, but system designers must still account for connection persistence.</p>
+<hr>
+<h2 id="8-websockets-vs-http-apis">8. WebSockets vs HTTP APIs</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>HTTP APIs</th>
+          <th>WebSockets</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Communication style</td>
+          <td>Request–response</td>
+          <td>Bidirectional</td>
+      </tr>
+      <tr>
+          <td>Connection</td>
+          <td>Short‑lived</td>
+          <td>Persistent</td>
+      </tr>
+      <tr>
+          <td>Server push</td>
+          <td>Not native</td>
+          <td>Native</td>
+      </tr>
+      <tr>
+          <td>Ideal for</td>
+          <td>APIs, web pages</td>
+          <td>Real‑time systems</td>
+      </tr>
+  </tbody>
+</table>
+<p>Most systems combine both approaches.</p>
+<p>For example:</p>
 <ul>
-<li>Additive schema changes are easiest</li>
-<li>Breaking changes require coordination and planning</li>
+<li>REST APIs for data operations</li>
+<li>WebSockets for real‑time updates</li>
 </ul>
-<p>These are not drawbacks —<br>
-they are the <strong>cost of high-performance, strongly-typed communication</strong>.</p>
+<hr>
+<h2 id="9-why-websockets-matter-for-system-design">9. Why WebSockets Matter for System Design</h2>
+<hr>
+<p>Understanding WebSockets helps explain how modern real‑time systems work.</p>
+<p>They are frequently used in architectures involving:</p>
+<ul>
+<li>event streaming</li>
+<li>notification systems</li>
+<li>collaborative tools</li>
+<li>live analytics dashboards</li>
+</ul>
+<p>However, WebSockets introduce architectural considerations such as:</p>
+<ul>
+<li>connection management</li>
+<li>horizontal scaling</li>
+<li>message broadcasting</li>
+</ul>
+<p>These topics appear later in <strong>High‑Level Design and Large‑Scale Systems discussions</strong>.</p>
 <hr>
 <h2 id="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</h2>
+<hr>
 <blockquote>
 <p>📍 <strong>Layer Mapping</strong></p>
-<p>gRPC is an <strong>Application-layer protocol</strong><br>
-(OSI Layer 7 / TCP-IP Application layer).</p>
-<p>It typically runs over <strong>HTTP/2</strong>, which itself operates at the Application layer but depends on:</p>
+<p>WebSockets primarily operate at the <strong>Application Layer (OSI Layer 7)</strong>.</p>
+<p>However, they rely on lower networking layers for transport and reliability.</p>
+<p>The stack typically looks like this:</p>
 <ul>
-<li><strong>TLS</strong> (cross-layer security boundary)</li>
-<li><strong>TCP</strong> (OSI Layer 4) for reliable delivery</li>
-</ul></blockquote>
-<p>This explains why:</p>
-<ul>
-<li>Understanding HTTP/2 is a prerequisite for gRPC</li>
-<li>TCP behavior still affects gRPC performance under packet loss</li>
+<li><strong>Application Layer (L7)</strong> → WebSocket protocol framing</li>
+<li><strong>Transport Layer (L4)</strong> → TCP connection</li>
+<li><strong>Network Layer (L3)</strong> → IP routing</li>
 </ul>
-<hr>
-<h2 id="11-key-takeaways">11. Key Takeaways</h2>
-<hr>
+<p>Importantly, the WebSocket connection is <strong>established using an HTTP upgrade handshake</strong>.</p>
+<p>This means the lifecycle looks like:</p>
+<pre tabindex="0"><code>HTTP (handshake) → WebSocket protocol (persistent communication)
+</code></pre><p>After the upgrade occurs:</p>
 <ul>
-<li>gRPC is RPC-style communication built on <strong>HTTP/2</strong></li>
-<li>It is optimized for <strong>internal service-to-service</strong> calls</li>
-<li>Protobuf enables compact payloads and strong contracts</li>
-<li>Streaming is a major differentiator</li>
-<li>REST remains ideal for public APIs</li>
-<li>Protocol choice is an architectural decision, not a trend</li>
+<li>HTTP semantics no longer apply</li>
+<li>the connection becomes a <strong>raw bidirectional WebSocket stream over TCP</strong></li>
+</ul>
+<p>This design allows WebSockets to:</p>
+<ul>
+<li>reuse existing HTTP infrastructure (proxies, load balancers, ports)</li>
+<li>establish persistent connections without inventing a new discovery mechanism</li>
+</ul>
+<p>In other words, WebSockets <strong>start as HTTP but evolve into their own application protocol</strong> running on top of TCP.</p></blockquote>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<ul>
+<li>HTTP follows a request–response model</li>
+<li>Some applications require real‑time bidirectional communication</li>
+<li>WebSockets provide a persistent connection between client and server</li>
+<li>Communication can happen at any time in either direction</li>
+<li>They enable real‑time systems like chat, dashboards, and multiplayer games</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we’ve covered:</p>
-<ul>
-<li>HTTP evolution (1.1 → 2 → 3)</li>
-<li>TLS as a security baseline</li>
-<li>gRPC for internal communication</li>
-</ul>
-<p>we synthesize everything into a <strong>practical decision guide</strong>:</p>
-<ul>
-<li>HTTP/1.1 vs HTTP/2 vs HTTP/3</li>
-<li>REST vs gRPC</li>
-<li>Internet vs mobile vs data-center environments</li>
-<li>Trade-offs, defaults, and when to deviate</li>
-</ul>
+<p>Now that we understand different communication models, we can explore another high‑performance protocol used heavily in distributed systems.</p>
 <p>👉 <strong>Up Next →</strong><br>
-<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol">Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)</a></strong></p>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_7_grpc-service-to-service-communication">gRPC — High-Performance Service-to-Service Communication</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong></p>
-<p>gRPC is not about “modernizing APIs”.<br>
-It’s about building <strong>fast, safe, contract-driven communication</strong> inside distributed systems.</p></blockquote>
+<p>HTTP is excellent for request–response interactions, but real‑time systems require protocols that support <strong>continuous bidirectional communication</strong>.</p></blockquote>
 
         </article>
 
@@ -575,55 +564,55 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-introduction--why-rest-isnt-always-ideal-internally" data-toc-target="1-introduction--why-rest-isnt-always-ideal-internally">1. Introduction — Why REST Isn’t Always Ideal Internally</a>
+        <a class="toc-link" href="#1-introduction--when-http-requestresponse-is-not-enough" data-toc-target="1-introduction--when-http-requestresponse-is-not-enough">1. Introduction — When HTTP Request/Response Is Not Enough</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-grpc-actually-is" data-toc-target="2-what-grpc-actually-is">2. What gRPC Actually Is</a>
+        <a class="toc-link" href="#2-the-problem-with-http-for-realtime-communication" data-toc-target="2-the-problem-with-http-for-realtime-communication">2. The Problem with HTTP for Real‑Time Communication</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-where-grpc-fits-in-the-stack" data-toc-target="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</a>
+        <a class="toc-link" href="#3-what-websockets-are" data-toc-target="3-what-websockets-are">3. What WebSockets Are</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-the-contract-first-model-why-teams-love-it" data-toc-target="4-the-contract-first-model-why-teams-love-it">4. The Contract-First Model (Why Teams Love It)</a>
+        <a class="toc-link" href="#4-the-http-upgrade-mechanism" data-toc-target="4-the-http-upgrade-mechanism">4. The HTTP Upgrade Mechanism</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-protobuf-vs-json-system-design-view" data-toc-target="5-protobuf-vs-json-system-design-view">5. Protobuf vs JSON (System Design View)</a>
+        <a class="toc-link" href="#5-persistent-connection-model" data-toc-target="5-persistent-connection-model">5. Persistent Connection Model</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-streaming-the-killer-feature-for-many-systems" data-toc-target="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</a>
+        <a class="toc-link" href="#6-where-websockets-are-used" data-toc-target="6-where-websockets-are-used">6. Where WebSockets Are Used</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-why-http2-makes-grpc-efficient" data-toc-target="7-why-http2-makes-grpc-efficient">7. Why HTTP/2 Makes gRPC Efficient</a>
+        <a class="toc-link" href="#7-tradeoffs-and-limitations" data-toc-target="7-tradeoffs-and-limitations">7. Trade‑offs and Limitations</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-grpc-vs-rest--when-to-use-what" data-toc-target="8-grpc-vs-rest--when-to-use-what">8. gRPC vs REST — When to Use What</a>
+        <a class="toc-link" href="#8-websockets-vs-http-apis" data-toc-target="8-websockets-vs-http-apis">8. WebSockets vs HTTP APIs</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-operational-reality-important-for-hld" data-toc-target="9-operational-reality-important-for-hld">9. Operational Reality (Important for HLD)</a>
+        <a class="toc-link" href="#9-why-websockets-matter-for-system-design" data-toc-target="9-why-websockets-matter-for-system-design">9. Why WebSockets Matter for System Design</a>
       </li>
     
       
@@ -635,7 +624,7 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#11-key-takeaways" data-toc-target="11-key-takeaways">11. Key Takeaways</a>
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
       </li>
     
   </ul>
@@ -651,7 +640,7 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -683,7 +672,7 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
     
 
     
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_7_grpc-service-to-service-communication/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>gRPC — High-Performance Service-to-Service Communication</title>
+<title>HTTP Fundamentals — Requests, Responses, Headers &amp; Cookies</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773089199">
+<link rel="stylesheet" href="/css/main.css?v=1773150429">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">gRPC — High-Performance Service-to-Service Communication</h1>
+    <h1 class="main-heading">HTTP Fundamentals — Requests, Responses, Headers &amp; Cookies</h1>
     <h3>
   </div>
 </section>
@@ -175,7 +175,7 @@
 
                             <ul class="subject-phase-topics">
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_1_http-fundamentals/">3.1. HTTP Fundamentals — Requests, Responses, Headers &amp; Cookies</a>
                                 </li>
                               
@@ -191,16 +191,20 @@
                                   <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/">3.4. HTTP/2 — Multiplexing and Performance</a>
                                 </li>
                               
-                                <li class="active">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication/">3.5. gRPC — High-Performance Service-to-Service Communication</a>
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.5. HTTP/3 &amp; QUIC — Rethinking Transport</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.6. HTTP/3 &amp; QUIC — Rethinking Transport</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_websockets/">3.6. WebSockets — Persistent Bidirectional Communication</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol/">3.7. Choosing the Right Protocol — REST vs gRPC vs HTTP/2 vs HTTP/3</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_7_grpc-service-to-service-communication/">3.7. gRPC — High-Performance Service-to-Service Communication</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_8_choosing-right-protocol/">3.8. Choosing the Right Protocol — REST vs WebSockets vs gRPC vs HTTP/2 vs HTTP/3</a>
                                 </li>
                               
                             </ul>
@@ -281,273 +285,407 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Feb, 2026
+            Last updated on: 9 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-introduction--why-rest-isnt-always-ideal-internally">1. Introduction — Why REST Isn’t Always Ideal Internally</h2>
+          <h2 id="1-introduction--what-actually-travels-over-http">1. Introduction — What Actually Travels Over HTTP</h2>
 <hr>
-<p>HTTP + REST + JSON is a great default for <strong>public APIs</strong> because it is:</p>
+<p>So far in the networking journey we have covered:</p>
 <ul>
-<li>universal</li>
-<li>debuggable</li>
-<li>browser-friendly</li>
-<li>easy to integrate</li>
+<li>how machines communicate (IP addresses and ports)</li>
+<li>how transport works (TCP vs UDP)</li>
+<li>why application protocols exist</li>
 </ul>
-<p>But inside a distributed system (service-to-service), teams often hit limits:</p>
-<ul>
-<li>Too much JSON overhead for high-throughput calls</li>
-<li>Weak contracts (breaking changes slip through)</li>
-<li>Inefficient multi-call workflows</li>
-<li>Streaming requirements (events, progress updates) feel awkward</li>
-</ul>
-<p>This is where <strong>gRPC</strong> shines.</p>
+<p>Now we zoom in on the <strong>most widely used application protocol on the internet — HTTP</strong>.</p>
+<p>Before discussing HTTP evolution (HTTP/1.1 → HTTP/2 → HTTP/3), we must understand a more fundamental question:</p>
 <blockquote>
-<p>gRPC is not “the next version of REST”.<br>
-It’s a different communication style optimized for <strong>internal services</strong>.</p></blockquote>
-<hr>
-<h2 id="2-what-grpc-actually-is">2. What gRPC Actually Is</h2>
-<hr>
-<p><strong>gRPC</strong> is an RPC (Remote Procedure Call) framework that:</p>
+<p><strong>What does an HTTP message actually look like?</strong></p></blockquote>
+<p>Every interaction between a client and a server using HTTP follows the same basic pattern:</p>
 <ul>
-<li>uses <strong>HTTP/2</strong> as the transport substrate</li>
-<li>typically uses <strong>Protocol Buffers (Protobuf)</strong> as the message format</li>
-<li>supports unary calls and multiple forms of <strong>streaming</strong></li>
-<li>generates strongly-typed client/server stubs from a contract</li>
+<li>the client sends an <strong>HTTP request</strong></li>
+<li>the server returns an <strong>HTTP response</strong></li>
 </ul>
-<p>Mental model:</p>
-<blockquote>
-<p>REST: “Resources over HTTP”<br>
-gRPC: “Typed function calls over the network”</p></blockquote>
-<hr>
-<h2 id="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</h2>
-<hr>
-<p>gRPC is an <strong>application-layer protocol</strong> running on top of <strong>HTTP/2</strong>.</p>
-<div class="mermaid">
-flowchart TB
-    App["gRPC API<br/>(RPC methods, streaming)"]
-    H2["HTTP/2<br/>(Streams, multiplexing)"]
-    TLS["TLS<br/>(Encryption, auth)"]
-    TCP["TCP<br/>(Reliable delivery)"]
-    IP["IP<br/>(Routing)"]
-
-    App --> H2 --> TLS --> TCP --> IP
-</div>
-<blockquote>
-<p>This is why Phase 3 matters:<br>
-gRPC makes the most sense after you understand HTTP/2.</p></blockquote>
-<hr>
-<h2 id="4-the-contract-first-model-why-teams-love-it">4. The Contract-First Model (Why Teams Love It)</h2>
-<hr>
-<p>In REST-based systems, the “contract” often lives in:</p>
+<p>Understanding this message structure is essential for system design because it explains:</p>
 <ul>
-<li>documentation</li>
-<li>OpenAPI specs (sometimes)</li>
-<li>shared understanding or tribal knowledge</li>
-</ul>
-<p>This creates room for:</p>
-<ul>
-<li>accidental breaking changes</li>
-<li>runtime failures</li>
-<li>misaligned expectations between teams</li>
-</ul>
-<p>gRPC takes a <strong>contract-first</strong> approach.</p>
-<p>You define:</p>
-<ul>
-<li>service methods (RPCs)</li>
-<li>request and response message schemas</li>
-</ul>
-<p>from a single, authoritative contract.</p>
-<p>From this contract, tooling generates:</p>
-<ul>
-<li>client stubs</li>
-<li>server interfaces</li>
-<li>serialization and deserialization logic</li>
-</ul>
-<p>The result is:</p>
-<ul>
-<li>strong typing across service boundaries</li>
-<li>compile-time validation instead of runtime surprises</li>
-<li>clear, enforceable API evolution rules</li>
-</ul>
-<blockquote>
-<p>Contract-first design doesn’t eliminate breaking changes —<br>
-it makes them <strong>explicit, detectable, and intentional</strong>.</p></blockquote>
-<hr>
-<h2 id="5-protobuf-vs-json-system-design-view">5. Protobuf vs JSON (System Design View)</h2>
-<hr>
-<p>Both JSON and Protobuf are widely used, but they optimize for different priorities.</p>
-<h3 id="json--strengths">JSON — Strengths</h3>
-<ul>
-<li>Human-readable and easy to inspect</li>
-<li>Simple debugging with tools like curl and Postman</li>
-<li>Extremely broad ecosystem support</li>
-</ul>
-<h3 id="protobuf--strengths">Protobuf — Strengths</h3>
-<ul>
-<li>Compact binary encoding (smaller payloads)</li>
-<li>Faster serialization and deserialization</li>
-<li>Strongly typed schemas with explicit evolution rules</li>
-</ul>
-<p>From a system design perspective:</p>
-<blockquote>
-<p>Protobuf is not “better” in all cases.<br>
-It is better when <strong>performance, efficiency, and strict contracts</strong> matter more than human readability.</p></blockquote>
-<p>In high-throughput internal systems, the cumulative benefits of Protobuf<br>
-— smaller payloads, faster parsing, fewer errors — often outweigh the convenience of text-based formats.</p>
-<hr>
-<h2 id="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</h2>
-<hr>
-<p>REST is great for request/response.<br>
-But when you need continuous or bidirectional communication, it gets awkward.</p>
-<p>gRPC supports <strong>four communication patterns</strong>:</p>
-<div class="mermaid">
-flowchart LR
-    U[Unary<br/>1 request → 1 response]
-    CS[Client Streaming<br/>many requests → 1 response]
-    SS[Server Streaming<br/>1 request → many responses]
-    BI[Bidirectional Streaming<br/>many ↔ many]
-
-    U --- CS --- SS --- BI
-</div>
-<h3 id="when-streaming-matters">When streaming matters</h3>
-<ul>
-<li>live progress updates (report generation, large jobs)</li>
-<li>market data / price feeds</li>
-<li>chat / collaboration</li>
-<li>high-frequency telemetry</li>
-<li>pushing partial results as they become available</li>
-</ul>
-<p>This is one reason gRPC is common in:</p>
-<ul>
-<li>trading platforms</li>
-<li>data infrastructure</li>
-<li>internal microservice ecosystems</li>
+<li>how APIs work</li>
+<li>how authentication travels across services</li>
+<li>how caching behaves</li>
+<li>how proxies and CDNs inspect traffic</li>
 </ul>
 <hr>
-<h2 id="7-why-http2-makes-grpc-efficient">7. Why HTTP/2 Makes gRPC Efficient</h2>
+<h2 id="2-the-http-requestresponse-model">2. The HTTP Request–Response Model</h2>
 <hr>
-<p>HTTP/2 enables gRPC performance and scalability because it provides:</p>
-<ul>
-<li>multiplexed streams over a single connection</li>
-<li>efficient framing (binary)</li>
-<li>lower connection overhead under concurrent load</li>
-</ul>
-<p>Conceptually:</p>
+<p>HTTP follows a <strong>request–response communication model</strong>.</p>
+<p>A client initiates communication by sending a request, and the server processes that request and returns a response.</p>
 <div class="mermaid">
 sequenceDiagram
     participant Client
-    participant H2 as HTTP/2 Connection
-    participant Svc as Service
+    participant Server
 
-    Client->>H2: RPC A (Stream 1)
-    Client->>H2: RPC B (Stream 2)
-    Client->>H2: RPC C (Stream 3)
-    H2->>Svc: A, B, C concurrently
-    Svc-->>H2: Responses interleaved
-    H2-->>Client: A, B, C delivered
+    Client->>Server: HTTP Request
+    Server->>Client: HTTP Response
 </div>
-<p>This is a very natural fit for microservices making many parallel calls.</p>
-<hr>
-<h2 id="8-grpc-vs-rest--when-to-use-what">8. gRPC vs REST — When to Use What</h2>
-<hr>
-<h3 id="use-rest-when">Use REST when</h3>
+<p>Key properties of this model:</p>
 <ul>
-<li>You expose public APIs to third parties</li>
-<li>Browser compatibility matters</li>
-<li>You want cache-friendly GET semantics</li>
-<li>Consumers vary widely (unknown clients)</li>
-<li>Debugging via curl/Postman is a priority</li>
+<li>communication is <strong>client initiated</strong></li>
+<li>each request is <strong>independent</strong></li>
+<li>servers do not maintain implicit state</li>
 </ul>
-<h3 id="use-grpc-when">Use gRPC when</h3>
-<ul>
-<li>You control both client and server (internal systems)</li>
-<li>Performance and efficiency matter</li>
-<li>Strict contracts and type safety matter</li>
-<li>You need streaming</li>
-<li>You want consistent client libraries generated from schema</li>
-</ul>
-<p>A common mature architecture looks like this:</p>
+<p>This last property leads to an important concept:</p>
 <blockquote>
-<p><strong>External:</strong> REST over HTTPS (compatibility and reach)<br>
-<strong>Internal:</strong> gRPC (performance, contracts, streaming)</p></blockquote>
+<p><strong>HTTP is a stateless protocol.</strong></p></blockquote>
+<p>Each request must contain all information needed to process it.</p>
 <hr>
-<h2 id="9-operational-reality-important-for-hld">9. Operational Reality (Important for HLD)</h2>
+<h2 id="3-anatomy-of-an-http-request">3. Anatomy of an HTTP Request</h2>
 <hr>
-<p>Adopting gRPC comes with real operational considerations.</p>
-<h3 id="91-observability">9.1 Observability</h3>
+<p>An HTTP request typically contains three parts:</p>
+<ol>
+<li>Request line</li>
+<li>Headers</li>
+<li>Optional body</li>
+</ol>
+<p>Example request:</p>
+<pre tabindex="0"><code>GET /articles/networking HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0
+Authorization: Bearer abc123
+Cookie: session_id=xyz789
+</code></pre><h3 id="request-line">Request Line</h3>
+<p>The request line contains three components:</p>
+<pre tabindex="0"><code>METHOD /path HTTP/version
+</code></pre><p>Example:</p>
+<pre tabindex="0"><code>GET /articles HTTP/1.1
+</code></pre><p>Common HTTP methods:</p>
 <ul>
-<li>Metrics and latency tracked per RPC method</li>
-<li>Distributed tracing across service boundaries</li>
+<li><strong>GET</strong> → retrieve data</li>
+<li><strong>POST</strong> → create data</li>
+<li><strong>PUT</strong> → update data</li>
+<li><strong>DELETE</strong> → remove data</li>
 </ul>
-<h3 id="92-load-balancing">9.2 Load Balancing</h3>
-<ul>
-<li>Long-lived connections with multiplexed streams</li>
-<li>Layer 4 vs Layer 7 load balancing decisions matter</li>
-</ul>
-<h3 id="93-timeouts--retries">9.3 Timeouts &amp; Retries</h3>
-<ul>
-<li>Retries must be carefully designed</li>
-<li>Poor retry strategy can cause retry storms</li>
-</ul>
-<h3 id="94-versioning">9.4 Versioning</h3>
-<ul>
-<li>Additive schema changes are easiest</li>
-<li>Breaking changes require coordination and planning</li>
-</ul>
-<p>These are not drawbacks —<br>
-they are the <strong>cost of high-performance, strongly-typed communication</strong>.</p>
+<p>In system design discussions, these methods often map to <strong>API operations</strong>.</p>
+<div class="mermaid">
+flowchart LR
+    subgraph ClientSide [<b>Source</b>]
+        Client["Client Browser<br/><i>(User Agent)</i>"]
+    end
+
+    subgraph HTTP_Message [<b>HTTP REQUEST DATA</b>]
+        direction LR
+        Line[<b>1. Request Line</b><br/>GET /articles HTTP/1.1]
+        Headers[<b>2. Headers</b><br/>Host: example.com<br/>Auth: Bearer Token<br/>Cookie: session_id]
+        Body{<b>3. Body</b><br/>JSON / Form Data}
+
+        Line --> Headers
+        Headers --> Body
+    end
+
+    subgraph ServerSide [<b>Destination</b>]
+        Server[(Web Server)]
+    end
+
+    %% Main Flow Connections
+    Client -- "Encapsulates" --> Line
+    Body -- "Processed by" --> Server
+
+    %% Styling
+    style ClientSide fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
+    style ServerSide fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
+    style HTTP_Message fill:#ffffff,stroke:#333,stroke-width:2px
+
+    style Line fill:#e1f5fe,stroke:#01579b
+    style Headers fill:#fff9c4,stroke:#fbc02d
+    style Body fill:#fff3e0,stroke:#e65100
+    style Server fill:#e8f5e9,stroke:#2e7d32
+</div>
 <hr>
-<h2 id="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</h2>
+<h2 id="4-anatomy-of-an-http-response">4. Anatomy of an HTTP Response</h2>
+<hr>
+<p>The server returns a response after processing the request.</p>
+<p>Example response:</p>
+<pre tabindex="0"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache
+
+{ &#34;status&#34;: &#34;success&#34; }
+</code></pre><p>A response includes:</p>
+<ol>
+<li>Status line</li>
+<li>Headers</li>
+<li>Optional body</li>
+</ol>
+<h3 id="status-line">Status Line</h3>
+<p>The status line communicates the result of the request.</p>
+<p>Example:</p>
+<pre tabindex="0"><code>HTTP/1.1 200 OK
+</code></pre><p>Common status codes:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Code</th>
+          <th>Meaning</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>200</td>
+          <td>Success</td>
+      </tr>
+      <tr>
+          <td>201</td>
+          <td>Resource created</td>
+      </tr>
+      <tr>
+          <td>400</td>
+          <td>Bad request</td>
+      </tr>
+      <tr>
+          <td>401</td>
+          <td>Unauthorized</td>
+      </tr>
+      <tr>
+          <td>404</td>
+          <td>Resource not found</td>
+      </tr>
+      <tr>
+          <td>500</td>
+          <td>Internal server error</td>
+      </tr>
+  </tbody>
+</table>
+<p>These status codes become important when designing APIs and debugging systems.</p>
+<hr>
+<h2 id="5-headers--metadata-of-http">5. Headers — Metadata of HTTP</h2>
+<hr>
+<p>Headers carry <strong>metadata about the request or response</strong>.</p>
+<p>They provide additional context that allows servers, proxies, and clients to interpret messages correctly.</p>
+<p>Examples of common headers:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Header</th>
+          <th>Purpose</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Host</td>
+          <td>Identifies the target server</td>
+      </tr>
+      <tr>
+          <td>User-Agent</td>
+          <td>Information about the client</td>
+      </tr>
+      <tr>
+          <td>Content-Type</td>
+          <td>Type of payload being sent</td>
+      </tr>
+      <tr>
+          <td>Authorization</td>
+          <td>Credentials for authentication</td>
+      </tr>
+      <tr>
+          <td>Cache-Control</td>
+          <td>Defines caching behavior</td>
+      </tr>
+  </tbody>
+</table>
+<p>Headers are heavily used by:</p>
+<ul>
+<li>load balancers</li>
+<li>proxies</li>
+<li>CDNs</li>
+<li>API gateways</li>
+</ul>
+<p>Because they allow <strong>routing and policy decisions without inspecting the entire payload</strong>.</p>
+<hr>
+<h2 id="6-cookies--maintaining-state-over-a-stateless-protocol">6. Cookies — Maintaining State Over a Stateless Protocol</h2>
+<hr>
+<p>HTTP itself is stateless, but many applications require <strong>user sessions</strong>.</p>
+<p>Cookies solve this problem.</p>
+<p>A server can send a cookie to the client:</p>
+<pre tabindex="0"><code>Set-Cookie: session_id=abc123
+</code></pre><p>The browser then includes that cookie in future requests:</p>
+<pre tabindex="0"><code>Cookie: session_id=abc123
+</code></pre><p>This allows servers to associate multiple requests with the same session.</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant S as Server
+    participant DB as Session Store
+
+    Note over B,S: First Visit (Anonymous)
+    B->>S: GET /profile (No Cookie)
+    S->>DB: Create Session
+    DB-->>S: session_id: abc123
+    S-->>B: 200 OK + Set-Cookie: id=abc123
+    Note right of B: Browser saves cookie<br/>to local storage
+
+    Note over B,S: Second Visit (Recognized)
+    B->>S: GET /profile + Cookie: id=abc123
+    S->>DB: Lookup id: abc123
+    DB-->>S: User: "Alex"
+    S-->>B: 200 OK (Welcome back, Alex!)
+</div>
+<p>Cookies are commonly used for:</p>
+<ul>
+<li>login sessions</li>
+<li>user preferences</li>
+<li>tracking identifiers</li>
+</ul>
+<p>However, cookies also introduce design challenges such as <strong>session storage and security considerations</strong>.</p>
+<hr>
+<h2 id="7-cookies-vs-browser-cache">7. Cookies vs Browser Cache</h2>
+<hr>
+<p>Cookies and browser cache are sometimes confused because both are stored by the browser.</p>
+<p>However, they serve completely different purposes.</p>
+<p>Cookies store <strong>small pieces of state or identity information</strong> about the user.</p>
+<p>Example:</p>
+<p>Set-Cookie: session_id=abc123</p>
+<p>These cookies are sent back to the server on future requests.</p>
+<p>Browser cache, on the other hand, stores <strong>HTTP responses</strong> (such as images, CSS, or API responses) so the browser can reuse them without contacting the server again.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>Cookies</th>
+          <th>Browser Cache</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Purpose</td>
+          <td>Maintain user state</td>
+          <td>Improve performance</td>
+      </tr>
+      <tr>
+          <td>Stored data</td>
+          <td>Small key-value identifiers</td>
+          <td>Full HTTP responses</td>
+      </tr>
+      <tr>
+          <td>Sent with request</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Typical usage</td>
+          <td>Sessions, authentication</td>
+          <td>Static resources</td>
+      </tr>
+  </tbody>
+</table>
+<p>Browsers store cookies and cached responses <strong>in separate storage areas</strong>.</p>
+<div class="mermaid">
+flowchart TB
+    subgraph Client ["<b>BROWSER (Client)</b>"]
+        direction TB
+        subgraph Storage [<b>Client Storage Stack</b>]
+            direction TB
+            CookieStore[(<b>Cookie Jar</b><br/><i>Identity & State</i>)]
+            CacheStore[(<b>HTTP Cache</b><br/><i>Static Assets</i>)]
+        end
+        UI[Browser Engine / UI]
+    end
+
+    subgraph ServerSide [<b>WEB SERVER</b>]
+        direction TB
+        App[<b>Application Logic</b>]
+        DB[(Session DB)]
+    end
+
+    %% Flow 1: Main Request
+    UI -- "1. Request" --> App
+
+    %% Flow 2: Cookies (Horizontal side-tap)
+    CookieStore <-->|<b>Set-Cookie / Cookie</b>| App
+
+    %% Flow 3: Cache Control (Routing from bottom of App to avoid overlap)
+    App -. "2. Cache-Control" .-> CacheStore
+
+    %% Flow 4: The Local Hit
+    CacheStore -. "3. Local Hit<br/>(Bypass Network)" .-> UI
+
+    %% Database relationship
+    App --- DB
+
+    %% Styling
+    style Client fill:#fdfdfd,stroke:#333,stroke-width:2px
+    style Storage fill:#f1f8e9,stroke:#558b2f,stroke-dasharray: 5 5
+    style ServerSide fill:#f5f5f5,stroke:#9e9e9e
+
+    style CookieStore fill:#fff9c4,stroke:#fbc02d
+    style CacheStore fill:#e1f5fe,stroke:#01579b
+    style App fill:#e8f5e9,stroke:#2e7d32
+</div>
+<hr>
+<h2 id="8-authentication-headers">8. Authentication Headers</h2>
+<hr>
+<p>Modern systems often avoid cookie-based sessions and instead use <strong>authentication headers</strong>.</p>
+<p>A common pattern is the <strong>Authorization header</strong>:</p>
+<pre tabindex="0"><code>Authorization: Bearer &lt;token&gt;
+</code></pre><p>This token may represent:</p>
+<ul>
+<li>a JWT</li>
+<li>an OAuth access token</li>
+<li>an API key</li>
+</ul>
+<p>Authentication headers enable <strong>stateless authentication</strong>, where the server does not need to store session data.</p>
+<p>This model is widely used in:</p>
+<ul>
+<li>microservices architectures</li>
+<li>public APIs</li>
+<li>distributed systems</li>
+</ul>
+<hr>
+<h2 id="9-why-http-fundamentals-matter-for-system-design">9. Why HTTP Fundamentals Matter for System Design</h2>
+<hr>
+<p>Understanding HTTP mechanics helps explain many higher-level system behaviors.</p>
+<p>For example:</p>
+<ul>
+<li><strong>Rate limiting</strong> often depends on headers</li>
+<li><strong>API gateways</strong> inspect headers for routing</li>
+<li><strong>CDNs</strong> cache responses based on headers</li>
+<li><strong>Authentication systems</strong> rely on tokens in headers</li>
+<li><strong>Sticky sessions</strong> may depend on cookies</li>
+</ul>
+<p>Without understanding these mechanics, many networking components can appear like &ldquo;black boxes&rdquo;.</p>
 <blockquote>
-<p>📍 <strong>Layer Mapping</strong></p>
-<p>gRPC is an <strong>Application-layer protocol</strong><br>
-(OSI Layer 7 / TCP-IP Application layer).</p>
-<p>It typically runs over <strong>HTTP/2</strong>, which itself operates at the Application layer but depends on:</p>
+<h4 id="-system-design-insight">💡 System Design Insight</h4>
+<p>Cookies can affect caching behavior.</p>
+<p>When requests include cookies, many CDNs and reverse proxies avoid caching the response because the response may depend on the user&rsquo;s identity.</p>
+<p><strong>For example:</strong></p>
+<p>Cookie: session_id=abc123</p>
+<p>If a response were cached with this cookie, another user might receive personalized data.</p>
+<p>Because of this risk, responses with cookies are often treated as <strong>non-cacheable</strong>, which can reduce caching efficiency.</p>
+<p>This is why many large systems separate:</p>
 <ul>
-<li><strong>TLS</strong> (cross-layer security boundary)</li>
-<li><strong>TCP</strong> (OSI Layer 4) for reliable delivery</li>
+<li>static content (cacheable)</li>
+<li>authenticated APIs (not cached)</li>
 </ul></blockquote>
-<p>This explains why:</p>
-<ul>
-<li>Understanding HTTP/2 is a prerequisite for gRPC</li>
-<li>TCP behavior still affects gRPC performance under packet loss</li>
-</ul>
 <hr>
-<h2 id="11-key-takeaways">11. Key Takeaways</h2>
-<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
 <ul>
-<li>gRPC is RPC-style communication built on <strong>HTTP/2</strong></li>
-<li>It is optimized for <strong>internal service-to-service</strong> calls</li>
-<li>Protobuf enables compact payloads and strong contracts</li>
-<li>Streaming is a major differentiator</li>
-<li>REST remains ideal for public APIs</li>
-<li>Protocol choice is an architectural decision, not a trend</li>
+<li>HTTP communication follows a <strong>request–response model</strong></li>
+<li>An HTTP request includes a method, headers, and optionally a body</li>
+<li>Responses include a status code, headers, and a payload</li>
+<li>Headers carry metadata used for routing, caching, and authentication</li>
+<li>Cookies allow stateful behavior on top of a stateless protocol</li>
+<li>Authentication headers enable stateless API security</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we’ve covered:</p>
-<ul>
-<li>HTTP evolution (1.1 → 2 → 3)</li>
-<li>TLS as a security baseline</li>
-<li>gRPC for internal communication</li>
-</ul>
-<p>we synthesize everything into a <strong>practical decision guide</strong>:</p>
-<ul>
-<li>HTTP/1.1 vs HTTP/2 vs HTTP/3</li>
-<li>REST vs gRPC</li>
-<li>Internet vs mobile vs data-center environments</li>
-<li>Trade-offs, defaults, and when to deviate</li>
-</ul>
+<p>Now that we understand how HTTP messages are structured, we can explore the limitations of the original protocol.</p>
+<p>In the next chapter we examine why <strong>HTTP/1.1 struggled with modern workloads</strong>, and how newer versions of HTTP evolved to solve those problems.</p>
 <p>👉 <strong>Up Next →</strong><br>
-<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol">Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)</a></strong></p>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_2_http-1.1-original-model">HTTP/1.1 — The Original Model and Its Limits</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong></p>
-<p>gRPC is not about “modernizing APIs”.<br>
-It’s about building <strong>fast, safe, contract-driven communication</strong> inside distributed systems.</p></blockquote>
+<p>Before optimizing protocols or scaling systems, you must understand <strong>what actually travels over the wire.</strong></p></blockquote>
 
         </article>
 
@@ -575,67 +713,61 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-introduction--why-rest-isnt-always-ideal-internally" data-toc-target="1-introduction--why-rest-isnt-always-ideal-internally">1. Introduction — Why REST Isn’t Always Ideal Internally</a>
+        <a class="toc-link" href="#1-introduction--what-actually-travels-over-http" data-toc-target="1-introduction--what-actually-travels-over-http">1. Introduction — What Actually Travels Over HTTP</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-grpc-actually-is" data-toc-target="2-what-grpc-actually-is">2. What gRPC Actually Is</a>
+        <a class="toc-link" href="#2-the-http-requestresponse-model" data-toc-target="2-the-http-requestresponse-model">2. The HTTP Request–Response Model</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-where-grpc-fits-in-the-stack" data-toc-target="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</a>
+        <a class="toc-link" href="#3-anatomy-of-an-http-request" data-toc-target="3-anatomy-of-an-http-request">3. Anatomy of an HTTP Request</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-the-contract-first-model-why-teams-love-it" data-toc-target="4-the-contract-first-model-why-teams-love-it">4. The Contract-First Model (Why Teams Love It)</a>
+        <a class="toc-link" href="#4-anatomy-of-an-http-response" data-toc-target="4-anatomy-of-an-http-response">4. Anatomy of an HTTP Response</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-protobuf-vs-json-system-design-view" data-toc-target="5-protobuf-vs-json-system-design-view">5. Protobuf vs JSON (System Design View)</a>
+        <a class="toc-link" href="#5-headers--metadata-of-http" data-toc-target="5-headers--metadata-of-http">5. Headers — Metadata of HTTP</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-streaming-the-killer-feature-for-many-systems" data-toc-target="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</a>
+        <a class="toc-link" href="#6-cookies--maintaining-state-over-a-stateless-protocol" data-toc-target="6-cookies--maintaining-state-over-a-stateless-protocol">6. Cookies — Maintaining State Over a Stateless Protocol</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-why-http2-makes-grpc-efficient" data-toc-target="7-why-http2-makes-grpc-efficient">7. Why HTTP/2 Makes gRPC Efficient</a>
+        <a class="toc-link" href="#7-cookies-vs-browser-cache" data-toc-target="7-cookies-vs-browser-cache">7. Cookies vs Browser Cache</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-grpc-vs-rest--when-to-use-what" data-toc-target="8-grpc-vs-rest--when-to-use-what">8. gRPC vs REST — When to Use What</a>
+        <a class="toc-link" href="#8-authentication-headers" data-toc-target="8-authentication-headers">8. Authentication Headers</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-operational-reality-important-for-hld" data-toc-target="9-operational-reality-important-for-hld">9. Operational Reality (Important for HLD)</a>
+        <a class="toc-link" href="#9-why-http-fundamentals-matter-for-system-design" data-toc-target="9-why-http-fundamentals-matter-for-system-design">9. Why HTTP Fundamentals Matter for System Design</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#10-layer-mapping-explicit" data-toc-target="10-layer-mapping-explicit">10. Layer Mapping (Explicit)</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#11-key-takeaways" data-toc-target="11-key-takeaways">11. Key Takeaways</a>
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
       </li>
     
   </ul>
@@ -650,8 +782,6 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
 
 <section class="topic-nav">
   <div class="container nav-buttons">
-    
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -683,7 +813,7 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
     
 
     
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_2_http-1.1-original-model/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

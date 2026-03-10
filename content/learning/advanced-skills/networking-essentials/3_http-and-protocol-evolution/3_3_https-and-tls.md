@@ -8,7 +8,7 @@ keywords:
   - https handshake
   - system design tls basics
   - osi tls layer
-weight: 2
+weight: 3
 date: 2026-02-20
 layout: "topic-content"
 ---
@@ -351,7 +351,7 @@ In the next chapter, we explore:
 - and how performance evolved without changing HTTP itself
 
 👉 **Up Next →**  
-**[HTTP/2 — Multiplexing and Performance](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_3_http-2-multiplexing-and-performance)**
+**[HTTP/2 — Multiplexing and Performance](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance)**
 
 ---
 

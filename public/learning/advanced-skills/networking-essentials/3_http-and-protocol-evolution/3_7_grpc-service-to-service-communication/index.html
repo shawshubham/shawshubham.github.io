@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773089199">
+<link rel="stylesheet" href="/css/main.css?v=1773150429">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -191,16 +191,20 @@
                                   <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/">3.4. HTTP/2 — Multiplexing and Performance</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.5. HTTP/3 &amp; QUIC — Rethinking Transport</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_websockets/">3.6. WebSockets — Persistent Bidirectional Communication</a>
+                                </li>
+                              
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication/">3.5. gRPC — High-Performance Service-to-Service Communication</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_7_grpc-service-to-service-communication/">3.7. gRPC — High-Performance Service-to-Service Communication</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/">3.6. HTTP/3 &amp; QUIC — Rethinking Transport</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol/">3.7. Choosing the Right Protocol — REST vs gRPC vs HTTP/2 vs HTTP/3</a>
+                                  <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_8_choosing-right-protocol/">3.8. Choosing the Right Protocol — REST vs WebSockets vs gRPC vs HTTP/2 vs HTTP/3</a>
                                 </li>
                               
                             </ul>
@@ -281,7 +285,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Feb, 2026
+            Last updated on: 10 Mar, 2026
             
           </p>
         </div>
@@ -296,7 +300,13 @@
 <li>browser-friendly</li>
 <li>easy to integrate</li>
 </ul>
-<p>But inside a distributed system (service-to-service), teams often hit limits:</p>
+<p>However, different communication patterns require different protocols.</p>
+<p>For example:</p>
+<ul>
+<li><strong>WebSockets</strong> enable real-time bidirectional communication between clients and servers.</li>
+<li><strong>gRPC</strong> focuses on efficient <strong>service-to-service communication</strong> inside distributed systems.</li>
+</ul>
+<p>Inside large backend systems, teams often hit limits with REST-based APIs:</p>
 <ul>
 <li>Too much JSON overhead for high-throughput calls</li>
 <li>Weak contracts (breaking changes slip through)</li>
@@ -321,6 +331,42 @@ It’s a different communication style optimized for <strong>internal services</
 <blockquote>
 <p>REST: “Resources over HTTP”<br>
 gRPC: “Typed function calls over the network”</p></blockquote>
+<div class="mermaid">
+flowchart TB
+
+    %% REST
+    subgraph HTTP_REST ["REST<br>&nbsp;&nbsp;(HTTP/1.1 or HTTP/2)"]
+        direction TB
+        R1[Client] -- Request --> S1[Server]
+        S1 -- Response JSON --> R1
+        Note1["<i>Stateless & Standard Resource-based</i>"]
+    end
+
+    %% WebSockets
+    subgraph WS ["WebSockets<br>(HTTP Upgrade)"]
+        direction TB
+        R2[Client] <-->|Bidirectional Stream| S2[Server]
+        Note2["<i>Persistent Connection</i>"]
+    end
+
+    %% gRPC
+    subgraph GRPC ["gRPC<br>&nbsp;(HTTP/2 + Protobuf)"]
+        direction TB
+        R3[Client] -- RPC Call --> S3[Server]
+        S3 -- Unary / Streaming --> R3
+        Note3["<i>High-performance Service Calls</i>"]
+    end
+
+    %% Typical usage
+    HTTP_REST --> Use1["Public APIs"]
+    WS --> Use2["Realtime Applications"]
+    GRPC --> Use3["Internal Microservices"]
+
+    %% Styling
+    style HTTP_REST fill:#e3f2fd,stroke:#1565c0
+    style WS fill:#fff3e0,stroke:#e65100
+    style GRPC fill:#e8f5e9,stroke:#2e7d32
+</div>
 <hr>
 <h2 id="3-where-grpc-fits-in-the-stack">3. Where gRPC Fits in the Stack</h2>
 <hr>
@@ -400,8 +446,15 @@ It is better when <strong>performance, efficiency, and strict contracts</strong>
 <hr>
 <h2 id="6-streaming-the-killer-feature-for-many-systems">6. Streaming: The Killer Feature for Many Systems</h2>
 <hr>
-<p>REST is great for request/response.<br>
-But when you need continuous or bidirectional communication, it gets awkward.</p>
+<p>REST is great for request/response communication.</p>
+<p>For real-time client communication, systems often use <strong>WebSockets</strong>.</p>
+<p>However, internal service-to-service systems sometimes need streaming communication as well — for example:</p>
+<ul>
+<li>continuous telemetry</li>
+<li>event pipelines</li>
+<li>partial results</li>
+<li>high-frequency updates</li>
+</ul>
 <p>gRPC supports <strong>four communication patterns</strong>:</p>
 <div class="mermaid">
 flowchart LR
@@ -532,7 +585,8 @@ they are the <strong>cost of high-performance, strongly-typed communication</str
 <ul>
 <li>HTTP evolution (1.1 → 2 → 3)</li>
 <li>TLS as a security baseline</li>
-<li>gRPC for internal communication</li>
+<li>WebSockets for real-time communication</li>
+<li>gRPC for service-to-service communication</li>
 </ul>
 <p>we synthesize everything into a <strong>practical decision guide</strong>:</p>
 <ul>
@@ -542,7 +596,7 @@ they are the <strong>cost of high-performance, strongly-typed communication</str
 <li>Trade-offs, defaults, and when to deviate</li>
 </ul>
 <p>👉 <strong>Up Next →</strong><br>
-<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_choosing-right-protocol">Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)</a></strong></p>
+<strong><a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_8_choosing-right-protocol">Choosing the Right Protocol (REST vs gRPC vs HTTP/2 vs HTTP/3)</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong></p>
@@ -651,7 +705,7 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_4_http-2-multiplexing-and-performance/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_websockets/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -683,7 +737,7 @@ It’s about building <strong>fast, safe, contract-driven communication</strong>
     
 
     
-    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_http-3-and-quic/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_8_choosing-right-protocol/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

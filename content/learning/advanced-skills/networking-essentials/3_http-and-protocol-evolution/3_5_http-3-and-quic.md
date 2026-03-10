@@ -8,7 +8,7 @@ keywords:
   - udp vs tcp modern protocols
   - system design http3
   - transport protocol evolution
-weight: 4
+weight: 5
 date: 2026-02-20
 layout: "topic-content"
 ---
@@ -269,26 +269,29 @@ Modern protocols evolved by **rethinking layers**, not ignoring them.
 
 ### 🔗 What’s Next?
 
-We have now seen how:
+So far in this phase we have explored how HTTP evolved to improve performance:
 
-- HTTP evolved
-- transport assumptions were challenged
-- performance constraints drove innovation
+- HTTP/1.1 → basic request–response model
+- HTTP/2 → multiplexing over TCP
+- HTTP/3 → transport rethinking with QUIC
 
-Next, we look at **how services communicate internally** at scale.
+But these protocols still follow the **request–response communication model**.
 
-In the next chapter, we explore:
+Some modern systems require a different interaction pattern — **persistent, bidirectional communication** between client and server.
 
-- why REST is not always ideal
-- how gRPC builds on HTTP/2
-- and when gRPC is the right choice
+In the next chapter, we explore **WebSockets**, which enable real-time communication for systems like:
+
+- chat applications
+- live dashboards
+- collaborative tools
+- multiplayer games
 
 👉 **Up Next →**  
-**[gRPC — High-Performance Service-to-Service Communication](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_5_grpc-service-to-service-communication)**
+**[WebSockets — Persistent Bidirectional Communication](/learning/advanced-skills/networking-essentials/3_http-and-protocol-evolution/3_6_websockets)**
 
 ---
 
-> **📝 Takeaway**
+> 📝 **Takeaway**
 >
 > HTTP/3 exists because fixing performance sometimes means  
 > rethinking assumptions at a deeper layer than expected.
