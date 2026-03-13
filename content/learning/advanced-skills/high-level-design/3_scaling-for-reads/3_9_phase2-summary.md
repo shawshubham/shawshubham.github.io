@@ -155,13 +155,17 @@ Most large-scale platforms accept small delays in data synchronization in exchan
 
 This phase introduced several foundational High-Level Design concepts.
 
-- Caching
-- Cache Layers
-- Horizontal Scaling
-- Load Balancing
-- Stateless Application Servers
-- Content Delivery Networks (CDN)
-- Eventual Consistency
+1. [Caching — What is Caching ?](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching)
+2. [Caching — Cache Hit vs Cache Miss](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss)
+3. [Caching — Caching Patterns](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_3_caching-patterns)
+4. [Caching — Cache Invalidation](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_4_cache-invalidation)
+5. [Caching — Cache Eviction Policies](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies)
+6. [Caching — Local vs Distributed Cache](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache)
+7. [Horizontal Scaling](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling)
+8. [Load Balancing](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing)
+9. [Stateless Application Servers](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_9_stateless-application-servers)
+10. [Content Delivery Networks (CDN)](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_10_cdn)
+11. [Eventual Consistency](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_11_eventual-consistency)
 
 These concepts form the backbone of modern scalable architectures.
 
@@ -192,7 +196,7 @@ We introduced caching, load balancing, CDNs, and eventual consistency — all es
 ## 🔗 What’s Next?
 
 👉 **Up Next →**  
-**[Phase 3: Designing Systems That Require Strong Consistency](/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_9_phase2-summary)**
+**[Phase 3: Designing Systems That Require Strong Consistency](/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_1_introduction)**
 
 In the next phase, we will design systems where correctness is critical, such as **payment systems and financial transactions**.
 

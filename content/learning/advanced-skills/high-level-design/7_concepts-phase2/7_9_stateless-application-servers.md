@@ -86,8 +86,8 @@ Many early web architectures stored **session state directly in server memory**.
 Example:
 
 ```
-User logs in
-Session stored in Server A memory
+- User logs in
+- Session stored in 'Server A' memory
 ```
 
 Now every future request from that user must go back to **Server A**.
@@ -280,55 +280,144 @@ User logs out
 JWT token still valid until expiry
 ```
 
-The server has no built-in way to invalidate the token before its expiration.
+If a token is valid for 30 minutes, the user could still access the system for the remaining duration even after logging out.
 
 This creates operational problems such as:
 
 - logout handling
 - token revocation
 - compromised account recovery
-- refresh token management
+- device/session management
+
+To solve this limitation, many systems introduce **refresh tokens and shared session storage**.
 
 ---
 
-### 8.3 Why Systems Still Use Redis
+### 8.3 Access Tokens vs Refresh Tokens
 
-To solve these problems, many systems introduce **shared storage such as Redis** alongside JWT.
+Modern authentication systems typically use **two tokens**.
 
-Example uses include:
+| Token         | Purpose                   | Lifetime             |
+| ------------- | ------------------------- | -------------------- |
+| Access Token  | Authenticate API requests | Short (5–15 minutes) |
+| Refresh Token | Obtain new access tokens  | Long (days or weeks) |
 
-- storing **refresh tokens**
-- maintaining **token revocation lists**
-- managing **login sessions**
-- tracking **active devices**
-
-Architecture example:
+Architecture concept:
 
 ```code
 Access Token → JWT (short lived)
 Refresh Token → stored in Redis or database
 ```
 
-This allows the system to remain **stateless for normal requests**, while still maintaining **control over authentication sessions**.
+The key idea:
+
+- **Access tokens remain stateless**
+- **Refresh tokens provide session control**
 
 ---
 
-### 8.4 When Systems Use Both
+### 8.4 Step-by-Step Authentication Flow
 
-In many real systems, both approaches are combined:
+#### Step 1 — User Login
 
-- **JWT** is used for authentication
-- **Redis or a database** may still store refresh tokens, revocation lists, or other shared data
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as Auth Server
+    participant R as Redis
+    participant DB as Database
 
-This hybrid approach balances:
-
-```code
-stateless request handling
-+
-centralized session control
+    U->>A: Login request
+    A->>DB: Validate credentials
+    DB-->>A: User verified
+    A->>R: Store Refresh Token
+    A-->>U: Return Access Token + Refresh Token
 ```
 
-It is widely used in modern **API gateways and microservice architectures**.
+After login:
+
+- the **access token + refresh token** is sent to the client
+- the **refresh token** is stored in Redis
+
+#### Step 2 — Normal API Requests
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant LB as Load Balancer
+    participant S as App Server
+
+    U->>LB: Request with Access Token
+    LB->>S: Forward request
+    S->>S: Verify JWT signature
+    S-->>U: Response
+```
+
+Important detail:
+
+- **Redis is not required for every request** as client just sends access token.
+- the server simply verifies the JWT
+
+This keeps request handling **stateless and highly scalable**.
+
+#### Step 3 — Access Token Expires
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as App Server
+    participant R as Redis
+
+    U->>A: Request with expired token
+    A-->>U: 401 Unauthorized
+    U->>A: Send Refresh Token
+    A->>R: Validate Refresh Token
+    R-->>A: Token valid
+    A-->>U: Issue new Access Token
+```
+
+Redis is used to validate the refresh token and issue a new access token.
+
+#### Step 4 — Logout or Session Revocation
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as App Server
+    participant R as Redis
+
+    U->>A: Logout request
+    A->>R: Delete Refresh Token
+    R-->>A: Removed
+    A-->>U: Logout successful
+```
+
+Deleting the refresh token ensures:
+
+- the session cannot continue
+- new access tokens cannot be generated
+
+---
+
+### 8.5 When Systems Use JWT and Redis
+
+The combination of **JWT + Redis** balances two goals:
+
+```code
+JWT   → fast stateless authentication
+Redis → centralized session lifecycle control
+```
+
+JWT allows requests to be handled **without server-side state**, which improves scalability.
+
+Redis provides **operational control**, allowing systems to manage:
+
+- logout
+- token revocation
+- refresh token rotation
+- active session tracking
+
+This hybrid model is widely used in modern **microservices architectures and API gateways**.
 
 ---
 
@@ -395,4 +484,5 @@ So far we scaled systems using:
 
 The next step is improving **global performance and latency**.
 
-👉 Up Next: **Content Delivery Networks (CDN)**, which allow systems to serve users from locations closer to them.
+👉 **Up next:**  
+**[Content Delivery Networks (CDN)](/learning/advanced-skills/high-level-design/7_concepts-phase2/7_10_cdn)**, which allow systems to serve users from locations closer to them.
