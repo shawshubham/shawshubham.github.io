@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Example 3: Payment System — Failure Scenarios in Distributed Transactions</title>
+<title>Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773508406">
+<link rel="stylesheet" href="/css/main.css?v=1773669873">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Example 3: Payment System — Failure Scenarios in Distributed Transactions</h1>
+    <h1 class="main-heading">Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</h1>
     <h3>
   </div>
 </section>
@@ -244,24 +244,32 @@
                                   <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.5. Example 3: Payment System — Failure Scenarios in Distributed Transactions</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable/">4.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.6. Example 3: Payment System — Idempotency and Safe Retries</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.8. Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.9. Phase 3 Summary — Designing Reliable Distributed Systems</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/">4.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
                                 </li>
                               
                             </ul>
@@ -392,191 +400,496 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 14 Mar, 2026
+            Last updated on: 16 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-failures-matter-in-payment-systems">1. Why Failures Matter in Payment Systems</h2>
+          <h2 id="1-why-this-article-exists">1. Why This Article Exists</h2>
 <hr>
-<p>In the previous article we designed a <strong>basic payment system architecture</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User → Payment API → Payment Service → Database
-</span></span></code></pre></div><p>At first glance, the system appears simple and reliable.</p>
-<p>However, real-world distributed systems operate in environments where <strong>failures are inevitable</strong>.</p>
-<p>Networks fail, services crash, databases slow down, and clients retry requests.</p>
-<p>For most applications these failures may cause temporary inconvenience.</p>
-<p>For <strong>financial systems</strong>, however, failures can lead to serious problems such as:</p>
-<pre tabindex="0"><code>duplicate payments
-lost transactions
-incorrect balances
-inconsistent financial records
-</code></pre><p>Understanding these failure scenarios is the first step toward designing a <strong>correct and reliable payment system</strong>.</p>
+<p>In the previous article, we introduced <strong>Saga</strong> as the coordination model for multi-service payment workflows, and we chose <strong>orchestration</strong> for our baseline design.</p>
+<p>But a saga is only reliable if it survives real-world conditions:</p>
+<ul>
+<li>processes crash</li>
+<li>networks time out</li>
+<li>messages are duplicated</li>
+<li>downstream services partially succeed</li>
+<li>responses are lost</li>
+</ul>
+<p>If our orchestrator keeps state only in memory, or retries without rules, we still end up with:</p>
+<blockquote>
+<p><strong>“Payment says confirmed, ledger disagrees.”</strong></p></blockquote>
+<p>So this article upgrades the saga from a concept to a <strong>production-safe workflow</strong>.</p>
+<p>We’ll add:</p>
+<ul>
+<li>a <strong>durable workflow state machine</strong></li>
+<li><strong>idempotent step execution</strong></li>
+<li><strong>bounded retries + timeouts</strong></li>
+<li><strong>compensating transactions</strong></li>
+<li>an operating model for <strong>observability + stuck workflows</strong></li>
+</ul>
+<p>(Deep theory will also be reinforced later in Concepts.)</p>
 <hr>
-<h2 id="2-problem-1-duplicate-requests">2. Problem 1: Duplicate Requests</h2>
+<h2 id="2-updated-architecture-adding-reliability-components">2. Updated Architecture: Adding Reliability Components</h2>
 <hr>
-<p>One of the most common issues in distributed systems is <strong>duplicate requests</strong>.</p>
-<p>Example scenario:</p>
-<pre tabindex="0"><code>User presses &#34;Pay&#34;
-Network delay occurs
-User presses &#34;Pay&#34; again
-</code></pre><p>From the system&rsquo;s perspective, these appear as <strong>two separate payment requests</strong>.</p>
+<p>Compared to previous design, the biggest change is that payment processing is no longer “one request chain”.</p>
+<p>It becomes a <strong>durable workflow</strong> with a clear transactional boundary.</p>
+<p>To make the saga production-safe, we add:</p>
+<ul>
+<li><strong>Payment Orchestrator (Process Engine)</strong> — controls step progression and state transitions</li>
+<li><strong>Workflow Store</strong> — persists workflow state (step-by-step progress)</li>
+<li><strong>Outbox Table</strong> — stores messages/events to be published reliably</li>
+<li><strong>Outbox Relay</strong> — publishes outbox records to the message bus (decoupled from the request path)</li>
+</ul>
+<p>The key reliability property we want is:</p>
+<blockquote>
+<p><strong>Workflow state + business data + outbox record are written in one atomic transaction.</strong><br>
+Publishing happens later via a relay, so we never lose messages after committing state.</p></blockquote>
+<p>A refined baseline architecture:</p>
 <div class="mermaid">
-sequenceDiagram
-
-    participant User
-    participant API
-    participant Service
-    participant DB
-
-    User->>API: Pay $100
-    User->>API: Pay $100 (duplicate)
-
-    API->>Service: Process Payment
-    API->>Service: Process Payment
-
-    Service->>DB: Record Transaction
-    Service->>DB: Record Transaction
-</div>
-<p>Without safeguards, the system may process <strong>two payments instead of one</strong>.</p>
-<hr>
-<h2 id="3-problem-2-network-retries">3. Problem 2: Network Retries</h2>
-<hr>
-<p>Another common failure scenario occurs when a <strong>network timeout</strong> happens during a request.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>User sends payment request
-Payment processed successfully
-Network timeout occurs before response
-Client retries request
-</code></pre><p>From the client&rsquo;s perspective, the payment appears to have <strong>failed</strong>, even though it actually succeeded.</p>
-<div class="mermaid">
-sequenceDiagram
-
-    participant Client
-    participant PaymentService
-    participant DB
-
-    Client->>PaymentService: Process Payment
-    PaymentService->>DB: Record Transaction
-
-    DB-->>PaymentService: Success
-
-    Note right of Client: Response lost due to network issue
-
-    Client->>PaymentService: Retry Payment
-</div>
-<p>If the system is not designed carefully, the retry may create <strong>a second transaction</strong>.</p>
-<hr>
-<h2 id="4-problem-3-partial-failures">4. Problem 3: Partial Failures</h2>
-<hr>
-<p>Distributed systems may fail <strong>midway through an operation</strong>.</p>
-<p>Example scenario:</p>
-<pre tabindex="0"><code>Balance deducted
-Transaction record not stored
-</code></pre><p>Or:</p>
-<pre tabindex="0"><code>Payment recorded
-Notification service fails
-</code></pre><div class="mermaid">
 flowchart LR
-    User([User]) -- "1. Pay $50" --> PS[Payment Service]
+    U([User]) --> API[Payment API]
 
-    subgraph DB_State [Database State]
-        direction TB
-        Step1[Step A: Deduct Balance] 
-        Step2[Step B: Record Transaction]
+    subgraph Orchestrator_Node ["Payment Service<br>(Orchestrator Mode)"]
+        O[Process Engine]
+        Relay[Outbox Relay]
     end
 
-    PS -->|2. Write| Step1
-    
-    %% Using the 'X' to indicate the break
-    PS -- "3. Crash/Timeout" --x Step2
-    
-    %% Warning Note as a styled node
-    Note[/"⚠️ PARTIAL FAILURE:
-    Balance is lowered,
-    but history is missing!"/]
+    API -->|"startPayment<br>(workflowId,paymentId)"| O
 
-    %% Link the note to the problem area
-    Step2 --- Note
+    subgraph Database_Boundary ["Transactional Payments DB"]
+        WF[(Workflow State)]
+        PayDB[(Business Data)]
+        OB[(Outbox Table)]
+    end
+
+    O <-->|Atomic Transaction| Database_Boundary
+
+    subgraph External_Services [External Dependencies]
+        F[Fraud Service]
+        L[Ledger Service]
+        N[Notification Service]
+    end
+
+    O -->|"Request/Response (idempotent)"| F
+    O -->|"Request/Response (idempotent)"| L
+
+    Relay -- Reads --> OB
+    Relay -- Publishes --> BUS[Message Bus]
+    BUS --> N
+
+    style Orchestrator_Node fill:#fffde7,stroke:#fbc02d
+    style Database_Boundary fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style OB fill:#f3e5f5,stroke:#6a1b9a
+</div>
+<blockquote>
+<p><strong>Note:</strong> In Phase 3, we evolve the existing <strong>Payment Service</strong> into an orchestrator (it contains the process engine + workflow state). In larger systems this may be split into a dedicated Orchestrator service later.</p></blockquote>
+<p>A few important clarifications:</p>
+<ul>
+<li><strong>Fraud + Ledger</strong> are shown as <strong>request/response</strong> calls here for baseline simplicity.
+<ul>
+<li>They still must be <strong>idempotent</strong> because the orchestrator can retry.</li>
+</ul>
+</li>
+<li><strong>Notification</strong> is triggered <strong>asynchronously</strong> via the message bus.
+<ul>
+<li>Payment confirmation should not block on sending a receipt.</li>
+</ul>
+</li>
+<li>The <strong>Outbox Relay</strong> makes delivery resilient:
+<ul>
+<li>if publishing fails, it retries safely because the outbox record is durable.</li>
+</ul>
+</li>
+</ul>
+<p>(We’ll revisit messaging guarantees and deeper patterns in the Concepts section.)</p>
+<hr>
+<h2 id="3-durable-workflow-state-machine-the-core">3. Durable Workflow State Machine (The Core)</h2>
+<hr>
+<p>To be resilient, the saga must have a persisted “truth” of progress.</p>
+<p>A useful way to model this is a <strong>durable workflow state machine</strong>:</p>
+<h3 id="31-example-state-model-for-our-payment-workflow">3.1 Example state model for our payment workflow</h3>
+<p>We track progress in steps:</p>
+<ul>
+<li><code>FRAUD</code></li>
+<li><code>LEDGER</code></li>
+<li><code>NOTIFY</code></li>
+</ul>
+<p>And we maintain terminal outcomes:</p>
+<ul>
+<li><code>RUNNING</code></li>
+<li><code>SUCCEEDED</code></li>
+<li><code>FAILED</code></li>
+<li><code>FAILED_COMPENSATED</code></li>
+<li><code>NEEDS_REVIEW</code></li>
+</ul>
+<p>A simplified state diagram:</p>
+<div class="mermaid">
+flowchart TD
+    %% Define Nodes
+    Start([Start]) --> Started[<b>STARTED</b>]
+
+    subgraph Happy_Path [The Success Flow]
+        direction TB
+        fraud{FRAUD_ASSESSMENT}
+        ledger[LEDGER_POSTING]
+        notify[NOTIFY_USER]
+        confirmed([<b>CONFIRMED</b>])
+    end
+
+    subgraph Error_Handling [Recovery & Resilience]
+        direction TB
+        recovering[RECOVERING]
+        review[NEEDS_REVIEW]
+        failedComp[FAILED_COMPENSATED]
+    end
+
+    failed([<b>FAILED: DECLINED</b>])
+
+    %% Logic Connections
+    Started --> fraud
+
+    fraud -- Approved --> ledger
+    fraud -- Declined --> failed
+
+    ledger -- Success --> notify
+    notify -- Success --> confirmed
+
+    %% Error Paths (Dashed)
+    ledger -. Timeout/Error .-> recovering
+    notify -. Timeout/Error .-> recovering
+
+    %% Recovery Logic (step-aware)
+    recovering -- Retry ledger step --> ledger
+    recovering -- Retry notify step --> notify
+    recovering -- Compensate/Reverse --> failedComp
+    recovering -- Retries exhausted / Uncertain --> review
+
+    %% Terminal States
+    confirmed --> End([End])
+    failed --> End
+    failedComp --> End
+    review --> End
 
     %% Styling
-    style Step1 fill:#e8f5e9,stroke:#2e7d32
-    style Step2 fill:#ffebee,stroke:#c62828,stroke-dasharray: 5 5
-    style Note fill:#fff9c4,stroke:#fbc02d
+    style Happy_Path fill:#f0fbf0,stroke:#2e7d32,stroke-dasharray: 5 5
+    style Error_Handling fill:#fff3e0,stroke:#ef6c00,stroke-dasharray: 5 5
+    style recovering fill:#fff9c4,stroke:#fbc02d
+    style failed fill:#ffebee,stroke:#c62828
+    style failedComp fill:#ffebee,stroke:#c62828
+    style review fill:#f3e5f5,stroke:#7b1fa2
 </div>
-<p>This creates <strong>inconsistent state</strong>, which is unacceptable for financial systems.</p>
-<hr>
-<h2 id="5-problem-4-service-crashes">5. Problem 4: Service Crashes</h2>
-<hr>
-<p>A service may crash <strong>after completing a database operation but before sending the response</strong>.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>Payment recorded in database
-Service crashes
-Client retries payment
-</code></pre><p>The retry may create another payment unless the system prevents it.</p>
-<hr>
-<h2 id="6-problem-5-concurrent-requests">6. Problem 5: Concurrent Requests</h2>
-<hr>
-<p>Multiple requests may modify the same account simultaneously.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>Account balance = $100
-
-Request A: Pay $70
-Request B: Pay $50
-</code></pre><p>If both requests read the balance at the same time, the system might incorrectly allow <strong>both payments</strong>, resulting in a negative balance.</p>
-<div class="mermaid">
-sequenceDiagram
-
-    participant A
-    participant B
-    participant DB
-
-    A->>DB: Read balance ($100)
-    B->>DB: Read balance ($100)
-
-    A->>DB: Deduct $70
-    B->>DB: Deduct $50
-</div>
-<p>This creates a <strong>race condition</strong>.</p>
-<hr>
-<h2 id="7-why-these-failures-are-difficult">7. Why These Failures Are Difficult</h2>
-<hr>
-<p>These problems arise because distributed systems have several inherent characteristics:</p>
+<h3 id="32-what-we-persist-per-workflow">3.2 What we persist per workflow</h3>
+<p>In the workflow store (table/document), we typically persist:</p>
 <ul>
-<li>requests may be retried</li>
-<li>services may crash</li>
-<li>networks may drop responses</li>
-<li>multiple servers may process requests concurrently</li>
+<li>workflowId, paymentId, idempotencyKey</li>
+<li>current status (STARTED, RECOVERING, CONFIRMED, …)</li>
+<li>current step (FRAUD, LEDGER, NOTIFY)</li>
+<li>attempt counts per step</li>
+<li>timestamps (createdAt, lastUpdatedAt, nextRetryAt)</li>
+<li>last error (errorCode, errorMessage, lastFailedStep)</li>
 </ul>
-<p>Because of this, systems cannot rely on simple request processing logic.</p>
-<p>Instead, they must be designed to <strong>safely handle retries and duplicates</strong>.</p>
-<hr>
-<h2 id="8-the-core-problem">8. The Core Problem</h2>
-<hr>
-<p>All the scenarios above lead to the same core challenge:</p>
-<pre tabindex="0"><code>How do we ensure a payment is processed exactly once?
-</code></pre><p>This requirement is critical in financial systems.</p>
-<p>To solve this problem, distributed systems introduce techniques such as:</p>
+<p>This persistence is what survives:</p>
 <ul>
-<li><strong>idempotent operations</strong></li>
-<li><strong>transaction identifiers</strong></li>
-<li><strong>safe retry mechanisms</strong></li>
-</ul>
-<p>These techniques allow the system to safely handle repeated requests without creating duplicate financial operations.</p>
-<hr>
-<h2 id="key-takeaways">Key Takeaways</h2>
-<hr>
-<ul>
-<li>Distributed systems experience failures frequently.</li>
-<li>Payment systems must handle duplicate requests and retries safely.</li>
-<li>Partial failures can lead to inconsistent financial state.</li>
-<li>Systems must guarantee that payments are processed <strong>exactly once</strong>.</li>
+<li>orchestrator restarts</li>
+<li>transient outages</li>
+<li>long retries</li>
+<li>delayed compensations</li>
 </ul>
 <hr>
-<h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we understand the common failure scenarios, the next step is learning how systems prevent duplicate payments.</p>
+<h2 id="4-execution-model-commands--idempotent-step-handlers">4. Execution Model: Commands + Idempotent Step Handlers</h2>
+<hr>
+<p>Once a saga is durable, retries are inevitable.</p>
+<p>That means each step must be safe to execute more than once.</p>
+<h3 id="41-command-shape-concept">4.1 Command shape (concept)</h3>
+<p>Each command should carry stable identifiers so both the orchestrator and downstream services can reason about:</p>
+<ul>
+<li><strong>what workflow this belongs to</strong></li>
+<li><strong>which step is being executed</strong></li>
+<li><strong>whether this is a retry</strong></li>
+</ul>
+<p>A practical command envelope:</p>
+<ul>
+<li><code>workflowId</code></li>
+<li><code>paymentId</code></li>
+<li><code>stepName</code></li>
+<li><code>stepAttempt</code></li>
+<li>idempotency token per step</li>
+</ul>
+<h3 id="42-step-idempotency-keys-baseline">4.2 Step idempotency keys (baseline)</h3>
+<p>A simple baseline for idempotency keys per step:</p>
+<ul>
+<li>Ledger posting idempotency key: <code>paymentId:LEDGER</code></li>
+<li>Notification idempotency key: <code>paymentId:NOTIFY</code></li>
+<li>Fraud assessment idempotency key: <code>paymentId:FRAUD</code></li>
+</ul>
+<p>So if the orchestrator sends the same command again, the service can safely respond with:</p>
+<ul>
+<li>“already done”</li>
+<li>“still processing”</li>
+<li>“failed permanently”</li>
+</ul>
+<blockquote>
+<p>✅ <strong>Rule:</strong> Orchestrator retries must never create new side effects.</p></blockquote>
+<hr>
+<h2 id="5-retry-policy-bounded-classified-observable">5. Retry Policy: Bounded, Classified, Observable</h2>
+<hr>
+<p>Retries are not a hack. They are a first-class design tool — but only with rules.</p>
+<h3 id="51-classify-failures">5.1 Classify failures</h3>
+<p>At a high level:</p>
+<ul>
+<li><strong>Retryable</strong>
+<ul>
+<li>timeouts</li>
+<li>5xx</li>
+<li>network errors</li>
+<li>temporary downstream unavailability</li>
+</ul>
+</li>
+<li><strong>Non-retryable</strong>
+<ul>
+<li>validation errors</li>
+<li>fraud declined</li>
+<li>insufficient funds (business rule)</li>
+</ul>
+</li>
+<li><strong>In-doubt / ambiguous</strong>
+<ul>
+<li>timeout after request was sent (downstream may have processed)</li>
+</ul>
+</li>
+</ul>
+<h3 id="52-bounded-retry-rules">5.2 Bounded retry rules</h3>
+<p>A baseline policy:</p>
+<ul>
+<li>max attempts per step</li>
+<li>a “retry budget” per step (ledger ≠ notification)</li>
+<li>exponential backoff + jitter
+<ul>
+<li><strong>Exponential backoff:</strong> wait time between attempts increases exponentially (e.g., 1s, 2s, 4s)</li>
+<li><strong>Jitter:</strong> random variation added to the backoff delay to ensure that multiple clients do not retry at the exact same moment</li>
+<li><strong>Examples:</strong>
+<ul>
+<li><strong>Failure 1:</strong> Wait 1000ms + random_between(0, 100ms)</li>
+<li><strong>Failure 2:</strong> Wait 2000ms + random_between(0, 200ms)</li>
+<li><strong>Failure 3:</strong> Wait 4000ms + random_between(0, 400ms)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Example policy (concept):</p>
+<table>
+  <thead>
+      <tr>
+          <th>Step</th>
+          <th style="text-align: right">Max attempts</th>
+          <th>Backoff</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>FRAUD</td>
+          <td style="text-align: right">3</td>
+          <td>short backoff</td>
+      </tr>
+      <tr>
+          <td>LEDGER</td>
+          <td style="text-align: right">5</td>
+          <td>longer backoff</td>
+      </tr>
+      <tr>
+          <td>NOTIFY</td>
+          <td style="text-align: right">10</td>
+          <td>best-effort, async friendly</td>
+      </tr>
+  </tbody>
+</table>
+<p>Every retry decision should be recorded in the workflow store:</p>
+<ul>
+<li>attempts increment</li>
+<li>last error saved</li>
+<li>next retry scheduled</li>
+</ul>
+<p>This makes retries debuggable and measurable.</p>
+<hr>
+<h2 id="6-timeouts--in-doubt-handling">6. Timeouts + “In-Doubt” Handling</h2>
+<hr>
+<p>Timeouts are dangerous because they create ambiguity.</p>
+<p>If you time out waiting for Ledger:</p>
+<ul>
+<li>the ledger might not have processed it</li>
+<li>or it might have processed it and the response was lost</li>
+</ul>
+<h3 id="61-three-timeouts-to-separate">6.1 Three timeouts to separate</h3>
+<ul>
+<li><strong>call timeout</strong>: how long we wait for a single request</li>
+<li><strong>step timeout</strong>: maximum time we keep retrying a step</li>
+<li><strong>workflow timeout</strong>: maximum time we allow the saga to run</li>
+</ul>
+<h3 id="62-what-we-do-when-outcome-is-ambiguous">6.2 What we do when outcome is ambiguous</h3>
+<p>Because handlers are idempotent, a safe first response is:</p>
+<ul>
+<li>retry the command with the same idempotency key</li>
+</ul>
+<p>If ambiguity persists past retry limits, we do <strong>not</strong> guess.</p>
+<p>We transition to:</p>
+<ul>
+<li><code>NEEDS_REVIEW</code> (or <code>PENDING_RECONCILIATION</code>)</li>
+</ul>
+<p>This is a production-grade move:</p>
+<blockquote>
+<p>Some outcomes cannot be resolved automatically without risking money correctness.</p></blockquote>
+<hr>
+<h2 id="7-compensation-mechanics">7. Compensation Mechanics</h2>
+<hr>
+<p>When a saga fails after some steps have committed, we need a controlled recovery path.</p>
+<h3 id="71-two-common-types-of-compensation">7.1 Two common types of compensation</h3>
+<ol>
+<li><strong>Logical reversal</strong></li>
+</ol>
+<ul>
+<li>Example: ledger entry reversal (create a compensating entry)</li>
+<li>Important: do not delete history; record the reversal</li>
+</ul>
+<ol start="2">
+<li><strong>Business compensation</strong></li>
+</ol>
+<ul>
+<li>Example: refund to customer</li>
+<li>Often used when money movement already happened externally</li>
+</ul>
+<h3 id="72-compensation-is-also-a-workflow-step">7.2 Compensation is also a workflow step</h3>
+<p>Compensation must be:</p>
+<ul>
+<li>idempotent</li>
+<li>retried with bounded policy</li>
+<li>recorded in workflow state</li>
+</ul>
+<p>So the orchestrator can safely run:</p>
+<ul>
+<li><code>COMPENSATE_LEDGER</code></li>
+<li><code>REFUND_PAYMENT</code></li>
+</ul>
+<p>with the same safety properties as forward steps.</p>
+<hr>
+<h2 id="8-reliable-messaging-transactional-outbox-baseline-pattern">8. Reliable Messaging: Transactional Outbox (Baseline Pattern)</h2>
+<hr>
+<p>Once you coordinate via commands/events, you must avoid:</p>
+<blockquote>
+<p>“DB commit succeeded, but the message was never published.”</p></blockquote>
+<p>That leads to stuck workflows and silent inconsistency.</p>
+<h3 id="81-outbox-concept-hld-level">8.1 Outbox concept (HLD-level)</h3>
+<p>Instead of:</p>
+<ul>
+<li>update workflow state</li>
+<li>publish message</li>
+</ul>
+<p>(two separate operations)</p>
+<p>We do:</p>
+<ul>
+<li>write workflow state update <strong>and</strong> an outbox record in <strong>one DB transaction</strong></li>
+<li>a publisher process drains outbox records to the message bus</li>
+</ul>
+<p>This gives us:</p>
+<ul>
+<li>durability</li>
+<li>replayability</li>
+<li>audit trail</li>
+</ul>
+<p>(Deep details go into Concepts: Processing Guarantees + Outbox.)</p>
+<hr>
+<h2 id="9-operating-model-observability--stuck-workflows">9. Operating Model: Observability + Stuck Workflows</h2>
+<hr>
+<p>A saga-based system is only “reliable” if you can operate it.</p>
+<p>Minimum operational requirements:</p>
+<h3 id="91-observability-signals">9.1 Observability signals</h3>
+<ul>
+<li>Metrics:
+<ul>
+<li>saga success rate</li>
+<li>step retry counts</li>
+<li>compensation rate</li>
+<li><code>NEEDS_REVIEW</code> volume</li>
+<li>time-to-complete distribution</li>
+</ul>
+</li>
+<li>Tracing:
+<ul>
+<li><code>workflowId</code> propagated across services</li>
+</ul>
+</li>
+<li>Logs:
+<ul>
+<li>state transitions as structured logs</li>
+</ul>
+</li>
+</ul>
+<h3 id="92-stuck-workflow-detection">9.2 Stuck workflow detection</h3>
+<p>A workflow is “stuck” when:</p>
+<ul>
+<li>no state transition for N minutes/hours</li>
+<li>step retry budget exhausted</li>
+<li>in-doubt state persists too long</li>
+</ul>
+<p>Mitigations:</p>
+<ul>
+<li>scheduled reconciliation job</li>
+<li>manual tooling to:
+<ul>
+<li>replay a step safely</li>
+<li>trigger compensation</li>
+<li>close as resolved</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>This is how you prevent mismatches from becoming daily operational debt.</p></blockquote>
+<hr>
+<h2 id="10-what-our-payment-design-chooses-explicit-baseline">10. What Our Payment Design Chooses (Explicit Baseline)</h2>
+<hr>
+<p>For Phase 3 baseline, our payment system evolves to:</p>
+<ul>
+<li><strong>Payment Service in orchestrator mode</strong> (process engine + workflow state)</li>
+<li><strong>Workflow store</strong> persisted (same Payments DB boundary is fine for baseline)</li>
+<li><strong>Per-step idempotency</strong></li>
+<li><strong>Bounded retries + exponential backoff</strong></li>
+<li><strong>Timeout + in-doubt handling</strong> → <code>NEEDS_REVIEW</code></li>
+<li><strong>Compensation steps</strong> (reversal/refund as required)</li>
+<li><strong>Observability-first</strong> (metrics + tracing + transition logs)</li>
+<li><strong>Transactional outbox + relay</strong> (recommended baseline if using a message bus)</li>
+</ul>
+<blockquote>
+<p>✅ <strong>Note (Choreography-based sagas):</strong><br>
+The same reliability requirements apply even if you run a saga via events (choreography): idempotent steps, durable progress, retries/timeouts, compensations, and observability.<br>
+The difference is <em>where</em> the logic lives (distributed across services). We cover choreography sagas in depth in the <strong>Concepts → Saga Pattern &amp; Distributed Coordination</strong> section.</p></blockquote>
+<hr>
+<h2 id="11-key-takeaways">11. Key Takeaways</h2>
+<hr>
+<ul>
+<li>A saga becomes reliable only when <strong>workflow progress is durable</strong> and <strong>steps are idempotent</strong>.</li>
+<li>Retries must be <strong>bounded, classified, and observable</strong> — not blind.</li>
+<li>Timeouts create “in-doubt” outcomes; production systems must support <code>NEEDS_REVIEW</code>.</li>
+<li>Compensation is not an afterthought — it is a <strong>first-class workflow path</strong>.</li>
+<li>Transactional Outbox prevents “DB commit but message lost” failure modes.</li>
+<li>Reliability includes an operating model: metrics, tracing, and stuck-workflow handling.</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<hr>
+<p>Saga + orchestration fixes partial failures only if the workflow is <strong>durable and recoverable</strong>.</p>
+<p>Make it production-safe by persisting workflow state, enforcing step idempotency, adding bounded retries/timeouts, defining compensation paths, and instrumenting the system to detect and resolve stuck workflows.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next</h3>
+<p>Next we’ll wrap Phase 3 with a summary that:</p>
+<ul>
+<li>recaps how the payment architecture evolved from baseline → reliable distributed workflow</li>
+<li>lists the Phase 3 concepts introduced (with cross-links)</li>
+<li>provides a final “mental model” checklist for correctness &amp; reliability design</li>
+</ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries">Idempotency and Safe Retries</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase-3-summary">Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a></strong></p>
 
         </article>
 
@@ -604,55 +917,73 @@ sequenceDiagram
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-failures-matter-in-payment-systems" data-toc-target="1-why-failures-matter-in-payment-systems">1. Why Failures Matter in Payment Systems</a>
+        <a class="toc-link" href="#1-why-this-article-exists" data-toc-target="1-why-this-article-exists">1. Why This Article Exists</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-problem-1-duplicate-requests" data-toc-target="2-problem-1-duplicate-requests">2. Problem 1: Duplicate Requests</a>
+        <a class="toc-link" href="#2-updated-architecture-adding-reliability-components" data-toc-target="2-updated-architecture-adding-reliability-components">2. Updated Architecture: Adding Reliability Components</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-problem-2-network-retries" data-toc-target="3-problem-2-network-retries">3. Problem 2: Network Retries</a>
+        <a class="toc-link" href="#3-durable-workflow-state-machine-the-core" data-toc-target="3-durable-workflow-state-machine-the-core">3. Durable Workflow State Machine (The Core)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-problem-3-partial-failures" data-toc-target="4-problem-3-partial-failures">4. Problem 3: Partial Failures</a>
+        <a class="toc-link" href="#4-execution-model-commands--idempotent-step-handlers" data-toc-target="4-execution-model-commands--idempotent-step-handlers">4. Execution Model: Commands &#43; Idempotent Step Handlers</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-problem-4-service-crashes" data-toc-target="5-problem-4-service-crashes">5. Problem 4: Service Crashes</a>
+        <a class="toc-link" href="#5-retry-policy-bounded-classified-observable" data-toc-target="5-retry-policy-bounded-classified-observable">5. Retry Policy: Bounded, Classified, Observable</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-problem-5-concurrent-requests" data-toc-target="6-problem-5-concurrent-requests">6. Problem 5: Concurrent Requests</a>
+        <a class="toc-link" href="#6-timeouts--in-doubt-handling" data-toc-target="6-timeouts--in-doubt-handling">6. Timeouts &#43; “In-Doubt” Handling</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-why-these-failures-are-difficult" data-toc-target="7-why-these-failures-are-difficult">7. Why These Failures Are Difficult</a>
+        <a class="toc-link" href="#7-compensation-mechanics" data-toc-target="7-compensation-mechanics">7. Compensation Mechanics</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-the-core-problem" data-toc-target="8-the-core-problem">8. The Core Problem</a>
+        <a class="toc-link" href="#8-reliable-messaging-transactional-outbox-baseline-pattern" data-toc-target="8-reliable-messaging-transactional-outbox-baseline-pattern">8. Reliable Messaging: Transactional Outbox (Baseline Pattern)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
+        <a class="toc-link" href="#9-operating-model-observability--stuck-workflows" data-toc-target="9-operating-model-observability--stuck-workflows">9. Operating Model: Observability &#43; Stuck Workflows</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-what-our-payment-design-chooses-explicit-baseline" data-toc-target="10-what-our-payment-design-chooses-explicit-baseline">10. What Our Payment Design Chooses (Explicit Baseline)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-key-takeaways" data-toc-target="11-key-takeaways">11. Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#tldr" data-toc-target="tldr">TL;DR</a>
       </li>
     
   </ul>
@@ -668,7 +999,7 @@ sequenceDiagram
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -700,7 +1031,7 @@ sequenceDiagram
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

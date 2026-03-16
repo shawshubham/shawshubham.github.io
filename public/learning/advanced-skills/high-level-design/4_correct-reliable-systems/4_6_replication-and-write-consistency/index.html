@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Replication and Write Consistency</title>
+<title>Example 3: Payment System — Replication and Write Consistency</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773355154">
+<link rel="stylesheet" href="/css/main.css?v=1773508437">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Replication and Write Consistency</h1>
+    <h1 class="main-heading">Example 3: Payment System — Replication and Write Consistency</h1>
     <h3>
   </div>
 </section>
@@ -237,27 +237,31 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_high-level-architecture/">4.3. Example 3: Payment System — High-Level Architecture</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.4. Payment System — Failure Scenarios in Distributed Transactions</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.5. Idempotency and Safe Retries</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_failure-scenarios/">4.5. Example 3: Payment System — Failure Scenarios in Distributed Transactions</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_idempotency-and-safe-retries/">4.6. Example 3: Payment System — Idempotency and Safe Retries</a>
                                 </li>
                               
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.6. Replication and Write Consistency</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.7. Coordinating Distributed Work (Saga / Orchestration)</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.8. Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.8. Phase 3 Summary — Designing Reliable Distributed Systems</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.9. Phase 3 Summary — Designing Reliable Distributed Systems</a>
                                 </li>
                               
                             </ul>
@@ -388,7 +392,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 12 Mar, 2026
+            Last updated on: 14 Mar, 2026
             
           </p>
         </div>
@@ -402,16 +406,51 @@
 <p>Replication means maintaining <strong>multiple copies of the same database</strong> across different servers.</p>
 <p>Example architecture:</p>
 <div class="mermaid">
-flowchart LR
+flowchart TD
+    User([User]) -- "<b>1. Request</b><br/>(Retry on Timeout)" --> LB[<b>Load Balancer</b>]
 
-    User --> API
+    subgraph Service_Fleet [Distributed Payment Tier]
+        direction LR
+        subgraph Instance_A [Service Instance A]
+            PS_A[Payment Logic]
+        end
 
-    API --> Service
+        subgraph Instance_B [Service Instance B]
+            PS_B[Payment Logic]
+        end
+    end
 
-    Service --> Primary[(Primary Database)]
+    subgraph DB_Tier [Database Cluster]
+        direction TB
+        Primary[(<b>Primary DB</b><br/>Leader / Writes)]
 
-    Primary --> Replica1[(Replica Database A)]
-    Primary --> Replica2[(Replica Database B)]
+        subgraph Replicas [Read Replicas]
+            direction TB
+            R1[(Replica A)]
+            R2[(Replica B)]
+        end
+    end
+
+    %% Connections
+    LB --> Instance_A
+    LB --> Instance_B
+
+    %% Primary Writes
+    PS_A & PS_B == "<b>2. Writes</b>" ==> Primary
+
+    %% Replication
+    Primary -- "<b>3. Async Sync</b>" --> Replicas
+
+    %% Scalable Reads
+    PS_A & PS_B -. "<b>4. Reads</b>" .-> Replicas
+
+    %% Styling
+    style LB fill:#e1f5fe,stroke:#01579b
+    style Instance_A fill:#f9f9f9,stroke:#333
+    style Instance_B fill:#f9f9f9,stroke:#333
+    style Service_Fleet fill:#fff3e0,stroke:#ef6c00,stroke-dasharray: 5 5
+    style Primary fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style Replicas fill:#f1f8e9,stroke:#558b2f,stroke-dasharray: 5 5
 </div>
 <p>This architecture improves:</p>
 <ul>
@@ -446,10 +485,28 @@ flowchart LR
 <p>When the leader processes a write, the update must be <strong>propagated to replicas</strong>.</p>
 <p>This propagation introduces a delay called <strong>replication lag</strong>.</p>
 <p>Example timeline:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>T1: Payment written to leader
-</span></span><span style="display:flex;"><span>T2: Leader confirms success
-</span></span><span style="display:flex;"><span>T3: Replicas receive update
-</span></span></code></pre></div><p>During the period between <strong>T1 and T3</strong>, replicas may still contain <strong>stale data</strong>.</p>
+<div class="mermaid">
+sequenceDiagram
+    participant S as Payment Service
+    participant L as Leader DB
+    participant R as Replica DB
+
+    Note over S, R: T1: Write Operation Begins
+    S->>L: 1. Write Payment Data
+    L->>L: Process & Commit
+
+    Note over S, R: T2: Leader Acknowledges
+    L-->>S: 2. Success Response
+    Note right of S: User thinks it's done!
+
+    Note over L, R: --- The Lag Gap ---
+
+    Note over S, R: T3: Async Propagation
+    L-->>R: 3. Replicate Data
+    R->>R: Update State
+    Note over R: Data is now consistent
+</div>
+<p>During the period between <strong>T1 and T3</strong>, replicas may still contain <strong>stale data</strong>.</p>
 <hr>
 <h2 id="4-readafterwrite-problem">4. Read‑After‑Write Problem</h2>
 <hr>
@@ -461,21 +518,22 @@ User immediately checks balance
 </code></pre><p>If the read request goes to a <strong>replica that has not yet received the update</strong>, the user may see an outdated balance.</p>
 <div class="mermaid">
 sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Payment Service
+    participant L as Leader DB
+    participant R as Replica DB
 
-    participant User
-    participant Service
-    participant Primary
-    participant Replica
+    U->>S: POST /pay ($100)
+    S->>L: Update Balance: $0
+    L-->>S: 200 OK
+    Note over L,R: ⚠️ Replication Lag (Data in flight)
 
-    User->>Service: Pay $100
-    Service->>Primary: Write transaction
-
-    Primary-->>Service: Success
-
-    User->>Service: Check balance
-    Service->>Replica: Read balance
-
-    Replica-->>Service: Old balance
+    U->>S: GET /balance
+    S->>R: Read Balance
+    R-->>S: Return $100 (Stale!)
+    S-->>U: Balance: $100
+    Note right of U: ❌ User is confused!
 </div>
 <p>This behavior is unacceptable in many financial systems.</p>
 <hr>
@@ -500,16 +558,33 @@ sequenceDiagram
 <p>In synchronous replication, the leader waits for replicas to acknowledge the write before confirming success.</p>
 <div class="mermaid">
 flowchart LR
+    S[Service] -- "1. Write" --> L[Leader]
+    L -- "2. Replicate" --> R[(Replica)]
+    R -- "3. ACK" --> L
+    L -- "4. Success" --> S
 
-    Service --> Leader
+    style R fill:#e1f5fe,stroke:#01579b
+    style L fill:#fff9c4,stroke:#fbc02d
+</div>
+<p>In case of multiple replica&rsquo;s</p>
+<div class="mermaid">
+flowchart LR
+    S[Service] -- "1. Write" --> L[Leader]
+    
+    subgraph Replicas [Replica Fleet]
+        direction TB
+        R1[(Replica A)]
+        R2[(Replica B)]
+        R3[(Replica C)]
+    end
 
-    Leader --> Replica1
-    Leader --> Replica2
+    L -- "2. Parallel Sync" --> R1 & R2 & R3
+    R1 & R2 & R3 -- "3. ACK" --> L
+    
+    L -- "4. Success" --> S
 
-    Replica1 --> Leader
-    Replica2 --> Leader
-
-    Leader --> Service
+    style L fill:#fff9c4,stroke:#fbc02d
+    style Replicas fill:#f1f8e9,stroke:#558b2f,stroke-dasharray: 5 5
 </div>
 <p>This improves consistency but increases <strong>write latency</strong>.</p>
 <hr>
@@ -727,7 +802,7 @@ Notification not sent
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_idempotency-and-safe-retries/" class="btn nav-btn">&larr; Back</a>
     
 
     

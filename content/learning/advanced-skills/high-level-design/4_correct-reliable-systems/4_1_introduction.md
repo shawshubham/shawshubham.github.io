@@ -44,6 +44,12 @@ This phase focuses on designing systems that ensure:
 - **consistency**
 - **reliable transaction handling**
 
+As we design the system, we will progressively encounter several challenges that arise in distributed environments.
+
+Instead of introducing solutions all at once, we will examine these problems step by step and evolve the architecture to handle them.
+
+This mirrors how real systems are designed: **a simple architecture is built first, and reliability mechanisms are introduced as new failure scenarios appear.**
+
 ---
 
 ## 2. Example Covered in This Phase
@@ -54,13 +60,12 @@ This phase focuses on designing systems that ensure:
 
 In this example we design a simplified **payment processing system**.
 
-We will explore problems such as:
+During the design we will encounter several common distributed system challenges:
 
-- duplicate requests
-- partial failures
-- transaction consistency
-- retry handling
-- distributed state management
+- **duplicate requests and retry failures**
+- **replication lag and stale reads**
+- **partial failures across multiple services**
+- **concurrent operations on shared data**
 
 Example scenario:
 
@@ -86,13 +91,13 @@ These concepts will later be explored in detail in the **Concepts section**.
 
 Key topics include:
 
-- **ACID transactions**
-- **database replication**
-- **leader–follower architecture**
-- **idempotency**
-- **exactly-once vs at-least-once processing**
-- **CAP theorem**
-- **distributed transactions**
+- **ACID Transactions**
+- **Idempotency**
+- **Database Replication**
+- **Consistency Models**
+- **Distributed Transactions**
+- **Processing Guarantees (Exactly-Once vs At-Least-Once)**
+- **Saga Pattern and Distributed Coordination**
 
 These ideas form the foundation of **reliable distributed systems**.
 
@@ -115,9 +120,9 @@ In these systems, performance improvements must never compromise **data integrit
 
 Engineers must carefully design systems that balance:
 
-> **performance**  
+> **consistency**  
 > **availability**  
-> **consistency**
+> **performance**
 
 Understanding these trade-offs is essential for designing **production-grade distributed systems**.
 

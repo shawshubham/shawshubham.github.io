@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Example 3: Payment System — Failure Scenarios in Distributed Transactions</title>
+<title>Example 3: Payment System — Replication Lag and Stale Reads</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773508406">
+<link rel="stylesheet" href="/css/main.css?v=1773669873">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Example 3: Payment System — Failure Scenarios in Distributed Transactions</h1>
+    <h1 class="main-heading">Example 3: Payment System — Replication Lag and Stale Reads</h1>
     <h3>
   </div>
 </section>
@@ -244,24 +244,32 @@
                                   <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.5. Example 3: Payment System — Failure Scenarios in Distributed Transactions</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.6. Example 3: Payment System — Idempotency and Safe Retries</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.8. Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.9. Phase 3 Summary — Designing Reliable Distributed Systems</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable/">4.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/">4.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
                                 </li>
                               
                             </ul>
@@ -392,191 +400,295 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 14 Mar, 2026
+            Last updated on: 15 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-failures-matter-in-payment-systems">1. Why Failures Matter in Payment Systems</h2>
+          <h2 id="1-the-next-scaling-pressure">1. The Next Scaling Pressure</h2>
 <hr>
-<p>In the previous article we designed a <strong>basic payment system architecture</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User → Payment API → Payment Service → Database
-</span></span></code></pre></div><p>At first glance, the system appears simple and reliable.</p>
-<p>However, real-world distributed systems operate in environments where <strong>failures are inevitable</strong>.</p>
-<p>Networks fail, services crash, databases slow down, and clients retry requests.</p>
-<p>For most applications these failures may cause temporary inconvenience.</p>
-<p>For <strong>financial systems</strong>, however, failures can lead to serious problems such as:</p>
-<pre tabindex="0"><code>duplicate payments
-lost transactions
-incorrect balances
-inconsistent financial records
-</code></pre><p>Understanding these failure scenarios is the first step toward designing a <strong>correct and reliable payment system</strong>.</p>
+<p>In the previous article we scaled the <strong>payment service layer</strong> using multiple service instances behind a load balancer.</p>
+<p>That solved the compute bottleneck, but as the platform grows another bottleneck appears:</p>
+<blockquote>
+<p><strong>reads explode.</strong></p></blockquote>
+<p>Payment systems receive a large number of <strong>read requests</strong> such as:</p>
+<ul>
+<li>checking payment status (“Did my payment go through?”)</li>
+<li>viewing transaction history</li>
+<li>retrieving balances and limits</li>
+</ul>
+<p>If every read request goes to the <strong>same primary database</strong>, you typically see:</p>
+<pre tabindex="0"><code>high database CPU usage
+increasing p95/p99 query latency
+connection pool saturation
+</code></pre><p>To scale read traffic, systems introduce <strong>database replication</strong>.</p>
 <hr>
-<h2 id="2-problem-1-duplicate-requests">2. Problem 1: Duplicate Requests</h2>
+<h2 id="2-introducing-database-leaderreplica-replication">2. Introducing Database Leader–Replica Replication</h2>
 <hr>
-<p>One of the most common issues in distributed systems is <strong>duplicate requests</strong>.</p>
-<p>Example scenario:</p>
-<pre tabindex="0"><code>User presses &#34;Pay&#34;
-Network delay occurs
-User presses &#34;Pay&#34; again
-</code></pre><p>From the system&rsquo;s perspective, these appear as <strong>two separate payment requests</strong>.</p>
+<p>Replication allows the system to create <strong>multiple copies of the database</strong>.</p>
+<p>A common architecture is the <strong>leader–follower (a.k.a. primary–replica) model</strong>.</p>
+<p>In this model:</p>
+<ul>
+<li><strong>writes go to the leader (primary database)</strong></li>
+<li><strong>read queries can be served by follower replicas</strong></li>
+</ul>
 <div class="mermaid">
-sequenceDiagram
+flowchart TD
+    User([User]) -- "Requests" --> LB[<b>Load Balancer</b>]
 
-    participant User
-    participant API
-    participant Service
-    participant DB
-
-    User->>API: Pay $100
-    User->>API: Pay $100 (duplicate)
-
-    API->>Service: Process Payment
-    API->>Service: Process Payment
-
-    Service->>DB: Record Transaction
-    Service->>DB: Record Transaction
-</div>
-<p>Without safeguards, the system may process <strong>two payments instead of one</strong>.</p>
-<hr>
-<h2 id="3-problem-2-network-retries">3. Problem 2: Network Retries</h2>
-<hr>
-<p>Another common failure scenario occurs when a <strong>network timeout</strong> happens during a request.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>User sends payment request
-Payment processed successfully
-Network timeout occurs before response
-Client retries request
-</code></pre><p>From the client&rsquo;s perspective, the payment appears to have <strong>failed</strong>, even though it actually succeeded.</p>
-<div class="mermaid">
-sequenceDiagram
-
-    participant Client
-    participant PaymentService
-    participant DB
-
-    Client->>PaymentService: Process Payment
-    PaymentService->>DB: Record Transaction
-
-    DB-->>PaymentService: Success
-
-    Note right of Client: Response lost due to network issue
-
-    Client->>PaymentService: Retry Payment
-</div>
-<p>If the system is not designed carefully, the retry may create <strong>a second transaction</strong>.</p>
-<hr>
-<h2 id="4-problem-3-partial-failures">4. Problem 3: Partial Failures</h2>
-<hr>
-<p>Distributed systems may fail <strong>midway through an operation</strong>.</p>
-<p>Example scenario:</p>
-<pre tabindex="0"><code>Balance deducted
-Transaction record not stored
-</code></pre><p>Or:</p>
-<pre tabindex="0"><code>Payment recorded
-Notification service fails
-</code></pre><div class="mermaid">
-flowchart LR
-    User([User]) -- "1. Pay $50" --> PS[Payment Service]
-
-    subgraph DB_State [Database State]
+    subgraph Fleet [Payment Service Fleet]
         direction TB
-        Step1[Step A: Deduct Balance] 
-        Step2[Step B: Record Transaction]
+        S1[Instance A]
+        S2[Instance B]
+        S3[Instance C]
     end
 
-    PS -->|2. Write| Step1
-    
-    %% Using the 'X' to indicate the break
-    PS -- "3. Crash/Timeout" --x Step2
-    
-    %% Warning Note as a styled node
-    Note[/"⚠️ PARTIAL FAILURE:
-    Balance is lowered,
-    but history is missing!"/]
+    subgraph DB_Tier [Database Cluster]
+        direction TB
+        Leader[(<b>Leader DB</b><br/>Writes Only)]
 
-    %% Link the note to the problem area
-    Step2 --- Note
+        subgraph Replicas [Read Replicas]
+            direction TB
+            R1[(Replica 1)]
+            R2[(Replica 2)]
+            R3[(Replica 3)]
+        end
+    end
+
+    %% Routing logic
+    LB --> Fleet
+
+    %% The "Bus" connection style
+    Fleet ==>|Critical Writes| Leader
+    Leader -- "Async Replication" --> Replicas
+    Fleet -.->|Heavy Reads| Replicas
 
     %% Styling
-    style Step1 fill:#e8f5e9,stroke:#2e7d32
-    style Step2 fill:#ffebee,stroke:#c62828,stroke-dasharray: 5 5
-    style Note fill:#fff9c4,stroke:#fbc02d
+    style LB fill:#e1f5fe,stroke:#01579b
+    style Fleet fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
+    style Leader fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style Replicas fill:#f1f8e9,stroke:#558b2f,stroke-dasharray: 5 5
 </div>
-<p>This creates <strong>inconsistent state</strong>, which is unacceptable for financial systems.</p>
+<p>Why this helps:</p>
+<ul>
+<li>replicas absorb <strong>heavy read traffic</strong></li>
+<li>leader focuses on <strong>writes + durability</strong></li>
+<li>availability improves (a replica can be promoted if the leader fails)</li>
+</ul>
+<p>But replication introduces a correctness risk:</p>
+<blockquote>
+<p>replicas can be behind.</p></blockquote>
 <hr>
-<h2 id="5-problem-4-service-crashes">5. Problem 4: Service Crashes</h2>
+<h2 id="3-how-replication-works">3. How Replication Works</h2>
 <hr>
-<p>A service may crash <strong>after completing a database operation but before sending the response</strong>.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>Payment recorded in database
-Service crashes
-Client retries payment
-</code></pre><p>The retry may create another payment unless the system prevents it.</p>
-<hr>
-<h2 id="6-problem-5-concurrent-requests">6. Problem 5: Concurrent Requests</h2>
-<hr>
-<p>Multiple requests may modify the same account simultaneously.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>Account balance = $100
-
-Request A: Pay $70
-Request B: Pay $50
-</code></pre><p>If both requests read the balance at the same time, the system might incorrectly allow <strong>both payments</strong>, resulting in a negative balance.</p>
+<p>In a leader–replica setup, there are two timelines:</p>
+<ol>
+<li><strong>Write timeline (client-facing)</strong>: leader database receives all <strong>write operations</strong>, it commits and returns success</li>
+<li><strong>Replication timeline (background)</strong>: replicas apply the change later and become consistent with the leader</li>
+</ol>
 <div class="mermaid">
 sequenceDiagram
+    autonumber
+    participant S as Payment Service
+    participant L as Leader DB
+    participant R as Read Replica
 
-    participant A
-    participant B
-    participant DB
+    Note over S, L: Step 1: Write Path (Synchronous)
+    S->>L: Write Transaction
+    L->>L: Commit to Disk
+    L-->>S: Success (ACK)
 
-    A->>DB: Read balance ($100)
-    B->>DB: Read balance ($100)
+    Note over L, R: Step 2: Replication Path (Asynchronous)
+    rect rgb(255, 245, 230)
+    Note right of L: Replication Lag Window
+    L->>R: Replicate Change
+    R->>R: Update State
+    R-->>L: Acknowledged
+    end
 
-    A->>DB: Deduct $70
-    B->>DB: Deduct $50
+    Note over S, R: Data is now consistent across cluster
 </div>
-<p>This creates a <strong>race condition</strong>.</p>
+<p>The gap between these timelines is the <strong>replication lag window</strong>.</p>
 <hr>
-<h2 id="7-why-these-failures-are-difficult">7. Why These Failures Are Difficult</h2>
+<h2 id="4-the-read-after-write-problem-replication-lag">4. The Read-After-Write Problem: Replication Lag</h2>
 <hr>
-<p>These problems arise because distributed systems have several inherent characteristics:</p>
+<p>In many real systems, replication is <strong>asynchronous</strong>.</p>
+<p>This means the leader does not wait for replicas to apply the changes before responding.</p>
+<p>As a result, replicas may temporarily contain <strong>older data</strong>.</p>
+<p>This delay is known as <strong>replication lag</strong>.</p>
+<p>Example scenario:</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Payment Service
+    participant L as Leader DB
+    participant R as Read Replica
+
+    U->>S: 1. Make Payment ($100)
+    S->>L: 2. Write Transaction
+    L-->>S: 3. Commit Success
+    Note over L,R: ⚠️ Replication Lag starts here
+
+    U->>S: 4. Check Payment Status
+
+    rect rgb(255, 235, 235)
+    S->>R: 5. Read Status (Route to Replica)
+    R-->>S: 6. Error: Not Found
+    end
+
+    S-->>U: 7. "You have no payments"
+    Note right of U: ❌ User is confused!
+</div>
+<p>Even though the payment was successfully recorded in the leader database, the replica may still return <strong>outdated information</strong>.</p>
+<p>This situation is called a <strong>stale read</strong>.</p>
+<hr>
+<h2 id="5-why-stale-reads-are-dangerous-for-payments">5. Why Stale Reads Are Dangerous for Payments</h2>
+<hr>
+<p>For many applications, stale reads are acceptable (like <em>social media feeds</em>, <em>analytics dashboards</em>, r<em>ecommendation systems</em> etc&hellip;)</p>
+<p>In payments, stale reads can cause:</p>
 <ul>
-<li>requests may be retried</li>
-<li>services may crash</li>
-<li>networks may drop responses</li>
-<li>multiple servers may process requests concurrently</li>
+<li><strong>user confusion</strong> (“Did it fail? Should I retry?”)</li>
+<li><strong>incorrect UX</strong> (“payment pending/not found” right after success)</li>
+<li><strong>unsafe downstream decisions</strong> (balance shown incorrectly)</li>
+<li><strong>higher support/dispute load</strong></li>
 </ul>
-<p>Because of this, systems cannot rely on simple request processing logic.</p>
-<p>Instead, they must be designed to <strong>safely handle retries and duplicates</strong>.</p>
+<p>Important connection:</p>
+<blockquote>
+<p>Stale reads can trigger retries — and retries are exactly what we worked to make safe via idempotency.</p></blockquote>
+<p>So we must decide which reads require stronger guarantees.</p>
 <hr>
-<h2 id="8-the-core-problem">8. The Core Problem</h2>
+<h2 id="6-classifying-reads-critical-vs-non-critical">6. Classifying Reads: Critical vs Non-Critical</h2>
 <hr>
-<p>All the scenarios above lead to the same core challenge:</p>
-<pre tabindex="0"><code>How do we ensure a payment is processed exactly once?
-</code></pre><p>This requirement is critical in financial systems.</p>
-<p>To solve this problem, distributed systems introduce techniques such as:</p>
+<p>A practical production rule is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Writes             → Leader
+</span></span><span style="display:flex;"><span>Critical reads     → Leader
+</span></span><span style="display:flex;"><span>Non-critical reads → Replicas
+</span></span></code></pre></div><h3 id="critical-reads-must-reflect-the-latest-write">Critical reads (must reflect the latest write)</h3>
+<p>These reads affect <strong>money movement or correctness</strong> and must be served from the leader:</p>
 <ul>
-<li><strong>idempotent operations</strong></li>
-<li><strong>transaction identifiers</strong></li>
-<li><strong>safe retry mechanisms</strong></li>
+<li>payment status immediately after a payment (“Did it succeed?”)</li>
+<li>balance checks after a debit/credit</li>
+<li>“can I place this order?” checks that depend on latest available funds</li>
+<li>fraud/risk checks that depend on the latest state</li>
 </ul>
-<p>These techniques allow the system to safely handle repeated requests without creating duplicate financial operations.</p>
+<h3 id="non-critical-reads-can-tolerate-some-staleness">Non-critical reads (can tolerate some staleness)</h3>
+<p>These reads are safe to serve from replicas because a few seconds of lag does not break correctness:</p>
+<ul>
+<li>transaction history pages</li>
+<li>reporting and analytics</li>
+<li>batch reconciliation views</li>
+</ul>
+<p>This classification is what lets systems scale reads <strong>without breaking correctness</strong>.</p>
+<hr>
+<h2 id="7-practical-strategies-to-reduce-stale-reads">7. Practical Strategies to Reduce Stale Reads</h2>
+<hr>
+<p>We’ll keep this section practical. Deeper theory and database-specific details will be covered later in the <strong>Concepts</strong> section.</p>
+<h3 id="71-read-from-leader-strong-consistency">7.1 Read from Leader (Strong Consistency)</h3>
+<p>Simplest rule:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If correctness matters → read from leader
+</span></span></code></pre></div><p><strong>Trade-off:</strong> the leader sees more read traffic.</p>
+<hr>
+<h2 id="72-read-your-writes-consistency-session-consistency">7.2 Read-Your-Writes Consistency (Session Consistency)</h2>
+<p>After a user performs a write, route that user’s subsequent reads to the leader for a short period.</p>
+<p>Common implementations:</p>
+<ul>
+<li>a short-lived <strong>session flag</strong> (e.g., “force leader reads for 5–30s”)</li>
+<li>a <strong>read token</strong> returned after the write that forces leader reads</li>
+<li>a shared “recent-write marker” keyed by user/account in a shared store</li>
+</ul>
+<p><strong>Benefit:</strong> most reads still hit replicas, but the user who just wrote sees correct state.</p>
+<hr>
+<h2 id="73-synchronous-replication-stronger-consistency-higher-latency">7.3 Synchronous Replication (Stronger Consistency, Higher Latency)</h2>
+<p>Make the leader wait for one or more replicas before acknowledging success.</p>
+<div class="mermaid">
+flowchart LR
+    S[Service] -- "1. Write" --> L[Leader]
+
+    subgraph Replicas [Replica Fleet]
+        direction TB
+        R1[(Replica A)]
+        R2[(Replica B)]
+    end
+
+    L -- "2. Parallel Sync" --> R1 & R2
+    R1 & R2 -- "3. ACK" --> L
+
+    L -- "4. Success" --> S
+
+    style L fill:#fff9c4,stroke:#fbc02d
+    style Replicas fill:#f1f8e9,stroke:#558b2f,stroke-dasharray: 5 5
+</div>
+<p><strong>Trade-off:</strong> higher write latency. Typically used only when the business requirement demands it.</p>
+<hr>
+<h2 id="74-quorum-readswrites-when-supported">7.4 Quorum Reads/Writes (When Supported)</h2>
+<p>Some databases support quorum semantics:</p>
+<ul>
+<li>a write is acknowledged by W nodes</li>
+<li>a read is served from R nodes</li>
+</ul>
+<p>With a quorum rule (e.g., R + W &gt; N), you reduce stale reads.</p>
+<p>(Exact behavior varies by database; deep dive will live in the Concepts section.)</p>
+<hr>
+<h2 id="8-what-we-use-in-this-payment-system-design">8. What We Use in This Payment System Design</h2>
+<hr>
+<p>For our Phase 3 payment system, we choose a <strong>simple, production-realistic default</strong> that prioritizes correctness:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Writes             → Leader
+</span></span><span style="display:flex;"><span>Critical reads     → Leader
+</span></span><span style="display:flex;"><span>Non-critical reads → Replicas
+</span></span></code></pre></div><p>On top of that, we apply <strong>Read-Your-Writes</strong> for a short window after a payment so the user doesn’t see confusing stale status immediately after a successful write.</p>
+<p>We treat <strong>synchronous replication</strong> and <strong>quorum reads/writes</strong> as advanced options that may be adopted under stricter durability/consistency requirements or when the underlying database supports them well.</p>
+<hr>
+<h2 id="9-observability-how-teams-monitor-replication-lag">9. Observability: How Teams Monitor Replication Lag</h2>
+<hr>
+<p>Replication lag is not theoretical — teams measure it.</p>
+<p>Common signals:</p>
+<ul>
+<li>replica lag time (seconds behind leader)</li>
+<li>replication queue depth / WAL(Write-Ahead Log) backlog</li>
+<li>“read-after-write mismatch” rate (status not found right after write)</li>
+</ul>
+<p>When lag grows, systems may temporarily:</p>
+<ul>
+<li>route more reads to the leader</li>
+<li>shed non-critical read traffic</li>
+<li>scale replicas / investigate hotspots</li>
+</ul>
+<hr>
+<h2 id="10-note-on-write-heavy-systems">10. Note on Write-Heavy Systems</h2>
+<hr>
+<p>Leader–replica replication scales <strong>reads</strong>, but it does <strong>not scale writes horizontally</strong>.</p>
+<p>All writes still go through the leader, which can become a bottleneck under extreme write volume.</p>
+<p>Write-heavy scaling strategies (e.g., <strong>sharding / partitioned leaders</strong>) belong in the <strong>Large-Scale System Design</strong> portion of this learning path.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Distributed systems experience failures frequently.</li>
-<li>Payment systems must handle duplicate requests and retries safely.</li>
-<li>Partial failures can lead to inconsistent financial state.</li>
-<li>Systems must guarantee that payments are processed <strong>exactly once</strong>.</li>
+<li>Replication scales <strong>reads</strong>, not writes.</li>
+<li>Asynchronous replication introduces <strong>replication lag</strong>.</li>
+<li>Lag causes <strong>stale reads</strong>, which is dangerous for payments.</li>
+<li>Production systems classify reads into <strong>critical</strong> (leader) vs <strong>non-critical</strong> (replicas).</li>
+<li>Practical mitigations include <strong>leader reads</strong>, <strong>read-your-writes</strong>, and sometimes <strong>synchronous replication / quorum semantics</strong>.</li>
+<li>In our design, we use <strong>leader for critical reads + read-your-writes</strong>, and replicas for non-critical reads.</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<hr>
+<ul>
+<li>Large payment systems scale databases using <strong>leader–replica replication</strong>.</li>
+<li>Writes go to the <strong>leader</strong>, reads may go to <strong>replicas</strong>.</li>
+<li>Replicas can be behind (replication lag) → stale reads.</li>
+<li>Route correctness-sensitive reads to the leader; use read-your-writes to keep UX consistent after a payment.</li>
+<li>Consider synchronous replication / quorum reads only when requirements justify the latency/complexity.</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we understand the common failure scenarios, the next step is learning how systems prevent duplicate payments.</p>
+<p>Replication improves scalability but introduces a new challenge.</p>
+<p>How does the system ensure <strong>correct reads and writes when multiple replicas exist</strong>?</p>
+<p>In the next article we explore how payment systems maintain <strong>write consistency and safe database reads</strong>.</p>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries">Idempotency and Safe Retries</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency">Payment System — Replication and Write Consistency</a></strong></p>
 
         </article>
 
@@ -604,55 +716,91 @@ sequenceDiagram
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-failures-matter-in-payment-systems" data-toc-target="1-why-failures-matter-in-payment-systems">1. Why Failures Matter in Payment Systems</a>
+        <a class="toc-link" href="#1-the-next-scaling-pressure" data-toc-target="1-the-next-scaling-pressure">1. The Next Scaling Pressure</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-problem-1-duplicate-requests" data-toc-target="2-problem-1-duplicate-requests">2. Problem 1: Duplicate Requests</a>
+        <a class="toc-link" href="#2-introducing-database-leaderreplica-replication" data-toc-target="2-introducing-database-leaderreplica-replication">2. Introducing Database Leader–Replica Replication</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-problem-2-network-retries" data-toc-target="3-problem-2-network-retries">3. Problem 2: Network Retries</a>
+        <a class="toc-link" href="#3-how-replication-works" data-toc-target="3-how-replication-works">3. How Replication Works</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-problem-3-partial-failures" data-toc-target="4-problem-3-partial-failures">4. Problem 3: Partial Failures</a>
+        <a class="toc-link" href="#4-the-read-after-write-problem-replication-lag" data-toc-target="4-the-read-after-write-problem-replication-lag">4. The Read-After-Write Problem: Replication Lag</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-problem-4-service-crashes" data-toc-target="5-problem-4-service-crashes">5. Problem 4: Service Crashes</a>
+        <a class="toc-link" href="#5-why-stale-reads-are-dangerous-for-payments" data-toc-target="5-why-stale-reads-are-dangerous-for-payments">5. Why Stale Reads Are Dangerous for Payments</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-problem-5-concurrent-requests" data-toc-target="6-problem-5-concurrent-requests">6. Problem 5: Concurrent Requests</a>
+        <a class="toc-link" href="#6-classifying-reads-critical-vs-non-critical" data-toc-target="6-classifying-reads-critical-vs-non-critical">6. Classifying Reads: Critical vs Non-Critical</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-why-these-failures-are-difficult" data-toc-target="7-why-these-failures-are-difficult">7. Why These Failures Are Difficult</a>
+        <a class="toc-link" href="#7-practical-strategies-to-reduce-stale-reads" data-toc-target="7-practical-strategies-to-reduce-stale-reads">7. Practical Strategies to Reduce Stale Reads</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-the-core-problem" data-toc-target="8-the-core-problem">8. The Core Problem</a>
+        <a class="toc-link" href="#72-read-your-writes-consistency-session-consistency" data-toc-target="72-read-your-writes-consistency-session-consistency">7.2 Read-Your-Writes Consistency (Session Consistency)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#73-synchronous-replication-stronger-consistency-higher-latency" data-toc-target="73-synchronous-replication-stronger-consistency-higher-latency">7.3 Synchronous Replication (Stronger Consistency, Higher Latency)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#74-quorum-readswrites-when-supported" data-toc-target="74-quorum-readswrites-when-supported">7.4 Quorum Reads/Writes (When Supported)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-what-we-use-in-this-payment-system-design" data-toc-target="8-what-we-use-in-this-payment-system-design">8. What We Use in This Payment System Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-observability-how-teams-monitor-replication-lag" data-toc-target="9-observability-how-teams-monitor-replication-lag">9. Observability: How Teams Monitor Replication Lag</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-note-on-write-heavy-systems" data-toc-target="10-note-on-write-heavy-systems">10. Note on Write-Heavy Systems</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
         <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#tldr" data-toc-target="tldr">TL;DR</a>
       </li>
     
   </ul>
@@ -668,7 +816,7 @@ sequenceDiagram
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -700,7 +848,7 @@ sequenceDiagram
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Example 3: Payment System — Failure Scenarios in Distributed Transactions</title>
+<title>Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773508406">
+<link rel="stylesheet" href="/css/main.css?v=1773617875">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Example 3: Payment System — Failure Scenarios in Distributed Transactions</h1>
+    <h1 class="main-heading">Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</h1>
     <h3>
   </div>
 </section>
@@ -244,24 +244,44 @@
                                   <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_failure-scenarios/">4.10. Example 3: Payment System — Failure Scenarios in Distributed Transactions</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_idempotency-and-safe-retries/">4.11. Example 3: Payment System — Idempotency and Safe Retries</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_12_replication-and-write-consistency/">4.12. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.5. Example 3: Payment System — Failure Scenarios in Distributed Transactions</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_13_coordinating-distributed-work/">4.13. Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.6. Example 3: Payment System — Idempotency and Safe Retries</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.8. Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</a>
-                                </li>
-                              
-                                <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.9. Phase 3 Summary — Designing Reliable Distributed Systems</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_14_phase3-summary/">4.14. Phase 3 Summary — Designing Reliable Distributed Systems</a>
                                 </li>
                               
                             </ul>
@@ -398,185 +418,197 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-failures-matter-in-payment-systems">1. Why Failures Matter in Payment Systems</h2>
+          <h2 id="1-the-next-problem-multiservice-transactions">1. The Next Problem: Multi‑Service Transactions</h2>
 <hr>
-<p>In the previous article we designed a <strong>basic payment system architecture</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User → Payment API → Payment Service → Database
-</span></span></code></pre></div><p>At first glance, the system appears simple and reliable.</p>
-<p>However, real-world distributed systems operate in environments where <strong>failures are inevitable</strong>.</p>
-<p>Networks fail, services crash, databases slow down, and clients retry requests.</p>
-<p>For most applications these failures may cause temporary inconvenience.</p>
-<p>For <strong>financial systems</strong>, however, failures can lead to serious problems such as:</p>
-<pre tabindex="0"><code>duplicate payments
-lost transactions
-incorrect balances
-inconsistent financial records
-</code></pre><p>Understanding these failure scenarios is the first step toward designing a <strong>correct and reliable payment system</strong>.</p>
+<p>In previous articles we solved several reliability challenges in payment systems:</p>
+<ul>
+<li>duplicate requests → <strong>idempotency</strong></li>
+<li>replication lag → <strong>write consistency strategies</strong></li>
+</ul>
+<p>However, another major challenge appears in modern architectures.</p>
+<p>Real payment systems rarely involve a <strong>single service</strong>.</p>
+<p>A typical payment may involve multiple services such as:</p>
+<pre tabindex="0"><code>Payment Service
+Ledger Service
+Fraud Detection Service
+Notification Service
+</code></pre><p>Example flow:</p>
+<pre tabindex="0"><code>User makes payment
+→ Payment recorded
+→ Ledger updated
+→ Fraud check executed
+→ Notification sent
+</code></pre><p>These steps together form a <strong>single business operation</strong>.</p>
+<p>But each step may run on <strong>different services and databases</strong>.</p>
 <hr>
-<h2 id="2-problem-1-duplicate-requests">2. Problem 1: Duplicate Requests</h2>
+<h2 id="2-the-partial-failure-problem">2. The Partial Failure Problem</h2>
 <hr>
-<p>One of the most common issues in distributed systems is <strong>duplicate requests</strong>.</p>
+<p>When multiple services participate in a workflow, failures can occur <strong>midway through the process</strong>.</p>
 <p>Example scenario:</p>
-<pre tabindex="0"><code>User presses &#34;Pay&#34;
-Network delay occurs
-User presses &#34;Pay&#34; again
-</code></pre><p>From the system&rsquo;s perspective, these appear as <strong>two separate payment requests</strong>.</p>
-<div class="mermaid">
-sequenceDiagram
-
-    participant User
-    participant API
-    participant Service
-    participant DB
-
-    User->>API: Pay $100
-    User->>API: Pay $100 (duplicate)
-
-    API->>Service: Process Payment
-    API->>Service: Process Payment
-
-    Service->>DB: Record Transaction
-    Service->>DB: Record Transaction
-</div>
-<p>Without safeguards, the system may process <strong>two payments instead of one</strong>.</p>
-<hr>
-<h2 id="3-problem-2-network-retries">3. Problem 2: Network Retries</h2>
-<hr>
-<p>Another common failure scenario occurs when a <strong>network timeout</strong> happens during a request.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>User sends payment request
-Payment processed successfully
-Network timeout occurs before response
-Client retries request
-</code></pre><p>From the client&rsquo;s perspective, the payment appears to have <strong>failed</strong>, even though it actually succeeded.</p>
-<div class="mermaid">
-sequenceDiagram
-
-    participant Client
-    participant PaymentService
-    participant DB
-
-    Client->>PaymentService: Process Payment
-    PaymentService->>DB: Record Transaction
-
-    DB-->>PaymentService: Success
-
-    Note right of Client: Response lost due to network issue
-
-    Client->>PaymentService: Retry Payment
-</div>
-<p>If the system is not designed carefully, the retry may create <strong>a second transaction</strong>.</p>
-<hr>
-<h2 id="4-problem-3-partial-failures">4. Problem 3: Partial Failures</h2>
-<hr>
-<p>Distributed systems may fail <strong>midway through an operation</strong>.</p>
-<p>Example scenario:</p>
-<pre tabindex="0"><code>Balance deducted
-Transaction record not stored
-</code></pre><p>Or:</p>
+<pre tabindex="0"><code>Payment recorded successfully
+Ledger update fails
+</code></pre><p>Now the system enters an <strong>inconsistent state</strong>.</p>
+<p>Another example:</p>
 <pre tabindex="0"><code>Payment recorded
+Ledger updated
 Notification service fails
 </code></pre><div class="mermaid">
 flowchart LR
-    User([User]) -- "1. Pay $50" --> PS[Payment Service]
 
-    subgraph DB_State [Database State]
-        direction TB
-        Step1[Step A: Deduct Balance] 
-        Step2[Step B: Record Transaction]
-    end
+    User --> PaymentService
 
-    PS -->|2. Write| Step1
-    
-    %% Using the 'X' to indicate the break
-    PS -- "3. Crash/Timeout" --x Step2
-    
-    %% Warning Note as a styled node
-    Note[/"⚠️ PARTIAL FAILURE:
-    Balance is lowered,
-    but history is missing!"/]
+    PaymentService --> LedgerService
 
-    %% Link the note to the problem area
-    Step2 --- Note
+    LedgerService --> FraudService
 
-    %% Styling
-    style Step1 fill:#e8f5e9,stroke:#2e7d32
-    style Step2 fill:#ffebee,stroke:#c62828,stroke-dasharray: 5 5
-    style Note fill:#fff9c4,stroke:#fbc02d
+    FraudService --> NotificationService
+
+    NotificationService -. failure .-> User
 </div>
-<p>This creates <strong>inconsistent state</strong>, which is unacceptable for financial systems.</p>
+<p>Even though the payment succeeded, part of the workflow failed.</p>
+<p>Distributed systems must therefore ensure that <strong>multi‑service operations remain consistent</strong>.</p>
 <hr>
-<h2 id="5-problem-4-service-crashes">5. Problem 4: Service Crashes</h2>
+<h2 id="3-why-traditional-database-transactions-do-not-work">3. Why Traditional Database Transactions Do Not Work</h2>
 <hr>
-<p>A service may crash <strong>after completing a database operation but before sending the response</strong>.</p>
+<p>In a single database, we could solve this problem using <strong>ACID transactions</strong>.</p>
 <p>Example:</p>
-<pre tabindex="0"><code>Payment recorded in database
-Service crashes
-Client retries payment
-</code></pre><p>The retry may create another payment unless the system prevents it.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>BEGIN TRANSACTION
+</span></span><span style="display:flex;"><span>Update balance
+</span></span><span style="display:flex;"><span>Insert transaction record
+</span></span><span style="display:flex;"><span>COMMIT
+</span></span></code></pre></div><p>If any step fails, the database performs a <strong>rollback</strong>.</p>
+<p>However, this approach breaks down in distributed architectures because:</p>
+<ul>
+<li>different services own different databases</li>
+<li>cross‑service transactions are expensive</li>
+<li>network failures make global locking risky</li>
+</ul>
+<p>For this reason, modern distributed systems avoid <strong>global database transactions</strong>.</p>
+<p>Instead, they use coordination patterns.</p>
 <hr>
-<h2 id="6-problem-5-concurrent-requests">6. Problem 5: Concurrent Requests</h2>
+<h2 id="4-the-saga-pattern">4. The Saga Pattern</h2>
 <hr>
-<p>Multiple requests may modify the same account simultaneously.</p>
-<p>Example:</p>
-<pre tabindex="0"><code>Account balance = $100
-
-Request A: Pay $70
-Request B: Pay $50
-</code></pre><p>If both requests read the balance at the same time, the system might incorrectly allow <strong>both payments</strong>, resulting in a negative balance.</p>
+<p>The <strong>Saga pattern</strong> is one of the most common solutions for distributed transactions.</p>
+<p>A Saga breaks a large transaction into <strong>multiple smaller steps</strong>.</p>
+<p>Each step:</p>
+<ul>
+<li>performs a local transaction</li>
+<li>triggers the next step</li>
+</ul>
+<p>If a step fails, the system executes <strong>compensating actions</strong> to undo previous steps.</p>
+<p>Example saga for a payment:</p>
 <div class="mermaid">
-sequenceDiagram
+flowchart LR
 
-    participant A
-    participant B
-    participant DB
+    Start --> Payment[Create Payment]
+    Payment --> Ledger[Update Ledger]
+    Ledger --> Fraud[Run Fraud Check]
+    Fraud --> Notify[Send Notification]
 
-    A->>DB: Read balance ($100)
-    B->>DB: Read balance ($100)
-
-    A->>DB: Deduct $70
-    B->>DB: Deduct $50
+    Ledger -. failure .-> Compensate1[Refund Payment]
+    Fraud -. failure .-> Compensate2[Reverse Ledger]
 </div>
-<p>This creates a <strong>race condition</strong>.</p>
+<p>Instead of rolling back everything at once, the system <strong>reverses completed steps</strong>.</p>
 <hr>
-<h2 id="7-why-these-failures-are-difficult">7. Why These Failures Are Difficult</h2>
+<h2 id="5-orchestration-vs-choreography">5. Orchestration vs Choreography</h2>
 <hr>
-<p>These problems arise because distributed systems have several inherent characteristics:</p>
+<p>There are two common ways to implement a Saga.</p>
+<h3 id="orchestration">Orchestration</h3>
+<p>A central <strong>orchestrator service</strong> controls the workflow.</p>
+<div class="mermaid">
+flowchart LR
+
+    Orchestrator --> PaymentService
+    Orchestrator --> LedgerService
+    Orchestrator --> FraudService
+    Orchestrator --> NotificationService
+</div>
+<p>The orchestrator decides:</p>
 <ul>
-<li>requests may be retried</li>
-<li>services may crash</li>
-<li>networks may drop responses</li>
-<li>multiple servers may process requests concurrently</li>
+<li>which step runs next</li>
+<li>what to do when failures occur</li>
 </ul>
-<p>Because of this, systems cannot rely on simple request processing logic.</p>
-<p>Instead, they must be designed to <strong>safely handle retries and duplicates</strong>.</p>
-<hr>
-<h2 id="8-the-core-problem">8. The Core Problem</h2>
-<hr>
-<p>All the scenarios above lead to the same core challenge:</p>
-<pre tabindex="0"><code>How do we ensure a payment is processed exactly once?
-</code></pre><p>This requirement is critical in financial systems.</p>
-<p>To solve this problem, distributed systems introduce techniques such as:</p>
+<p>Advantages:</p>
 <ul>
-<li><strong>idempotent operations</strong></li>
-<li><strong>transaction identifiers</strong></li>
-<li><strong>safe retry mechanisms</strong></li>
+<li>easier to understand workflows</li>
+<li>centralized error handling</li>
 </ul>
-<p>These techniques allow the system to safely handle repeated requests without creating duplicate financial operations.</p>
+<p>Trade‑off:</p>
+<ul>
+<li>orchestrator becomes a critical component</li>
+</ul>
+<hr>
+<h3 id="choreography">Choreography</h3>
+<p>In choreography, services communicate through <strong>events</strong> instead of a central controller.</p>
+<p>Example:</p>
+<div class="mermaid">
+flowchart LR
+
+    PaymentService -->|PaymentCreated Event| LedgerService
+
+    LedgerService -->|LedgerUpdated Event| FraudService
+
+    FraudService -->|FraudChecked Event| NotificationService
+</div>
+<p>Each service reacts to events and triggers the next step.</p>
+<p>Advantages:</p>
+<ul>
+<li>loosely coupled architecture</li>
+<li>easier to scale services independently</li>
+</ul>
+<p>Trade‑off:</p>
+<ul>
+<li>workflows become harder to trace and debug</li>
+</ul>
+<hr>
+<h2 id="6-compensating-transactions">6. Compensating Transactions</h2>
+<hr>
+<p>When a Saga step fails, the system must undo previous steps using <strong>compensating actions</strong>.</p>
+<p>Examples:</p>
+<pre tabindex="0"><code>Payment processed → Refund payment
+Ledger updated → Reverse ledger entry
+Inventory reserved → Release inventory
+</code></pre><p>Compensating actions restore the system to a <strong>consistent business state</strong>.</p>
+<p>Note that this is different from database rollback.</p>
+<p>Instead of undoing a database operation automatically, the system performs a <strong>new business operation that reverses the previous one</strong>.</p>
+<hr>
+<h2 id="7-realworld-example-payment-workflow">7. Real‑World Example: Payment Workflow</h2>
+<hr>
+<p>A simplified payment Saga might look like this:</p>
+<div class="mermaid">
+flowchart LR
+
+    Start --> CreatePayment
+
+    CreatePayment --> UpdateLedger
+
+    UpdateLedger --> FraudCheck
+
+    FraudCheck --> SendNotification
+
+    SendNotification --> End
+
+    FraudCheck -. failure .-> ReverseLedger
+
+    ReverseLedger --> RefundPayment
+</div>
+<p>This workflow ensures that <strong>even when failures occur, the system eventually reaches a consistent state</strong>.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Distributed systems experience failures frequently.</li>
-<li>Payment systems must handle duplicate requests and retries safely.</li>
-<li>Partial failures can lead to inconsistent financial state.</li>
-<li>Systems must guarantee that payments are processed <strong>exactly once</strong>.</li>
+<li>Distributed systems often involve <strong>multi‑service workflows</strong>.</li>
+<li>Partial failures can leave systems in inconsistent states.</li>
+<li>The <strong>Saga pattern</strong> coordinates distributed transactions safely.</li>
+<li>Systems may use <strong>orchestration or choreography</strong> to implement workflows.</li>
+<li>Failures are handled using <strong>compensating transactions</strong>.</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we understand the common failure scenarios, the next step is learning how systems prevent duplicate payments.</p>
+<p>We have now explored the key reliability challenges in distributed payment systems.</p>
+<p>In the next article we will summarize the major architectural concepts introduced in <strong>Phase 3</strong>.</p>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries">Idempotency and Safe Retries</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work">Phase 3 Summary — Designing Reliable Distributed Systems</a></strong></p>
 
         </article>
 
@@ -604,49 +636,43 @@ sequenceDiagram
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-failures-matter-in-payment-systems" data-toc-target="1-why-failures-matter-in-payment-systems">1. Why Failures Matter in Payment Systems</a>
+        <a class="toc-link" href="#1-the-next-problem-multiservice-transactions" data-toc-target="1-the-next-problem-multiservice-transactions">1. The Next Problem: Multi‑Service Transactions</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-problem-1-duplicate-requests" data-toc-target="2-problem-1-duplicate-requests">2. Problem 1: Duplicate Requests</a>
+        <a class="toc-link" href="#2-the-partial-failure-problem" data-toc-target="2-the-partial-failure-problem">2. The Partial Failure Problem</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-problem-2-network-retries" data-toc-target="3-problem-2-network-retries">3. Problem 2: Network Retries</a>
+        <a class="toc-link" href="#3-why-traditional-database-transactions-do-not-work" data-toc-target="3-why-traditional-database-transactions-do-not-work">3. Why Traditional Database Transactions Do Not Work</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-problem-3-partial-failures" data-toc-target="4-problem-3-partial-failures">4. Problem 3: Partial Failures</a>
+        <a class="toc-link" href="#4-the-saga-pattern" data-toc-target="4-the-saga-pattern">4. The Saga Pattern</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-problem-4-service-crashes" data-toc-target="5-problem-4-service-crashes">5. Problem 4: Service Crashes</a>
+        <a class="toc-link" href="#5-orchestration-vs-choreography" data-toc-target="5-orchestration-vs-choreography">5. Orchestration vs Choreography</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-problem-5-concurrent-requests" data-toc-target="6-problem-5-concurrent-requests">6. Problem 5: Concurrent Requests</a>
+        <a class="toc-link" href="#6-compensating-transactions" data-toc-target="6-compensating-transactions">6. Compensating Transactions</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-why-these-failures-are-difficult" data-toc-target="7-why-these-failures-are-difficult">7. Why These Failures Are Difficult</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-the-core-problem" data-toc-target="8-the-core-problem">8. The Core Problem</a>
+        <a class="toc-link" href="#7-realworld-example-payment-workflow" data-toc-target="7-realworld-example-payment-workflow">7. Real‑World Example: Payment Workflow</a>
       </li>
     
       
@@ -668,7 +694,7 @@ sequenceDiagram
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_12_replication-and-write-consistency/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -700,7 +726,7 @@ sequenceDiagram
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_14_phase3-summary/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Example 3: Payment System — High-Level Architecture</title>
+<title>Example 3: Payment System — Baseline Architecture</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773355154">
+<link rel="stylesheet" href="/css/main.css?v=1773507469">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -75,7 +75,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Example 3: Payment System — High-Level Architecture</h1>
+    <h1 class="main-heading">Example 3: Payment System — Baseline Architecture</h1>
     <h3>
   </div>
 </section>
@@ -237,27 +237,31 @@
                                 </li>
                               
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_high-level-architecture/">4.3. Example 3: Payment System — High-Level Architecture</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_high-level-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.4. Payment System — Failure Scenarios in Distributed Transactions</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_duplicate-and-retries-failures/">4.4. Example 3: Payment System — Duplicate Requests and Retry Failures</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.5. Idempotency and Safe Retries</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.5. Example 3: Payment System — Failure Scenarios in Distributed Transactions</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.6. Replication and Write Consistency</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.6. Example 3: Payment System — Idempotency and Safe Retries</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.7. Coordinating Distributed Work (Saga / Orchestration)</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.8. Phase 3 Summary — Designing Reliable Distributed Systems</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.8. Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.9. Phase 3 Summary — Designing Reliable Distributed Systems</a>
                                 </li>
                               
                             </ul>
@@ -388,7 +392,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 11 Mar, 2026
+            Last updated on: 14 Mar, 2026
             
           </p>
         </div>
@@ -397,24 +401,32 @@
           <h2 id="1-from-requirements-to-architecture">1. From Requirements to Architecture</h2>
 <hr>
 <p>In the previous article we defined the <strong>requirements of a payment system</strong>.</p>
-<p>Now we design the <strong>initial high‑level architecture</strong> that processes payments.</p>
-<p>At a high level the system must:</p>
+<p>Now we begin designing the system architecture.</p>
+<p>When approaching system design, it is usually best to <strong>start with the simplest system that satisfies the requirements</strong>, and then gradually evolve the architecture as new challenges appear.</p>
+<p>For a payment system, the core responsibilities are:</p>
 <ol>
-<li>receive payment requests</li>
+<li>receive a payment request</li>
 <li>validate the request</li>
-<li>process the transaction</li>
-<li>store the transaction record</li>
-<li>return the payment status</li>
+<li>process the payment</li>
+<li>record the transaction</li>
+<li>return the result to the user</li>
 </ol>
-<p>A simplified architecture might look like this.</p>
+<p>A simple architecture that fulfills these requirements might look like this.</p>
 <div class="mermaid">
 flowchart LR
+    User([User]) --> Server
 
-    User --> API[Payment API]
+    subgraph Server [Payment Server]
+        direction LR
+        API[Payment API] --> PS[Payment Service]
+    end
 
-    API --> Service[Payment Service]
+    PS --> DB[(Transaction Database)]
 
-    Service --> DB[(Transaction Database)]
+    %% Styling to match your evolution diagram
+    style Server fill:#f9f9f9,stroke:#333
+    style API fill:#e1f5fe,stroke:#01579b
+    style DB fill:#e8f5e9,stroke:#2e7d32
 </div>
 <p>Components:</p>
 <ul>
@@ -422,44 +434,15 @@ flowchart LR
 <li><strong>Payment Service</strong> – executes business logic</li>
 <li><strong>Transaction Database</strong> – stores transaction records</li>
 </ul>
-<p>This architecture works for a <strong>single server system</strong>, but real systems require more reliability and scalability.</p>
+<p>Payment systems typically use <strong>relational databases</strong> because they provide strong guarantees through <strong>ACID transactions</strong>, ensuring that financial operations either complete fully or fail safely.</p>
+<p>We will explore these guarantees in more detail later in the concepts section.</p>
+<p>For a <strong>small system</strong>, this <strong>single server system</strong> architecture works well.</p>
 <hr>
-<h2 id="2-introducing-horizontal-scaling">2. Introducing Horizontal Scaling</h2>
+<h2 id="2-typical-payment-processing-flow">2. Typical Payment Processing Flow</h2>
 <hr>
-<p>To handle large traffic, payment systems typically run <strong>multiple service instances</strong> behind a load balancer.</p>
-<div class="mermaid">
-flowchart LR
-
-    User --> LB[Load Balancer]
-
-    LB --> S1[Payment Service A]
-    LB --> S2[Payment Service B]
-
-    S1 --> DB[(Transaction Database)]
-    S2 --> DB
-</div>
-<p>This architecture improves:</p>
-<ul>
-<li>availability</li>
-<li>scalability</li>
-<li>fault tolerance</li>
-</ul>
-<p>However, it also introduces new challenges.</p>
-<p>Because <strong>multiple servers may process requests concurrently</strong>, the system must guarantee that financial transactions remain <strong>correct and consistent</strong>.</p>
-<hr>
-<h2 id="3-a-typical-payment-processing-flow">3. A Typical Payment Processing Flow</h2>
-<hr>
-<p>A simplified payment transaction may follow these steps:</p>
-<ol>
-<li>User initiates payment</li>
-<li>Payment request reaches the payment service</li>
-<li>Payment service validates the request</li>
-<li>Payment service records the transaction</li>
-<li>System confirms success</li>
-</ol>
+<p>Let’s look at what a normal successful payment looks like.</p>
 <div class="mermaid">
 sequenceDiagram
-
     participant User
     participant API
     participant PaymentService
@@ -467,63 +450,80 @@ sequenceDiagram
 
     User->>API: Pay $100
     API->>PaymentService: Process Payment
-    PaymentService->>DB: Record Transaction
+    PaymentService->>DB: Store Transaction
     DB-->>PaymentService: Success
     PaymentService-->>API: Payment Confirmed
     API-->>User: Payment Successful
 </div>
-<p>In an ideal world this flow works perfectly.</p>
-<p>But distributed systems rarely behave perfectly.</p>
+<p>Steps involved:</p>
+<ol>
+<li>The user sends a payment request.</li>
+<li>The API forwards the request to the payment service.</li>
+<li>The payment service validates and processes the request.</li>
+<li>Transaction is recorded in the database</li>
+<li>The system returns confirmation to the user.</li>
+</ol>
+<p>Under normal conditions, the flow is straightforward and reliable.</p>
+<p>However, real systems operate in <strong>unreliable network environments</strong>, and this introduces the first reliability risk.</p>
 <hr>
-<h2 id="4-where-things-start-breaking">4. Where Things Start Breaking</h2>
+<h2 id="3-hidden-reliability-risk-request-retries">3. Hidden Reliability Risk: Request Retries</h2>
 <hr>
-<p>When the system operates in a distributed environment, several failure scenarios may occur.</p>
-<p>Examples:</p>
-<pre tabindex="0"><code>Network timeout
-Duplicate request
-Service crash
-Database write failure
-</code></pre><p>Example scenario:</p>
-<pre tabindex="0"><code>Payment processed
-Response lost due to network failure
-Client retries request
-</code></pre><p>Without safeguards, the system may process <strong>the same payment twice</strong>.</p>
-<p>Another scenario:</p>
-<pre tabindex="0"><code>Balance deducted
-Transaction record not stored
-</code></pre><p>This results in <strong>inconsistent financial state</strong>.</p>
+<p>In distributed systems, <strong>network failures are common</strong>.</p>
+<p>Consider the following scenario.</p>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant API
+    participant PaymentService
+    participant DB
+
+    User->>API: Pay $100
+    API->>PaymentService: Process Payment
+    PaymentService->>DB: Store Transaction
+    DB-->>PaymentService: Success
+
+    Note over PaymentService,User: Response lost due to network timeout
+
+    User->>API: Retry Payment
+    API->>PaymentService: Process Payment Again
+</div>
+<p>From the user’s perspective:</p>
+<pre tabindex="0"><code>Payment request timed out
+</code></pre><p>So the client retries the request.</p>
+<p>However, <strong>the first payment may have already been processed successfully</strong>.</p>
+<p>This creates a dangerous situation:</p>
+<pre tabindex="0"><code>Payment processed twice
+User charged twice
+</code></pre><p>This problem can occur <strong>even in very simple architectures</strong> because networks cannot guarantee that responses will always be delivered successfully.</p>
+<p>In financial systems, this type of failure is unacceptable.</p>
+<p>The system must guarantee that <strong>retries never result in duplicate payments</strong>.</p>
 <hr>
-<h2 id="5-why-simple-architectures-are-not-enough">5. Why Simple Architectures Are Not Enough</h2>
+<h2 id="4-why-this-is-dangerous-in-payment-systems">4. Why This Is Dangerous in Payment Systems</h2>
 <hr>
-<p>The initial architecture is not sufficient because financial systems must guarantee:</p>
+<p>In many applications, duplicate requests may be harmless.</p>
+<p>But in financial systems, duplicate operations can lead to serious consequences:</p>
 <ul>
-<li><strong>exactly-once transaction processing</strong></li>
-<li><strong>consistent account balances</strong></li>
-<li><strong>safe retries during network failures</strong></li>
-<li><strong>recovery from partial failures</strong></li>
+<li>users may be <strong>charged twice</strong></li>
+<li>merchants may receive <strong>duplicate payments</strong></li>
+<li>account balances may become inconsistent</li>
 </ul>
-<p>Achieving these guarantees requires additional mechanisms such as:</p>
-<ul>
-<li>safe retry strategies</li>
-<li>idempotency controls</li>
-<li>transactional guarantees</li>
-<li>replication strategies</li>
-</ul>
-<p>These mechanisms will be introduced gradually in the next articles.</p>
+<p>Because of this, payment systems must guarantee that <strong>retries never result in duplicate transactions</strong>.</p>
+<p>Designing systems that safely handle retries is therefore one of the most important challenges in payment system architecture.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>A payment system begins with a simple API → service → database architecture.</li>
-<li>Horizontal scaling introduces multiple service instances.</li>
-<li>Distributed systems introduce new failure scenarios.</li>
-<li>Payment systems must prioritize <strong>correctness over performance</strong>.</li>
+<li>A payment system begins with a simple <strong>API → service → database architecture</strong>.</li>
+<li>Under normal conditions the payment flow works correctly.</li>
+<li>However, <strong>network failures and client retries can lead to duplicate transactions</strong>.</li>
+<li>Preventing duplicate payments is a critical requirement for financial systems.</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>Now that we have the base architecture, the next step is understanding <strong>what can go wrong in distributed payment systems</strong>.</p>
+<p>The most common cause of duplicate payments in distributed systems is <strong>retrying requests after timeouts or network failures</strong>.</p>
+<p>In the next article, we will examine how duplicate requests occur and why naive implementations fail.</p>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios">Payment System — Failure Scenarios in Distributed Transactions</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_duplicate-and-retries-failures">Payment System — Duplicate Requests and Retry Failures</a></strong></p>
 
         </article>
 
@@ -557,25 +557,19 @@ Transaction record not stored
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-introducing-horizontal-scaling" data-toc-target="2-introducing-horizontal-scaling">2. Introducing Horizontal Scaling</a>
+        <a class="toc-link" href="#2-typical-payment-processing-flow" data-toc-target="2-typical-payment-processing-flow">2. Typical Payment Processing Flow</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-a-typical-payment-processing-flow" data-toc-target="3-a-typical-payment-processing-flow">3. A Typical Payment Processing Flow</a>
+        <a class="toc-link" href="#3-hidden-reliability-risk-request-retries" data-toc-target="3-hidden-reliability-risk-request-retries">3. Hidden Reliability Risk: Request Retries</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-where-things-start-breaking" data-toc-target="4-where-things-start-breaking">4. Where Things Start Breaking</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-why-simple-architectures-are-not-enough" data-toc-target="5-why-simple-architectures-are-not-enough">5. Why Simple Architectures Are Not Enough</a>
+        <a class="toc-link" href="#4-why-this-is-dangerous-in-payment-systems" data-toc-target="4-why-this-is-dangerous-in-payment-systems">4. Why This Is Dangerous in Payment Systems</a>
       </li>
     
       
@@ -629,7 +623,7 @@ Transaction record not stored
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_duplicate-and-retries-failures/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773355154">
+<link rel="stylesheet" href="/css/main.css?v=1773669873">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -237,27 +237,39 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_high-level-architecture/">4.3. Example 3: Payment System — High-Level Architecture</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.4. Payment System — Failure Scenarios in Distributed Transactions</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.5. Idempotency and Safe Retries</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.6. Replication and Write Consistency</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.7. Coordinating Distributed Work (Saga / Orchestration)</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.8. Phase 3 Summary — Designing Reliable Distributed Systems</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable/">4.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/">4.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
                                 </li>
                               
                             </ul>
@@ -388,7 +400,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 11 Mar, 2026
+            Last updated on: 14 Mar, 2026
             
           </p>
         </div>
@@ -419,18 +431,20 @@
 <li><strong>consistency</strong></li>
 <li><strong>reliable transaction handling</strong></li>
 </ul>
+<p>As we design the system, we will progressively encounter several challenges that arise in distributed environments.</p>
+<p>Instead of introducing solutions all at once, we will examine these problems step by step and evolve the architecture to handle them.</p>
+<p>This mirrors how real systems are designed: <strong>a simple architecture is built first, and reliability mechanisms are introduced as new failure scenarios appear.</strong></p>
 <hr>
 <h2 id="2-example-covered-in-this-phase">2. Example Covered in This Phase</h2>
 <hr>
 <h3 id="-example-3-payment-system">💳 Example 3: Payment System</h3>
 <p>In this example we design a simplified <strong>payment processing system</strong>.</p>
-<p>We will explore problems such as:</p>
+<p>During the design we will encounter several common distributed system challenges:</p>
 <ul>
-<li>duplicate requests</li>
-<li>partial failures</li>
-<li>transaction consistency</li>
-<li>retry handling</li>
-<li>distributed state management</li>
+<li><strong>duplicate requests and retry failures</strong></li>
+<li><strong>replication lag and stale reads</strong></li>
+<li><strong>partial failures across multiple services</strong></li>
+<li><strong>concurrent operations on shared data</strong></li>
 </ul>
 <p>Example scenario:</p>
 <pre tabindex="0"><code class="language-code" data-lang="code">User → Pay $100
@@ -445,13 +459,13 @@ System → Confirm payment
 <p>These concepts will later be explored in detail in the <strong>Concepts section</strong>.</p>
 <p>Key topics include:</p>
 <ul>
-<li><strong>ACID transactions</strong></li>
-<li><strong>database replication</strong></li>
-<li><strong>leader–follower architecture</strong></li>
-<li><strong>idempotency</strong></li>
-<li><strong>exactly-once vs at-least-once processing</strong></li>
-<li><strong>CAP theorem</strong></li>
-<li><strong>distributed transactions</strong></li>
+<li><strong>ACID Transactions</strong></li>
+<li><strong>Idempotency</strong></li>
+<li><strong>Database Replication</strong></li>
+<li><strong>Consistency Models</strong></li>
+<li><strong>Distributed Transactions</strong></li>
+<li><strong>Processing Guarantees (Exactly-Once vs At-Least-Once)</strong></li>
+<li><strong>Saga Pattern and Distributed Coordination</strong></li>
 </ul>
 <p>These ideas form the foundation of <strong>reliable distributed systems</strong>.</p>
 <hr>
@@ -468,9 +482,9 @@ System → Confirm payment
 <p>In these systems, performance improvements must never compromise <strong>data integrity</strong>.</p>
 <p>Engineers must carefully design systems that balance:</p>
 <blockquote>
-<p><strong>performance</strong><br>
+<p><strong>consistency</strong><br>
 <strong>availability</strong><br>
-<strong>consistency</strong></p></blockquote>
+<strong>performance</strong></p></blockquote>
 <p>Understanding these trade-offs is essential for designing <strong>production-grade distributed systems</strong>.</p>
 <hr>
 <h2 id="5-phase-goal">5. Phase Goal</h2>

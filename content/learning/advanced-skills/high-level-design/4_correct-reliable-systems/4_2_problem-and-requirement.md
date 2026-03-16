@@ -28,15 +28,17 @@ System → Process payment
 System → Confirm success
 ```
 
-While this flow appears simple, payment systems must guarantee **correctness and reliability**.
+At first glance this flow appears simple.
 
-Unlike systems optimized purely for performance, payment systems must ensure:
+However, payment systems must guarantee **correctness and reliability**, even when failures occur.
+
+Unlike systems optimized primarily for performance, financial systems must ensure:
 
 - money is **never duplicated**
 - money is **never lost**
-- operations are **consistent even during failures**
+- operations remain **consistent during failures**
 
-This makes payment processing one of the most challenging distributed system problems.
+Because of these strict guarantees, payment systems are one of the most challenging types of distributed systems to design.
 
 ---
 
@@ -46,7 +48,7 @@ This makes payment processing one of the most challenging distributed system pro
 
 At a high level, the system must support the following operations.
 
-### Process Payment
+### 2.1 Process Payment
 
 A user should be able to initiate a payment.
 
@@ -59,13 +61,13 @@ User → Pay $100 to Merchant
 The system must:
 
 - validate the request
-- deduct the user's balance
+- deduct the payer's balance
 - record the transaction
 - confirm the payment
 
 ---
 
-### Payment Status
+### 2.2 Payment Status
 
 Users should be able to check whether a payment was:
 
@@ -75,7 +77,7 @@ Users should be able to check whether a payment was:
 
 ---
 
-### Transaction History
+### 2.3 Transaction History
 
 The system should maintain a record of past payments.
 
@@ -102,7 +104,7 @@ Each transaction record should include:
 
 In financial systems, **non-functional requirements are often more critical than functional ones**.
 
-### Correctness
+### 3.1 Correctness
 
 The system must ensure:
 
@@ -111,11 +113,13 @@ No duplicate payments
 No lost transactions
 ```
 
+Financial errors can have severe consequences, so correctness is the highest priority.
+
 ---
 
-### Reliability
+### 3.2 Reliability
 
-Failures must not result in inconsistent data.
+Failures must not leave the system in an inconsistent state.
 
 Example failure scenario:
 
@@ -124,13 +128,13 @@ Money deducted
 Order confirmation not recorded
 ```
 
-The system must recover safely from such cases.
+The system must be able to **recover safely** from such situations.
 
 ---
 
-### Idempotency
+### 3.3 Safe Handling of Retries
 
-The system must handle **duplicate requests safely**.
+Clients may retry requests due to network failures or timeouts.
 
 Example:
 
@@ -139,19 +143,19 @@ User clicks "Pay" twice
 Network retries request
 ```
 
-The payment must only be processed **once**.
+Or
 
-Handling this safely in distributed systems often requires techniques such as:
+```
+Client sends payment request
+Network timeout occurs
+Client retries request
+```
 
-- idempotency keys
-- transaction identifiers
-- safe retry mechanisms
-
-These mechanisms ensure that **repeated requests do not create duplicate financial operations**.
+The system must ensure that retries do **not create duplicate financial operations**.
 
 ---
 
-### Auditability
+### 3.4 Auditability
 
 Financial systems must maintain a complete record of transactions for auditing purposes.
 
@@ -165,12 +169,19 @@ A simplified payment system architecture might look like this:
 
 ```mermaid
 flowchart LR
+    User([User]) --> Server
 
-    User --> API[Payment API]
+    subgraph Server [Payment Server]
+        direction LR
+        API[API Layer] --> PS[Payment Logic]
+    end
 
-    API --> Service[Payment Service]
+    PS --> DB[(Transaction Database)]
 
-    Service --> DB[(Transaction Database)]
+    %% Styling to match your evolution diagram
+    style Server fill:#f9f9f9,stroke:#333
+    style API fill:#e1f5fe,stroke:#01579b
+    style DB fill:#e8f5e9,stroke:#2e7d32
 ```
 
 Components:
@@ -179,9 +190,9 @@ Components:
 - **Payment Service** – processes business logic
 - **Transaction Database** – stores transaction records
 
-This architecture works for a basic system.
+This architecture works for a simple system.
 
-However, once we consider real-world failures, new challenges emerge.
+However, once we introduce **distributed infrastructure**, new challenges begin to appear.
 
 ---
 
@@ -191,7 +202,9 @@ However, once we consider real-world failures, new challenges emerge.
 
 Payment systems introduce several challenges that do not appear in simpler applications.
 
-### Duplicate Requests
+### 5.1 Duplicate Requests and Retries
+
+Users may unintentionally send the same request multiple times.
 
 Example:
 
@@ -199,44 +212,63 @@ Example:
 User presses Pay twice
 ```
 
-Without safeguards, the system may process **two payments**.
+Clients may also retry requests automatically.
+
+```
+Payment request sent
+Network timeout occurs
+Client retries request
+```
+
+Without safeguards, the system may process **multiple payments for the same request**.
 
 ---
 
-### Network Retries
+### 5.2 Replication Lag and Stale Reads
 
-Clients often retry requests when network failures occur.
+Distributed systems often use **database replication** to scale reads.
+
+However, replication is frequently **asynchronous**, meaning replicas may temporarily contain stale data.
 
 Example:
 
 ```
-Client sends payment
-Network times out
-Client retries
+Payment recorded in primary database
+Replica still shows old balance
 ```
 
-The system must ensure the retry does **not trigger another payment**.
+This can cause users to see **incorrect or outdated information**.
 
 ---
 
-### Partial Failures
+### 5.3 Partial Failures in Distributed Systems
 
-Distributed systems may fail halfway through an operation.
+In real systems, a payment may involve multiple components.
 
 Example:
 
 ```
-Balance deducted
-Transaction record not saved
+Payment recorded
+Ledger updated
+Notification sent
 ```
 
-This results in inconsistent state.
+But failures may occur midway.
+
+Example:
+
+```
+Payment recorded
+Ledger update fails
+```
+
+This creates **inconsistent system state**.
 
 ---
 
-### Concurrent Operations
+### 5.4 Concurrent Operations
 
-Multiple requests may modify the same account simultaneously.
+Multiple operations may attempt to modify the same account simultaneously.
 
 Example:
 
@@ -244,7 +276,7 @@ Example:
 Two payments from the same account at the same time
 ```
 
-The system must prevent **race conditions**.
+Without proper safeguards, this can lead to **race conditions and incorrect balances**.
 
 ---
 
@@ -257,22 +289,39 @@ Modern systems run across multiple servers.
 Example architecture:
 
 ```mermaid
-flowchart LR
+flowchart TD
+    User([User]) -- "Request<br>(Retries on Timeout)" --> LB[<b>Load Balancer</b>]
 
-    User --> LB[Load Balancer]
+    subgraph Service_Fleet [Distributed Payment Tier]
+        direction LR
+        subgraph Instance_A [Service Instance A]
+            API_A[API Layer] --> PS_A[Payment Logic]
+        end
 
-    LB --> S1[Payment Service A]
-    LB --> S2[Payment Service B]
+        subgraph Instance_B [Service Instance B]
+            API_B[API Layer] --> PS_B[Payment Logic]
+        end
+    end
 
-    S1 --> DB[(Database)]
-    S2 --> DB
+    %% Direct connections from the bottom of LB
+    LB --> Instance_A
+    LB --> Instance_B
+
+    %% Internal logic to DB
+    PS_A & PS_B --> DB[(Primary Transaction Database)]
+
+    style LB fill:#e1f5fe,stroke:#01579b
+    style Instance_A fill:#f9f9f9,stroke:#333
+    style Instance_B fill:#f9f9f9,stroke:#333
+    style Service_Fleet fill:#fff3e0,stroke:#ef6c00,stroke-dasharray: 5 5
 ```
 
-Because multiple services can process requests simultaneously, the system must ensure:
+Because multiple services process requests concurrently, the system must ensure:
 
-- data consistency
 - correct ordering of operations
 - safe retries
+- consistent database state
+- reliable coordination between services
 
 Handling these issues requires careful system design.
 
@@ -282,16 +331,16 @@ Handling these issues requires careful system design.
 
 ---
 
-The key challenge in a payment system is ensuring that **each transaction is processed exactly once**, even in the presence of failures.
+The key challenge in a payment system is ensuring that **each transaction is processed safely and correctly**, even in the presence of failures.
 
 Distributed environments introduce several complications:
 
-- requests may be retried due to network failures
+- requests may be retried
 - multiple servers may process requests concurrently
 - systems may fail halfway through an operation
 - databases may replicate data asynchronously
 
-Because of this, a naive implementation can easily lead to problems such as:
+A naive implementation can easily lead to problems such as:
 
 ```text
 duplicate payments
@@ -299,14 +348,33 @@ inconsistent account balances
 lost transactions
 ```
 
-Designing a reliable payment system therefore requires mechanisms that guarantee:
+To build a reliable system, we must introduce mechanisms that guarantee:
 
-- safe retries
+- safe request handling
 - consistent data updates
-- correct ordering of operations
+- correct coordination between services
 - recovery from partial failures
 
 In the following articles, we will explore how real systems solve these problems step by step.
+
+---
+
+## 8. How We Will Solve These Problems
+
+---
+
+In the next articles, we will address these challenges step by step.
+
+The system will evolve as we introduce mechanisms that make the architecture more reliable.
+
+1. **Duplicate Requests and Retry Failures**  
+   → Solved using **Idempotency and Safe Retries**
+2. **Replication Lag and Stale Reads**  
+   → Solved using **Replication and Write Consistency**
+3. **Partial Failure Across Services**  
+   → Solved using **Distributed Coordination patterns such as the Saga pattern**
+
+By solving each of these problems, we will gradually transform the simple architecture into a **reliable distributed payment system**.
 
 ---
 
@@ -315,9 +383,9 @@ In the following articles, we will explore how real systems solve these problems
 ---
 
 - Payment systems prioritize **correctness over performance**.
-- Duplicate requests and partial failures must be handled safely.
-- Distributed environments introduce additional complexity.
-- Designing reliable transactions requires specialized techniques.
+- Distributed environments introduce new failure modes
+- Duplicate requests, replication lag, and partial failures must be handled carefully
+- Designing reliable transactions requires specialized distributed system techniques
 
 ---
 
@@ -326,4 +394,4 @@ In the following articles, we will explore how real systems solve these problems
 Now that we understand the challenges of payment systems, the next step is to design a **high‑level architecture** for handling transactions safely.
 
 👉 **Up Next: →**  
-**[Payment System — High-Level Architecture](/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_high-level-architecture)**
+**[Payment System — Baseline Architecture](/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture)**

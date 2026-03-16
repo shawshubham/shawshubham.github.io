@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773355154">
+<link rel="stylesheet" href="/css/main.css?v=1773508453">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -237,27 +237,31 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_high-level-architecture/">4.3. Example 3: Payment System — High-Level Architecture</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_failure-scenarios/">4.4. Payment System — Failure Scenarios in Distributed Transactions</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_idempotency-and-safe-retries/">4.5. Idempotency and Safe Retries</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_failure-scenarios/">4.5. Example 3: Payment System — Failure Scenarios in Distributed Transactions</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-and-write-consistency/">4.6. Replication and Write Consistency</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_idempotency-and-safe-retries/">4.6. Example 3: Payment System — Idempotency and Safe Retries</a>
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/">4.7. Coordinating Distributed Work (Saga / Orchestration)</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_12_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_13_coordinating-distributed-work/">4.8. Example 3: Payment System — Coordinating Distributed Work (Saga / Orchestration)</a>
                                 </li>
                               
                                 <li class="active">
-                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.8. Phase 3 Summary — Designing Reliable Distributed Systems</a>
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_phase3-summary/">4.9. Phase 3 Summary — Designing Reliable Distributed Systems</a>
                                 </li>
                               
                             </ul>
@@ -388,7 +392,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 12 Mar, 2026
+            Last updated on: 13 Mar, 2026
             
           </p>
         </div>
@@ -413,26 +417,49 @@
 <p>We began with a simple architecture.</p>
 <div class="mermaid">
 flowchart LR
+    User([User]) --> Server
 
-    User --> API
+    subgraph Server [Payment Server]
+        direction LR
+        API[API Layer] --> PS[Payment Logic]
+    end
 
-    API --> PaymentService
+    PS --> DB[(Database)]
 
-    PaymentService --> DB[(Database)]
+    %% Styling to match your evolution diagram
+    style Server fill:#f9f9f9,stroke:#333
+    style API fill:#e1f5fe,stroke:#01579b
+    style DB fill:#e8f5e9,stroke:#2e7d32
 </div>
 <p>This architecture works in simple environments.</p>
 <p>However, as we introduced distributed infrastructure, new challenges appeared.</p>
 <h3 id="distributed-services">Distributed Services</h3>
 <div class="mermaid">
-flowchart LR
+flowchart TD
+    User([User]) -- "Retries on Timeout" --> LB[<b>Load Balancer</b>]
 
-    User --> LB[Load Balancer]
+    subgraph Service_Fleet [Distributed Payment Tier]
+        direction LR
+        subgraph Instance_A [Service Instance A]
+            API_A[API Layer] --> PS_A[Payment Logic]
+        end
 
-    LB --> ServiceA
-    LB --> ServiceB
+        subgraph Instance_B [Service Instance B]
+            API_B[API Layer] --> PS_B[Payment Logic]
+        end
+    end
 
-    ServiceA --> DB
-    ServiceB --> DB
+    %% Direct connections from the bottom of LB
+    LB --> Instance_A
+    LB --> Instance_B
+
+    %% Internal logic to DB
+    PS_A & PS_B --> DB[(Primary Database)]
+
+    style LB fill:#e1f5fe,stroke:#01579b
+    style Instance_A fill:#f9f9f9,stroke:#333
+    style Instance_B fill:#f9f9f9,stroke:#333
+    style Service_Fleet fill:#fff3e0,stroke:#ef6c00,stroke-dasharray: 5 5
 </div>
 <p>Once systems scale across multiple services and databases, <strong>failures become unavoidable</strong>.</p>
 <hr>
@@ -469,8 +496,27 @@ Notification Service
 <h3 id="idempotency">Idempotency</h3>
 <p>Idempotency ensures that repeated requests do not create duplicate operations.</p>
 <p>Example solution:</p>
-<pre tabindex="0"><code>Idempotency Key → Detect duplicate requests
-</code></pre><h3 id="replication-strategies">Replication Strategies</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant A as API / Service
+    participant C as Idempotency Store (Redis)
+    participant D as DB / Gateway
+
+    U->>A: POST /pay (Key: x-123)
+    A->>C: SETNX key_x-123 (Processing)
+    Note over C: First request wins lock
+    A->>D: Execute Charge $50
+    D-->>A: Success
+    A->>C: Update status: COMPLETED
+    A-->>U: 200 OK
+
+    U->>A: POST /pay (Key: x-123) [Retry]
+    A->>C: Check key_x-123
+    C-->>A: Result: COMPLETED
+    A-->>U: 200 OK (Cached Result)
+</div>
+<h3 id="replication-strategies">Replication Strategies</h3>
 <p>We explored <strong>leader–follower replication</strong>, where:</p>
 <ul>
 <li>writes go to the primary database</li>
@@ -501,7 +547,22 @@ flowchart LR
     Ledger -. failure .-> Refund
 </div>
 <hr>
-<h2 id="5-key-design-principles-learned">5. Key Design Principles Learned</h2>
+<h2 id="5-concepts-introduced-in-phase-3">5. Concepts Introduced in Phase 3</h2>
+<hr>
+<p>This phase introduced several important concepts related to <strong>correctness and reliability in distributed systems</strong>.</p>
+<ol>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_1_acid-transactions">ACID Transactions</a></li>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_2_idempotency">Idempotency</a></li>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_3_distributed-transactions">Distributed Transactions</a></li>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_4_two-phase-commit">Two-Phase Commit (2PC)</a></li>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_saga-pattern">Saga Pattern</a></li>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_database-replication">Database Replication</a></li>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_consistency-models">Consistency Models</a></li>
+<li><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_8_processing-guarantees">Exactly-Once vs At-Least-Once Processing</a></li>
+</ol>
+<p>These concepts explain how modern distributed systems maintain <strong>correctness, consistency, and reliability even when failures occur</strong>.</p>
+<hr>
+<h2 id="6-key-design-principles-learned">6. Key Design Principles Learned</h2>
 <hr>
 <p>Phase 3 highlighted several important principles of distributed system design.</p>
 <h3 id="failures-are-normal">Failures Are Normal</h3>
@@ -531,7 +592,7 @@ flowchart LR
 <li>choreography</li>
 </ul>
 <hr>
-<h2 id="6-what-you-should-now-be-able-to-do">6. What You Should Now Be Able to Do</h2>
+<h2 id="7-what-you-should-now-be-able-to-do">7. What You Should Now Be Able to Do</h2>
 <hr>
 <p>After completing Phase 3, you should be able to:</p>
 <ul>
@@ -606,13 +667,19 @@ flowchart LR
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-key-design-principles-learned" data-toc-target="5-key-design-principles-learned">5. Key Design Principles Learned</a>
+        <a class="toc-link" href="#5-concepts-introduced-in-phase-3" data-toc-target="5-concepts-introduced-in-phase-3">5. Concepts Introduced in Phase 3</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-what-you-should-now-be-able-to-do" data-toc-target="6-what-you-should-now-be-able-to-do">6. What You Should Now Be Able to Do</a>
+        <a class="toc-link" href="#6-key-design-principles-learned" data-toc-target="6-key-design-principles-learned">6. Key Design Principles Learned</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-what-you-should-now-be-able-to-do" data-toc-target="7-what-you-should-now-be-able-to-do">7. What You Should Now Be Able to Do</a>
       </li>
     
       
@@ -634,7 +701,7 @@ flowchart LR
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_coordinating-distributed-work/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_13_coordinating-distributed-work/" class="btn nav-btn">&larr; Back</a>
     
 
     
