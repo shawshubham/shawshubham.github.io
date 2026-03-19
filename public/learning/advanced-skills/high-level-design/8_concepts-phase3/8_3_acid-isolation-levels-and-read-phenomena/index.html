@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACID Transactions — Isolation Levels &amp; Read Phenomena</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1773914260">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">ACID Transactions — Isolation Levels &amp; Read Phenomena</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">High-Level Design (HLD)</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. Phase 0: Introduction</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/1_introduction/1_1_introduction/">1.1. Introduction — How to Use This Section</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. Phase 1: Foundations — Designing Your First Real System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_1_introduction/">2.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_2_simple-web-system/">2.2. Example 1: Simple Web System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_3_high-level-architecture/">2.3. Example 1: Simple Web System — High-Level Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_4_architecture-choices-and-trade-offs/">2.4. Example 1: Simple Web System — Architecture Choices &amp; Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_5_early-scaling-signals-and-limitations/">2.5. Example 1: Simple Web System — Early Scaling Signals &amp; Limitations</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_6_phase1-summary/">2.6. Phase 1 Summary: Concepts Introduced</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">3. Phase 2: Scaling for Reads — Designing a News Feed System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_1_introduction/">3.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_2_problem-and-requirement/">3.2. Example 2: News Feed System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_3_baseline-architecture/">3.3. Example 2: News Feed System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_4_database-bottleneck/">3.4. Example 2: News Feed System — Database Bottleneck</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_5_introducing-caching/">3.5. Example 2: News Feed System — Introducing Caching</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_6_application-server-bottleneck/">3.6. Example 2: News Feed System — Application Server Bottleneck &amp; Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_7_global-users-and-cdn/">3.7. Example 2: News Feed System — Global Users &amp; Content Delivery Networks</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_8_consistency-trade-offs/">3.8. Example 2: News Feed System — Consistency Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_9_phase2-summary/">3.9. Phase 2 Summary — Scaling Read‑Heavy Systems</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">4. Phase 3: Correct Systems — Designing Reliable Transactions</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_1_introduction/">4.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_2_problem-and-requirement/">4.2. Example 3: Payment System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable/">4.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/">4.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">5. Phase 4: Real-Time &amp; Event-Driven Systems - Designing Real-Time Messaging System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_1_introduction/">5.1. Phase 4: Real-Time &amp; Event-Driven Systems — Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_2_problem-and-requirements/">5.2. Example 4: Real-Time Messaging System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_3_baseline-architecture/">5.3. Example 4: Real-Time Messaging System — Baseline Architecture (Polling → Simple Push)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">6. Concepts - Core Foundations (Phase 1)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_1_monolithic-architecture/">6.1. Monolithic Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_2_layered-n-tier-architecture/">6.2. Layered (N-Tier) Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_3_client-server-architecture/">6.3. Client–Server Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_4_stateless-vs-stateful-applications/">6.4. Stateless vs Stateful Applications</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_5_sync-vs-async-communication/">6.5. Synchronous vs Asynchronous Communication</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_6_single-database/">6.6. Single Database as Source of Truth</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_7_architectural-trade-offs/">6.7. Architectural Trade-offs</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">7. Concepts - Scaling Foundations (Phase 2)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching/">7.1. Caching — What is Caching ?</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss/">7.2. Caching — Cache Hit vs Cache Miss</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_3_caching-patterns/">7.3. Caching — Caching Patterns</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_4_cache-invalidation/">7.4. Caching — Cache Invalidation</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/">7.5. Caching — Cache Eviction Policies</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/">7.6. Caching — Local vs Distributed Cache</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/">7.7. Horizontal Scaling</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/">7.8. Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_9_stateless-application-servers/">7.9. Stateless Application Servers</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_10_cdn/">7.10. Content Delivery Networks (CDN)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_11_eventual-consistency/">7.11. Eventual Consistency</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase is-open">
+                          <details class="subject-phase-details" open>
+                            <summary class="subject-phase-title">8. Concepts - Correct Systems (Phase 3)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_1_introduction/">8.1. Concepts Hub — Correctness &amp; Reliability Toolkit (Phase 3)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_2_acid-transactions-what-they-guarantee/">8.2. ACID Transactions — What Transactions Guarantee</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_3_acid-isolation-levels-and-read-phenomena/">8.3. ACID Transactions — Isolation Levels &amp; Read Phenomena</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_4_locking-contention-deadlocks/">8.4. ACID Transactions — Locking, Contention, and Deadlocks</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/">8.7. Idempotency — API Edge vs Step-level vs Workflow-level</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_8_idempotency-storage-patterns/">8.8. Idempotency — Storage Patterns (DB-first vs Redis/KV)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap/">8.9. Idempotency — Cross-store Consistency Trap (DB &#43; Redis)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_10_idempotency-vs-dedup-vs-exactly-once/">8.10. Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">9. Concepts - Storage Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 18 Mar, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h1 id="acid-transactions--isolation-levels--read-phenomena">ACID Transactions — Isolation Levels &amp; Read Phenomena</h1>
+<hr>
+<p>In the previous article, we established that ACID transactions give you <strong>local correctness</strong>.</p>
+<p>But most correctness bugs in real systems don’t come from missing transactions.</p>
+<p>They come from:</p>
+<blockquote>
+<p><strong>multiple transactions interleaving in surprising ways.</strong></p></blockquote>
+<p>This article makes isolation practical by focusing on:</p>
+<ul>
+<li>the exact anomalies isolation levels prevent</li>
+<li>what you should expect at common defaults (like Read Committed)</li>
+<li>what payment-like systems typically require</li>
+</ul>
+<hr>
+<h2 id="1-what-isolation-is-in-one-sentence">1. What Isolation Is (In One Sentence)</h2>
+<hr>
+<p><strong>Isolation</strong> controls how a transaction behaves when other transactions run at the same time.</p>
+<p>It answers questions like:</p>
+<ul>
+<li>if I read a row twice, can it change?</li>
+<li>if I read “all rows that match X”, can new matching rows appear?</li>
+<li>can two concurrent updates overwrite each other?</li>
+<li>can I observe another transaction that later rolls back?</li>
+</ul>
+<p>Isolation exists because concurrency is required for throughput.</p>
+<p>But concurrency without rules breaks correctness.</p>
+<hr>
+<h2 id="2-the-read-phenomena-what-can-go-wrong">2. The Read Phenomena (What Can Go Wrong)</h2>
+<hr>
+<p>Most databases and textbooks describe isolation using “read phenomena”.</p>
+<p>We’ll anchor them in intuitive stories.</p>
+<h3 id="21-dirty-read">2.1 Dirty Read</h3>
+<p><strong>Definition:</strong> Transaction A reads data written by Transaction B <strong>before B commits</strong>.</p>
+<p>If B later rolls back, A has read a value that never truly existed.</p>
+<p><strong>Why it’s bad:</strong> you made decisions based on a value that was never committed.</p>
+<p>Dirty reads are usually unacceptable in financial logic.</p>
+<p>Most mainstream relational databases do <strong>not</strong> allow dirty reads at their default settings.</p>
+<hr>
+<h3 id="22-non-repeatable-read">2.2 Non-Repeatable Read</h3>
+<p><strong>Definition:</strong> Transaction A reads the same row twice and gets different results because another transaction committed an update in between.</p>
+<p>Example:</p>
+<ul>
+<li>A reads <code>balance = 100</code></li>
+<li>B commits <code>balance = 70</code></li>
+<li>A reads again and sees <code>balance = 70</code></li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant T1 as Txn A
+    participant DB as DB
+    participant T2 as Txn B
+
+    T1->>DB: BEGIN
+    T1->>DB: SELECT balance FROM accounts WHERE id=1
+    DB-->>T1: balance=100
+
+    T2->>DB: BEGIN
+    T2->>DB: UPDATE accounts SET balance=70 WHERE id=1
+    T2->>DB: COMMIT
+
+    T1->>DB: SELECT balance FROM accounts WHERE id=1
+    DB-->>T1: balance=70
+    Note over T1: Non-repeatable read (value changed)
+    T1->>DB: COMMIT
+</div>
+<p><strong>Why it matters:</strong> if A assumes the value is stable during its transaction, it can make incorrect decisions.</p>
+<hr>
+<h3 id="23-phantom-read">2.3 Phantom Read</h3>
+<p><strong>Definition:</strong> Transaction A runs the same query twice and sees a different set of rows because another transaction inserted or deleted rows that match the query.</p>
+<p>Example:</p>
+<ul>
+<li>A queries “all pending payments for user X”</li>
+<li>B inserts a new pending payment for X and commits</li>
+<li>A runs the query again and sees an extra row (a “phantom”)</li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant T1 as Txn A
+    participant DB as DB
+    participant T2 as Txn B
+
+    T1->>DB: BEGIN
+    T1->>DB: SELECT * FROM payments WHERE userId=42 AND status='PENDING'
+    DB-->>T1: rows=[p1,p2]
+
+    T2->>DB: BEGIN
+    T2->>DB: INSERT INTO payments(userId,status) VALUES(42,'PENDING')
+    T2->>DB: COMMIT
+
+    T1->>DB: SELECT * FROM payments WHERE userId=42 AND status='PENDING'
+    DB-->>T1: rows=[p1,p2,p3]
+    Note over T1: Phantom row appears
+    T1->>DB: COMMIT
+</div>
+<p><strong>Why it matters:</strong> range queries and “exists” checks can become unstable.</p>
+<hr>
+<h3 id="24-lost-update-most-common-payment-bug">2.4 Lost Update (Most Common Payment Bug)</h3>
+<p>Lost update isn’t always listed as a “read phenomenon”, but it is the most practical concurrency bug.</p>
+<p><strong>Definition:</strong> Two transactions read the same value and then both write based on that old value, causing one write to overwrite the other.</p>
+<p>Example (balance update):</p>
+<ul>
+<li>T1 reads balance 100, computes 100 - 80 = 20</li>
+<li>T2 reads balance 100, computes 100 - 30 = 70</li>
+<li>T1 writes 20</li>
+<li>T2 writes 70 (overwrites T1)</li>
+<li>final balance becomes 70 (incorrect, should be 20 or should reject)</li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant T1 as Txn A
+    participant DB as DB
+    participant T2 as Txn B
+
+    T1->>DB: BEGIN
+    T1->>DB: SELECT balance FROM accounts WHERE id=1
+    DB-->>T1: balance=100
+    Note over T1: computes newBalance=20
+
+    T2->>DB: BEGIN
+    T2->>DB: SELECT balance FROM accounts WHERE id=1
+    DB-->>T2: balance=100
+    Note over T2: computes newBalance=70
+
+    T1->>DB: UPDATE accounts SET balance=20 WHERE id=1
+    T1->>DB: COMMIT
+
+    T2->>DB: UPDATE accounts SET balance=70 WHERE id=1
+    T2->>DB: COMMIT
+
+    Note over DB: Final balance=70 (lost Txn A update)
+</div>
+<p>Lost updates are exactly why payment systems use:</p>
+<ul>
+<li>locking (<code>SELECT ... FOR UPDATE</code>)</li>
+<li>optimistic concurrency (version/CAS)</li>
+<li>atomic updates (<code>UPDATE ... WHERE balance &gt;= amount</code>)</li>
+</ul>
+<p>We’ll connect this back to Phase 3 in section 5.</p>
+<hr>
+<h2 id="3-common-isolation-levels-practical-view">3. Common Isolation Levels (Practical View)</h2>
+<hr>
+<p>Isolation levels are not just names — they are bundles of guarantees.</p>
+<div class="mermaid">
+flowchart LR
+    RU[Read Uncommitted] --> RC[Read Committed]
+    RC --> RR[Repeatable Read]
+    RR --> SER[Serializable]
+
+    RU:::weak
+    RC:::mid
+    RR:::mid
+    SER:::strong
+
+    classDef weak fill:#ffebee,stroke:#c62828;
+    classDef mid fill:#fff8e1,stroke:#f57f17;
+    classDef strong fill:#e8f5e9,stroke:#2e7d32;
+</div>
+<p>The exact behavior varies slightly by database, but the mental model is consistent.</p>
+<h3 id="31-read-uncommitted">3.1 Read Uncommitted</h3>
+<ul>
+<li>may allow dirty reads</li>
+<li>rarely used in correctness-sensitive systems</li>
+</ul>
+<h3 id="32-read-committed-common-default">3.2 Read Committed (Common Default)</h3>
+<p>Guarantees:</p>
+<ul>
+<li>no dirty reads (you only read committed data)</li>
+</ul>
+<p>But it may allow:</p>
+<ul>
+<li>non-repeatable reads</li>
+<li>phantom reads</li>
+<li>lost updates (unless updates are protected)</li>
+</ul>
+<p>Read Committed is often fine for:</p>
+<ul>
+<li>browsing views</li>
+<li>dashboards</li>
+<li>“non-critical reads”</li>
+</ul>
+<p>But payment correctness usually needs stronger protections on writes.</p>
+<h3 id="33-repeatable-read">3.3 Repeatable Read</h3>
+<p>Guarantees (conceptually):</p>
+<ul>
+<li>repeated reads of the same row are stable</li>
+</ul>
+<p>But depending on DB, it may still allow:</p>
+<ul>
+<li>phantom reads (unless implemented as true snapshot + range locking)</li>
+</ul>
+<p>Repeatable Read is stronger for workflows that:</p>
+<ul>
+<li>read then act based on what they read</li>
+</ul>
+<h3 id="34-serializable-strongest">3.4 Serializable (Strongest)</h3>
+<p>Conceptually:</p>
+<ul>
+<li>transactions behave as if executed one-by-one in some order.</li>
+</ul>
+<p>This prevents:</p>
+<ul>
+<li>dirty reads</li>
+<li>non-repeatable reads</li>
+<li>phantoms</li>
+<li>many forms of write skew</li>
+</ul>
+<p>Trade-off:</p>
+<ul>
+<li>reduced concurrency (more locking / retries / aborts)</li>
+<li>often heavier operational cost</li>
+</ul>
+<p>Serializable is the closest thing to “no surprises”, but you pay for it.</p>
+<hr>
+<h2 id="4-snapshot-isolation-and-write-skew-important-edge">4. Snapshot Isolation and “Write Skew” (Important Edge)</h2>
+<hr>
+<p>Many modern databases implement isolation using snapshots (MVCC).</p>
+<p>Snapshot isolation prevents many read anomalies, but it can allow a subtle bug called <strong>write skew</strong>.</p>
+<p><strong>Write skew story (conceptual):</strong></p>
+<ul>
+<li>Two transactions check a constraint using reads</li>
+<li>Both see the constraint is satisfied</li>
+<li>Both write different rows</li>
+<li>Together they violate the constraint</li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant T1 as Txn A
+    participant DB as DB
+    participant T2 as Txn B
+
+    Note over DB: Invariant: at least ONE doctor must be ON_CALL
+
+    T1->>DB: BEGIN (snapshot)
+    T1->>DB: SELECT COUNT(*) FROM on_call WHERE on_call=true
+    DB-->>T1: count=2
+    Note over T1: decides: "safe to set Dr.A OFF_CALL"
+
+    T2->>DB: BEGIN (snapshot)
+    T2->>DB: SELECT COUNT(*) FROM on_call WHERE on_call=true
+    DB-->>T2: count=2
+    Note over T2: decides: "safe to set Dr.B OFF_CALL"
+
+    T1->>DB: UPDATE on_call SET on_call=false WHERE doctor='A'
+    T1->>DB: COMMIT
+
+    T2->>DB: UPDATE on_call SET on_call=false WHERE doctor='B'
+    T2->>DB: COMMIT
+
+    Note over DB: Result: count=0 (invariant violated) ✅ write skew
+</div>
+<blockquote>
+<p>Both transactions made a correct decision based on their own snapshot, but their combined writes violated the global invariant.</p></blockquote>
+<p>This is why some invariants require:</p>
+<ul>
+<li>explicit locking, or</li>
+<li>serializable isolation, or</li>
+<li>a single atomic update statement that enforces the constraint</li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant T as Txn
+    participant DB as DB
+
+    Note over DB: Lock a shared guard row or use SERIALIZABLE / constraint enforcement
+
+    T->>DB: BEGIN
+    T->>DB: SELECT * FROM guard WHERE key='ON_CALL' FOR UPDATE
+    DB-->>T: lock acquired
+    T->>DB: UPDATE on_call SET on_call=false WHERE doctor='A'
+    T->>DB: COMMIT
+</div>
+<p>We’ll revisit this in later article (atomic update patterns).</p>
+<hr>
+<h2 id="5-what-payment-systems-typically-need-practical-guidance">5. What Payment Systems Typically Need (Practical Guidance)</h2>
+<hr>
+<p>In Phase 3, the high-risk area was:</p>
+<blockquote>
+<p><strong>concurrent debits / balance updates / state transitions</strong></p></blockquote>
+<p>For money correctness, you generally do not rely only on “Read Committed reads”.</p>
+<p>Instead, you use one of these safe patterns:</p>
+<h3 id="pattern-a--pessimistic-locking">Pattern A — Pessimistic locking</h3>
+<ul>
+<li><code>SELECT ... FOR UPDATE</code></li>
+<li>ensures only one transaction can modify the row at a time</li>
+</ul>
+<p>Good for:</p>
+<ul>
+<li>high correctness</li>
+<li>moderate contention</li>
+</ul>
+<p>Risk:</p>
+<ul>
+<li>lock waits and deadlocks at scale</li>
+</ul>
+<h3 id="pattern-b--optimistic-concurrency">Pattern B — Optimistic concurrency</h3>
+<ul>
+<li>version column / compare-and-swap (CAS)</li>
+<li>update succeeds only if version matches</li>
+</ul>
+<p>Good for:</p>
+<ul>
+<li>lower contention scenarios</li>
+<li>retry-friendly systems</li>
+</ul>
+<h3 id="pattern-c--atomic-updates-preferred-for-balances">Pattern C — Atomic updates (preferred for balances)</h3>
+<p>Single statement enforces invariant:</p>
+<ul>
+<li><code>UPDATE accounts SET balance = balance - amount WHERE balance &gt;= amount</code></li>
+</ul>
+<p>This prevents lost updates and overspending without requiring a prior read.</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant T as Transaction
+    participant DB as DB
+
+    T->>DB: BEGIN
+    T->>DB: UPDATE accounts<br>SET balance = balance - 80<br>WHERE id=1 AND balance >= 80
+    DB-->>T: rowsAffected=1 (success) OR 0 (insufficient funds)
+    T->>DB: INSERT INTO ledger_entries(...)
+    T->>DB: COMMIT
+</div>
+<p>In practice, payment systems mix:</p>
+<ul>
+<li>Read Committed or Repeatable Read</li>
+<li>plus explicit locking or atomic statements on critical rows</li>
+</ul>
+<p>That is often better than running everything at full Serializable.</p>
+<hr>
+<h2 id="6-choosing-isolation-a-simple-decision-guide">6. Choosing Isolation: A Simple Decision Guide</h2>
+<hr>
+<p>When you choose an isolation level, ask:</p>
+<ol>
+<li>
+<p><strong>What invariants must never break?</strong><br>
+(balance ≥ 0, unique transaction, valid status transitions)</p>
+</li>
+<li>
+<p><strong>Where can you tolerate stale/non-repeatable reads?</strong><br>
+(history views can; balance checks cannot)</p>
+</li>
+<li>
+<p><strong>What is the contention profile?</strong><br>
+(hot accounts, hot merchants, hot rows)</p>
+</li>
+<li>
+<p><strong>Can you use atomic updates instead of read-then-write?</strong><br>
+(often yes, and it’s the best solution)</p>
+</li>
+</ol>
+<p>Isolation levels are part of the answer, but “safe write patterns” are usually the real solution.</p>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<hr>
+<ul>
+<li>Isolation controls how concurrent transactions interleave.</li>
+<li>Main anomalies:
+<ul>
+<li>dirty reads</li>
+<li>non-repeatable reads</li>
+<li>phantom reads</li>
+<li>lost updates (most practical bug)</li>
+</ul>
+</li>
+<li>Read Committed prevents dirty reads but not many others.</li>
+<li>Serializable is strongest but costs concurrency.</li>
+<li>Payment correctness usually relies on:
+<ul>
+<li>explicit locking, optimistic versioning, or atomic updates
+rather than “just crank isolation up everywhere”.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<hr>
+<p>Isolation levels exist to prevent concurrency anomalies.</p>
+<p>For payment-like systems, the most important risk is lost updates and invariant violations under concurrent writes.</p>
+<p>Instead of relying only on isolation level names, use safe write patterns (locking, optimistic concurrency, atomic updates) where correctness matters.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next</h3>
+<p>Next we’ll look at what actually happens inside the database when you apply these patterns:</p>
+<ul>
+<li>row locks and lock waits</li>
+<li>deadlocks and how they happen</li>
+<li>why “correctness” can become “contention” at scale</li>
+</ul>
+<p>👉 <strong>Up Next: →</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_4_locking-contention-deadlocks">ACID Transactions — Locking, Contention, and Deadlocks</a></strong></p>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-what-isolation-is-in-one-sentence" data-toc-target="1-what-isolation-is-in-one-sentence">1. What Isolation Is (In One Sentence)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-the-read-phenomena-what-can-go-wrong" data-toc-target="2-the-read-phenomena-what-can-go-wrong">2. The Read Phenomena (What Can Go Wrong)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-common-isolation-levels-practical-view" data-toc-target="3-common-isolation-levels-practical-view">3. Common Isolation Levels (Practical View)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-snapshot-isolation-and-write-skew-important-edge" data-toc-target="4-snapshot-isolation-and-write-skew-important-edge">4. Snapshot Isolation and “Write Skew” (Important Edge)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-what-payment-systems-typically-need-practical-guidance" data-toc-target="5-what-payment-systems-typically-need-practical-guidance">5. What Payment Systems Typically Need (Practical Guidance)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-choosing-isolation-a-simple-decision-guide" data-toc-target="6-choosing-isolation-a-simple-decision-guide">6. Choosing Isolation: A Simple Decision Guide</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#tldr" data-toc-target="tldr">TL;DR</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_2_acid-transactions-what-they-guarantee/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+      High-Level Design (HLD) : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_4_locking-contention-deadlocks/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idempotency — API Edge vs Step-level vs Workflow-level</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1773914260">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Idempotency — API Edge vs Step-level vs Workflow-level</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">High-Level Design (HLD)</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. Phase 0: Introduction</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/1_introduction/1_1_introduction/">1.1. Introduction — How to Use This Section</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. Phase 1: Foundations — Designing Your First Real System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_1_introduction/">2.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_2_simple-web-system/">2.2. Example 1: Simple Web System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_3_high-level-architecture/">2.3. Example 1: Simple Web System — High-Level Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_4_architecture-choices-and-trade-offs/">2.4. Example 1: Simple Web System — Architecture Choices &amp; Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_5_early-scaling-signals-and-limitations/">2.5. Example 1: Simple Web System — Early Scaling Signals &amp; Limitations</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_6_phase1-summary/">2.6. Phase 1 Summary: Concepts Introduced</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">3. Phase 2: Scaling for Reads — Designing a News Feed System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_1_introduction/">3.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_2_problem-and-requirement/">3.2. Example 2: News Feed System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_3_baseline-architecture/">3.3. Example 2: News Feed System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_4_database-bottleneck/">3.4. Example 2: News Feed System — Database Bottleneck</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_5_introducing-caching/">3.5. Example 2: News Feed System — Introducing Caching</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_6_application-server-bottleneck/">3.6. Example 2: News Feed System — Application Server Bottleneck &amp; Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_7_global-users-and-cdn/">3.7. Example 2: News Feed System — Global Users &amp; Content Delivery Networks</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_8_consistency-trade-offs/">3.8. Example 2: News Feed System — Consistency Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_9_phase2-summary/">3.9. Phase 2 Summary — Scaling Read‑Heavy Systems</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">4. Phase 3: Correct Systems — Designing Reliable Transactions</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_1_introduction/">4.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_2_problem-and-requirement/">4.2. Example 3: Payment System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable/">4.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/">4.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">5. Phase 4: Real-Time &amp; Event-Driven Systems - Designing Real-Time Messaging System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_1_introduction/">5.1. Phase 4: Real-Time &amp; Event-Driven Systems — Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_2_problem-and-requirements/">5.2. Example 4: Real-Time Messaging System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_3_baseline-architecture/">5.3. Example 4: Real-Time Messaging System — Baseline Architecture (Polling → Simple Push)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">6. Concepts - Core Foundations (Phase 1)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_1_monolithic-architecture/">6.1. Monolithic Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_2_layered-n-tier-architecture/">6.2. Layered (N-Tier) Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_3_client-server-architecture/">6.3. Client–Server Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_4_stateless-vs-stateful-applications/">6.4. Stateless vs Stateful Applications</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_5_sync-vs-async-communication/">6.5. Synchronous vs Asynchronous Communication</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_6_single-database/">6.6. Single Database as Source of Truth</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_7_architectural-trade-offs/">6.7. Architectural Trade-offs</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">7. Concepts - Scaling Foundations (Phase 2)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching/">7.1. Caching — What is Caching ?</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss/">7.2. Caching — Cache Hit vs Cache Miss</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_3_caching-patterns/">7.3. Caching — Caching Patterns</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_4_cache-invalidation/">7.4. Caching — Cache Invalidation</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/">7.5. Caching — Cache Eviction Policies</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/">7.6. Caching — Local vs Distributed Cache</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/">7.7. Horizontal Scaling</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/">7.8. Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_9_stateless-application-servers/">7.9. Stateless Application Servers</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_10_cdn/">7.10. Content Delivery Networks (CDN)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_11_eventual-consistency/">7.11. Eventual Consistency</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase is-open">
+                          <details class="subject-phase-details" open>
+                            <summary class="subject-phase-title">8. Concepts - Correct Systems (Phase 3)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_1_introduction/">8.1. Concepts Hub — Correctness &amp; Reliability Toolkit (Phase 3)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_2_acid-transactions-what-they-guarantee/">8.2. ACID Transactions — What Transactions Guarantee</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_3_acid-isolation-levels-and-read-phenomena/">8.3. ACID Transactions — Isolation Levels &amp; Read Phenomena</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_4_locking-contention-deadlocks/">8.4. ACID Transactions — Locking, Contention, and Deadlocks</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/">8.7. Idempotency — API Edge vs Step-level vs Workflow-level</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_8_idempotency-storage-patterns/">8.8. Idempotency — Storage Patterns (DB-first vs Redis/KV)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap/">8.9. Idempotency — Cross-store Consistency Trap (DB &#43; Redis)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_10_idempotency-vs-dedup-vs-exactly-once/">8.10. Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">9. Concepts - Storage Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 19 Mar, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h1 id="idempotency--api-edge-vs-step-level-vs-workflow-level">Idempotency — API Edge vs Step-level vs Workflow-level</h1>
+<hr>
+<p>In the preivous article, we saw why idempotency exists:</p>
+<ul>
+<li>timeouts create ambiguity</li>
+<li>retries are unavoidable</li>
+<li>duplicates are guaranteed eventually</li>
+</ul>
+<p>The next practical design question is:</p>
+<blockquote>
+<p><strong>Where should idempotency live?</strong></p></blockquote>
+<p>Many teams implement idempotency only at the API edge and stop there.</p>
+<p>That helps — but it is not enough once your system becomes multi-step or multi-service.</p>
+<p>In real systems, idempotency exists at three scopes:</p>
+<ol>
+<li><strong>API edge idempotency</strong> (repeat the same request → same result)</li>
+<li><strong>Step-level idempotency</strong> (repeat the same side effect → no duplicate)</li>
+<li><strong>Workflow-level idempotency</strong> (replay saga steps safely)</li>
+</ol>
+<p>This article explains each scope, what it protects, and how to choose the right boundary.</p>
+<hr>
+<h2 id="1-a-quick-mental-model-same-intent-vs-same-step">1. A Quick Mental Model: “Same Intent” vs “Same Step”</h2>
+<hr>
+<p>Idempotency is about making repeats safe.</p>
+<p>But “repeat” can mean different things:</p>
+<ul>
+<li>repeating the <em>same user intent</em> (API retry)</li>
+<li>repeating the <em>same internal command</em> (ledger post retry)</li>
+<li>replaying a <em>workflow step</em> after a crash (saga recovery)</li>
+</ul>
+<p>If you protect only the first, you will still get duplicates internally.</p>
+<hr>
+<h2 id="2-api-edge-idempotency">2. API Edge Idempotency</h2>
+<hr>
+<h3 id="21-what-it-protects">2.1 What it protects</h3>
+<p>API idempotency protects:</p>
+<ul>
+<li>duplicate client submissions</li>
+<li>client retries after timeouts</li>
+<li>load balancer retries</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li><code>POST /payments</code> with <code>Idempotency-Key: K</code></li>
+</ul>
+<p>If the client retries with the same key, the server returns the same result.</p>
+<h3 id="22-what-it-does-not-protect">2.2 What it does NOT protect</h3>
+<p>API edge idempotency does not automatically protect internal steps if:</p>
+<ul>
+<li>the request succeeds but the response is lost</li>
+<li>the server crashes mid-workflow</li>
+<li>you later retry downstream calls</li>
+</ul>
+<p>In those cases, internal side effects can still be repeated unless each step is idempotent too.</p>
+<h3 id="23-when-its-sufficient">2.3 When it’s sufficient</h3>
+<p>API idempotency is often sufficient when:</p>
+<ul>
+<li>the operation is a single database transaction</li>
+<li>all side effects are contained inside one DB boundary</li>
+<li>there are no cross-service calls</li>
+</ul>
+<p>As soon as you have multiple steps or dependencies, you need step-level idempotency.</p>
+<hr>
+<h2 id="3-step-level-idempotency-idempotent-side-effects">3. Step-level Idempotency (Idempotent Side Effects)</h2>
+<hr>
+<p>Step-level idempotency means:</p>
+<blockquote>
+<p>repeating the same internal command does not create duplicate side effects.</p></blockquote>
+<p>This is mandatory for operations like:</p>
+<ul>
+<li>posting a ledger entry</li>
+<li>sending a notification</li>
+<li>updating a payment status</li>
+<li>publishing an event</li>
+</ul>
+<h3 id="31-why-step-level-idempotency-is-required">3.1 Why step-level idempotency is required</h3>
+<p>Even if the API edge is protected, you can still retry downstream steps because of:</p>
+<ul>
+<li>transient failures</li>
+<li>timeouts waiting for downstream</li>
+<li>retries during incident recovery</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li>Payment service calls Ledger service</li>
+<li>Ledger times out (but might have processed it)</li>
+<li>Payment service retries</li>
+</ul>
+<p>If the Ledger step is not idempotent, you may create two ledger entries.</p>
+<h3 id="32-what-a-step-level-idempotency-key-looks-like">3.2 What a step-level idempotency key looks like</h3>
+<p>A common pattern:</p>
+<ul>
+<li><code>paymentId:LEDGER_POST</code></li>
+<li><code>paymentId:NOTIFY_USER</code></li>
+</ul>
+<p>The receiving service stores this key and returns:</p>
+<ul>
+<li>“already processed” if the key exists</li>
+</ul>
+<p>This is the same idea as API idempotency, but scoped to the <strong>side effect</strong>.</p>
+<h3 id="33-the-rule">3.3 The rule</h3>
+<blockquote>
+<p>Any side effect that can be retried must be idempotent.</p></blockquote>
+<p>This becomes even more important in event-driven systems (Phase 4).</p>
+<hr>
+<h2 id="4-workflow-level-idempotency-saga-replay-safety">4. Workflow-level Idempotency (Saga Replay Safety)</h2>
+<hr>
+<p>Workflow-level idempotency exists when:</p>
+<ul>
+<li>your system is a saga / multi-step workflow</li>
+<li>the workflow can be resumed after crashes</li>
+<li>steps can be replayed safely</li>
+</ul>
+<p>In orchestration:</p>
+<ul>
+<li>the orchestrator persists workflow state</li>
+<li>it can re-issue a step command after restart</li>
+<li>each step must tolerate replay (idempotent)</li>
+</ul>
+<p>Workflow-level idempotency is the combined effect of:</p>
+<ul>
+<li>durable workflow state machine</li>
+<li>step-level idempotency</li>
+<li>clear terminal outcomes (<code>SUCCEEDED</code>, <code>FAILED</code>, <code>NEEDS_REVIEW</code>)</li>
+</ul>
+<p>This is why “saga reliability” always includes idempotency.</p>
+<hr>
+<h2 id="5-putting-it-together-what-real-payment-systems-do">5. Putting It Together (What Real Payment Systems Do)</h2>
+<hr>
+<p>A production-safe payment workflow typically uses all three scopes:</p>
+<h3 id="51-api-edge">5.1 API Edge</h3>
+<ul>
+<li>protect against client retries</li>
+<li>ensure “same user intent” produces one payment</li>
+</ul>
+<h3 id="52-step-level">5.2 Step-level</h3>
+<ul>
+<li>ledger post is idempotent</li>
+<li>notification send is idempotent</li>
+<li>fraud decision recording is idempotent</li>
+</ul>
+<h3 id="53-workflow-level">5.3 Workflow-level</h3>
+<ul>
+<li>orchestrator can safely retry/resume steps</li>
+<li>workflow state machine ensures progress is tracked</li>
+<li>ambiguous states go to <code>NEEDS_REVIEW</code></li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    subgraph Client_Zone [Unreliable Internet]
+        C[Client / Mobile App]
+    end
+
+    subgraph Entry_Layer [Layer 1: The Request Guard]
+        direction TB
+        API[API Edge Gateway]
+        R1[(<b>API Cache</b><br/>Req Hash + Response)]
+    end
+
+    subgraph Logic_Layer [Layer 2: The Side-Effect Guard]
+        direction TB
+        S1[Step: Ledger Post]
+        S2[Step: Notify User]
+        S3[Step: Fraud Record]
+        R2[(<b>Operation Log</b><br/>Entity ID + Key)]
+    end
+
+    subgraph Durable_Layer [Layer 3: The State Guard]
+        WF[Workflow / Saga Orchestrator]
+        R3[(<b>Workflow State</b><br/>Step Progress)]
+    end
+
+    %% Flow
+    C -->|Idempotency-Key| API
+    API <--> R1
+
+    API --> WF
+    WF <--> R3
+
+    WF --> S1
+    WF --> S2
+    WF --> S3
+
+    S1 & S2 & S3 <--> R2
+
+    %% Styling
+    style Client_Zone fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
+    style Entry_Layer fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    style Logic_Layer fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    style Durable_Layer fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+
+    style R1 fill:#fff,stroke:#01579b
+    style R2 fill:#fff,stroke:#f57f17
+    style R3 fill:#fff,stroke:#2e7d32
+</div>
+<p>In other words:</p>
+<blockquote>
+<p>API idempotency prevents duplicate <em>requests</em>.<br>
+Step/workflow idempotency prevents duplicate <em>effects</em>.</p></blockquote>
+<hr>
+<h2 id="6-key-takeaways">6. Key Takeaways</h2>
+<hr>
+<ul>
+<li>Idempotency must exist at multiple scopes in real systems.</li>
+<li><strong>API edge idempotency</strong> protects the user intent (client retries).</li>
+<li><strong>Step-level idempotency</strong> protects side effects (ledger/notify/event publish).</li>
+<li><strong>Workflow-level idempotency</strong> makes saga recovery/replay safe.</li>
+<li>If you stop at API idempotency, you still risk duplicate internal effects.</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<hr>
+<p>“Idempotency” is not one feature; it is a set of protections at different boundaries.</p>
+<p>In production systems you need:</p>
+<ul>
+<li>API idempotency (same request)</li>
+<li>step idempotency (same side effect)</li>
+<li>workflow idempotency (safe saga replay)</li>
+</ul>
+<p>Together, these turn retries from a correctness risk into a safe recovery tool.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next</h3>
+<p>Now we’ll answer the next practical question:</p>
+<blockquote>
+<p>where do we store idempotency?</p></blockquote>
+<p>We’ll compare:</p>
+<ul>
+<li>DB-first idempotency (atomic with business data)</li>
+<li>Redis/KV as an accelerator</li>
+<li>trade-offs around TTL, cleanup, and consistency</li>
+</ul>
+<p>👉 <strong>Up Next: →</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_8_idempotency-storage-patterns">Idempotency — Storage Patterns (DB-first vs Redis/KV)</a></strong></p>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-a-quick-mental-model-same-intent-vs-same-step" data-toc-target="1-a-quick-mental-model-same-intent-vs-same-step">1. A Quick Mental Model: “Same Intent” vs “Same Step”</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-api-edge-idempotency" data-toc-target="2-api-edge-idempotency">2. API Edge Idempotency</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-step-level-idempotency-idempotent-side-effects" data-toc-target="3-step-level-idempotency-idempotent-side-effects">3. Step-level Idempotency (Idempotent Side Effects)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-workflow-level-idempotency-saga-replay-safety" data-toc-target="4-workflow-level-idempotency-saga-replay-safety">4. Workflow-level Idempotency (Saga Replay Safety)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-putting-it-together-what-real-payment-systems-do" data-toc-target="5-putting-it-together-what-real-payment-systems-do">5. Putting It Together (What Real Payment Systems Do)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-key-takeaways" data-toc-target="6-key-takeaways">6. Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#tldr" data-toc-target="tldr">TL;DR</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+      High-Level Design (HLD) : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_8_idempotency-storage-patterns/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

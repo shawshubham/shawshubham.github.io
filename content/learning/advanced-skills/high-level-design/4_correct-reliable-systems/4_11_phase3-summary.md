@@ -232,6 +232,8 @@ Phase 3 introduces correctness concepts that show up in almost every real distri
 8. **CAP Theorem**  
    A synthesis lens after you’ve seen these trade-offs in real examples.
 
+👉 **Concepts section: →** **[Concepts Hub - Correctness & Reliability Toolkit (Phase 3)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_1_introduction)**
+
 ---
 
 ## 7. What We Did Not Solve Yet (On Purpose)
@@ -289,4 +291,4 @@ Next, you can go in two directions:
 2. Deepen understanding via Phase 3 **Concepts** (Saga, Processing Guarantees, Replication, CAP)
 
 👉 **Up Next: →**  
-**[Phase 4 — Real-Time & Event-Driven Systems](/learning/advanced-skills/high-level-design/5_real-time-event-driven-systems/)**
+**[Phase 4 — Real-Time & Event-Driven Systems](/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_1_introduction)**

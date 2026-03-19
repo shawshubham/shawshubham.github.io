@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1773671167">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">High-Level Design (HLD)</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. Phase 0: Introduction</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/1_introduction/1_1_introduction/">1.1. Introduction — How to Use This Section</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. Phase 1: Foundations — Designing Your First Real System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_1_introduction/">2.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_2_simple-web-system/">2.2. Example 1: Simple Web System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_3_high-level-architecture/">2.3. Example 1: Simple Web System — High-Level Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_4_architecture-choices-and-trade-offs/">2.4. Example 1: Simple Web System — Architecture Choices &amp; Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_5_early-scaling-signals-and-limitations/">2.5. Example 1: Simple Web System — Early Scaling Signals &amp; Limitations</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_6_phase1-summary/">2.6. Phase 1 Summary: Concepts Introduced</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">3. Phase 2: Scaling for Reads — Designing a News Feed System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_1_introduction/">3.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_2_problem-and-requirement/">3.2. Example 2: News Feed System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_3_baseline-architecture/">3.3. Example 2: News Feed System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_4_database-bottleneck/">3.4. Example 2: News Feed System — Database Bottleneck</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_5_introducing-caching/">3.5. Example 2: News Feed System — Introducing Caching</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_6_application-server-bottleneck/">3.6. Example 2: News Feed System — Application Server Bottleneck &amp; Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_7_global-users-and-cdn/">3.7. Example 2: News Feed System — Global Users &amp; Content Delivery Networks</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_8_consistency-trade-offs/">3.8. Example 2: News Feed System — Consistency Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_9_phase2-summary/">3.9. Phase 2 Summary — Scaling Read‑Heavy Systems</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">4. Phase 3: Correct Systems — Designing Reliable Transactions</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_1_introduction/">4.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_2_problem-and-requirement/">4.2. Example 3: Payment System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable/">4.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/">4.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase is-open">
+                          <details class="subject-phase-details" open>
+                            <summary class="subject-phase-title">5. Phase 3: Correct Systems — Designing Reliable Transactions</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_1_introduction/">5.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_2_problem-and-requirement/">5.2. Example 3: Payment System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_3_baseline-architecture/">5.3. Example 3: Payment System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_4_handling-duplicate-request/">5.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_5_scaling-the-architecture/">5.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_6_replication-lag-and-stale-reads/">5.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_7_replication-and-write-consistency/">5.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_8_partial-failure-across-services/">5.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_9_distributed-coordination-saga/">5.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_10_making-sagas-reliable/">5.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_11_phase3-summary/">5.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">6. Concepts - Core Foundations (Phase 1)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_1_monolithic-architecture/">6.1. Monolithic Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_2_layered-n-tier-architecture/">6.2. Layered (N-Tier) Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_3_client-server-architecture/">6.3. Client–Server Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_4_stateless-vs-stateful-applications/">6.4. Stateless vs Stateful Applications</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_5_sync-vs-async-communication/">6.5. Synchronous vs Asynchronous Communication</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_6_single-database/">6.6. Single Database as Source of Truth</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_7_architectural-trade-offs/">6.7. Architectural Trade-offs</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">7. Concepts - Scaling Foundations (Phase 2)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching/">7.1. Caching — What is Caching ?</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss/">7.2. Caching — Cache Hit vs Cache Miss</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_3_caching-patterns/">7.3. Caching — Caching Patterns</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_4_cache-invalidation/">7.4. Caching — Cache Invalidation</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/">7.5. Caching — Cache Eviction Policies</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/">7.6. Caching — Local vs Distributed Cache</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/">7.7. Horizontal Scaling</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/">7.8. Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_9_stateless-application-servers/">7.9. Stateless Application Servers</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_10_cdn/">7.10. Content Delivery Networks (CDN)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_11_eventual-consistency/">7.11. Eventual Consistency</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">8. Concepts - Correct Systems (Phase 3)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_1_what-is-caching/">8.1. Caching — What is Caching ?</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">9. Concepts - Storage Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 16 Mar, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-article-exists">1. Why This Article Exists</h2>
+<hr>
+<p>In the previous article, we saw the uncomfortable truth about real payment workflows:</p>
+<ul>
+<li>A payment is a <strong>multi-step workflow</strong> across services.</li>
+<li><strong>Partial failures</strong> are normal (one step succeeds, another fails).</li>
+<li>ACID transactions help <strong>locally</strong>, but don’t guarantee <strong>global correctness</strong>.</li>
+</ul>
+<p>So now we need a new tool:</p>
+<blockquote>
+<p><strong>A way to coordinate multiple local transactions into one reliable business outcome.</strong></p></blockquote>
+<p>This is where <strong>Saga</strong> comes in.</p>
+<p>In this article, we will:</p>
+<ul>
+<li>introduce the Saga pattern (in practical terms)</li>
+<li>compare <strong>choreography vs orchestration</strong></li>
+<li>explicitly state <strong>what we choose</strong> for our payment design</li>
+</ul>
+<p>We will keep this chapter focused on the <strong>coordination model and design choice</strong>.</p>
+<p>In the next chapter, we’ll make this coordination <strong>production-safe</strong> with durable state, retries, timeouts, and compensation mechanics.</p>
+<hr>
+<h2 id="2-the-workflow-we-must-coordinate">2. The Workflow We Must Coordinate</h2>
+<hr>
+<p>Let’s keep the workflow concrete.</p>
+<p>A simplified payment flow usually touches these steps:</p>
+<ol>
+<li><strong>Create / update payment record</strong> (idempotent)</li>
+<li><strong>Fraud / risk decision</strong> (approve/decline/unknown)</li>
+<li><strong>Ledger entry</strong> (money movement recorded)</li>
+<li><strong>Notification</strong> (receipt, SMS, email)</li>
+<li><em>(Optional)</em> <strong>Order confirmation</strong> (in commerce systems)</li>
+</ol>
+<p>We want one stable business outcome:</p>
+<ul>
+<li>The payment is <strong>CONFIRMED</strong> only if the required steps succeed.</li>
+<li>Failures must lead to an explicit, controlled state:
+<ul>
+<li><strong>FAILED</strong> (no side effects)</li>
+<li><strong>FAILED + COMPENSATED</strong> (side effects undone)</li>
+<li><strong>PENDING / NEEDS_REVIEW</strong> (uncertain and escalated)</li>
+</ul>
+</li>
+</ul>
+<p>This is not a single DB transaction problem anymore.</p>
+<p>It’s a <strong>distributed workflow correctness</strong> problem.</p>
+<hr>
+<h2 id="3-the-core-idea-saga-pattern">3. The Core Idea: Saga Pattern</h2>
+<hr>
+<p>A <strong>Saga</strong> is a way to implement a multi-step workflow without a distributed ACID transaction.</p>
+<p>A Saga consists of:</p>
+<ul>
+<li>a sequence of <strong>local transactions</strong> (one per service boundary)</li>
+<li>and, if needed, <strong>compensating actions</strong> for steps that already committed</li>
+</ul>
+<p>Think of it like this:</p>
+<blockquote>
+<p>“If we can’t commit everything atomically, we commit step-by-step — and we define how to recover when something fails mid-way.”</p></blockquote>
+<h3 id="what-saga-gives-us">What Saga gives us</h3>
+<ul>
+<li><strong>No global lock / no global transaction</strong></li>
+<li>Clear definition of:
+<ul>
+<li>what “done” means</li>
+<li>what “failed” means</li>
+<li>what “recovery” means</li>
+</ul>
+</li>
+</ul>
+<h3 id="a-simple-mental-model">A simple mental model</h3>
+<p>Below is a conceptual table (not implementation yet):</p>
+<table>
+  <thead>
+      <tr>
+          <th>Step</th>
+          <th>Local transaction (does work)</th>
+          <th>Compensation (undo / neutralize)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Fraud decision</td>
+          <td>record decision</td>
+          <td>usually none (audit stays)</td>
+      </tr>
+      <tr>
+          <td>Ledger entry</td>
+          <td>create entry</td>
+          <td>create reversal entry</td>
+      </tr>
+      <tr>
+          <td>Payment debit / reserve</td>
+          <td>debit / reserve</td>
+          <td>refund / release</td>
+      </tr>
+      <tr>
+          <td>Notification</td>
+          <td>send receipt</td>
+          <td>none (best-effort; can resend)</td>
+      </tr>
+  </tbody>
+</table>
+<p>Important nuance:</p>
+<ul>
+<li>Not every step has a meaningful “undo”.</li>
+<li>Compensation can be “best effort” or “logical reversal”.</li>
+<li>Some steps are not compensated at all — they are retried or tolerated.</li>
+</ul>
+<p>We’ll treat compensation mechanics and rules in next article.</p>
+<hr>
+<h2 id="4-two-ways-to-run-a-saga-choreography-vs-orchestration">4. Two Ways to Run a Saga: Choreography vs Orchestration</h2>
+<hr>
+<p>The Saga idea is the same, but there are two common execution styles.</p>
+<h3 id="41-choreography-based-saga-event-driven-saga">4.1 Choreography-Based Saga (event-driven saga)</h3>
+<p>In choreography:</p>
+<ul>
+<li>services emit events when they finish</li>
+<li>other services subscribe and react</li>
+<li>there is no central coordinator</li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant P as Payment Service
+    participant F as Fraud Service
+    participant L as Ledger Service
+    participant N as Notification Service
+
+    Note over P, N: The "Choreography" Model (No Central Controller)
+
+    P-->>F: 1. PaymentCreated (Event)
+    Note right of P: P finishes its work immediately
+
+    F-->>P: 2. FraudApproved (Event)
+    Note right of F: F acts when it sees P's event
+
+    P-->>L: 3. LedgerPostRequested (Event)
+    L-->>P: 4. LedgerPosted (Event)
+
+    P-->>N: 5. SendReceipt (Event)
+    Note over P, N: Each service 'listens' and 'reacts' independently.
+</div>
+<h4 id="pros">Pros</h4>
+<ul>
+<li>high autonomy per team/service</li>
+<li>naturally event-driven</li>
+<li>scales well organizationally</li>
+</ul>
+<h4 id="cons">Cons</h4>
+<ul>
+<li>the workflow logic becomes <strong>distributed</strong></li>
+<li>debugging is harder (“who triggered this step?”)</li>
+<li>higher risk of:
+<ul>
+<li>event storms</li>
+<li>accidental cycles</li>
+<li>unclear ownership of the end-to-end outcome</li>
+</ul>
+</li>
+</ul>
+<p>Choreography can be excellent, but for correctness-sensitive payment workflows it raises the bar for operability.</p>
+<hr>
+<h3 id="42-orchestration-based-saga-command-driven-saga">4.2 Orchestration-Based Saga (command-driven saga)</h3>
+<p>In orchestration:</p>
+<ul>
+<li>one coordinator owns the workflow state</li>
+<li>it issues commands to services</li>
+<li>it decides next steps based on outcomes</li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant API as Payment API
+    participant O as Payment Orchestrator
+    participant F as Fraud Service
+    participant L as Ledger Service
+    participant N as Notification Service
+
+    Note over O: Saga State: CREATED
+
+    API->>O: startPayment(paymentId)
+
+    O->>F: assess(paymentId)
+    F-->>O: APPROVE
+    Note over O: Saga State: FRAUD_APPROVED
+
+    O->>L: postEntry(paymentId)
+    L-->>O: OK
+    Note over O: Saga State: LEDGER_POSTED
+
+    O->>N: sendReceipt(paymentId)
+    N-->>O: OK
+
+    Note over O: Saga State: COMPLETED
+    O-->>API: Payment CONFIRMED
+</div>
+<h4 id="pros-1">Pros</h4>
+<ul>
+<li>a single, explicit view of the workflow</li>
+<li>easier to reason about correctness</li>
+<li>centralized place for:
+<ul>
+<li>state transitions (high-level)</li>
+<li>observability (correlation)</li>
+<li>policy decisions (retry vs compensate)</li>
+</ul>
+</li>
+</ul>
+<h4 id="cons-1">Cons</h4>
+<ul>
+<li>orchestrator becomes a critical component</li>
+<li>risk of turning into a “god service” if it absorbs domain logic</li>
+</ul>
+<p>We’ll avoid that by keeping domain logic inside services.</p>
+<hr>
+<h2 id="5-what-our-design-chooses-explicit-decision">5. What Our Design Chooses (Explicit Decision)</h2>
+<hr>
+<p>For Phase 3 baseline, <strong>we choose orchestration</strong>.</p>
+<h3 id="51-why-orchestration-fits-our-payment-system-baseline">5.1 Why orchestration fits our payment system (baseline)</h3>
+<p>Payments have:</p>
+<ul>
+<li>correctness-sensitive side effects (money movement)</li>
+<li>high operational cost of mismatches</li>
+<li>strong need for debuggability and clarity</li>
+</ul>
+<p>Orchestration gives us:</p>
+<ul>
+<li>a single “truth” of workflow progress</li>
+<li>a single place to control state transitions</li>
+<li>simpler incident response (“what step failed and why?”)</li>
+</ul>
+<h3 id="52-guardrails-how-we-avoid-a-god-orchestrator">5.2 Guardrails: how we avoid a “god orchestrator”</h3>
+<p>The orchestrator must not become a business logic dump.</p>
+<p>Our boundary rules:</p>
+<ul>
+<li>Orchestrator:
+<ul>
+<li>owns <strong>workflow state</strong> and <strong>control flow</strong></li>
+<li>issues commands and evaluates outcomes</li>
+</ul>
+</li>
+<li>Services:
+<ul>
+<li>own <strong>domain logic</strong></li>
+<li>own <strong>their data</strong></li>
+<li>are <strong>idempotent</strong> at the step level</li>
+</ul>
+</li>
+</ul>
+<p>This keeps the system modular and scalable.</p>
+<hr>
+<h2 id="6-the-orchestrated-payment-saga-high-level">6. The Orchestrated Payment Saga (High-Level)</h2>
+<hr>
+<p>We now model payment processing as a workflow with explicit steps.</p>
+<p>A conceptual step flow might be:</p>
+<ol>
+<li>Start payment (idempotent)</li>
+<li>Fraud assessment</li>
+<li>Ledger posting</li>
+<li>Notify user</li>
+<li>Mark payment as confirmed</li>
+</ol>
+<div class="mermaid">
+flowchart TD
+    %% Define Nodes
+    Start([Start]) --> Started[<b>STARTED</b>]
+
+    subgraph Happy_Path [The Success Flow]
+        direction TB
+        fraud{FRAUD_ASSESSMENT}
+        ledger[LEDGER_POSTING]
+        notify[NOTIFY_USER]
+        confirmed([<b>CONFIRMED</b>])
+    end
+
+    subgraph Error_Handling [Recovery & Resilience]
+        direction TB
+        recovering[RECOVERING]
+        review[NEEDS_REVIEW]
+        failedComp[FAILED_COMPENSATED]
+    end
+
+    failed([<b>FAILED: DECLINED</b>])
+
+    %% Logic Connections
+    Started --> fraud
+
+    fraud -- Approved --> ledger
+    fraud -- Declined --> failed
+
+    ledger -- Success --> notify
+    notify -- Success --> confirmed
+
+    %% Error Paths (Dashed)
+    ledger -. Timeout/Error .-> recovering
+    notify -. Timeout/Error .-> recovering
+
+    %% Recovery Logic (step-aware)
+    recovering -- Retry ledger step --> ledger
+    recovering -- Retry notify step --> notify
+    recovering -- Compensate/Reverse --> failedComp
+    recovering -- Retries exhausted / Uncertain --> review
+
+    %% Terminal States
+    confirmed --> End([End])
+    failed --> End
+    failedComp --> End
+    review --> End
+
+    %% Styling
+    style Happy_Path fill:#f0fbf0,stroke:#2e7d32,stroke-dasharray: 5 5
+    style Error_Handling fill:#fff3e0,stroke:#ef6c00,stroke-dasharray: 5 5
+    style recovering fill:#fff9c4,stroke:#fbc02d
+    style failed fill:#ffebee,stroke:#c62828
+    style failedComp fill:#ffebee,stroke:#c62828
+    style review fill:#f3e5f5,stroke:#7b1fa2
+</div>
+<p>Notice what changed compared to earlier architecture:</p>
+<ul>
+<li>we are no longer thinking in “single request → chain of calls”</li>
+<li>we are thinking in “workflow → state transitions”</li>
+</ul>
+<p>This shift is the foundation of reliable distributed coordination.</p>
+<hr>
+<h2 id="7-failure-handling-retry-vs-compensate-concept-only">7. Failure Handling: Retry vs Compensate (Concept Only)</h2>
+<hr>
+<p>Once we adopt a saga mindset, failures become explicit design decisions.</p>
+<p>At a high level:</p>
+<ul>
+<li><strong>Transient failures</strong> → retry (with boundaries)</li>
+<li><strong>Permanent/business failures</strong> → stop + compensate where required</li>
+<li><strong>Uncertain outcomes</strong> → mark as <code>NEEDS_REVIEW</code> and escalate</li>
+</ul>
+<p>A teaser matrix (details in next article):</p>
+<table>
+  <thead>
+      <tr>
+          <th>Failure type</th>
+          <th>Example</th>
+          <th>Primary action</th>
+          <th>Fallback</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>transient</td>
+          <td>timeout sending notification</td>
+          <td>retry</td>
+          <td>async retry / best-effort</td>
+      </tr>
+      <tr>
+          <td>permanent</td>
+          <td>fraud declined</td>
+          <td>stop</td>
+          <td>mark FAILED (no compensation required yet)</td>
+      </tr>
+      <tr>
+          <td>partial commit</td>
+          <td>ledger posted, later step fails</td>
+          <td>compensate later step or reverse</td>
+          <td>mark NEEDS_REVIEW if uncertain</td>
+      </tr>
+  </tbody>
+</table>
+<p>The key is that the system must have:</p>
+<blockquote>
+<p><strong>an explicit recovery path for each failure class.</strong></p></blockquote>
+<hr>
+<h2 id="8-workflow-state-is-now-first-class">8. Workflow State Is Now First-Class</h2>
+<hr>
+<p>To coordinate a saga, we need a “truth” for progress.</p>
+<p>At minimum, the workflow needs:</p>
+<ul>
+<li><code>paymentId</code> (business id)</li>
+<li><code>workflowId</code> / <code>correlationId</code></li>
+<li>step statuses:
+<ul>
+<li><code>FRAUD_DONE</code></li>
+<li><code>LEDGER_DONE</code></li>
+<li><code>NOTIFY_DONE</code></li>
+</ul>
+</li>
+<li>terminal outcomes:
+<ul>
+<li><code>SUCCEEDED</code></li>
+<li><code>FAILED</code></li>
+<li><code>FAILED_COMPENSATED</code></li>
+<li><code>NEEDS_REVIEW</code></li>
+</ul>
+</li>
+</ul>
+<p>This state cannot be purely in memory.</p>
+<p>It must survive:</p>
+<ul>
+<li>process restarts</li>
+<li>timeouts</li>
+<li>retries</li>
+<li>partial failures</li>
+</ul>
+<p>We’ll implement and harden this in the next chapter.</p>
+<hr>
+<h2 id="9-key-takeaways">9. Key Takeaways</h2>
+<hr>
+<ul>
+<li><strong>Saga</strong> coordinates multi-service workflows using local transactions + compensations.</li>
+<li>There are two main saga execution styles:
+<ul>
+<li><strong>Choreography</strong> (event-driven, distributed flow)</li>
+<li><strong>Orchestration</strong> (central coordinator, explicit control flow)</li>
+</ul>
+</li>
+<li>For our payment system baseline, we choose <strong>orchestration</strong> for clarity and operability.</li>
+<li>The orchestrator must not become a “god service”:
+<ul>
+<li>it owns workflow state + control flow</li>
+<li>domain logic stays inside services</li>
+</ul>
+</li>
+<li>Once sagas enter the design, <strong>workflow state becomes first-class</strong>.</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<hr>
+<p>Partial failures are inevitable in multi-service payments.</p>
+<p>Saga is the coordination model that replaces “global ACID” with:</p>
+<ul>
+<li>step-by-step local commits</li>
+<li>explicit recovery paths (retry / compensate)</li>
+<li>observable workflow state</li>
+</ul>
+<p>We choose <strong>orchestration</strong> for our baseline because it makes the workflow explicit and debuggable.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>Now that we’ve chosen orchestration + saga as our coordination model, we need to make it <strong>production-safe</strong>.</p>
+<p>In the next article we will add:</p>
+<ul>
+<li><strong>durable workflow state machine</strong> (persisted states + transitions)</li>
+<li><strong>retry + timeout rules</strong> (bounded retries, backoff, retryability)</li>
+<li><strong>compensating transactions (mechanics)</strong> and invariants</li>
+<li>handling “stuck” workflows and escalation paths</li>
+<li>how our payment architecture evolves with an orchestrator + reliable execution</li>
+</ul>
+<p>👉 <strong>Up Next: →</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable">Payment System — Making Sagas Reliable (Durable State + Retries + Compensation)</a></strong></p>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-article-exists" data-toc-target="1-why-this-article-exists">1. Why This Article Exists</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-the-workflow-we-must-coordinate" data-toc-target="2-the-workflow-we-must-coordinate">2. The Workflow We Must Coordinate</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-the-core-idea-saga-pattern" data-toc-target="3-the-core-idea-saga-pattern">3. The Core Idea: Saga Pattern</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-two-ways-to-run-a-saga-choreography-vs-orchestration" data-toc-target="4-two-ways-to-run-a-saga-choreography-vs-orchestration">4. Two Ways to Run a Saga: Choreography vs Orchestration</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-what-our-design-chooses-explicit-decision" data-toc-target="5-what-our-design-chooses-explicit-decision">5. What Our Design Chooses (Explicit Decision)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-the-orchestrated-payment-saga-high-level" data-toc-target="6-the-orchestrated-payment-saga-high-level">6. The Orchestrated Payment Saga (High-Level)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-failure-handling-retry-vs-compensate-concept-only" data-toc-target="7-failure-handling-retry-vs-compensate-concept-only">7. Failure Handling: Retry vs Compensate (Concept Only)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-workflow-state-is-now-first-class" data-toc-target="8-workflow-state-is-now-first-class">8. Workflow State Is Now First-Class</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-key-takeaways" data-toc-target="9-key-takeaways">9. Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#tldr" data-toc-target="tldr">TL;DR</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_8_partial-failure-across-services/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+      High-Level Design (HLD) : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/high-level-design/5_correct-reliable-systems-copy/4_10_making-sagas-reliable/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>
