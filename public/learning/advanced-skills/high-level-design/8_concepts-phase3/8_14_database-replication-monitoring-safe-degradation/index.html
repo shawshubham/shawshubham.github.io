@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</title>
+<title>Database Replication — Monitoring Lag &amp; Safe Degradation</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</h1>
+    <h1 class="main-heading">Database Replication — Monitoring Lag &amp; Safe Degradation</h1>
     <h3>
   </div>
 </section>
@@ -445,7 +445,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap/">8.9. Idempotency — Cross-store Consistency Trap (DB &#43; Redis)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_10_idempotency-vs-dedup-vs-exactly-once/">8.10. Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</a>
                                 </li>
                               
@@ -461,7 +461,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_13_database-replication-read-strategies/">8.13. Database Replication — Read Strategies (Critical vs Non-critical &#43; Read-your-writes)</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/">8.14. Database Replication — Monitoring Lag &amp; Safe Degradation</a>
                                 </li>
                               
@@ -499,206 +499,200 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 19 Mar, 2026
+            Last updated on: 26 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h1 id="idempotency-vs-deduplication-vs-exactly-once-what-they-really-mean">Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</h1>
+          <h1 id="database-replication--monitoring-lag--safe-degradation">Database Replication — Monitoring Lag &amp; Safe Degradation</h1>
 <hr>
-<p>These three terms are often used interchangeably:</p>
-<ul>
-<li>idempotency</li>
-<li>deduplication</li>
-<li>exactly-once</li>
-</ul>
-<p>They are not the same.</p>
-<p>Mixing them leads to common design mistakes:</p>
-<ul>
-<li>assuming “Kafka gives exactly once” so duplicates cannot happen</li>
-<li>thinking “dedupe store = idempotency”</li>
-<li>believing “transactions” automatically imply exactly-once behavior across services</li>
-</ul>
-<p>This article gives clean, practical definitions and how to apply them.</p>
-<hr>
-<h2 id="1-delivery-vs-processing-vs-effects-the-most-important-split">1. Delivery vs Processing vs Effects (The Most Important Split)</h2>
-<hr>
-<p>Before definitions, separate three layers:</p>
+<p>Replication gives you read scalability, but it also introduces a new operational reality:</p>
+<blockquote>
+<p>replicas can fall behind, and when they do, stale reads increase.</p></blockquote>
+<p>If you treat replicas as “always safe for reads”, your system will eventually produce confusing or incorrect user-visible behavior.</p>
+<p>So replication needs two things:</p>
 <ol>
-<li><strong>Delivery</strong> — how many times a message/request arrives</li>
-<li><strong>Processing</strong> — how many times your code runs</li>
-<li><strong>Effects</strong> — how many times the external side effect happens (DB write, ledger entry, charge)</li>
+<li><strong>Monitoring</strong> — know when replicas are falling behind</li>
+<li><strong>Safe degradation</strong> — change behavior when lag is high to protect correctness</li>
 </ol>
-<p>Most reliability work is about ensuring:</p>
+<p>This article focuses on practical signals and a clear playbook.</p>
+<hr>
+<h2 id="1-what-lag-means-operationally">1. What “Lag” Means Operationally</h2>
+<hr>
+<p>Replication lag is the gap between:</p>
+<ul>
+<li>the leader’s committed position</li>
+<li>and a replica’s applied/replayed position</li>
+</ul>
+<p>It can be measured as:</p>
+<ul>
+<li><strong>time lag</strong> (seconds behind)</li>
+<li><strong>apply backlog</strong> (bytes/records behind)</li>
+<li><strong>commit position gap</strong> (LSN/binlog/GTID distance)</li>
+</ul>
+<p>Different databases expose different metrics, but the operational meaning is the same:</p>
 <blockquote>
-<p>delivery can be at-least-once,<br>
-processing can happen multiple times,<br>
-but <strong>effects happen once</strong>.</p></blockquote>
-<p>This is “exactly-once effects”, and it’s what real systems actually aim for.</p>
+<p>“how stale might reads from this replica be right now?”</p></blockquote>
 <hr>
-<h2 id="2-idempotency-what-it-is">2. Idempotency (What It Is)</h2>
+<h2 id="2-what-to-monitor-high-signal-metrics">2. What to Monitor (High-Signal Metrics)</h2>
 <hr>
-<p><strong>Idempotency</strong> is a property of an operation:</p>
+<p>The goal is to detect two things:</p>
+<ul>
+<li>replicas are getting stale</li>
+<li>the system is drifting into a retry/stale-read spiral</li>
+</ul>
+<h3 id="21-replication-lag-time-based">2.1 Replication lag (time-based)</h3>
+<ul>
+<li>“seconds behind leader”</li>
+<li>good for alerting and SLOs</li>
+</ul>
+<p><strong>Caveat</strong>: time-based lag can look good while backlog is growing, depending on reporting.</p>
+<h3 id="22-apply-backlog-volume-based">2.2 Apply backlog (volume-based)</h3>
+<ul>
+<li>bytes/records of WAL/binlog waiting to be applied</li>
+<li>often a stronger early-warning sign during bursts</li>
+</ul>
+<h3 id="23-replica-read-health">2.3 Replica read health</h3>
+<p>Because replicas serve reads, also track:</p>
+<ul>
+<li>replica read latency (p95/p99)</li>
+<li>CPU/IO saturation on replicas</li>
+<li>query queue depth / connection pool saturation</li>
+</ul>
+<p>Replica overload often causes lag.</p>
+<h3 id="24-error-signals-at-the-application-layer">2.4 Error signals at the application layer</h3>
+<p>Application signals that often correlate with lag:</p>
+<ul>
+<li>spike in “NOT FOUND” right after writes</li>
+<li>spike in “PENDING” states immediately after confirmation</li>
+<li>increase in client retries / repeated requests</li>
+<li>support tickets: “it eventually shows up”</li>
+</ul>
+<p>These are often the first user-visible symptoms.</p>
+<hr>
+<h2 id="3-alerts-that-actually-help">3. Alerts That Actually Help</h2>
+<hr>
+<p>A useful alert is actionable.</p>
+<p>Examples of good alerts:</p>
+<ul>
+<li><strong>lag &gt; X seconds for Y minutes</strong></li>
+<li><strong>apply backlog &gt; threshold</strong></li>
+<li><strong>replica p99 read latency &gt; threshold</strong></li>
+<li><strong>replica CPU/IO &gt; threshold + lag rising</strong></li>
+</ul>
+<p>Avoid noisy alerts like:</p>
+<ul>
+<li>“lag briefly spiked for 5 seconds”
+unless the system is extremely correctness-sensitive.</li>
+</ul>
+<hr>
+<h2 id="4-safe-degradation-what-to-do-when-lag-spikes">4. Safe Degradation: What to Do When Lag Spikes</h2>
+<hr>
+<p>The key principle:</p>
 <blockquote>
-<p>executing it multiple times produces the same outcome as executing it once.</p></blockquote>
-<p>Examples:</p>
+<p>When replica reads become unsafe, route important reads away from replicas.</p></blockquote>
+<h3 id="41-degradation-strategy-a--route-more-reads-to-leader">4.1 Degradation strategy A — Route more reads to leader</h3>
+<p>When lag exceeds a threshold:</p>
 <ul>
-<li><code>POST /payments</code> with an idempotency key</li>
-<li>“post ledger entry for paymentId X” with a step idempotency key</li>
-<li>“mark notification as read” (usually naturally idempotent)</li>
+<li>route <strong>critical reads</strong> to leader (always)</li>
+<li>temporarily route more “semi-critical” reads to leader too</li>
 </ul>
-<p>Idempotency answers:</p>
+<p>This reduces stale read incidents but increases leader load.</p>
+<p>So it must be <strong>bounded</strong>.</p>
+<h3 id="42-degradation-strategy-b--disable-replicas-for-specific-endpoints">4.2 Degradation strategy B — Disable replicas for specific endpoints</h3>
+<p>For example, during a lag incident:</p>
 <ul>
-<li>“If I repeat this, do I create another side effect?”</li>
+<li><code>/payment/{id}/status</code> → leader only</li>
+<li><code>/balance</code> → leader only</li>
+<li>history endpoints can remain on replicas</li>
 </ul>
-<p>In other words:</p>
+<p>This is a clean operational switch.</p>
+<h3 id="43-degradation-strategy-c--ux-aware-messaging">4.3 Degradation strategy C — UX-aware messaging</h3>
+<p>For user-facing flows, you can degrade UX safely:</p>
 <ul>
-<li>idempotency makes retries safe.</li>
+<li>show “processing, please refresh shortly”</li>
+<li>avoid showing “not found” immediately after a success</li>
+<li>add a short read-your-writes window for post-write screens</li>
 </ul>
+<p>The goal is to avoid triggering user retries that create more load.</p>
+<h3 id="44-degradation-strategy-d--shed-non-critical-load">4.4 Degradation strategy D — Shed non-critical load</h3>
+<p>To help replicas catch up:</p>
+<ul>
+<li>rate limit expensive analytics queries on replicas</li>
+<li>pause heavy background jobs reading from replicas</li>
+<li>reduce non-critical traffic to replicas temporarily</li>
+</ul>
+<p>Often replicas fall behind because they are overloaded by read traffic.</p>
 <hr>
-<h2 id="3-deduplication-what-it-is">3. Deduplication (What It Is)</h2>
+<h2 id="5-practical-routing-policy-a-simple-playbook">5. Practical Routing Policy (A Simple Playbook)</h2>
 <hr>
-<p><strong>Deduplication</strong> is a mechanism:</p>
-<blockquote>
-<p>detect duplicates and drop/ignore them.</p></blockquote>
-<p>Dedup can be implemented as:</p>
+<p>A simple playbook you can implement:</p>
+<ol>
+<li>
+<p>Define lag thresholds (example):</p>
 <ul>
-<li>a “seen message IDs” store</li>
-<li>an inbox table (<code>messageId → processed</code>)</li>
-<li>consumer-side dedupe based on an eventId</li>
-</ul>
-<p>Dedup answers:</p>
-<ul>
-<li>“Have I seen this message/event before?”</li>
-</ul>
-<p>Dedup is often a tool used to implement idempotent processing, but it is not identical:</p>
-<ul>
-<li>you can dedupe deliveries</li>
-<li>but still perform a non-idempotent side effect if your boundary is wrong</li>
-</ul>
-<hr>
-<h2 id="4-exactly-once-the-most-misunderstood">4. Exactly-Once (The Most Misunderstood)</h2>
-<hr>
-<p>“Exactly-once” is not one thing.</p>
-<p>It can mean:</p>
-<h3 id="41-exactly-once-delivery-rare-expensive">4.1 Exactly-once delivery (rare, expensive)</h3>
-<ul>
-<li>the message is delivered exactly once to the consumer</li>
-</ul>
-<p>In distributed systems, this is hard to guarantee end-to-end because:</p>
-<ul>
-<li>networks fail</li>
-<li>consumers crash after processing but before ack</li>
-<li>brokers redeliver to stay reliable</li>
-</ul>
-<p>Most systems choose at-least-once delivery because it is safer than losing messages.</p>
-<h3 id="42-exactly-once-processing-fragile-without-constraints">4.2 Exactly-once processing (fragile without constraints)</h3>
-<ul>
-<li>your code runs exactly once</li>
-</ul>
-<p>This is hard unless:</p>
-<ul>
-<li>your processing is tied to transactional boundaries</li>
-<li>you can atomically “mark processed” with the side effect</li>
-</ul>
-<h3 id="43-exactly-once-effects-what-systems-actually-aim-for">4.3 Exactly-once effects (what systems actually aim for)</h3>
-<ul>
-<li>the external side effect happens once, even if delivery/processing repeats</li>
-</ul>
-<p>This is achieved using:</p>
-<ul>
-<li>idempotency keys</li>
-<li>dedupe/inbox stores</li>
-<li>atomic writes / unique constraints</li>
-<li>outbox pattern for publish consistency</li>
-</ul>
-<hr>
-<h2 id="5-how-these-fit-together-practical-mapping">5. How These Fit Together (Practical Mapping)</h2>
-<hr>
-<p>A useful mapping:</p>
-<ul>
-<li><strong>Idempotency</strong> = property of the operation</li>
-<li><strong>Deduplication</strong> = technique to filter repeats</li>
-<li><strong>Exactly-once effects</strong> = outcome we want</li>
-</ul>
-<p>Example: event-driven consumer</p>
-<ul>
-<li>delivery may be at-least-once</li>
-<li>consumer may process message twice</li>
-<li>but effects are once because:
-<ul>
-<li>consumer writes <code>eventId</code> into an inbox table with a unique constraint</li>
-<li>if insert fails, it’s a duplicate and side effects are skipped</li>
+<li><strong>Normal:</strong> lag &lt; 200ms</li>
+<li><strong>Degraded:</strong> 200ms ≤ lag &lt; 2s</li>
+<li><strong>Critical:</strong> lag ≥ 2s</li>
 </ul>
 </li>
-</ul>
-<p>So:</p>
-<blockquote>
-<p>Dedup is the mechanism; idempotency is the safety property; exactly-once effects is the goal.</p></blockquote>
-<hr>
-<h2 id="6-common-confusions-and-the-correct-mental-model">6. Common Confusions (And the Correct Mental Model)</h2>
-<hr>
-<h3 id="confusion-a--at-least-once-means-duplicates-are-a-bug">Confusion A — “At-least-once means duplicates are a bug”</h3>
-<p>No.</p>
-<p>At-least-once means:</p>
+<li>
+<p>For each tier, define read routing:</p>
 <ul>
-<li>duplicates are expected</li>
-<li>your system must handle them</li>
+<li>Normal: non-critical reads → replicas</li>
+<li>Degraded: move “semi-critical” reads → leader</li>
+<li>Critical: leader-only for all correctness-sensitive endpoints</li>
 </ul>
-<h3 id="confusion-b--kafka--broker-gives-exactly-once-so-were-done">Confusion B — “Kafka / broker gives exactly-once, so we’re done”</h3>
-<p>Even if a broker supports certain exactly-once semantics internally, end-to-end systems still involve:</p>
+</li>
+<li>
+<p>Add a safety valve:</p>
 <ul>
-<li>external databases</li>
-<li>external APIs</li>
-<li>downstream retries</li>
-<li>out-of-order events</li>
+<li>if leader is overloaded, degrade UX rather than returning incorrect state</li>
 </ul>
-<p>So you still design for duplicates unless your full pipeline is strictly constrained and transactional.</p>
-<h3 id="confusion-c--idempotency--dedupe-table">Confusion C — “Idempotency = dedupe table”</h3>
-<p>A dedupe table helps, but idempotency is about the <em>right boundary</em>.</p>
-<p>If you dedupe too late, you may still create duplicate side effects.</p>
+</li>
+</ol>
+<p>The exact numbers vary, but the structure is stable.</p>
 <hr>
-<h2 id="7-phase-3-connection-payments">7. Phase 3 Connection (Payments)</h2>
+<h2 id="6-how-this-connects-back-to-phase-3">6. How This Connects Back to Phase 3</h2>
 <hr>
-<p>Payments cannot tolerate duplicate effects.</p>
-<p>So the Phase 3 reliability toolkit is:</p>
+<p>Phase 3’s explicit design choice was:</p>
 <ul>
-<li>API idempotency (same user intent)</li>
-<li>step idempotency (ledger/notify)</li>
-<li>atomic update patterns (balance invariants)</li>
-<li>saga coordination (multi-service workflows)</li>
-<li>outbox/inbox patterns (when messaging is involved)</li>
+<li><strong>Writes → leader</strong></li>
+<li><strong>Critical reads → leader</strong></li>
+<li><strong>Non-critical reads → replicas</strong></li>
+<li>plus read-your-writes for a short window after payment</li>
 </ul>
-<p>Together, these produce:</p>
-<blockquote>
-<p>at-least-once delivery + retries + reprocessing<br>
-but <strong>exactly-once effects</strong> where it matters (money).</p></blockquote>
+<p>Monitoring and degradation make that choice operational:</p>
+<ul>
+<li>when lag is low, you benefit from replicas</li>
+<li>when lag is high, you protect correctness by routing back to leader</li>
+</ul>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Separate <strong>delivery</strong>, <strong>processing</strong>, and <strong>effects</strong>.</li>
-<li><strong>Idempotency</strong> makes repeats safe (same outcome).</li>
-<li><strong>Deduplication</strong> is a technique to detect and ignore repeats.</li>
-<li>“Exactly-once” is ambiguous—most systems aim for <strong>exactly-once effects</strong>, not exactly-once delivery.</li>
-<li>In production, expect at-least-once delivery and design idempotent boundaries.</li>
+<li>Replication requires operational discipline: lag must be monitored and acted on.</li>
+<li>Track lag using time, backlog, and replica health (CPU/IO, read latency).</li>
+<li>Application-layer symptoms often reveal lag before infra dashboards do.</li>
+<li>Safe degradation means routing correctness-sensitive reads to leader when replicas are stale.</li>
+<li>During lag incidents, protect correctness and avoid retry spirals with UX-aware responses.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Idempotency is a property, deduplication is a mechanism, and “exactly-once” is often misused.</p>
-<p>Design for at-least-once delivery and retries, then enforce <strong>exactly-once effects</strong> using idempotency keys, dedupe/inbox stores, and atomic writes.</p>
+<p>Replicas improve scalability but become unsafe during lag.</p>
+<p>Monitor lag and replica health, and have a clear degradation plan: route critical reads to the leader, shed non-critical load, and adjust UX to avoid retry storms.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Now that retries and duplicates are clear, we move to the next correctness pressure:</p>
+<p>Next we’ll cover the advanced end of replication:</p>
 <ul>
-<li>scaling reads using replicas</li>
-<li>replication lag</li>
-<li>stale reads and consistency trade-offs</li>
+<li>synchronous replication</li>
+<li>quorum acknowledgements and reads</li>
+<li>when the latency cost is worth it</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_11_database-replication-basics">Database Replication — Leader/Replica Basics</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</a></strong></p>
 
         </article>
 
@@ -726,43 +720,37 @@ but <strong>exactly-once effects</strong> where it matters (money).</p></blockqu
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-delivery-vs-processing-vs-effects-the-most-important-split" data-toc-target="1-delivery-vs-processing-vs-effects-the-most-important-split">1. Delivery vs Processing vs Effects (The Most Important Split)</a>
+        <a class="toc-link" href="#1-what-lag-means-operationally" data-toc-target="1-what-lag-means-operationally">1. What “Lag” Means Operationally</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-idempotency-what-it-is" data-toc-target="2-idempotency-what-it-is">2. Idempotency (What It Is)</a>
+        <a class="toc-link" href="#2-what-to-monitor-high-signal-metrics" data-toc-target="2-what-to-monitor-high-signal-metrics">2. What to Monitor (High-Signal Metrics)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-deduplication-what-it-is" data-toc-target="3-deduplication-what-it-is">3. Deduplication (What It Is)</a>
+        <a class="toc-link" href="#3-alerts-that-actually-help" data-toc-target="3-alerts-that-actually-help">3. Alerts That Actually Help</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-exactly-once-the-most-misunderstood" data-toc-target="4-exactly-once-the-most-misunderstood">4. Exactly-Once (The Most Misunderstood)</a>
+        <a class="toc-link" href="#4-safe-degradation-what-to-do-when-lag-spikes" data-toc-target="4-safe-degradation-what-to-do-when-lag-spikes">4. Safe Degradation: What to Do When Lag Spikes</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-how-these-fit-together-practical-mapping" data-toc-target="5-how-these-fit-together-practical-mapping">5. How These Fit Together (Practical Mapping)</a>
+        <a class="toc-link" href="#5-practical-routing-policy-a-simple-playbook" data-toc-target="5-practical-routing-policy-a-simple-playbook">5. Practical Routing Policy (A Simple Playbook)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-common-confusions-and-the-correct-mental-model" data-toc-target="6-common-confusions-and-the-correct-mental-model">6. Common Confusions (And the Correct Mental Model)</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-phase-3-connection-payments" data-toc-target="7-phase-3-connection-payments">7. Phase 3 Connection (Payments)</a>
+        <a class="toc-link" href="#6-how-this-connects-back-to-phase-3" data-toc-target="6-how-this-connects-back-to-phase-3">6. How This Connects Back to Phase 3</a>
       </li>
     
       
@@ -790,7 +778,7 @@ but <strong>exactly-once effects</strong> where it matters (money).</p></blockqu
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_13_database-replication-read-strategies/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -822,7 +810,7 @@ but <strong>exactly-once effects</strong> where it matters (money).</p></blockqu
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_11_database-replication-basics/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

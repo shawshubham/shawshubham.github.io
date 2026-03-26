@@ -254,4 +254,4 @@ Now that retries and duplicates are clear, we move to the next correctness press
 - stale reads and consistency trade-offs
 
 👉 **Up Next: →**  
-**[Database Replication — Leader/Replica Basics](/learning/advanced-skills/high-level-design/4_correct-reliable-systems/concepts/8_11_replication-leader-replica-basics/)**
+**[Database Replication — Leader/Replica Basics](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_11_database-replication-basics)**

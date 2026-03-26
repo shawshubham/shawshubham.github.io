@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</title>
+<title>Database Replication — Read Strategies (Critical vs Non-critical &#43; Read-your-writes)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</h1>
+    <h1 class="main-heading">Database Replication — Read Strategies (Critical vs Non-critical &#43; Read-your-writes)</h1>
     <h3>
   </div>
 </section>
@@ -445,7 +445,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap/">8.9. Idempotency — Cross-store Consistency Trap (DB &#43; Redis)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_10_idempotency-vs-dedup-vs-exactly-once/">8.10. Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</a>
                                 </li>
                               
@@ -457,7 +457,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_12_database-replication-lag-stale-reads/">8.12. Database Replication — Replication Lag &amp; Stale Reads</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_13_database-replication-read-strategies/">8.13. Database Replication — Read Strategies (Critical vs Non-critical &#43; Read-your-writes)</a>
                                 </li>
                               
@@ -499,206 +499,298 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 19 Mar, 2026
+            Last updated on: 25 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h1 id="idempotency-vs-deduplication-vs-exactly-once-what-they-really-mean">Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</h1>
+          <h1 id="database-replication--read-strategies-critical-vs-non-critical--read-your-writes">Database Replication — Read Strategies (Critical vs Non-critical + Read-your-writes)</h1>
 <hr>
-<p>These three terms are often used interchangeably:</p>
-<ul>
-<li>idempotency</li>
-<li>deduplication</li>
-<li>exactly-once</li>
-</ul>
-<p>They are not the same.</p>
-<p>Mixing them leads to common design mistakes:</p>
-<ul>
-<li>assuming “Kafka gives exactly once” so duplicates cannot happen</li>
-<li>thinking “dedupe store = idempotency”</li>
-<li>believing “transactions” automatically imply exactly-once behavior across services</li>
-</ul>
-<p>This article gives clean, practical definitions and how to apply them.</p>
-<hr>
-<h2 id="1-delivery-vs-processing-vs-effects-the-most-important-split">1. Delivery vs Processing vs Effects (The Most Important Split)</h2>
-<hr>
-<p>Before definitions, separate three layers:</p>
-<ol>
-<li><strong>Delivery</strong> — how many times a message/request arrives</li>
-<li><strong>Processing</strong> — how many times your code runs</li>
-<li><strong>Effects</strong> — how many times the external side effect happens (DB write, ledger entry, charge)</li>
-</ol>
-<p>Most reliability work is about ensuring:</p>
+<p>In the previous article, we saw the unavoidable truth of replica reads:</p>
 <blockquote>
-<p>delivery can be at-least-once,<br>
-processing can happen multiple times,<br>
-but <strong>effects happen once</strong>.</p></blockquote>
-<p>This is “exactly-once effects”, and it’s what real systems actually aim for.</p>
-<hr>
-<h2 id="2-idempotency-what-it-is">2. Idempotency (What It Is)</h2>
-<hr>
-<p><strong>Idempotency</strong> is a property of an operation:</p>
+<p>replicas can be stale during the replication lag window.</p></blockquote>
+<p>That means replication is not just a scaling feature.</p>
+<p>It is also a <strong>consistency decision</strong>.</p>
+<p>So the practical question becomes:</p>
 <blockquote>
-<p>executing it multiple times produces the same outcome as executing it once.</p></blockquote>
+<p><strong>Which reads can tolerate staleness, and which cannot?</strong></p></blockquote>
+<p>This article gives a toolkit to route reads safely:</p>
+<ul>
+<li>critical vs non-critical read classification</li>
+<li>leader vs replica routing strategies</li>
+<li>how to provide read-your-writes for good UX after a write</li>
+</ul>
+<hr>
+<h2 id="1-classify-reads-critical-vs-non-critical">1. Classify Reads: Critical vs Non-critical</h2>
+<hr>
+<p>Not all reads are equal.</p>
+<h3 id="11-critical-reads-must-be-correct-now">1.1 Critical reads (must be correct “now”)</h3>
+<p>These reads directly affect:</p>
+<ul>
+<li>money correctness</li>
+<li>workflow progression</li>
+<li>user trust immediately after an action</li>
+</ul>
+<p>Payment examples:</p>
+<ul>
+<li>payment status immediately after confirmation</li>
+<li>current available balance before another debit</li>
+<li>“has this idempotency key already been processed?”</li>
+<li>fraud/risk checks based on freshest state</li>
+</ul>
+<p>For critical reads:</p>
+<ul>
+<li>stale results can cause incorrect actions (or duplicate retries)</li>
+</ul>
+<p>So critical reads should go to the <strong>leader</strong>.</p>
+<h3 id="12-non-critical-reads-can-tolerate-slight-staleness">1.2 Non-critical reads (can tolerate slight staleness)</h3>
+<p>These reads are used for:</p>
+<ul>
+<li>history and browsing</li>
+<li>analytics and dashboards</li>
+<li>delayed UX consistency</li>
+</ul>
 <p>Examples:</p>
 <ul>
-<li><code>POST /payments</code> with an idempotency key</li>
-<li>“post ledger entry for paymentId X” with a step idempotency key</li>
-<li>“mark notification as read” (usually naturally idempotent)</li>
+<li>transaction history list (older pages)</li>
+<li>notification inbox list (except immediately after write)</li>
+<li>“recent payments” on account overview</li>
 </ul>
-<p>Idempotency answers:</p>
+<p>For non-critical reads:</p>
 <ul>
-<li>“If I repeat this, do I create another side effect?”</li>
-</ul>
-<p>In other words:</p>
-<ul>
-<li>idempotency makes retries safe.</li>
+<li>serving from replicas is usually acceptable</li>
+<li>the UI can tolerate eventual convergence</li>
 </ul>
 <hr>
-<h2 id="3-deduplication-what-it-is">3. Deduplication (What It Is)</h2>
+<h2 id="2-baseline-policy-writes-to-leader-critical-reads-to-leader">2. Baseline Policy: Writes to Leader, Critical Reads to Leader</h2>
 <hr>
-<p><strong>Deduplication</strong> is a mechanism:</p>
+<p>A simple baseline policy for correctness-sensitive systems:</p>
+<ul>
+<li><strong>Writes → Leader</strong></li>
+<li><strong>Critical reads → Leader</strong></li>
+<li><strong>Non-critical reads → Replicas</strong></li>
+</ul>
+<div class="mermaid">
+flowchart LR
+    subgraph Client_Layer [Application Layer]
+        App[App / Services]
+    end
+
+    subgraph Cluster [Database Cluster]
+        direction TB
+
+        %% The Primary
+        L[(<b>Leader DB</b><br/>Primary / Write)]
+
+        %% The Replication Path
+        L ==>|Asynchronous Stream| R
+
+        %% The Replica
+        R[(<b>Replica DB</b><br/>Read Pool)]
+    end
+
+    %% Traffic Flow
+    App ==>|1. Writes: INSERT/UPDATE| L
+    App -.->|2. Critical Reads: High Consistency| L
+    App -->|3. Non-critical Reads: Eventual Consistency| R
+
+    %% Styling
+    style L fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    style R fill:#e8f5e9,stroke:#2e7d32
+    style App fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    style Cluster fill:#fcfcfc,stroke:#333,stroke-dasharray: 5 5
+</div>
+<p>This policy is easy to reason about and usually matches production reality.</p>
+<hr>
+<h2 id="3-read-your-writes-ryw-the-ux-consistency-trick">3. Read-your-writes (RYW): The UX Consistency Trick</h2>
+<hr>
+<p>Users expect a simple guarantee:</p>
 <blockquote>
-<p>detect duplicates and drop/ignore them.</p></blockquote>
-<p>Dedup can be implemented as:</p>
+<p>If I just did something successfully, I should see it immediately.</p></blockquote>
+<p>Replication breaks this if you route the next read to a replica.</p>
+<p>So many systems provide a practical guarantee called:</p>
 <ul>
-<li>a “seen message IDs” store</li>
-<li>an inbox table (<code>messageId → processed</code>)</li>
-<li>consumer-side dedupe based on an eventId</li>
+<li><strong>Read-your-writes (RYW)</strong></li>
 </ul>
-<p>Dedup answers:</p>
+<p>RYW means:</p>
 <ul>
-<li>“Have I seen this message/event before?”</li>
-</ul>
-<p>Dedup is often a tool used to implement idempotent processing, but it is not identical:</p>
-<ul>
-<li>you can dedupe deliveries</li>
-<li>but still perform a non-idempotent side effect if your boundary is wrong</li>
+<li>after a successful write, route that user’s reads to the leader for a short window</li>
+<li>then return to normal replica routing for non-critical reads</li>
 </ul>
 <hr>
-<h2 id="4-exactly-once-the-most-misunderstood">4. Exactly-Once (The Most Misunderstood)</h2>
+<h2 id="4-practical-ryw-strategies">4. Practical RYW Strategies</h2>
 <hr>
-<p>“Exactly-once” is not one thing.</p>
-<p>It can mean:</p>
-<h3 id="41-exactly-once-delivery-rare-expensive">4.1 Exactly-once delivery (rare, expensive)</h3>
+<p>There are multiple ways to implement RYW. You can choose based on complexity.</p>
+<h3 id="41-time-window-sticky-leader-reads-baseline-approach">4.1 Time-window “sticky leader reads” (baseline approach)</h3>
+<p>After a write:</p>
 <ul>
-<li>the message is delivered exactly once to the consumer</li>
+<li>set <code>forceLeaderReadsUntil = now + 30s</code> (example)</li>
+<li>for that user/session, route reads to leader until the deadline</li>
 </ul>
-<p>In distributed systems, this is hard to guarantee end-to-end because:</p>
+<p>This works because replication lag windows are usually shorter than that window.</p>
+<p>Pros:</p>
 <ul>
-<li>networks fail</li>
-<li>consumers crash after processing but before ack</li>
-<li>brokers redeliver to stay reliable</li>
+<li>easy</li>
+<li>good UX</li>
 </ul>
-<p>Most systems choose at-least-once delivery because it is safer than losing messages.</p>
-<h3 id="42-exactly-once-processing-fragile-without-constraints">4.2 Exactly-once processing (fragile without constraints)</h3>
+<p>Cons:</p>
 <ul>
-<li>your code runs exactly once</li>
+<li>over-routes some reads to leader during the window</li>
 </ul>
-<p>This is hard unless:</p>
+<h3 id="42-session-stickiness--routing-hint-token">4.2 Session stickiness / routing hint token</h3>
+<p>The backend returns a routing hint:</p>
 <ul>
-<li>your processing is tied to transactional boundaries</li>
-<li>you can atomically “mark processed” with the side effect</li>
+<li>“for the next N seconds, read from leader”</li>
 </ul>
-<h3 id="43-exactly-once-effects-what-systems-actually-aim-for">4.3 Exactly-once effects (what systems actually aim for)</h3>
+<p>This can be embedded in:</p>
 <ul>
-<li>the external side effect happens once, even if delivery/processing repeats</li>
+<li>session</li>
+<li>JWT claim</li>
+<li>cookie or header</li>
 </ul>
-<p>This is achieved using:</p>
+<p>Pros:</p>
 <ul>
-<li>idempotency keys</li>
-<li>dedupe/inbox stores</li>
-<li>atomic writes / unique constraints</li>
-<li>outbox pattern for publish consistency</li>
+<li>explicit and controllable</li>
+<li>avoids server-side session state if you encode it</li>
 </ul>
-<hr>
-<h2 id="5-how-these-fit-together-practical-mapping">5. How These Fit Together (Practical Mapping)</h2>
-<hr>
-<p>A useful mapping:</p>
+<p>Cons:</p>
 <ul>
-<li><strong>Idempotency</strong> = property of the operation</li>
-<li><strong>Deduplication</strong> = technique to filter repeats</li>
-<li><strong>Exactly-once effects</strong> = outcome we want</li>
+<li>more moving parts (clients and gateways must propagate)</li>
 </ul>
-<p>Example: event-driven consumer</p>
+<h3 id="43-version-based-reads-advanced">4.3 Version-based reads (advanced)</h3>
+<p>Instead of using a time window (“read from leader for 30 seconds”), you can make <strong>read-your-writes</strong> precise by routing reads using a replication progress marker.</p>
+<p>Most replicated databases expose a monotonic “log position” such as:</p>
 <ul>
-<li>delivery may be at-least-once</li>
-<li>consumer may process message twice</li>
-<li>but effects are once because:
+<li><strong>LSN</strong> (Log Sequence Number) in WAL-based systems, or</li>
+<li>binlog position / GTID in others</li>
+</ul>
+<p><strong>How it works (conceptually):</strong></p>
+<ol>
+<li>After a write commits on the <strong>leader</strong>, record its commit position (e.g., <code>commitLSN</code>).</li>
+<li>For the next read, choose a replica only if that replica has applied changes up to at least that position:
 <ul>
-<li>consumer writes <code>eventId</code> into an inbox table with a unique constraint</li>
-<li>if insert fails, it’s a duplicate and side effects are skipped</li>
+<li>route to replica if <code>replicaAppliedLSN &gt;= commitLSN</code></li>
+<li>otherwise route to leader (or wait briefly)</li>
 </ul>
 </li>
-</ul>
-<p>So:</p>
-<blockquote>
-<p>Dedup is the mechanism; idempotency is the safety property; exactly-once effects is the goal.</p></blockquote>
-<hr>
-<h2 id="6-common-confusions-and-the-correct-mental-model">6. Common Confusions (And the Correct Mental Model)</h2>
-<hr>
-<h3 id="confusion-a--at-least-once-means-duplicates-are-a-bug">Confusion A — “At-least-once means duplicates are a bug”</h3>
-<p>No.</p>
-<p>At-least-once means:</p>
+</ol>
+<p>This ensures the user never reads from a replica that is “behind” their last write.</p>
+<div class="mermaid">
+flowchart LR
+    subgraph Client_App [Application / Middleware]
+        direction TB
+        W[<b>1. Write</b><br/>Commit to Leader] --> C[<b>2. Capture</b><br/>Get commitLSN]
+        C --> Q[<b>3. Incoming Read</b><br/>Attach commitLSN]
+    end
+
+    subgraph Decision_Engine [Consistency Guard]
+        direction TB
+        P{Is Replica<br/>Caught Up?<br/><i>AppliedLSN >= commitLSN</i>}
+    end
+
+    subgraph Data_Tier [Database Cluster]
+        direction TB
+        L[(Leader DB)]
+        R[(Replica DB)]
+        L -- "Replication Stream" --> R
+    end
+
+    %% Logic Flow
+    Q --> P
+    P -- "YES (Safe)" --> R
+    P -- "NO (Stale)" --> L
+
+    %% Styling
+    style P fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    style L fill:#fff8e1,stroke:#f57f17
+    style R fill:#e8f5e9,stroke:#2e7d32
+    style Client_App fill:#e1f5fe,stroke:#01579b
+    style Decision_Engine fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
+</div>
+<p>Pros:</p>
 <ul>
-<li>duplicates are expected</li>
-<li>your system must handle them</li>
+<li>more precise than a time-based window</li>
+<li>reduces unnecessary leader reads when replicas are already caught up</li>
 </ul>
-<h3 id="confusion-b--kafka--broker-gives-exactly-once-so-were-done">Confusion B — “Kafka / broker gives exactly-once, so we’re done”</h3>
-<p>Even if a broker supports certain exactly-once semantics internally, end-to-end systems still involve:</p>
+<p>Cons:</p>
 <ul>
-<li>external databases</li>
-<li>external APIs</li>
-<li>downstream retries</li>
-<li>out-of-order events</li>
+<li>requires visibility into replica progress (applied LSN/position per replica)</li>
+<li>adds routing complexity and operational edge cases (failover, stale metrics)</li>
 </ul>
-<p>So you still design for duplicates unless your full pipeline is strictly constrained and transactional.</p>
-<h3 id="confusion-c--idempotency--dedupe-table">Confusion C — “Idempotency = dedupe table”</h3>
-<p>A dedupe table helps, but idempotency is about the <em>right boundary</em>.</p>
-<p>If you dedupe too late, you may still create duplicate side effects.</p>
+<p>This is typically beyond a baseline payment system design, but it’s a common approach in mature platforms that need strong UX consistency while still using replicas heavily.</p>
 <hr>
-<h2 id="7-phase-3-connection-payments">7. Phase 3 Connection (Payments)</h2>
+<h2 id="5-what-our-payment-design-chooses-phase-3-baseline">5. What Our Payment Design Chooses (Phase 3 Baseline)</h2>
 <hr>
-<p>Payments cannot tolerate duplicate effects.</p>
-<p>So the Phase 3 reliability toolkit is:</p>
+<p>Phase 3 explicitly chose:</p>
 <ul>
-<li>API idempotency (same user intent)</li>
-<li>step idempotency (ledger/notify)</li>
-<li>atomic update patterns (balance invariants)</li>
-<li>saga coordination (multi-service workflows)</li>
-<li>outbox/inbox patterns (when messaging is involved)</li>
+<li><strong>Writes → Leader</strong></li>
+<li><strong>Critical reads → Leader</strong></li>
+<li><strong>Non-critical reads → Replicas</strong></li>
+<li>plus <strong>RYW for a short window after payment</strong> (better UX and fewer retries)</li>
 </ul>
-<p>Together, these produce:</p>
-<blockquote>
-<p>at-least-once delivery + retries + reprocessing<br>
-but <strong>exactly-once effects</strong> where it matters (money).</p></blockquote>
+<p>This matches the user-facing truth:</p>
+<ul>
+<li>users tend to refresh immediately after an action</li>
+<li>stale reads create retries and distrust</li>
+<li>forcing leader reads for a short period reduces these incidents</li>
+</ul>
+<hr>
+<h2 id="6-common-mistakes-what-to-avoid">6. Common Mistakes (What to Avoid)</h2>
+<hr>
+<h3 id="mistake-a--send-everything-to-replicas">Mistake A — “Send everything to replicas”</h3>
+<p>This creates:</p>
+<ul>
+<li>stale read bugs in workflows</li>
+<li>retries that generate duplicates (even with idempotency)</li>
+<li>incorrect user-facing state right after writes</li>
+</ul>
+<h3 id="mistake-b--ryw-forever">Mistake B — “RYW forever”</h3>
+<p>If you never return to replica reads, you lose the main value of replication.</p>
+<p>RYW should be:</p>
+<ul>
+<li>bounded</li>
+<li>used only for a short window or for critical flows</li>
+</ul>
+<h3 id="mistake-c--treat-all-reads-as-critical">Mistake C — “Treat all reads as critical”</h3>
+<p>This over-protects correctness and under-delivers scalability.</p>
+<p>The whole point of replication is:</p>
+<ul>
+<li>move safe reads off the leader</li>
+</ul>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Separate <strong>delivery</strong>, <strong>processing</strong>, and <strong>effects</strong>.</li>
-<li><strong>Idempotency</strong> makes repeats safe (same outcome).</li>
-<li><strong>Deduplication</strong> is a technique to detect and ignore repeats.</li>
-<li>“Exactly-once” is ambiguous—most systems aim for <strong>exactly-once effects</strong>, not exactly-once delivery.</li>
-<li>In production, expect at-least-once delivery and design idempotent boundaries.</li>
+<li>Replication introduces lag → stale reads are normal.</li>
+<li>The safe toolkit is <strong>read classification</strong>:
+<ul>
+<li>critical reads → leader</li>
+<li>non-critical reads → replicas</li>
+</ul>
+</li>
+<li>Read-your-writes is a practical UX consistency feature:
+<ul>
+<li>after a write, route reads to leader briefly</li>
+</ul>
+</li>
+<li>Phase 3 baseline used leader reads for critical paths and RYW after payment.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Idempotency is a property, deduplication is a mechanism, and “exactly-once” is often misused.</p>
-<p>Design for at-least-once delivery and retries, then enforce <strong>exactly-once effects</strong> using idempotency keys, dedupe/inbox stores, and atomic writes.</p>
+<p>With replication, you must choose where reads go.</p>
+<p>Send critical reads to the leader, route non-critical reads to replicas, and use a short read-your-writes window after writes to prevent confusing stale results and duplicate retries.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Now that retries and duplicates are clear, we move to the next correctness pressure:</p>
+<p>Next we’ll go operational:</p>
 <ul>
-<li>scaling reads using replicas</li>
-<li>replication lag</li>
-<li>stale reads and consistency trade-offs</li>
+<li>how replication lag is measured</li>
+<li>what metrics and alerts matter</li>
+<li>how systems degrade safely when lag spikes</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_11_database-replication-basics">Database Replication — Leader/Replica Basics</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation">Database Replication — Monitoring Lag &amp; Safe Degradation</a></strong></p>
 
         </article>
 
@@ -726,43 +818,37 @@ but <strong>exactly-once effects</strong> where it matters (money).</p></blockqu
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-delivery-vs-processing-vs-effects-the-most-important-split" data-toc-target="1-delivery-vs-processing-vs-effects-the-most-important-split">1. Delivery vs Processing vs Effects (The Most Important Split)</a>
+        <a class="toc-link" href="#1-classify-reads-critical-vs-non-critical" data-toc-target="1-classify-reads-critical-vs-non-critical">1. Classify Reads: Critical vs Non-critical</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-idempotency-what-it-is" data-toc-target="2-idempotency-what-it-is">2. Idempotency (What It Is)</a>
+        <a class="toc-link" href="#2-baseline-policy-writes-to-leader-critical-reads-to-leader" data-toc-target="2-baseline-policy-writes-to-leader-critical-reads-to-leader">2. Baseline Policy: Writes to Leader, Critical Reads to Leader</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-deduplication-what-it-is" data-toc-target="3-deduplication-what-it-is">3. Deduplication (What It Is)</a>
+        <a class="toc-link" href="#3-read-your-writes-ryw-the-ux-consistency-trick" data-toc-target="3-read-your-writes-ryw-the-ux-consistency-trick">3. Read-your-writes (RYW): The UX Consistency Trick</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-exactly-once-the-most-misunderstood" data-toc-target="4-exactly-once-the-most-misunderstood">4. Exactly-Once (The Most Misunderstood)</a>
+        <a class="toc-link" href="#4-practical-ryw-strategies" data-toc-target="4-practical-ryw-strategies">4. Practical RYW Strategies</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-how-these-fit-together-practical-mapping" data-toc-target="5-how-these-fit-together-practical-mapping">5. How These Fit Together (Practical Mapping)</a>
+        <a class="toc-link" href="#5-what-our-payment-design-chooses-phase-3-baseline" data-toc-target="5-what-our-payment-design-chooses-phase-3-baseline">5. What Our Payment Design Chooses (Phase 3 Baseline)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-common-confusions-and-the-correct-mental-model" data-toc-target="6-common-confusions-and-the-correct-mental-model">6. Common Confusions (And the Correct Mental Model)</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-phase-3-connection-payments" data-toc-target="7-phase-3-connection-payments">7. Phase 3 Connection (Payments)</a>
+        <a class="toc-link" href="#6-common-mistakes-what-to-avoid" data-toc-target="6-common-mistakes-what-to-avoid">6. Common Mistakes (What to Avoid)</a>
       </li>
     
       
@@ -790,7 +876,7 @@ but <strong>exactly-once effects</strong> where it matters (money).</p></blockqu
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_12_database-replication-lag-stale-reads/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -822,7 +908,7 @@ but <strong>exactly-once effects</strong> where it matters (money).</p></blockqu
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_11_database-replication-basics/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -1015,6 +1101,17 @@ but <strong>exactly-once effects</strong> where it matters (money).</p></blockqu
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>
