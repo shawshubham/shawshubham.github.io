@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</title>
+<title>Consistency Models — Designing UX Around Consistency</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774635240">
+<link rel="stylesheet" href="/css/main.css?v=1774638504">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+    <h1 class="main-heading">Consistency Models — Designing UX Around Consistency</h1>
     <h3>
   </div>
 </section>
@@ -465,7 +465,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/">8.14. Database Replication — Monitoring Lag &amp; Safe Degradation</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads/">8.15. Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</a>
                                 </li>
                               
@@ -477,7 +477,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_17_consistency-stale-reads-lost-updates-inconsistency/">8.17. Consistency Models — Stale Reads vs Lost Updates vs Inconsistent State</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_18_consistency-designing-us-around-consistency/">8.18. Consistency Models — Designing UX Around Consistency</a>
                                 </li>
                               
@@ -525,202 +525,215 @@
         </div>
 
         <article class="topic-content">
-          <h1 id="database-replication--synchronous-replication--quorum-reads-advanced">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+          <h1 id="consistency-models--designing-ux-around-consistency">Consistency Models — Designing UX Around Consistency</h1>
 <hr>
-<p>In earlier replication concepts, we assumed the common baseline:</p>
+<p>Consistency is not just a database choice.</p>
+<p>It is a <strong>product choice</strong>.</p>
+<p>Two screens in the same app can legitimately require different consistency guarantees:</p>
 <ul>
-<li>leader commits</li>
-<li>replicas catch up asynchronously</li>
-<li>stale reads are normal during lag</li>
+<li>payment confirmation screen must be correct immediately</li>
+<li>transaction history list can be eventual</li>
 </ul>
-<p>That baseline gives great performance, but it trades away freshness and, in some configurations, durability under failure.</p>
-<p>This article covers stronger (and more expensive) options:</p>
+<p>If you treat all reads the same, you either:</p>
 <ul>
-<li><strong>synchronous replication</strong> (stronger write durability / freshness)</li>
-<li><strong>quorum reads/writes</strong> (a tunable approach used in distributed databases)</li>
+<li>overload the leader (too strict)</li>
+<li>or show confusing stale state (too loose)</li>
 </ul>
-<p>These are not baseline choices for a simple payment system, but they are important tools to understand.</p>
+<p>This article gives a practical UX-driven framework for consistency decisions.</p>
 <hr>
-<h2 id="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</h2>
+<h2 id="1-start-from-user-expectations-not-from-databases">1. Start From User Expectations, Not From Databases</h2>
 <hr>
-<p>Async replication introduces two common concerns:</p>
-<ol>
-<li><strong>Read freshness:</strong> replicas may be stale after a commit.</li>
-<li><strong>Failover durability risk:</strong> if the leader dies before replicas apply the last commits, you may lose those commits (depending on topology and failover policy).</li>
-</ol>
-<p>If your system cannot tolerate these windows, you may choose stronger replication.</p>
-<hr>
-<h2 id="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</h2>
-<hr>
-<p>In <strong>synchronous replication</strong>, a leader considers a transaction “committed” only after one or more replicas confirm they have received (or applied) the change.</p>
-<p>High-level model:</p>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant App as App
-    participant L as Leader
-    participant R as Replica
-
-    App->>L: write transaction
-    L->>R: replicate change
-    R-->>L: ack (received/applied)
-    L-->>App: commit success
-</div>
-<h3 id="21-what-you-gain">2.1 What you gain</h3>
+<p>Users don’t think in “leader vs replica”.</p>
+<p>They think:</p>
 <ul>
-<li>stronger durability across node failure</li>
-<li>fewer stale reads (replicas are closer to leader)</li>
+<li>“I paid — did it work?”</li>
+<li>“Did my message send?”</li>
+<li>“Why did it disappear after refresh?”</li>
+<li>“Why is my balance wrong?”</li>
 </ul>
-<h3 id="22-what-you-pay">2.2 What you pay</h3>
-<ul>
-<li>higher write latency (commit waits for replica acks)</li>
-<li>reduced throughput during replica slowness</li>
-<li>sensitivity to network jitter (replication path becomes part of write latency)</li>
-</ul>
-<p>In practice, “synchronous” is often configurable:</p>
-<ul>
-<li>wait for 1 replica (semi-sync)</li>
-<li>wait for majority</li>
-<li>wait for “received” vs “applied”</li>
-</ul>
-<p>Each choice is a different cost/benefit point.</p>
-<hr>
-<h2 id="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</h2>
-<hr>
-<p>In leader/replica relational setups, quorum is not the most common model.</p>
-<p>But in distributed databases (and some replicated stores), you often see:</p>
-<ul>
-<li>replication factor <strong>N</strong></li>
-<li>reads require <strong>R</strong> acknowledgements</li>
-<li>writes require <strong>W</strong> acknowledgements</li>
-</ul>
-<p>The classic quorum rule:</p>
+<p>So the correct design approach is:</p>
 <blockquote>
-<p>If <strong>R + W &gt; N</strong>, a read quorum overlaps a write quorum, which increases the chance of reading the latest value.</p></blockquote>
-<p>Example:</p>
-<ul>
-<li>N=3 replicas</li>
-<li>W=2 (write waits for 2)</li>
-<li>R=2 (read consults 2)</li>
-</ul>
-<p>Then any read quorum overlaps with the last write quorum, making stale reads less likely.</p>
-<h3 id="31-what-quorum-readswrites-give-you">3.1 What quorum reads/writes give you</h3>
-<ul>
-<li>tunable balance of latency vs consistency</li>
-<li>flexibility under failures</li>
-</ul>
-<h3 id="32-what-they-do-not-magically-guarantee">3.2 What they do not magically guarantee</h3>
-<p>Even with R+W&gt;N:</p>
-<ul>
-<li>you still need conflict resolution if multiple writers exist</li>
-<li>you can still observe older values depending on timing and “applied vs received”</li>
-<li>operational complexity increases</li>
-</ul>
-<p>Quorum is a powerful tool, but not a free correctness guarantee.</p>
-<h3 id="33-important-where-quorum-is-actually-implemented">3.3 Important: Where quorum is actually implemented</h3>
-<p>Quorum reads/writes are typically <strong>not something you implement in application code</strong> on top of a normal leader–replica SQL setup.</p>
-<p>They are usually a <strong>database feature</strong> exposed by distributed storage systems (Dynamo/Cassandra-style designs), where the client can choose per-operation consistency:</p>
-<ul>
-<li>set replication factor <strong>N</strong></li>
-<li>choose <strong>R</strong> (how many replicas must respond to a read)</li>
-<li>choose <strong>W</strong> (how many replicas must acknowledge a write)</li>
-</ul>
-<p><strong>Example (distributed DB style):</strong></p>
-<ul>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = QUORUM</code> → stronger freshness (with higher latency)</li>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = ONE</code> → faster reads, may be stale</li>
-</ul>
-<p>In these systems, the choice is often exposed as a <strong>consistency level</strong> (e.g., <code>ONE / QUORUM / ALL</code>) on each read/write operation.</p>
-<p>So treat quorum as an <em>advanced model supported by some distributed databases</em>, not something you “bolt onto” every replication setup.</p>
-<h3 id="34-how-this-maps-to-postgresmysql-practical-takeaway">3.4 How this maps to Postgres/MySQL (practical takeaway)</h3>
-<p>In traditional relational leader/replica setups (Postgres/MySQL):</p>
-<ul>
-<li>there is typically <strong>one leader</strong> that accepts writes</li>
-<li>replicas apply changes asynchronously (or semi-synchronously)</li>
-<li>you usually <strong>do not</strong> configure per-request quorum <code>R/W</code> like Dynamo/Cassandra</li>
-</ul>
-<p>So the common “SQL replication” toolkit for correctness is:</p>
-<ul>
-<li><strong>critical reads → leader</strong></li>
-<li><strong>non-critical reads → replicas</strong></li>
-<li><strong>read-your-writes</strong> (time window or LSN/binlog-position based routing)</li>
-<li>optional <strong>synchronous / semi-synchronous replication</strong> if you’re willing to pay write latency</li>
-</ul>
-<p><strong>Examples (SQL world):</strong></p>
-<ul>
-<li><strong>PostgreSQL:</strong> synchronous replication can be configured so commits wait for replica acknowledgement (stronger durability, higher latency).</li>
-<li><strong>MySQL:</strong> semi-synchronous replication can be used to wait for at least one replica to receive the transaction before acknowledging the commit.</li>
-</ul>
-<p>In other words:</p>
-<ul>
-<li>distributed quorum systems give you <strong>R/W knobs</strong></li>
-<li>SQL leader/replica systems give you <strong>read routing + optional sync replication</strong></li>
-</ul>
-<p>That’s why Phase 3 uses leader routing + read-your-writes as the baseline, and treats quorum as an advanced model.</p>
+<p>classify reads by user expectation and business risk.</p></blockquote>
 <hr>
-<h2 id="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</h2>
+<h2 id="2-ux-categories-for-consistency-a-practical-framework">2. UX Categories for Consistency (A Practical Framework)</h2>
 <hr>
-<p>These approaches are used when:</p>
-<ul>
-<li>correctness requires stronger freshness guarantees</li>
-<li>you cannot tolerate losing recent commits on leader failover</li>
-<li>you are willing to pay latency for stronger durability</li>
-</ul>
+<h3 id="21-immediate-confirmation-screens-must-not-be-stale">2.1 Immediate confirmation screens (must not be stale)</h3>
+<p>These screens appear right after an action and must reflect the action.</p>
 <p>Examples:</p>
 <ul>
-<li>financial ledger systems with strict durability expectations</li>
-<li>inventory systems where oversell is unacceptable</li>
-<li>coordination metadata stores (critical configuration/state)</li>
+<li>payment confirmation / payment status</li>
+<li>balance after debit</li>
+<li>order placed / booking confirmed</li>
 </ul>
-<p>But many payment systems still run:</p>
+<p>Consistency requirement:</p>
 <ul>
-<li>async replication</li>
-<li>critical reads from leader</li>
-<li>RYW windows</li>
+<li><strong>strong / read-your-writes</strong></li>
+<li>leader reads for a short window after write</li>
 </ul>
-<p>because it gives good UX and performance with simpler operations.</p>
+<p>If this screen shows stale results, users retry, and retries become incidents.</p>
 <hr>
-<h2 id="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</h2>
+<h3 id="22-inbox--feed--history-screens-can-be-eventual">2.2 “Inbox / feed / history” screens (can be eventual)</h3>
+<p>These screens are browsing-oriented:</p>
+<ul>
+<li>transaction history pages</li>
+<li>notification inbox</li>
+<li>activity feed</li>
+</ul>
+<p>Users tolerate small delays as long as:</p>
+<ul>
+<li>it converges reasonably quickly</li>
+<li>it doesn’t “time travel” (monotonic reads help)</li>
+</ul>
+<p>Consistency requirement:</p>
+<ul>
+<li>eventual is acceptable</li>
+<li>replicas are fine for most reads</li>
+<li>still prefer RYW for very recent items (first page after action)</li>
+</ul>
 <hr>
-<p>Phase 3’s baseline design chooses simpler, more common production defaults:</p>
+<h3 id="23-aggregations-and-analytics-eventual-by-default">2.3 Aggregations and analytics (eventual by default)</h3>
+<p>Examples:</p>
 <ul>
-<li>async replication for read scaling</li>
-<li>leader reads for critical flows</li>
-<li>replicas for non-critical flows</li>
-<li>short RYW window after write</li>
+<li>“Total spent this month”</li>
+<li>“Daily summary”</li>
+<li>dashboards</li>
 </ul>
-<p>Reasons:</p>
+<p>Consistency requirement:</p>
 <ul>
-<li>it’s easier to reason about</li>
-<li>less write latency penalty</li>
-<li>avoids turning replication health into a direct payment latency driver</li>
+<li>eventual is expected</li>
+<li>correctness is defined by eventual convergence and periodic recompute</li>
 </ul>
-<p>Synchronous/quorum options are tools to know, not defaults to start with.</p>
+<hr>
+<h3 id="24-workflows-that-depend-on-correctness-must-be-fresh">2.4 Workflows that depend on correctness (must be fresh)</h3>
+<p>Some reads are internal but correctness-critical:</p>
+<ul>
+<li>fraud check decisions based on latest state</li>
+<li>idempotency checks</li>
+<li>workflow step transitions</li>
+</ul>
+<p>Consistency requirement:</p>
+<ul>
+<li>leader reads or strong consistency paths</li>
+<li>avoid making workflow decisions from replicas during lag</li>
+</ul>
+<hr>
+<h2 id="3-concrete-example-payment-ux-with-replication">3. Concrete Example: Payment UX With Replication</h2>
+<hr>
+<p>A payment flow commonly has two user-facing reads:</p>
+<h3 id="31-payment-succeeded-screen-critical">3.1 “Payment succeeded” screen (critical)</h3>
+<p>Right after payment:</p>
+<ul>
+<li>user refreshes</li>
+<li>user checks status</li>
+<li>user expects to see it</li>
+</ul>
+<p>Design choice:</p>
+<ul>
+<li>route this to leader</li>
+<li>apply RYW for a short window (e.g., 30s)</li>
+</ul>
+<h3 id="32-transaction-history-screen-mostly-non-critical">3.2 “Transaction history” screen (mostly non-critical)</h3>
+<p>History list:</p>
+<ul>
+<li>can be served from replicas</li>
+<li>can be paginated</li>
+<li>stale reads are acceptable as long as it converges</li>
+</ul>
+<p>Design choice:</p>
+<ul>
+<li>first page after payment can be leader (RYW window)</li>
+<li>older pages can be replicas</li>
+</ul>
+<p>This is the pattern Phase 3 used explicitly.</p>
+<hr>
+<h2 id="4-ux-patterns-that-prevent-retry-spirals">4. UX Patterns That Prevent Retry Spirals</h2>
+<hr>
+<p>Stale reads don’t just confuse users—they trigger retries.</p>
+<p>So a good UX design includes “anti-retry” patterns.</p>
+<h3 id="41-avoid-showing-not-found-immediately-after-success">4.1 Avoid showing “NOT FOUND” immediately after success</h3>
+<p>Instead of:</p>
+<ul>
+<li>“payment not found”</li>
+</ul>
+<p>Use:</p>
+<ul>
+<li>“Payment is processing. Refresh in a moment.”</li>
+</ul>
+<p>This reduces panic retries during lag windows.</p>
+<h3 id="42-use-clear-state-models">4.2 Use clear state models</h3>
+<p>States like:</p>
+<ul>
+<li><code>PENDING</code></li>
+<li><code>CONFIRMED</code></li>
+<li><code>FAILED</code></li>
+<li><code>NEEDS_REVIEW</code></li>
+</ul>
+<p>help you communicate uncertainty safely.</p>
+<p>This is particularly important in distributed workflows.</p>
+<h3 id="43-use-monotonic-reads-on-critical-screens">4.3 Use monotonic reads on critical screens</h3>
+<p>Once the UI shows <code>CONFIRMED</code>, it should not show <code>PENDING</code> on refresh.</p>
+<p>Sticky routing (to leader or same replica) prevents “time travel”.</p>
+<hr>
+<h2 id="5-how-to-turn-this-into-an-engineering-policy">5. How to Turn This Into an Engineering Policy</h2>
+<hr>
+<p>Convert UX expectations into a routing policy.</p>
+<p>Example baseline policy:</p>
+<ul>
+<li><strong>critical endpoints</strong> → leader</li>
+<li><strong>non-critical endpoints</strong> → replicas</li>
+<li><strong>RYW window</strong> after write → leader for that user/session</li>
+<li><strong>monotonic reads</strong> for critical screens (avoid time travel)</li>
+<li>during lag incidents → degrade safely by routing more reads to leader</li>
+</ul>
+<p>This ties together:</p>
+<ul>
+<li>replication concepts</li>
+<li>consistency vocabulary</li>
+<li>practical product behavior</li>
+</ul>
+<hr>
+<h2 id="6-common-mistakes-ux--consistency">6. Common Mistakes (UX + Consistency)</h2>
+<hr>
+<h3 id="mistake-a--treating-all-screens-equally">Mistake A — Treating all screens equally</h3>
+<p>Result:</p>
+<ul>
+<li>either too strict (leader overload)</li>
+<li>or too loose (stale confirmation screens)</li>
+</ul>
+<h3 id="mistake-b--using-eventual-consistency-for-confirmations">Mistake B — Using eventual consistency for confirmations</h3>
+<p>This creates:</p>
+<ul>
+<li>distrust</li>
+<li>retries</li>
+<li>duplicate requests (even if idempotent, you still pay load and risk)</li>
+</ul>
+<h3 id="mistake-c--ignoring-monotonic-reads">Mistake C — Ignoring monotonic reads</h3>
+<p>Users see “time travel” and assume the system is broken.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li><strong>Synchronous replication</strong> improves durability/freshness by waiting for replica acknowledgements before commit.</li>
-<li>It costs write latency and throughput, especially under network jitter or slow replicas.</li>
-<li><strong>Quorum reads/writes (N,R,W)</strong> provide tunable consistency in distributed replicated stores.</li>
-<li>These are used when you must pay latency for stronger guarantees.</li>
-<li>Phase 3 baseline stays with async replication + leader routing + RYW for simplicity and performance.</li>
+<li>Consistency is a product decision: choose per UX surface.</li>
+<li>Confirmation screens must be strong / RYW; history screens can be eventual.</li>
+<li>Good UX prevents retry spirals by communicating uncertainty safely.</li>
+<li>Convert UX expectations into routing policies: leader for critical reads, replicas for non-critical reads, RYW window after writes.</li>
+<li>Monotonic reads prevent “time travel” and reduce user confusion.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Async replication is the common baseline, but it creates lag windows.</p>
-<p>Synchronous replication and quorum reads/writes reduce those windows by waiting for more acknowledgements, at the cost of higher write latency and operational complexity. Use them when durability/freshness requirements justify the cost.</p>
+<p>Don’t choose one consistency model for your whole product.</p>
+<p>Make confirmation screens strongly consistent (leader/RYW), allow history/feeds to be eventual (replicas), and use UX patterns that reduce retries and confusion during lag windows.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Next we’ll move from replication mechanics to the vocabulary that system designers use to reason about correctness:</p>
+<p>Next we’ll bridge replication consistency with caching consistency:</p>
 <ul>
-<li>strong vs eventual vs causal</li>
-<li>read-your-writes and monotonic reads</li>
-<li>why “consistency” has multiple meanings</li>
+<li>why caches create another stale-read layer</li>
+<li>how cache staleness differs from replica lag</li>
+<li>the mental model to avoid mixing them up</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary">Consistency Models — Vocabulary That Actually Matters</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_19_consistency-with-caches">Consistency Models — Consistency With Caches (Bridge)</a></strong></p>
 
         </article>
 
@@ -748,31 +761,37 @@ sequenceDiagram
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-stronger-replication-exists" data-toc-target="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</a>
+        <a class="toc-link" href="#1-start-from-user-expectations-not-from-databases" data-toc-target="1-start-from-user-expectations-not-from-databases">1. Start From User Expectations, Not From Databases</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-synchronous-replication-what-it-means" data-toc-target="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</a>
+        <a class="toc-link" href="#2-ux-categories-for-consistency-a-practical-framework" data-toc-target="2-ux-categories-for-consistency-a-practical-framework">2. UX Categories for Consistency (A Practical Framework)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-quorum-reads-and-writes-distributed-db-model" data-toc-target="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</a>
+        <a class="toc-link" href="#3-concrete-example-payment-ux-with-replication" data-toc-target="3-concrete-example-payment-ux-with-replication">3. Concrete Example: Payment UX With Replication</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-when-synchronous-or-quorum-is-worth-it" data-toc-target="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</a>
+        <a class="toc-link" href="#4-ux-patterns-that-prevent-retry-spirals" data-toc-target="4-ux-patterns-that-prevent-retry-spirals">4. UX Patterns That Prevent Retry Spirals</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-why-this-is-not-the-baseline-for-phase-3" data-toc-target="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</a>
+        <a class="toc-link" href="#5-how-to-turn-this-into-an-engineering-policy" data-toc-target="5-how-to-turn-this-into-an-engineering-policy">5. How to Turn This Into an Engineering Policy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-common-mistakes-ux--consistency" data-toc-target="6-common-mistakes-ux--consistency">6. Common Mistakes (UX &#43; Consistency)</a>
       </li>
     
       
@@ -800,7 +819,7 @@ sequenceDiagram
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_17_consistency-stale-reads-lost-updates-inconsistency/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -832,7 +851,7 @@ sequenceDiagram
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_19_consistency-with-caches/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -1025,17 +1044,6 @@ sequenceDiagram
   </div>
 </footer>
 
-  
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: isDark ? "dark" : "default",
-        flowchart: { curve: "basis" }
-      });
-    </script>
   
 </body>
 </html>

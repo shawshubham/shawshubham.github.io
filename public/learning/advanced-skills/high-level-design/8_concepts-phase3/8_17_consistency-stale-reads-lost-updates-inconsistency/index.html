@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</title>
+<title>Consistency Models — Stale Reads vs Lost Updates vs Inconsistent State</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774635240">
+<link rel="stylesheet" href="/css/main.css?v=1774638504">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+    <h1 class="main-heading">Consistency Models — Stale Reads vs Lost Updates vs Inconsistent State</h1>
     <h3>
   </div>
 </section>
@@ -465,7 +465,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/">8.14. Database Replication — Monitoring Lag &amp; Safe Degradation</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads/">8.15. Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</a>
                                 </li>
                               
@@ -473,7 +473,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary/">8.16. Consistency Models — Vocabulary That Actually Matters</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_17_consistency-stale-reads-lost-updates-inconsistency/">8.17. Consistency Models — Stale Reads vs Lost Updates vs Inconsistent State</a>
                                 </li>
                               
@@ -525,202 +525,179 @@
         </div>
 
         <article class="topic-content">
-          <h1 id="database-replication--synchronous-replication--quorum-reads-advanced">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+          <h1 id="consistency-models--stale-reads-vs-lost-updates-vs-inconsistent-state">Consistency Models — Stale Reads vs Lost Updates vs Inconsistent State</h1>
 <hr>
-<p>In earlier replication concepts, we assumed the common baseline:</p>
+<p>In system design discussions, three different problems are often mixed together:</p>
 <ul>
-<li>leader commits</li>
-<li>replicas catch up asynchronously</li>
-<li>stale reads are normal during lag</li>
+<li>“stale reads”</li>
+<li>“lost updates”</li>
+<li>“inconsistency”</li>
 </ul>
-<p>That baseline gives great performance, but it trades away freshness and, in some configurations, durability under failure.</p>
-<p>This article covers stronger (and more expensive) options:</p>
-<ul>
-<li><strong>synchronous replication</strong> (stronger write durability / freshness)</li>
-<li><strong>quorum reads/writes</strong> (a tunable approach used in distributed databases)</li>
-</ul>
-<p>These are not baseline choices for a simple payment system, but they are important tools to understand.</p>
-<hr>
-<h2 id="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</h2>
-<hr>
-<p>Async replication introduces two common concerns:</p>
+<p>They sound similar, but they come from different causes and require different fixes.</p>
+<p>If you can separate these clearly, you’ll make better design decisions faster.</p>
+<p>This article gives you a practical taxonomy:</p>
 <ol>
-<li><strong>Read freshness:</strong> replicas may be stale after a commit.</li>
-<li><strong>Failover durability risk:</strong> if the leader dies before replicas apply the last commits, you may lose those commits (depending on topology and failover policy).</li>
+<li><strong>Stale reads</strong> (replication/caching visibility delay)</li>
+<li><strong>Lost updates</strong> (concurrency write conflicts)</li>
+<li><strong>Inconsistent state across services</strong> (partial failures/workflow correctness)</li>
 </ol>
-<p>If your system cannot tolerate these windows, you may choose stronger replication.</p>
 <hr>
-<h2 id="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</h2>
+<h2 id="1-stale-reads-visibility-delay">1. Stale Reads (Visibility Delay)</h2>
 <hr>
-<p>In <strong>synchronous replication</strong>, a leader considers a transaction “committed” only after one or more replicas confirm they have received (or applied) the change.</p>
-<p>High-level model:</p>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant App as App
-    participant L as Leader
-    participant R as Replica
-
-    App->>L: write transaction
-    L->>R: replicate change
-    R-->>L: ack (received/applied)
-    L-->>App: commit success
-</div>
-<h3 id="21-what-you-gain">2.1 What you gain</h3>
+<h3 id="what-it-is">What it is</h3>
+<p>A <strong>stale read</strong> happens when you read an older value even though a newer value has already been committed somewhere.</p>
+<p>Common causes:</p>
 <ul>
-<li>stronger durability across node failure</li>
-<li>fewer stale reads (replicas are closer to leader)</li>
+<li>replication lag (leader → replicas)</li>
+<li>cache staleness (cache not updated/invalidated yet)</li>
+<li>read routing to a behind replica</li>
 </ul>
-<h3 id="22-what-you-pay">2.2 What you pay</h3>
+<h3 id="payment-example">Payment example</h3>
 <ul>
-<li>higher write latency (commit waits for replica acks)</li>
-<li>reduced throughput during replica slowness</li>
-<li>sensitivity to network jitter (replication path becomes part of write latency)</li>
+<li>payment is confirmed on leader</li>
+<li>status read goes to replica</li>
+<li>replica still shows <code>PENDING</code></li>
 </ul>
-<p>In practice, “synchronous” is often configurable:</p>
+<h3 id="what-fixes-it">What fixes it</h3>
 <ul>
-<li>wait for 1 replica (semi-sync)</li>
-<li>wait for majority</li>
-<li>wait for “received” vs “applied”</li>
+<li>critical reads → leader</li>
+<li>read-your-writes window</li>
+<li>version-based reads (LSN/binlog position)</li>
+<li>cache invalidation strategies (for caches)</li>
 </ul>
-<p>Each choice is a different cost/benefit point.</p>
+<p><strong>Key point:</strong> stale reads are a <em>read-path</em> problem.</p>
 <hr>
-<h2 id="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</h2>
+<h2 id="2-lost-updates-concurrency-write-conflicts">2. Lost Updates (Concurrency Write Conflicts)</h2>
 <hr>
-<p>In leader/replica relational setups, quorum is not the most common model.</p>
-<p>But in distributed databases (and some replicated stores), you often see:</p>
+<h3 id="what-it-is-1">What it is</h3>
+<p>A <strong>lost update</strong> happens when two concurrent transactions write based on stale reads, causing one update to overwrite another.</p>
+<p>This is a <em>write-path</em> problem.</p>
+<h3 id="payment-example-1">Payment example</h3>
+<p>Two concurrent debits read balance 100:</p>
 <ul>
-<li>replication factor <strong>N</strong></li>
-<li>reads require <strong>R</strong> acknowledgements</li>
-<li>writes require <strong>W</strong> acknowledgements</li>
+<li>T1 debits 80 → expects balance 20</li>
+<li>T2 debits 30 → expects balance 70</li>
+<li>final balance becomes 70 (T1 lost) or overspend occurs</li>
 </ul>
-<p>The classic quorum rule:</p>
-<blockquote>
-<p>If <strong>R + W &gt; N</strong>, a read quorum overlaps a write quorum, which increases the chance of reading the latest value.</p></blockquote>
-<p>Example:</p>
+<h3 id="what-fixes-it-1">What fixes it</h3>
 <ul>
-<li>N=3 replicas</li>
-<li>W=2 (write waits for 2)</li>
-<li>R=2 (read consults 2)</li>
+<li>pessimistic locking (<code>SELECT ... FOR UPDATE</code>)</li>
+<li>optimistic concurrency (version/CAS)</li>
+<li>atomic updates (<code>UPDATE ... WHERE balance &gt;= amount</code>)</li>
 </ul>
-<p>Then any read quorum overlaps with the last write quorum, making stale reads less likely.</p>
-<h3 id="31-what-quorum-readswrites-give-you">3.1 What quorum reads/writes give you</h3>
-<ul>
-<li>tunable balance of latency vs consistency</li>
-<li>flexibility under failures</li>
-</ul>
-<h3 id="32-what-they-do-not-magically-guarantee">3.2 What they do not magically guarantee</h3>
-<p>Even with R+W&gt;N:</p>
-<ul>
-<li>you still need conflict resolution if multiple writers exist</li>
-<li>you can still observe older values depending on timing and “applied vs received”</li>
-<li>operational complexity increases</li>
-</ul>
-<p>Quorum is a powerful tool, but not a free correctness guarantee.</p>
-<h3 id="33-important-where-quorum-is-actually-implemented">3.3 Important: Where quorum is actually implemented</h3>
-<p>Quorum reads/writes are typically <strong>not something you implement in application code</strong> on top of a normal leader–replica SQL setup.</p>
-<p>They are usually a <strong>database feature</strong> exposed by distributed storage systems (Dynamo/Cassandra-style designs), where the client can choose per-operation consistency:</p>
-<ul>
-<li>set replication factor <strong>N</strong></li>
-<li>choose <strong>R</strong> (how many replicas must respond to a read)</li>
-<li>choose <strong>W</strong> (how many replicas must acknowledge a write)</li>
-</ul>
-<p><strong>Example (distributed DB style):</strong></p>
-<ul>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = QUORUM</code> → stronger freshness (with higher latency)</li>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = ONE</code> → faster reads, may be stale</li>
-</ul>
-<p>In these systems, the choice is often exposed as a <strong>consistency level</strong> (e.g., <code>ONE / QUORUM / ALL</code>) on each read/write operation.</p>
-<p>So treat quorum as an <em>advanced model supported by some distributed databases</em>, not something you “bolt onto” every replication setup.</p>
-<h3 id="34-how-this-maps-to-postgresmysql-practical-takeaway">3.4 How this maps to Postgres/MySQL (practical takeaway)</h3>
-<p>In traditional relational leader/replica setups (Postgres/MySQL):</p>
-<ul>
-<li>there is typically <strong>one leader</strong> that accepts writes</li>
-<li>replicas apply changes asynchronously (or semi-synchronously)</li>
-<li>you usually <strong>do not</strong> configure per-request quorum <code>R/W</code> like Dynamo/Cassandra</li>
-</ul>
-<p>So the common “SQL replication” toolkit for correctness is:</p>
-<ul>
-<li><strong>critical reads → leader</strong></li>
-<li><strong>non-critical reads → replicas</strong></li>
-<li><strong>read-your-writes</strong> (time window or LSN/binlog-position based routing)</li>
-<li>optional <strong>synchronous / semi-synchronous replication</strong> if you’re willing to pay write latency</li>
-</ul>
-<p><strong>Examples (SQL world):</strong></p>
-<ul>
-<li><strong>PostgreSQL:</strong> synchronous replication can be configured so commits wait for replica acknowledgement (stronger durability, higher latency).</li>
-<li><strong>MySQL:</strong> semi-synchronous replication can be used to wait for at least one replica to receive the transaction before acknowledging the commit.</li>
-</ul>
-<p>In other words:</p>
-<ul>
-<li>distributed quorum systems give you <strong>R/W knobs</strong></li>
-<li>SQL leader/replica systems give you <strong>read routing + optional sync replication</strong></li>
-</ul>
-<p>That’s why Phase 3 uses leader routing + read-your-writes as the baseline, and treats quorum as an advanced model.</p>
+<p><strong>Key point:</strong> replication read freshness does not fix lost updates. This is about concurrent writes.</p>
 <hr>
-<h2 id="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</h2>
+<h2 id="3-inconsistent-state-across-services-partial-failure">3. Inconsistent State Across Services (Partial Failure)</h2>
 <hr>
-<p>These approaches are used when:</p>
+<h3 id="what-it-is-2">What it is</h3>
+<p>This inconsistency is not “stale” and not “lost update”.</p>
+<p>It happens when:</p>
 <ul>
-<li>correctness requires stronger freshness guarantees</li>
-<li>you cannot tolerate losing recent commits on leader failover</li>
-<li>you are willing to pay latency for stronger durability</li>
+<li>multiple services/databases must agree on a workflow outcome</li>
+<li>but one step succeeds and another fails</li>
 </ul>
-<p>Examples:</p>
+<p>Result:</p>
 <ul>
-<li>financial ledger systems with strict durability expectations</li>
-<li>inventory systems where oversell is unacceptable</li>
-<li>coordination metadata stores (critical configuration/state)</li>
+<li>each service is locally correct</li>
+<li>globally, the system is inconsistent</li>
 </ul>
-<p>But many payment systems still run:</p>
+<h3 id="payment-example-2">Payment example</h3>
 <ul>
-<li>async replication</li>
-<li>critical reads from leader</li>
-<li>RYW windows</li>
+<li>Payment DB: payment marked <code>CONFIRMED</code></li>
+<li>Ledger service: ledger entry missing (timeout/failure)</li>
+<li>Notification: user never notified</li>
+<li>downstream systems see different realities</li>
 </ul>
-<p>because it gives good UX and performance with simpler operations.</p>
+<p>This is the “partial failure across services” problem (introduced in Phase 3).</p>
+<h3 id="what-fixes-it-2">What fixes it</h3>
+<ul>
+<li>saga orchestration/choreography</li>
+<li>durable workflow state machine</li>
+<li>step-level idempotency</li>
+<li>compensations</li>
+<li>reconciliation jobs</li>
+</ul>
+<p><strong>Key point:</strong> this is a <em>workflow coordination</em> problem.</p>
 <hr>
-<h2 id="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</h2>
+<h2 id="4-a-simple-decision-table-what-youre-actually-dealing-with">4. A Simple Decision Table (What You’re Actually Dealing With)</h2>
 <hr>
-<p>Phase 3’s baseline design chooses simpler, more common production defaults:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Symptom</th>
+          <th>Likely problem</th>
+          <th>Where it happens</th>
+          <th>Common fixes</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>“I wrote, but I can’t read it yet”</td>
+          <td>Stale reads</td>
+          <td>read path</td>
+          <td>leader reads, RYW, version routing, cache invalidation</td>
+      </tr>
+      <tr>
+          <td>“Final value is wrong after concurrency”</td>
+          <td>Lost updates</td>
+          <td>write path</td>
+          <td>locks, optimistic versioning, atomic updates</td>
+      </tr>
+      <tr>
+          <td>“Service A says success, service B disagrees”</td>
+          <td>Cross-service inconsistency</td>
+          <td>workflow</td>
+          <td>saga, outbox/inbox, compensations, reconciliation</td>
+      </tr>
+  </tbody>
+</table>
+<p>This table is useful in interviews because it quickly reveals which toolkit to apply.</p>
+<hr>
+<h2 id="5-phase-3-connection-why-this-taxonomy-matters">5. Phase 3 Connection (Why This Taxonomy Matters)</h2>
+<hr>
+<p>Phase 3 evolved the payment system by solving these in order:</p>
 <ul>
-<li>async replication for read scaling</li>
-<li>leader reads for critical flows</li>
-<li>replicas for non-critical flows</li>
-<li>short RYW window after write</li>
+<li>duplicates/retries → idempotency</li>
+<li>stale reads → replication strategy + RYW</li>
+<li>lost updates → atomic money updates / locking</li>
+<li>inconsistent state across services → saga + durable workflow</li>
 </ul>
-<p>Reasons:</p>
+<p>The mistakes happen when teams apply the wrong fix:</p>
 <ul>
-<li>it’s easier to reason about</li>
-<li>less write latency penalty</li>
-<li>avoids turning replication health into a direct payment latency driver</li>
+<li>trying to solve stale reads with locks</li>
+<li>trying to solve lost updates with read-your-writes</li>
+<li>trying to solve workflow inconsistency with “just use transactions”</li>
 </ul>
-<p>Synchronous/quorum options are tools to know, not defaults to start with.</p>
+<p>Different problems, different tools.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li><strong>Synchronous replication</strong> improves durability/freshness by waiting for replica acknowledgements before commit.</li>
-<li>It costs write latency and throughput, especially under network jitter or slow replicas.</li>
-<li><strong>Quorum reads/writes (N,R,W)</strong> provide tunable consistency in distributed replicated stores.</li>
-<li>These are used when you must pay latency for stronger guarantees.</li>
-<li>Phase 3 baseline stays with async replication + leader routing + RYW for simplicity and performance.</li>
+<li><strong>Stale reads</strong> are visibility delays on the read path (replication/caching).</li>
+<li><strong>Lost updates</strong> are concurrency conflicts on the write path.</li>
+<li><strong>Cross-service inconsistency</strong> is a workflow/coordination problem caused by partial failures.</li>
+<li>Correctness starts by identifying which class you’re dealing with, then applying the right toolkit.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Async replication is the common baseline, but it creates lag windows.</p>
-<p>Synchronous replication and quorum reads/writes reduce those windows by waiting for more acknowledgements, at the cost of higher write latency and operational complexity. Use them when durability/freshness requirements justify the cost.</p>
+<p>Stale reads, lost updates, and inconsistent cross-service state are different failure classes.</p>
+<p>Diagnose the class first, then apply the right tool:</p>
+<ul>
+<li>leader reads/RYW for stale reads,</li>
+<li>locks/atomic updates for lost updates,</li>
+<li>sagas/outbox/reconciliation for workflow inconsistency.</li>
+</ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Next we’ll move from replication mechanics to the vocabulary that system designers use to reason about correctness:</p>
+<p>Next we’ll make consistency practical for product design:</p>
 <ul>
-<li>strong vs eventual vs causal</li>
-<li>read-your-writes and monotonic reads</li>
-<li>why “consistency” has multiple meanings</li>
+<li>how to decide what must be strongly consistent</li>
+<li>what can be eventual</li>
+<li>how Phase 3 chose consistency for payment UX</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary">Consistency Models — Vocabulary That Actually Matters</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_18_consistency-designing-us-around-consistency">Consistency Models — Designing UX Around Consistency</a></strong></p>
 
         </article>
 
@@ -748,31 +725,31 @@ sequenceDiagram
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-stronger-replication-exists" data-toc-target="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</a>
+        <a class="toc-link" href="#1-stale-reads-visibility-delay" data-toc-target="1-stale-reads-visibility-delay">1. Stale Reads (Visibility Delay)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-synchronous-replication-what-it-means" data-toc-target="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</a>
+        <a class="toc-link" href="#2-lost-updates-concurrency-write-conflicts" data-toc-target="2-lost-updates-concurrency-write-conflicts">2. Lost Updates (Concurrency Write Conflicts)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-quorum-reads-and-writes-distributed-db-model" data-toc-target="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</a>
+        <a class="toc-link" href="#3-inconsistent-state-across-services-partial-failure" data-toc-target="3-inconsistent-state-across-services-partial-failure">3. Inconsistent State Across Services (Partial Failure)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-when-synchronous-or-quorum-is-worth-it" data-toc-target="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</a>
+        <a class="toc-link" href="#4-a-simple-decision-table-what-youre-actually-dealing-with" data-toc-target="4-a-simple-decision-table-what-youre-actually-dealing-with">4. A Simple Decision Table (What You’re Actually Dealing With)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-why-this-is-not-the-baseline-for-phase-3" data-toc-target="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</a>
+        <a class="toc-link" href="#5-phase-3-connection-why-this-taxonomy-matters" data-toc-target="5-phase-3-connection-why-this-taxonomy-matters">5. Phase 3 Connection (Why This Taxonomy Matters)</a>
       </li>
     
       
@@ -800,7 +777,7 @@ sequenceDiagram
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -832,7 +809,7 @@ sequenceDiagram
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_18_consistency-designing-us-around-consistency/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -1025,17 +1002,6 @@ sequenceDiagram
   </div>
 </footer>
 
-  
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: isDark ? "dark" : "default",
-        flowchart: { curve: "basis" }
-      });
-    </script>
   
 </body>
 </html>

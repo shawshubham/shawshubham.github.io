@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</title>
+<title>Consistency Models — Consistency With Caches (Bridge)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774635240">
+<link rel="stylesheet" href="/css/main.css?v=1774638504">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+    <h1 class="main-heading">Consistency Models — Consistency With Caches (Bridge)</h1>
     <h3>
   </div>
 </section>
@@ -465,7 +465,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/">8.14. Database Replication — Monitoring Lag &amp; Safe Degradation</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads/">8.15. Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</a>
                                 </li>
                               
@@ -481,7 +481,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_18_consistency-designing-us-around-consistency/">8.18. Consistency Models — Designing UX Around Consistency</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_19_consistency-with-caches/">8.19. Consistency Models — Consistency With Caches (Bridge)</a>
                                 </li>
                               
@@ -525,202 +525,214 @@
         </div>
 
         <article class="topic-content">
-          <h1 id="database-replication--synchronous-replication--quorum-reads-advanced">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+          <h1 id="consistency-models--consistency-with-caches-bridge">Consistency Models — Consistency With Caches (Bridge)</h1>
 <hr>
-<p>In earlier replication concepts, we assumed the common baseline:</p>
+<p>Phase 2 introduced caching for scalability.</p>
+<p>Phase 3 introduced replication for read scaling.</p>
+<p>In production systems, you often have <strong>both</strong>:</p>
+<ul>
+<li>caches (Redis, CDN, local caches)</li>
+<li>database replicas (leader/replica)</li>
+</ul>
+<p>That means there are now multiple places where stale reads can appear:</p>
+<ul>
+<li>cache may be stale</li>
+<li>replica may be stale</li>
+<li>cache might be built from a replica (even staler)</li>
+</ul>
+<p>This article gives a simple mental model:</p>
+<blockquote>
+<p>caching adds a second consistency layer on top of replication.</p></blockquote>
+<p>If you don’t reason about both together, you’ll misdiagnose issues.</p>
+<hr>
+<h2 id="1-cache-staleness-vs-replication-lag-key-difference">1. Cache Staleness vs Replication Lag (Key Difference)</h2>
+<hr>
+<h3 id="11-replication-lag-db-level-staleness">1.1 Replication lag (DB-level staleness)</h3>
 <ul>
 <li>leader commits</li>
-<li>replicas catch up asynchronously</li>
-<li>stale reads are normal during lag</li>
+<li>replica catches up later</li>
+<li>stale reads occur during lag window</li>
 </ul>
-<p>That baseline gives great performance, but it trades away freshness and, in some configurations, durability under failure.</p>
-<p>This article covers stronger (and more expensive) options:</p>
+<p>This is caused by:</p>
 <ul>
-<li><strong>synchronous replication</strong> (stronger write durability / freshness)</li>
-<li><strong>quorum reads/writes</strong> (a tunable approach used in distributed databases)</li>
+<li>delayed propagation in replication pipeline</li>
 </ul>
-<p>These are not baseline choices for a simple payment system, but they are important tools to understand.</p>
+<h3 id="12-cache-staleness-application-level-staleness">1.2 Cache staleness (application-level staleness)</h3>
+<p>Cache staleness occurs when:</p>
+<ul>
+<li>the cache still contains an old value</li>
+<li>even though the underlying DB has the new value</li>
+</ul>
+<p>This is caused by:</p>
+<ul>
+<li>missing or delayed invalidation</li>
+<li>TTL not expired yet</li>
+<li>write-through/write-behind delays</li>
+<li>multiple cache layers</li>
+</ul>
+<p>Replication lag is about <strong>copying data between DB nodes</strong>.</p>
+<p>Cache staleness is about <strong>what you choose to serve from cache</strong> and when you refresh it.</p>
 <hr>
-<h2 id="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</h2>
+<h2 id="2-when-both-exist-staleness-can-stack">2. When Both Exist, Staleness Can Stack</h2>
 <hr>
-<p>Async replication introduces two common concerns:</p>
+<p>If you have:</p>
+<ul>
+<li>cache in front of replicas</li>
+</ul>
+<p>Then you can stack staleness:</p>
 <ol>
-<li><strong>Read freshness:</strong> replicas may be stale after a commit.</li>
-<li><strong>Failover durability risk:</strong> if the leader dies before replicas apply the last commits, you may lose those commits (depending on topology and failover policy).</li>
+<li>replica is behind leader (lag)</li>
+<li>cache is built from replica (already behind)</li>
+<li>cache persists the stale value for TTL duration</li>
 </ol>
-<p>If your system cannot tolerate these windows, you may choose stronger replication.</p>
-<hr>
-<h2 id="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</h2>
-<hr>
-<p>In <strong>synchronous replication</strong>, a leader considers a transaction “committed” only after one or more replicas confirm they have received (or applied) the change.</p>
-<p>High-level model:</p>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant App as App
-    participant L as Leader
-    participant R as Replica
-
-    App->>L: write transaction
-    L->>R: replicate change
-    R-->>L: ack (received/applied)
-    L-->>App: commit success
-</div>
-<h3 id="21-what-you-gain">2.1 What you gain</h3>
-<ul>
-<li>stronger durability across node failure</li>
-<li>fewer stale reads (replicas are closer to leader)</li>
-</ul>
-<h3 id="22-what-you-pay">2.2 What you pay</h3>
-<ul>
-<li>higher write latency (commit waits for replica acks)</li>
-<li>reduced throughput during replica slowness</li>
-<li>sensitivity to network jitter (replication path becomes part of write latency)</li>
-</ul>
-<p>In practice, “synchronous” is often configurable:</p>
-<ul>
-<li>wait for 1 replica (semi-sync)</li>
-<li>wait for majority</li>
-<li>wait for “received” vs “applied”</li>
-</ul>
-<p>Each choice is a different cost/benefit point.</p>
-<hr>
-<h2 id="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</h2>
-<hr>
-<p>In leader/replica relational setups, quorum is not the most common model.</p>
-<p>But in distributed databases (and some replicated stores), you often see:</p>
-<ul>
-<li>replication factor <strong>N</strong></li>
-<li>reads require <strong>R</strong> acknowledgements</li>
-<li>writes require <strong>W</strong> acknowledgements</li>
-</ul>
-<p>The classic quorum rule:</p>
+<p>Result:</p>
 <blockquote>
-<p>If <strong>R + W &gt; N</strong>, a read quorum overlaps a write quorum, which increases the chance of reading the latest value.</p></blockquote>
-<p>Example:</p>
-<ul>
-<li>N=3 replicas</li>
-<li>W=2 (write waits for 2)</li>
-<li>R=2 (read consults 2)</li>
-</ul>
-<p>Then any read quorum overlaps with the last write quorum, making stale reads less likely.</p>
-<h3 id="31-what-quorum-readswrites-give-you">3.1 What quorum reads/writes give you</h3>
-<ul>
-<li>tunable balance of latency vs consistency</li>
-<li>flexibility under failures</li>
-</ul>
-<h3 id="32-what-they-do-not-magically-guarantee">3.2 What they do not magically guarantee</h3>
-<p>Even with R+W&gt;N:</p>
-<ul>
-<li>you still need conflict resolution if multiple writers exist</li>
-<li>you can still observe older values depending on timing and “applied vs received”</li>
-<li>operational complexity increases</li>
-</ul>
-<p>Quorum is a powerful tool, but not a free correctness guarantee.</p>
-<h3 id="33-important-where-quorum-is-actually-implemented">3.3 Important: Where quorum is actually implemented</h3>
-<p>Quorum reads/writes are typically <strong>not something you implement in application code</strong> on top of a normal leader–replica SQL setup.</p>
-<p>They are usually a <strong>database feature</strong> exposed by distributed storage systems (Dynamo/Cassandra-style designs), where the client can choose per-operation consistency:</p>
-<ul>
-<li>set replication factor <strong>N</strong></li>
-<li>choose <strong>R</strong> (how many replicas must respond to a read)</li>
-<li>choose <strong>W</strong> (how many replicas must acknowledge a write)</li>
-</ul>
-<p><strong>Example (distributed DB style):</strong></p>
-<ul>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = QUORUM</code> → stronger freshness (with higher latency)</li>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = ONE</code> → faster reads, may be stale</li>
-</ul>
-<p>In these systems, the choice is often exposed as a <strong>consistency level</strong> (e.g., <code>ONE / QUORUM / ALL</code>) on each read/write operation.</p>
-<p>So treat quorum as an <em>advanced model supported by some distributed databases</em>, not something you “bolt onto” every replication setup.</p>
-<h3 id="34-how-this-maps-to-postgresmysql-practical-takeaway">3.4 How this maps to Postgres/MySQL (practical takeaway)</h3>
-<p>In traditional relational leader/replica setups (Postgres/MySQL):</p>
-<ul>
-<li>there is typically <strong>one leader</strong> that accepts writes</li>
-<li>replicas apply changes asynchronously (or semi-synchronously)</li>
-<li>you usually <strong>do not</strong> configure per-request quorum <code>R/W</code> like Dynamo/Cassandra</li>
-</ul>
-<p>So the common “SQL replication” toolkit for correctness is:</p>
-<ul>
-<li><strong>critical reads → leader</strong></li>
-<li><strong>non-critical reads → replicas</strong></li>
-<li><strong>read-your-writes</strong> (time window or LSN/binlog-position based routing)</li>
-<li>optional <strong>synchronous / semi-synchronous replication</strong> if you’re willing to pay write latency</li>
-</ul>
-<p><strong>Examples (SQL world):</strong></p>
-<ul>
-<li><strong>PostgreSQL:</strong> synchronous replication can be configured so commits wait for replica acknowledgement (stronger durability, higher latency).</li>
-<li><strong>MySQL:</strong> semi-synchronous replication can be used to wait for at least one replica to receive the transaction before acknowledging the commit.</li>
-</ul>
-<p>In other words:</p>
-<ul>
-<li>distributed quorum systems give you <strong>R/W knobs</strong></li>
-<li>SQL leader/replica systems give you <strong>read routing + optional sync replication</strong></li>
-</ul>
-<p>That’s why Phase 3 uses leader routing + read-your-writes as the baseline, and treats quorum as an advanced model.</p>
+<p>a small replication lag becomes a much longer stale window.</p></blockquote>
+<p>This is why correctness-sensitive systems often avoid caching critical reads.</p>
 <hr>
-<h2 id="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</h2>
+<h2 id="3-typical-architecture-with-both-layers">3. Typical Architecture With Both Layers</h2>
 <hr>
-<p>These approaches are used when:</p>
+<div class="mermaid">
+flowchart LR
+    subgraph App_Layer [Application Layer]
+        App[App / Services]
+    end
+
+    subgraph Fast_Path [Layer 1: Memory]
+        Cache[(<b>Distributed Cache</b><br/>Redis / Memcached)]
+    end
+
+    subgraph Persistence_Path [Layer 2: Storage]
+        direction LR
+        subgraph Read_Pool [Consistency: Eventual]
+            R[(<b>Replica DB</b>)]
+        end
+
+        subgraph Write_Pool [Consistency: Strict]
+            L[(<b>Leader DB</b>)]
+        end
+    end
+
+    %% Flow Logic
+    App -->|1. Check Cache| Cache
+    Cache -.->|2. On Miss| R
+
+    %% The "Invisible" Update Path
+    L == "Replication Lag" ==> R
+    L -. "Invalidation / TTL" .-> Cache
+
+    %% Styling
+    style Cache fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px
+    style R fill:#e8f5e9,stroke:#2e7d32
+    style L fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    style App_Layer fill:#e1f5fe,stroke:#01579b
+    style Read_Pool fill:#ffffff,stroke:#2e7d32,stroke-dasharray: 5 5
+</div>
+<p>Two independent stale windows exist:</p>
 <ul>
-<li>correctness requires stronger freshness guarantees</li>
-<li>you cannot tolerate losing recent commits on leader failover</li>
-<li>you are willing to pay latency for stronger durability</li>
+<li>replica lag window</li>
+<li>cache TTL / invalidation window</li>
 </ul>
+<hr>
+<h2 id="4-consistency-rules-of-thumb-practical">4. Consistency Rules of Thumb (Practical)</h2>
+<hr>
+<h3 id="41-do-not-cache-correctness-critical-reads">4.1 Do not cache correctness-critical reads</h3>
+<p>Examples (payments):</p>
+<ul>
+<li>balance checks</li>
+<li>payment status right after payment</li>
+<li>idempotency key lookups</li>
+<li>workflow step transitions</li>
+</ul>
+<p>These should go to:</p>
+<ul>
+<li>leader reads</li>
+<li>or leader + RYW logic</li>
+</ul>
+<h3 id="42-cache-non-critical-high-read-endpoints">4.2 Cache non-critical, high-read endpoints</h3>
 <p>Examples:</p>
 <ul>
-<li>financial ledger systems with strict durability expectations</li>
-<li>inventory systems where oversell is unacceptable</li>
-<li>coordination metadata stores (critical configuration/state)</li>
+<li>history pages</li>
+<li>feed pages</li>
+<li>reference data</li>
+<li>“recent transactions” list (not immediately after payment)</li>
 </ul>
-<p>But many payment systems still run:</p>
+<p>These are safer because:</p>
 <ul>
-<li>async replication</li>
-<li>critical reads from leader</li>
-<li>RYW windows</li>
+<li>eventual convergence is acceptable</li>
+<li>you can tolerate TTL windows</li>
 </ul>
-<p>because it gives good UX and performance with simpler operations.</p>
+<h3 id="43-prefer-explicit-invalidation-over-ttl-for-important-ux">4.3 Prefer explicit invalidation over TTL for important UX</h3>
+<p>TTL-only caching creates time-based uncertainty:</p>
+<ul>
+<li>you don’t know when it becomes fresh</li>
+</ul>
+<p>Invalidation ties cache freshness to writes:</p>
+<ul>
+<li>write triggers invalidation/update</li>
+</ul>
+<p>But invalidation is hard; treat it as a design decision (Phase 2 deep dives).</p>
 <hr>
-<h2 id="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</h2>
+<h2 id="5-read-your-writes-with-caches-harder-than-it-sounds">5. Read-your-writes With Caches (Harder Than It Sounds)</h2>
 <hr>
-<p>Phase 3’s baseline design chooses simpler, more common production defaults:</p>
+<p>RYW becomes harder when cache is involved:</p>
 <ul>
-<li>async replication for read scaling</li>
-<li>leader reads for critical flows</li>
-<li>replicas for non-critical flows</li>
-<li>short RYW window after write</li>
+<li>user writes</li>
+<li>next read hits cache</li>
+<li>cache still has old value</li>
+<li>user does not see their write</li>
 </ul>
-<p>Reasons:</p>
+<p>If you must provide RYW:</p>
 <ul>
-<li>it’s easier to reason about</li>
-<li>less write latency penalty</li>
-<li>avoids turning replication health into a direct payment latency driver</li>
+<li>bypass cache for that user/session during the RYW window, or</li>
+<li>cache must be updated/invalidated on the write path (write-through), or</li>
+<li>use versioned cache keys (advanced pattern)</li>
 </ul>
-<p>Synchronous/quorum options are tools to know, not defaults to start with.</p>
+<p>For Phase 3 baseline, the simplest rule is:</p>
+<blockquote>
+<p>RYW reads should bypass caches and replicas and go to leader.</p></blockquote>
+<hr>
+<h2 id="6-operational-symptoms-how-these-issues-appear">6. Operational Symptoms (How These Issues Appear)</h2>
+<hr>
+<p>Cache consistency issues often look like:</p>
+<ul>
+<li>“it fixed itself after a minute” (TTL expiry)</li>
+<li>stale values persisting longer than replication lag</li>
+<li>inconsistent results depending on which cache node is hit</li>
+<li>“hard refresh” fixes it (bypasses client caches)</li>
+</ul>
+<p>Replication lag issues often look like:</p>
+<ul>
+<li>“right after payment, status is missing”</li>
+<li>“it shows up after some seconds”</li>
+<li>correlated with lag metrics and replica overload</li>
+</ul>
+<p>Diagnosing production incidents requires knowing which layer is stale.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li><strong>Synchronous replication</strong> improves durability/freshness by waiting for replica acknowledgements before commit.</li>
-<li>It costs write latency and throughput, especially under network jitter or slow replicas.</li>
-<li><strong>Quorum reads/writes (N,R,W)</strong> provide tunable consistency in distributed replicated stores.</li>
-<li>These are used when you must pay latency for stronger guarantees.</li>
-<li>Phase 3 baseline stays with async replication + leader routing + RYW for simplicity and performance.</li>
+<li>Replication lag and cache staleness are different causes of stale reads.</li>
+<li>When both exist, staleness can stack and become much longer than expected.</li>
+<li>Don’t cache correctness-critical reads; route them to leader with RYW.</li>
+<li>Cache non-critical read-heavy endpoints and accept eventual convergence.</li>
+<li>RYW is harder with caches; simplest safe approach is to bypass cache for RYW reads.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Async replication is the common baseline, but it creates lag windows.</p>
-<p>Synchronous replication and quorum reads/writes reduce those windows by waiting for more acknowledgements, at the cost of higher write latency and operational complexity. Use them when durability/freshness requirements justify the cost.</p>
+<p>Caching introduces another consistency layer.</p>
+<p>A system with caches + replicas can serve stale data from either layer (or both). Keep critical reads off caches/replicas, and be explicit about which endpoints can tolerate staleness.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Next we’ll move from replication mechanics to the vocabulary that system designers use to reason about correctness:</p>
+<p>Next we move from “consistency within one database cluster” to “consistency across services”:</p>
 <ul>
-<li>strong vs eventual vs causal</li>
-<li>read-your-writes and monotonic reads</li>
-<li>why “consistency” has multiple meanings</li>
+<li>why global ACID is hard</li>
+<li>what distributed transactions try to solve</li>
+<li>why microservices rarely use global transactions as the baseline</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary">Consistency Models — Vocabulary That Actually Matters</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_20_districuted-transactions-why-global-acid-is-hard">Distributed Transactions — Why “Global ACID” is Hard</a></strong></p>
 
         </article>
 
@@ -748,31 +760,37 @@ sequenceDiagram
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-stronger-replication-exists" data-toc-target="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</a>
+        <a class="toc-link" href="#1-cache-staleness-vs-replication-lag-key-difference" data-toc-target="1-cache-staleness-vs-replication-lag-key-difference">1. Cache Staleness vs Replication Lag (Key Difference)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-synchronous-replication-what-it-means" data-toc-target="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</a>
+        <a class="toc-link" href="#2-when-both-exist-staleness-can-stack" data-toc-target="2-when-both-exist-staleness-can-stack">2. When Both Exist, Staleness Can Stack</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-quorum-reads-and-writes-distributed-db-model" data-toc-target="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</a>
+        <a class="toc-link" href="#3-typical-architecture-with-both-layers" data-toc-target="3-typical-architecture-with-both-layers">3. Typical Architecture With Both Layers</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-when-synchronous-or-quorum-is-worth-it" data-toc-target="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</a>
+        <a class="toc-link" href="#4-consistency-rules-of-thumb-practical" data-toc-target="4-consistency-rules-of-thumb-practical">4. Consistency Rules of Thumb (Practical)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-why-this-is-not-the-baseline-for-phase-3" data-toc-target="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</a>
+        <a class="toc-link" href="#5-read-your-writes-with-caches-harder-than-it-sounds" data-toc-target="5-read-your-writes-with-caches-harder-than-it-sounds">5. Read-your-writes With Caches (Harder Than It Sounds)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-operational-symptoms-how-these-issues-appear" data-toc-target="6-operational-symptoms-how-these-issues-appear">6. Operational Symptoms (How These Issues Appear)</a>
       </li>
     
       
@@ -800,7 +818,7 @@ sequenceDiagram
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_18_consistency-designing-us-around-consistency/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -832,7 +850,7 @@ sequenceDiagram
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_20_districuted-transactions-why-global-acid-is-hard/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</title>
+<title>Distributed Transactions — Why “Global ACID” is Hard</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774635240">
+<link rel="stylesheet" href="/css/main.css?v=1774638504">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+    <h1 class="main-heading">Distributed Transactions — Why “Global ACID” is Hard</h1>
     <h3>
   </div>
 </section>
@@ -465,7 +465,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/">8.14. Database Replication — Monitoring Lag &amp; Safe Degradation</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads/">8.15. Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</a>
                                 </li>
                               
@@ -485,7 +485,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_19_consistency-with-caches/">8.19. Consistency Models — Consistency With Caches (Bridge)</a>
                                 </li>
                               
-                                <li class="">
+                                <li class="active">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_20_districuted-transactions-why-global-acid-is-hard/">8.20. Distributed Transactions — Why “Global ACID” is Hard</a>
                                 </li>
                               
@@ -525,202 +525,173 @@
         </div>
 
         <article class="topic-content">
-          <h1 id="database-replication--synchronous-replication--quorum-reads-advanced">Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</h1>
+          <h1 id="distributed-transactions--why-global-acid-is-hard">Distributed Transactions — Why “Global ACID” is Hard</h1>
 <hr>
-<p>In earlier replication concepts, we assumed the common baseline:</p>
+<p>Inside a single database, ACID gives you a clean correctness boundary.</p>
+<p>But real systems rarely live inside one database.</p>
+<p>A payment workflow often spans:</p>
 <ul>
-<li>leader commits</li>
-<li>replicas catch up asynchronously</li>
-<li>stale reads are normal during lag</li>
+<li>Payments DB</li>
+<li>Ledger DB</li>
+<li>Fraud/Risk DB</li>
+<li>Notification system</li>
+<li>message bus / event stream</li>
 </ul>
-<p>That baseline gives great performance, but it trades away freshness and, in some configurations, durability under failure.</p>
-<p>This article covers stronger (and more expensive) options:</p>
-<ul>
-<li><strong>synchronous replication</strong> (stronger write durability / freshness)</li>
-<li><strong>quorum reads/writes</strong> (a tunable approach used in distributed databases)</li>
-</ul>
-<p>These are not baseline choices for a simple payment system, but they are important tools to understand.</p>
-<hr>
-<h2 id="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</h2>
-<hr>
-<p>Async replication introduces two common concerns:</p>
-<ol>
-<li><strong>Read freshness:</strong> replicas may be stale after a commit.</li>
-<li><strong>Failover durability risk:</strong> if the leader dies before replicas apply the last commits, you may lose those commits (depending on topology and failover policy).</li>
-</ol>
-<p>If your system cannot tolerate these windows, you may choose stronger replication.</p>
-<hr>
-<h2 id="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</h2>
-<hr>
-<p>In <strong>synchronous replication</strong>, a leader considers a transaction “committed” only after one or more replicas confirm they have received (or applied) the change.</p>
-<p>High-level model:</p>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant App as App
-    participant L as Leader
-    participant R as Replica
-
-    App->>L: write transaction
-    L->>R: replicate change
-    R-->>L: ack (received/applied)
-    L-->>App: commit success
-</div>
-<h3 id="21-what-you-gain">2.1 What you gain</h3>
-<ul>
-<li>stronger durability across node failure</li>
-<li>fewer stale reads (replicas are closer to leader)</li>
-</ul>
-<h3 id="22-what-you-pay">2.2 What you pay</h3>
-<ul>
-<li>higher write latency (commit waits for replica acks)</li>
-<li>reduced throughput during replica slowness</li>
-<li>sensitivity to network jitter (replication path becomes part of write latency)</li>
-</ul>
-<p>In practice, “synchronous” is often configurable:</p>
-<ul>
-<li>wait for 1 replica (semi-sync)</li>
-<li>wait for majority</li>
-<li>wait for “received” vs “applied”</li>
-</ul>
-<p>Each choice is a different cost/benefit point.</p>
-<hr>
-<h2 id="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</h2>
-<hr>
-<p>In leader/replica relational setups, quorum is not the most common model.</p>
-<p>But in distributed databases (and some replicated stores), you often see:</p>
-<ul>
-<li>replication factor <strong>N</strong></li>
-<li>reads require <strong>R</strong> acknowledgements</li>
-<li>writes require <strong>W</strong> acknowledgements</li>
-</ul>
-<p>The classic quorum rule:</p>
+<p>The moment you span multiple services, a natural question arises:</p>
 <blockquote>
-<p>If <strong>R + W &gt; N</strong>, a read quorum overlaps a write quorum, which increases the chance of reading the latest value.</p></blockquote>
-<p>Example:</p>
+<p>Why can’t we just use one transaction across everything?</p></blockquote>
+<p>This article answers that question.</p>
+<hr>
+<h2 id="1-what-a-distributed-transaction-tries-to-achieve">1. What a Distributed Transaction Tries to Achieve</h2>
+<hr>
+<p>A distributed transaction tries to provide the same guarantee ACID gives you locally:</p>
+<blockquote>
+<p>all participants commit or all participants roll back</p></blockquote>
+<p>Across multiple independent participants such as:</p>
 <ul>
-<li>N=3 replicas</li>
-<li>W=2 (write waits for 2)</li>
-<li>R=2 (read consults 2)</li>
-</ul>
-<p>Then any read quorum overlaps with the last write quorum, making stale reads less likely.</p>
-<h3 id="31-what-quorum-readswrites-give-you">3.1 What quorum reads/writes give you</h3>
-<ul>
-<li>tunable balance of latency vs consistency</li>
-<li>flexibility under failures</li>
-</ul>
-<h3 id="32-what-they-do-not-magically-guarantee">3.2 What they do not magically guarantee</h3>
-<p>Even with R+W&gt;N:</p>
-<ul>
-<li>you still need conflict resolution if multiple writers exist</li>
-<li>you can still observe older values depending on timing and “applied vs received”</li>
-<li>operational complexity increases</li>
-</ul>
-<p>Quorum is a powerful tool, but not a free correctness guarantee.</p>
-<h3 id="33-important-where-quorum-is-actually-implemented">3.3 Important: Where quorum is actually implemented</h3>
-<p>Quorum reads/writes are typically <strong>not something you implement in application code</strong> on top of a normal leader–replica SQL setup.</p>
-<p>They are usually a <strong>database feature</strong> exposed by distributed storage systems (Dynamo/Cassandra-style designs), where the client can choose per-operation consistency:</p>
-<ul>
-<li>set replication factor <strong>N</strong></li>
-<li>choose <strong>R</strong> (how many replicas must respond to a read)</li>
-<li>choose <strong>W</strong> (how many replicas must acknowledge a write)</li>
-</ul>
-<p><strong>Example (distributed DB style):</strong></p>
-<ul>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = QUORUM</code> → stronger freshness (with higher latency)</li>
-<li><code>N = 3</code>, <code>W = QUORUM</code>, <code>R = ONE</code> → faster reads, may be stale</li>
-</ul>
-<p>In these systems, the choice is often exposed as a <strong>consistency level</strong> (e.g., <code>ONE / QUORUM / ALL</code>) on each read/write operation.</p>
-<p>So treat quorum as an <em>advanced model supported by some distributed databases</em>, not something you “bolt onto” every replication setup.</p>
-<h3 id="34-how-this-maps-to-postgresmysql-practical-takeaway">3.4 How this maps to Postgres/MySQL (practical takeaway)</h3>
-<p>In traditional relational leader/replica setups (Postgres/MySQL):</p>
-<ul>
-<li>there is typically <strong>one leader</strong> that accepts writes</li>
-<li>replicas apply changes asynchronously (or semi-synchronously)</li>
-<li>you usually <strong>do not</strong> configure per-request quorum <code>R/W</code> like Dynamo/Cassandra</li>
-</ul>
-<p>So the common “SQL replication” toolkit for correctness is:</p>
-<ul>
-<li><strong>critical reads → leader</strong></li>
-<li><strong>non-critical reads → replicas</strong></li>
-<li><strong>read-your-writes</strong> (time window or LSN/binlog-position based routing)</li>
-<li>optional <strong>synchronous / semi-synchronous replication</strong> if you’re willing to pay write latency</li>
-</ul>
-<p><strong>Examples (SQL world):</strong></p>
-<ul>
-<li><strong>PostgreSQL:</strong> synchronous replication can be configured so commits wait for replica acknowledgement (stronger durability, higher latency).</li>
-<li><strong>MySQL:</strong> semi-synchronous replication can be used to wait for at least one replica to receive the transaction before acknowledging the commit.</li>
+<li>different databases</li>
+<li>different services owning their own storage</li>
+<li>message brokers + DB combinations</li>
 </ul>
 <p>In other words:</p>
 <ul>
-<li>distributed quorum systems give you <strong>R/W knobs</strong></li>
-<li>SQL leader/replica systems give you <strong>read routing + optional sync replication</strong></li>
+<li>“global atomicity”</li>
 </ul>
-<p>That’s why Phase 3 uses leader routing + read-your-writes as the baseline, and treats quorum as an advanced model.</p>
 <hr>
-<h2 id="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</h2>
+<h2 id="2-why-its-hard-the-system-is-no-longer-one-failure-domain">2. Why It’s Hard: The System Is No Longer One Failure Domain</h2>
 <hr>
-<p>These approaches are used when:</p>
+<p>Inside one DB, the database controls:</p>
 <ul>
-<li>correctness requires stronger freshness guarantees</li>
-<li>you cannot tolerate losing recent commits on leader failover</li>
-<li>you are willing to pay latency for stronger durability</li>
+<li>locking</li>
+<li>logging</li>
+<li>commit order</li>
+<li>crash recovery</li>
 </ul>
-<p>Examples:</p>
+<p>Across multiple services, you now have:</p>
 <ul>
-<li>financial ledger systems with strict durability expectations</li>
-<li>inventory systems where oversell is unacceptable</li>
-<li>coordination metadata stores (critical configuration/state)</li>
+<li>multiple processes</li>
+<li>multiple logs</li>
+<li>multiple failure modes</li>
+<li>network partitions</li>
 </ul>
-<p>But many payment systems still run:</p>
+<p>This means a “commit decision” must travel over an unreliable network.</p>
+<p>So the system must answer:</p>
 <ul>
-<li>async replication</li>
-<li>critical reads from leader</li>
-<li>RYW windows</li>
+<li>what if a participant crashes after “prepare”?</li>
+<li>what if the coordinator crashes mid-decision?</li>
+<li>what if the network partitions?</li>
 </ul>
-<p>because it gives good UX and performance with simpler operations.</p>
+<p>This is where complexity explodes.</p>
 <hr>
-<h2 id="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</h2>
+<h2 id="3-the-core-failure-mode-partial-commit-risk">3. The Core Failure Mode: Partial Commit Risk</h2>
 <hr>
-<p>Phase 3’s baseline design chooses simpler, more common production defaults:</p>
+<p>The nightmare scenario is:</p>
 <ul>
-<li>async replication for read scaling</li>
-<li>leader reads for critical flows</li>
-<li>replicas for non-critical flows</li>
-<li>short RYW window after write</li>
+<li>Service A commits</li>
+<li>Service B does not</li>
 </ul>
-<p>Reasons:</p>
+<p>Example:</p>
 <ul>
-<li>it’s easier to reason about</li>
-<li>less write latency penalty</li>
-<li>avoids turning replication health into a direct payment latency driver</li>
+<li>Payments DB marks payment <code>CONFIRMED</code></li>
+<li>Ledger DB never records the ledger entry</li>
 </ul>
-<p>Synchronous/quorum options are tools to know, not defaults to start with.</p>
+<p>Each service is locally consistent.</p>
+<p>Globally, the system is inconsistent.</p>
+<p>This is the exact “partial failure across services” pressure from Phase 3.</p>
+<hr>
+<h2 id="4-why-just-retry-doesnt-fix-it">4. Why “Just Retry” Doesn’t Fix It</h2>
+<hr>
+<p>A common naive response is:</p>
+<ul>
+<li>“if something fails, retry the step”</li>
+</ul>
+<p>But retries don’t remove ambiguity:</p>
+<ul>
+<li>a timeout does not tell you if the step succeeded</li>
+<li>repeated retries can create duplicates unless the step is idempotent</li>
+<li>retry storms amplify incidents</li>
+</ul>
+<p>Retries are necessary, but they are not sufficient.</p>
+<hr>
+<h2 id="5-the-distributed-systems-tax-coordination-costs-availability-or-latency">5. The Distributed Systems Tax: Coordination Costs Availability or Latency</h2>
+<hr>
+<p>To enforce global atomicity, you need coordination.</p>
+<p>Coordination usually costs:</p>
+<ul>
+<li>latency (waiting for acknowledgements)</li>
+<li>availability (blocking when a participant is down)</li>
+<li>throughput (global locks / global commit protocols)</li>
+</ul>
+<p>This is why global transactions are not the default in microservices:</p>
+<blockquote>
+<p>they trade away the very properties microservices are built for.</p></blockquote>
+<hr>
+<h2 id="6-what-systems-use-instead-the-modern-toolkit">6. What Systems Use Instead (The Modern Toolkit)</h2>
+<hr>
+<p>Modern systems usually replace “global ACID” with a toolkit of patterns:</p>
+<h3 id="61-sagas">6.1 Sagas</h3>
+<ul>
+<li>each service commits its local transaction</li>
+<li>workflow progresses step-by-step</li>
+<li>failures are handled with compensation or recovery</li>
+</ul>
+<h3 id="62-outbox--inbox">6.2 Outbox / Inbox</h3>
+<ul>
+<li>ensure DB commit and event publication are consistent</li>
+<li>handle at-least-once delivery safely</li>
+</ul>
+<h3 id="63-idempotency-everywhere">6.3 Idempotency everywhere</h3>
+<ul>
+<li>safe retries at API, step, and workflow levels</li>
+</ul>
+<h3 id="64-reconciliation">6.4 Reconciliation</h3>
+<ul>
+<li>detect mismatches between services</li>
+<li>repair or route to manual review</li>
+</ul>
+<p>These are the patterns Phase 3 evolves toward.</p>
+<hr>
+<h2 id="7-when-distributed-transactions-are-still-used">7. When Distributed Transactions Are Still Used</h2>
+<hr>
+<p>Distributed transactions are not “wrong”.</p>
+<p>They are used when:</p>
+<ul>
+<li>strong global atomicity is truly required</li>
+<li>the operational cost is acceptable</li>
+<li>the participant set is controlled and stable</li>
+</ul>
+<p>Classic example:</p>
+<ul>
+<li>Two-Phase Commit (2PC)</li>
+</ul>
+<p>We’ll cover 2PC next, but treat it as an advanced tool rather than a default.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li><strong>Synchronous replication</strong> improves durability/freshness by waiting for replica acknowledgements before commit.</li>
-<li>It costs write latency and throughput, especially under network jitter or slow replicas.</li>
-<li><strong>Quorum reads/writes (N,R,W)</strong> provide tunable consistency in distributed replicated stores.</li>
-<li>These are used when you must pay latency for stronger guarantees.</li>
-<li>Phase 3 baseline stays with async replication + leader routing + RYW for simplicity and performance.</li>
+<li>Distributed transactions attempt to provide global atomicity across multiple services/databases.</li>
+<li>They are hard because the system spans multiple failure domains and unreliable networks.</li>
+<li>The main risk is partial commit: one service commits while another fails.</li>
+<li>Coordination protocols introduce latency/availability costs.</li>
+<li>Modern systems often prefer sagas + idempotency + outbox/inbox + reconciliation.</li>
+<li>2PC exists, but it’s rarely the default in microservice architectures.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Async replication is the common baseline, but it creates lag windows.</p>
-<p>Synchronous replication and quorum reads/writes reduce those windows by waiting for more acknowledgements, at the cost of higher write latency and operational complexity. Use them when durability/freshness requirements justify the cost.</p>
+<p>Global ACID is hard because networks fail and services crash independently.</p>
+<p>Distributed transactions require coordination that costs latency and availability, so most modern systems instead use sagas, idempotency, outbox/inbox, and reconciliation to achieve correct outcomes without global blocking commits.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Next we’ll move from replication mechanics to the vocabulary that system designers use to reason about correctness:</p>
+<p>Next we’ll examine the classic distributed transaction protocol:</p>
 <ul>
-<li>strong vs eventual vs causal</li>
-<li>read-your-writes and monotonic reads</li>
-<li>why “consistency” has multiple meanings</li>
+<li>Two-Phase Commit (2PC)</li>
+<li>how it works</li>
+<li>why it blocks under failures</li>
+<li>when it’s worth considering</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary">Consistency Models — Vocabulary That Actually Matters</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/concepts/8_21_two-phase-commit/">Distributed Transactions — Two-Phase Commit (2PC) in Plain English</a></strong></p>
 
         </article>
 
@@ -748,31 +719,43 @@ sequenceDiagram
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-stronger-replication-exists" data-toc-target="1-why-stronger-replication-exists">1. Why Stronger Replication Exists</a>
+        <a class="toc-link" href="#1-what-a-distributed-transaction-tries-to-achieve" data-toc-target="1-what-a-distributed-transaction-tries-to-achieve">1. What a Distributed Transaction Tries to Achieve</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-synchronous-replication-what-it-means" data-toc-target="2-synchronous-replication-what-it-means">2. Synchronous Replication (What It Means)</a>
+        <a class="toc-link" href="#2-why-its-hard-the-system-is-no-longer-one-failure-domain" data-toc-target="2-why-its-hard-the-system-is-no-longer-one-failure-domain">2. Why It’s Hard: The System Is No Longer One Failure Domain</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-quorum-reads-and-writes-distributed-db-model" data-toc-target="3-quorum-reads-and-writes-distributed-db-model">3. Quorum Reads and Writes (Distributed DB Model)</a>
+        <a class="toc-link" href="#3-the-core-failure-mode-partial-commit-risk" data-toc-target="3-the-core-failure-mode-partial-commit-risk">3. The Core Failure Mode: Partial Commit Risk</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-when-synchronous-or-quorum-is-worth-it" data-toc-target="4-when-synchronous-or-quorum-is-worth-it">4. When Synchronous or Quorum Is Worth It</a>
+        <a class="toc-link" href="#4-why-just-retry-doesnt-fix-it" data-toc-target="4-why-just-retry-doesnt-fix-it">4. Why “Just Retry” Doesn’t Fix It</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-why-this-is-not-the-baseline-for-phase-3" data-toc-target="5-why-this-is-not-the-baseline-for-phase-3">5. Why This Is Not the Baseline for Phase 3</a>
+        <a class="toc-link" href="#5-the-distributed-systems-tax-coordination-costs-availability-or-latency" data-toc-target="5-the-distributed-systems-tax-coordination-costs-availability-or-latency">5. The Distributed Systems Tax: Coordination Costs Availability or Latency</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-what-systems-use-instead-the-modern-toolkit" data-toc-target="6-what-systems-use-instead-the-modern-toolkit">6. What Systems Use Instead (The Modern Toolkit)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-when-distributed-transactions-are-still-used" data-toc-target="7-when-distributed-transactions-are-still-used">7. When Distributed Transactions Are Still Used</a>
       </li>
     
       
@@ -800,7 +783,7 @@ sequenceDiagram
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_19_consistency-with-caches/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -831,8 +814,6 @@ sequenceDiagram
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -1025,17 +1006,6 @@ sequenceDiagram
   </div>
 </footer>
 
-  
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: isDark ? "dark" : "default",
-        flowchart: { curve: "basis" }
-      });
-    </script>
   
 </body>
 </html>

@@ -254,4 +254,4 @@ Next we’ll move from replication mechanics to the vocabulary that system desig
 - why “consistency” has multiple meanings
 
 👉 **Up Next: →**  
-**[Consistency Models — Vocabulary That Actually Matters](/learning/advanced-skills/high-level-design/4_correct-reliable-systems/concepts/8_16_consistency-models-vocabulary/)**
+**[Consistency Models — Vocabulary That Actually Matters](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary)**
