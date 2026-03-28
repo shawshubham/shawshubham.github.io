@@ -76,49 +76,49 @@ Use this map to connect the Payment System evolution to the deeper topics.
 
 ### 4.1 ACID Transactions
 
-- **1. ACID Transactions — What Transactions Guarantee**
-- **2. ACID Transactions — Isolation Levels & Read Phenomena**
-- **3. ACID Transactions — Locking, Contention, and Deadlocks**
-- **4. ACID Transactions — Atomic Money Updates (Single-statement patterns)**
+- **[1. ACID Transactions — What Transactions Guarantee](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_2_acid-transactions-what-they-guarantee)**
+- **[2. ACID Transactions — Isolation Levels & Read Phenomena](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_3_acid-isolation-levels-and-read-phenomena)**
+- **[3. ACID Transactions — Locking, Contention, and Deadlocks](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_4_locking-contention-deadlocks)**
+- **[4. ACID Transactions — Atomic Money Updates (Single-statement patterns)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates)**
 
 ### 4.2 Idempotency
 
-- **1. Idempotency — Why Retries Create Duplicates**
-- **2. Idempotency — API Edge vs Step-level vs Workflow-level**
-- **3. Idempotency — Storage Patterns (DB-first vs Redis/KV)**
-- **4. Idempotency — Cross-store Consistency Trap (DB + Redis)**
-- **5. Idempotency — Idempotency vs Dedup vs Exactly-Once**
+- **[1. Idempotency — Why Retries Create Duplicates](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates)**
+- **[2. Idempotency — API Edge vs Step-level vs Workflow-level](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live)**
+- **[3. Idempotency — Storage Patterns (DB-first vs Redis/KV)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_8_idempotency-storage-patterns)**
+- **[4. Idempotency — Cross-store Consistency Trap (DB + Redis)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap)**
+- **[5. Idempotency — Idempotency vs Dedup vs Exactly-Once](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_10_idempotency-vs-dedup-vs-exactly-once)**
 
 ### 4.3 Database Replication
 
-- **1. Database Replication — Leader/Replica Basics**
-- **2. Database Replication — Replication Lag & Stale Reads**
-- **3. Database Replication — Read Strategies (Critical vs Non-critical)**
-- **4. Database Replication — Monitoring Lag & Safe Degradation**
-- **5. Database Replication — Synchronous Replication & Quorum Reads (Advanced)**
+- **[1. Database Replication — Leader/Replica Basics](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_11_database-replication-basics)**
+- **[2. Database Replication — Replication Lag & Stale Reads](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_12_database-replication-lag-stale-reads)**
+- **[3. Database Replication — Read Strategies (Critical vs Non-critical)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_13_database-replication-read-strategies)**
+- **[4. Database Replication — Monitoring Lag & Safe Degradation](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation)**
+- **[5. Database Replication — Synchronous Replication & Quorum Reads (Advanced)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads)**
 
 ### 4.4 Consistency Models
 
-- **1. Consistency Models — Vocabulary That Actually Matters**
-- **2. Consistency Models — Stale Reads vs Lost Updates vs Inconsistency**
-- **3. Consistency Models — Designing UX Around Consistency**
-- **4. Consistency Models — Consistency With Caches (Bridge)**
+- **[1. Consistency Models — Vocabulary That Actually Matters](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary)**
+- **[2. Consistency Models — Stale Reads vs Lost Updates vs Inconsistency](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_17_consistency-stale-reads-lost-updates-inconsistency)**
+- **[3. Consistency Models — Designing UX Around Consistency](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_18_consistency-designing-us-around-consistency)**
+- **[4. Consistency Models — Consistency With Caches (Bridge)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_19_consistency-with-caches)**
 
 ### 4.5 Distributed Transactions
 
-- **1. Distributed Transactions — Why “Global ACID” is Hard**
-- **2. Distributed Transactions — Two-Phase Commit (2PC) in Plain English**
-- **3. Distributed Transactions — Practical Alternatives**
-- **4. Distributed Transactions — When 2PC Still Makes Sense**
+- **[1. Distributed Transactions — Why “Global ACID” is Hard](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_20_districuted-transactions-why-global-acid-is-hard)**
+- **[2. Distributed Transactions — Two-Phase Commit (2PC) in Plain English](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_21_distributed-transactions-two-phase-commit)**
+- **[3. Distributed Transactions — Practical Alternatives](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives)**
+- **[4. Distributed Transactions — When 2PC Still Makes Sense](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense)**
 
 ### 4.6 Processing Guarantees
 
-- **1. Processing Guarantees — At-most vs At-least vs Exactly-Once**
-- **2. Processing Guarantees — Why Duplicates Happen**
-- **3. Processing Guarantees — Idempotent Consumers (Exactly-once Effects)**
-- **4. Processing Guarantees — Transactional Outbox Pattern**
-- **5. Processing Guarantees — Inbox / Dedup Store Pattern**
-- **6. Processing Guarantees — Ordering, Reprocessing, and DLQs**
+- **[1. Processing Guarantees — At-most vs At-least vs Exactly-Once](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once)**
+- **[2. Processing Guarantees — Why Duplicates Happen](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen)**
+- **[3. Processing Guarantees — Idempotent Consumers (Exactly-once Effects)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers)**
+- **[4. Processing Guarantees — Transactional Outbox Pattern](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_27_processing-guarantees-transactional-outbox-pattern)**
+- **[5. Processing Guarantees — Inbox / Dedup Store Pattern](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_28_processing-guarantees-inbox-dedup-store)**
+- **[6. Processing Guarantees — Ordering, Reprocessing, and DLQs](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_29_processing-guarantees-ordering-reprocessing-dlqs)**
 
 ### 4.7 Saga Pattern & Distributed Coordination
 

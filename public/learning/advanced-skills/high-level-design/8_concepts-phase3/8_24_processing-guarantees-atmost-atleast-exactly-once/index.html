@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idempotency — Why Retries Create Duplicates</title>
+<title>Processing Guarantees — At-most vs At-least vs Exactly-Once</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774640777">
+<link rel="stylesheet" href="/css/main.css?v=1774695500">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Idempotency — Why Retries Create Duplicates</h1>
+    <h1 class="main-heading">Processing Guarantees — At-most vs At-least vs Exactly-Once</h1>
     <h3>
   </div>
 </section>
@@ -429,7 +429,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
                                 </li>
                               
@@ -494,7 +494,23 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. </a>
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. Distributed Transactions — Practical Alternatives</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense/">8.23. Distributed Transactions — When 2PC Still Makes Sense</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/">8.24. Processing Guarantees — At-most vs At-least vs Exactly-Once</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/">8.25. Processing Guarantees — Why Duplicates Happen</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers/">8.26. Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</a>
                                 </li>
                               
                             </ul>
@@ -527,190 +543,167 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 18 Mar, 2026
+            Last updated on: 28 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h1 id="idempotency--why-retries-create-duplicates">Idempotency — Why Retries Create Duplicates</h1>
+          <h1 id="processing-guarantees--at-most-vs-at-least-vs-exactly-once">Processing Guarantees — At-most vs At-least vs Exactly-Once</h1>
 <hr>
-<p>In Phase 3 (Payment System), the first major reliability problem appeared surprisingly early:</p>
-<blockquote>
-<p>even in a simple architecture, retries can cause duplicate side effects.</p></blockquote>
-<p>This is not a “coding mistake”.</p>
-<p>It is a consequence of how networks behave:</p>
+<p>In distributed systems, failures are normal:</p>
 <ul>
-<li>packets drop</li>
-<li>requests time out</li>
-<li>responses get lost</li>
-<li>clients retry</li>
-</ul>
-<p>If your system treats retries like new requests, you will eventually:</p>
-<ul>
-<li>charge a user twice</li>
-<li>create duplicate ledger entries</li>
-<li>send duplicate notifications</li>
-</ul>
-<p>This article explains:</p>
-<ul>
-<li>why retries are inevitable</li>
-<li>how duplicates happen in real systems</li>
-<li>what idempotency actually means (practically)</li>
-<li>why payment systems treat idempotency as mandatory</li>
-</ul>
-<hr>
-<h2 id="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</h2>
-<hr>
-<p>When a client times out, it does not know what happened.</p>
-<p>Two possibilities exist:</p>
-<ol>
-<li>the server never received the request</li>
-<li>the server processed the request, but the response was lost</li>
-</ol>
-<p>From the client’s perspective, both look identical:</p>
-<pre tabindex="0"><code>Request timed out
-</code></pre><p>So the client retries.</p>
-<p>This is the fundamental source of duplicates.</p>
-<hr>
-<h2 id="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</h2>
-<hr>
-<p>Consider a payment request.</p>
-<h3 id="21-normal-path">2.1 Normal path</h3>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
-
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-    PaymentService-->>API: Payment CONFIRMED
-    API-->>User: success
-</div>
-<h2 id="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</h2>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
-
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-
-    Note over PaymentService,User: response lost (timeout)
-
-    User->>API: Retry Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc) again
-    PaymentService->>DB: INSERT payment + debit balance (again)
-</div>
-<p>If your system does not recognize that the retry is the “same intent”, it performs the side effect again.</p>
-<p>This is how you get:</p>
-<ul>
-<li>double charges</li>
-<li>duplicate payments</li>
-<li>mismatched ledger entries</li>
-</ul>
-<hr>
-<h2 id="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</h2>
-<hr>
-<p>A request is <strong>idempotent</strong> if:</p>
-<blockquote>
-<p>executing it multiple times produces the same result as executing it once.</p></blockquote>
-<p>For a payment:</p>
-<ul>
-<li>the first attempt may create the payment and debit funds</li>
-<li>a retry should return the same outcome</li>
-<li>it should not create a second payment or debit again</li>
-</ul>
-<p>Idempotency is not about avoiding retries.</p>
-<p>It is about making retries <strong>safe</strong>.</p>
-<hr>
-<h2 id="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</h2>
-<hr>
-<p>In real systems, retries are common because of:</p>
-<ul>
-<li>transient network failures</li>
-<li>load balancer timeouts</li>
+<li>network timeouts</li>
+<li>consumer crashes</li>
+<li>broker failover</li>
 <li>server restarts</li>
-<li>GC pauses / CPU spikes</li>
-<li>downstream dependencies slowing down</li>
-<li>client mobile networks switching</li>
 </ul>
-<p>Even if your code is “correct”, production conditions create retries.</p>
-<p>So the right mindset is:</p>
-<blockquote>
-<p>duplicates are not an edge case.<br>
-duplicates are a normal case at scale.</p></blockquote>
-<hr>
-<h2 id="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</h2>
-<hr>
-<p>The standard mechanism is an <strong>idempotency key</strong>:</p>
-<ul>
-<li>client generates a unique key for the user intent</li>
-<li>server stores the key with the result</li>
-<li>retries with the same key return the same result</li>
-</ul>
-<p>Conceptually:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency Key = &#34;same user intent&#34;
-</span></span></code></pre></div><p>A typical flow:</p>
+<p>So every system that delivers requests/messages must choose a guarantee for what happens under failure.</p>
+<p>The three common guarantees are:</p>
 <ol>
-<li>Client sends POST /payments with header Idempotency-Key: X</li>
-<li>Server checks if key X already exists</li>
-<li>If yes → return stored result</li>
-<li>If no → process payment, store result under key X</li>
+<li><strong>At-most-once</strong> (may lose messages, no duplicates)</li>
+<li><strong>At-least-once</strong> (no loss, duplicates possible)</li>
+<li><strong>Exactly-once</strong> (the most misunderstood)</li>
 </ol>
-<p>This turns “retry ambiguity” into a deterministic outcome.</p>
-<p>We’ll cover where this key should be stored (DB vs Redis) and how to do it safely in later idempotency concept pages.</p>
+<p>This article gives the practical meaning of each and what systems actually target in production.</p>
 <hr>
-<h2 id="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</h2>
+<h2 id="1-a-critical-distinction-delivery-vs-effects">1. A Critical Distinction: Delivery vs Effects</h2>
 <hr>
-<p>Idempotency solves duplicate execution of the same intent.</p>
-<p>But it does not automatically solve:</p>
+<p>Before definitions, remember:</p>
 <ul>
-<li>ordering problems (events out of order)</li>
-<li>partial failures across services (sagas)</li>
-<li>exactly-once delivery guarantees in message systems</li>
-<li>correctness across replicas (stale reads)</li>
+<li><strong>delivery/processing</strong> can happen multiple times</li>
+<li>but <strong>effects</strong> (money moved, ledger entry, DB update) should often happen once</li>
 </ul>
-<p>Idempotency is a foundation, not the full reliability story.</p>
+<p>In practice, many systems accept:</p>
+<ul>
+<li>at-least-once delivery</li>
+<li>but enforce <strong>exactly-once effects</strong> with idempotency/dedup</li>
+</ul>
+<p>That is the realistic reliability target.</p>
+<hr>
+<h2 id="2-at-most-once">2. At-most-once</h2>
+<hr>
+<h3 id="what-it-means">What it means</h3>
+<p>The system attempts to deliver/process once.</p>
+<p>If failures happen, it may drop the message/request.</p>
+<p>So:</p>
+<ul>
+<li>duplicates are unlikely</li>
+<li>loss is possible</li>
+</ul>
+<h3 id="where-it-appears">Where it appears</h3>
+<ul>
+<li>best-effort notifications</li>
+<li>telemetry where occasional loss is acceptable</li>
+<li>low-latency systems that prefer dropping to blocking</li>
+</ul>
+<h3 id="trade-off">Trade-off</h3>
+<ul>
+<li>✅ low overhead, low latency</li>
+<li>❌ you must tolerate loss</li>
+</ul>
+<hr>
+<h2 id="3-at-least-once-most-common-baseline">3. At-least-once (Most common baseline)</h2>
+<hr>
+<h3 id="what-it-means-1">What it means</h3>
+<p>The system guarantees the message is eventually delivered/processed at least once.</p>
+<p>If it cannot confirm delivery, it retries.</p>
+<p>So:</p>
+<ul>
+<li>loss is unlikely</li>
+<li>duplicates are normal</li>
+</ul>
+<h3 id="where-it-appears-1">Where it appears</h3>
+<ul>
+<li>payment workflows (you cannot lose “charge request”)</li>
+<li>event-driven systems (Kafka consumers)</li>
+<li>most critical business processing pipelines</li>
+</ul>
+<h3 id="trade-off-1">Trade-off</h3>
+<ul>
+<li>✅ strong durability (don’t lose work)</li>
+<li>❌ duplicates must be handled</li>
+</ul>
+<p>This is why idempotency and dedup patterns exist.</p>
+<hr>
+<h2 id="4-exactly-once-what-it-can-and-cannot-mean">4. Exactly-once (What it can and cannot mean)</h2>
+<hr>
+<p>“Exactly-once” can refer to different layers:</p>
+<h3 id="41-exactly-once-delivery-rare">4.1 Exactly-once delivery (rare)</h3>
+<p>Guarantee: the message arrives exactly once.</p>
+<p>Hard because:</p>
+<ul>
+<li>consumer can crash after processing but before ack</li>
+<li>brokers retry to avoid losing messages</li>
+<li>networks are unreliable</li>
+</ul>
+<p>Most real systems do not guarantee this globally.</p>
+<h3 id="42-exactly-once-processing-also-hard">4.2 Exactly-once processing (also hard)</h3>
+<p>Guarantee: your code runs exactly once.</p>
+<p>Hard unless:</p>
+<ul>
+<li>processing + “mark processed” is atomic</li>
+<li>failures cannot happen between those steps</li>
+</ul>
+<h3 id="43-exactly-once-effects-realistic-goal">4.3 Exactly-once effects (realistic goal)</h3>
+<p>Guarantee: even if processing repeats, the external effect happens once.</p>
+<p>This is achieved via:</p>
+<ul>
+<li>idempotency keys</li>
+<li>inbox/dedup stores (unique event IDs)</li>
+<li>atomic DB constraints/updates</li>
+</ul>
+<p>This is the most practical and widely used meaning.</p>
+<hr>
+<h2 id="5-a-simple-mental-model">5. A Simple Mental Model</h2>
+<hr>
+<p>Use this mental model:</p>
+<ul>
+<li>If you cannot lose work → choose <strong>at-least-once</strong></li>
+<li>If duplicates are unacceptable → enforce <strong>idempotent effects</strong></li>
+<li>If you truly need global exactly-once delivery → be prepared for significant complexity and constraints</li>
+</ul>
+<hr>
+<h2 id="6-phase-3-connection-why-this-matters">6. Phase 3 Connection (Why This Matters)</h2>
+<hr>
+<p>Phase 3 built payment correctness using:</p>
+<ul>
+<li>idempotency for retries</li>
+<li>atomic updates and transactions for local correctness</li>
+<li>sagas/outbox/inbox for multi-step workflows</li>
+</ul>
+<p>All of this assumes a reality:</p>
+<ul>
+<li>retries happen</li>
+<li>duplicates happen</li>
+<li>“exactly once delivery” is not the baseline assumption</li>
+</ul>
+<p>So the design goal becomes:</p>
+<blockquote>
+<p>at-least-once delivery + exactly-once effects.</p></blockquote>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Timeouts create ambiguity: the client can’t tell “failed” vs “succeeded but response lost”.</li>
-<li>Retrying is unavoidable in distributed systems.</li>
-<li>Without idempotency, retries create duplicate side effects (double charge, duplicate ledger entry).</li>
-<li>Idempotency means “retry produces the same outcome as the first execution”.</li>
-<li>Idempotency keys are the standard pattern to make retries safe.</li>
-<li>Idempotency is necessary, but not sufficient for end-to-end correctness.</li>
+<li>At-most-once can lose messages but avoids duplicates.</li>
+<li>At-least-once avoids loss but creates duplicates (common baseline).</li>
+<li>“Exactly-once” is ambiguous; in practice systems aim for exactly-once <strong>effects</strong>.</li>
+<li>Exactly-once effects require idempotency/dedup + atomic persistence boundaries.</li>
+<li>Phase 3’s reliability toolkit is built on the at-least-once reality.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Retries are inevitable, and retries create duplicates unless you design for them.</p>
-<p>Idempotency makes retries safe by treating repeated requests as the same user intent and returning the same stored outcome instead of repeating side effects.</p>
+<p>Most real systems choose at-least-once delivery and then make processing idempotent so side effects occur once.</p>
+<p>That combination is how you get reliability without pretending duplicates don’t exist.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Now that we understand why idempotency exists, we’ll answer the practical design question:</p>
+<p>Next we’ll answer the practical question:</p>
 <blockquote>
-<p>where should idempotency live?</p></blockquote>
-<p>We’ll compare:</p>
-<ul>
-<li>API edge idempotency</li>
-<li>step-level idempotency (ledger/notify)</li>
-<li>workflow-level idempotency (saga replay)</li>
-</ul>
+<p>why do duplicates happen so often?</p></blockquote>
+<p>We’ll walk through the exact failure points that cause redelivery and repeated processing, and what that implies for design.</p>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live">Idempotency — API Edge vs Step-level vs Workflow-level</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen">Processing Guarantees — Why Duplicates Happen</a></strong></p>
 
         </article>
 
@@ -738,43 +731,37 @@ duplicates are a normal case at scale.</p></blockquote>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-the-core-problem-timeouts-create-ambiguity" data-toc-target="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</a>
+        <a class="toc-link" href="#1-a-critical-distinction-delivery-vs-effects" data-toc-target="1-a-critical-distinction-delivery-vs-effects">1. A Critical Distinction: Delivery vs Effects</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-duplicate-scenario-even-with-correct-code" data-toc-target="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</a>
+        <a class="toc-link" href="#2-at-most-once" data-toc-target="2-at-most-once">2. At-most-once</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#22-response-lost--retry--duplicate" data-toc-target="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</a>
+        <a class="toc-link" href="#3-at-least-once-most-common-baseline" data-toc-target="3-at-least-once-most-common-baseline">3. At-least-once (Most common baseline)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-what-idempotency-means-practical-definition" data-toc-target="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</a>
+        <a class="toc-link" href="#4-exactly-once-what-it-can-and-cannot-mean" data-toc-target="4-exactly-once-what-it-can-and-cannot-mean">4. Exactly-once (What it can and cannot mean)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-duplicates-are-not-rare-they-are-guaranteed-eventually" data-toc-target="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</a>
+        <a class="toc-link" href="#5-a-simple-mental-model" data-toc-target="5-a-simple-mental-model">5. A Simple Mental Model</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-the-first-solution-pattern-idempotency-keys" data-toc-target="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-what-idempotency-does-not-solve-important" data-toc-target="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</a>
+        <a class="toc-link" href="#6-phase-3-connection-why-this-matters" data-toc-target="6-phase-3-connection-why-this-matters">6. Phase 3 Connection (Why This Matters)</a>
       </li>
     
       
@@ -802,7 +789,7 @@ duplicates are a normal case at scale.</p></blockquote>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -834,7 +821,7 @@ duplicates are a normal case at scale.</p></blockquote>
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -1027,17 +1014,6 @@ duplicates are a normal case at scale.</p></blockquote>
   </div>
 </footer>
 
-  
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: isDark ? "dark" : "default",
-        flowchart: { curve: "basis" }
-      });
-    </script>
   
 </body>
 </html>

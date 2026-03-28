@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idempotency — Why Retries Create Duplicates</title>
+<title>Distributed Transactions — When 2PC Still Makes Sense</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774640777">
+<link rel="stylesheet" href="/css/main.css?v=1774691367">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Idempotency — Why Retries Create Duplicates</h1>
+    <h1 class="main-heading">Distributed Transactions — When 2PC Still Makes Sense</h1>
     <h3>
   </div>
 </section>
@@ -429,7 +429,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
                                 </li>
                               
@@ -494,7 +494,19 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. </a>
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. Distributed Transactions — Practical Alternatives</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense/">8.23. Distributed Transactions — When 2PC Still Makes Sense</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/">8.24. Processing Guarantees — At-most vs At-least vs Exactly-Once</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/">8.25. Processing Guarantees — Why Duplicates Happen</a>
                                 </li>
                               
                             </ul>
@@ -527,190 +539,154 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 18 Mar, 2026
+            Last updated on: 27 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h1 id="idempotency--why-retries-create-duplicates">Idempotency — Why Retries Create Duplicates</h1>
+          <h1 id="distributed-transactions--when-2pc-still-makes-sense">Distributed Transactions — When 2PC Still Makes Sense</h1>
 <hr>
-<p>In Phase 3 (Payment System), the first major reliability problem appeared surprisingly early:</p>
+<p>2PC is often presented as “bad” in modern microservices.</p>
+<p>That’s too simplistic.</p>
+<p>2PC provides something that is genuinely valuable:</p>
 <blockquote>
-<p>even in a simple architecture, retries can cause duplicate side effects.</p></blockquote>
-<p>This is not a “coding mistake”.</p>
-<p>It is a consequence of how networks behave:</p>
-<ul>
-<li>packets drop</li>
-<li>requests time out</li>
-<li>responses get lost</li>
-<li>clients retry</li>
-</ul>
-<p>If your system treats retries like new requests, you will eventually:</p>
-<ul>
-<li>charge a user twice</li>
-<li>create duplicate ledger entries</li>
-<li>send duplicate notifications</li>
-</ul>
-<p>This article explains:</p>
-<ul>
-<li>why retries are inevitable</li>
-<li>how duplicates happen in real systems</li>
-<li>what idempotency actually means (practically)</li>
-<li>why payment systems treat idempotency as mandatory</li>
-</ul>
+<p>strong global atomicity across multiple participants.</p></blockquote>
+<p>The reason it’s uncommon is not that it’s incorrect.</p>
+<p>It’s that the operational and availability costs are often unacceptable at scale.</p>
+<p>This article gives you a practical decision guide: when 2PC makes sense, and when it’s the wrong tool.</p>
 <hr>
-<h2 id="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</h2>
+<h2 id="1-the-key-question-are-you-willing-to-block">1. The Key Question: Are You Willing to Block?</h2>
 <hr>
-<p>When a client times out, it does not know what happened.</p>
-<p>Two possibilities exist:</p>
-<ol>
-<li>the server never received the request</li>
-<li>the server processed the request, but the response was lost</li>
-</ol>
-<p>From the client’s perspective, both look identical:</p>
-<pre tabindex="0"><code>Request timed out
-</code></pre><p>So the client retries.</p>
-<p>This is the fundamental source of duplicates.</p>
-<hr>
-<h2 id="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</h2>
-<hr>
-<p>Consider a payment request.</p>
-<h3 id="21-normal-path">2.1 Normal path</h3>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
-
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-    PaymentService-->>API: Payment CONFIRMED
-    API-->>User: success
-</div>
-<h2 id="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</h2>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
-
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-
-    Note over PaymentService,User: response lost (timeout)
-
-    User->>API: Retry Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc) again
-    PaymentService->>DB: INSERT payment + debit balance (again)
-</div>
-<p>If your system does not recognize that the retry is the “same intent”, it performs the side effect again.</p>
-<p>This is how you get:</p>
-<ul>
-<li>double charges</li>
-<li>duplicate payments</li>
-<li>mismatched ledger entries</li>
-</ul>
-<hr>
-<h2 id="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</h2>
-<hr>
-<p>A request is <strong>idempotent</strong> if:</p>
+<p>2PC’s core weakness is blocking under coordinator failures.</p>
+<p>So before anything else, ask:</p>
 <blockquote>
-<p>executing it multiple times produces the same result as executing it once.</p></blockquote>
-<p>For a payment:</p>
+<p>If a participant or coordinator is unhealthy, can this workflow block?</p></blockquote>
+<p>If the answer is “no” (high availability required), 2PC is usually a bad fit.</p>
+<p>If the answer is “yes” (it’s acceptable to block to preserve atomicity), 2PC may be reasonable.</p>
+<hr>
+<h2 id="2-scenarios-where-2pc-is-reasonable">2. Scenarios Where 2PC Is Reasonable</h2>
+<hr>
+<h3 id="21-single-organization-tightly-controlled-participants">2.1 Single organization, tightly controlled participants</h3>
+<p>2PC works best when:</p>
 <ul>
-<li>the first attempt may create the payment and debit funds</li>
-<li>a retry should return the same outcome</li>
-<li>it should not create a second payment or debit again</li>
+<li>all participants are owned and operated by the same team/org</li>
+<li>schemas and versions are coordinated</li>
+<li>failure modes are understood and tested</li>
 </ul>
-<p>Idempotency is not about avoiding retries.</p>
-<p>It is about making retries <strong>safe</strong>.</p>
-<hr>
-<h2 id="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</h2>
-<hr>
-<p>In real systems, retries are common because of:</p>
+<p>This reduces operational uncertainty.</p>
+<h3 id="22-small-number-of-participants-23-stable-topology">2.2 Small number of participants (2–3), stable topology</h3>
+<p>The more participants you add:</p>
 <ul>
-<li>transient network failures</li>
-<li>load balancer timeouts</li>
-<li>server restarts</li>
-<li>GC pauses / CPU spikes</li>
-<li>downstream dependencies slowing down</li>
-<li>client mobile networks switching</li>
+<li>the more likely one is slow/unhealthy</li>
+<li>the more often the system blocks</li>
 </ul>
-<p>Even if your code is “correct”, production conditions create retries.</p>
-<p>So the right mindset is:</p>
-<blockquote>
-<p>duplicates are not an edge case.<br>
-duplicates are a normal case at scale.</p></blockquote>
-<hr>
-<h2 id="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</h2>
-<hr>
-<p>The standard mechanism is an <strong>idempotency key</strong>:</p>
+<p>2PC is most reasonable when:</p>
 <ul>
-<li>client generates a unique key for the user intent</li>
-<li>server stores the key with the result</li>
-<li>retries with the same key return the same result</li>
+<li>participant count is small</li>
+<li>participant set is stable</li>
 </ul>
-<p>Conceptually:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency Key = &#34;same user intent&#34;
-</span></span></code></pre></div><p>A typical flow:</p>
-<ol>
-<li>Client sends POST /payments with header Idempotency-Key: X</li>
-<li>Server checks if key X already exists</li>
-<li>If yes → return stored result</li>
-<li>If no → process payment, store result under key X</li>
-</ol>
-<p>This turns “retry ambiguity” into a deterministic outcome.</p>
-<p>We’ll cover where this key should be stored (DB vs Redis) and how to do it safely in later idempotency concept pages.</p>
-<hr>
-<h2 id="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</h2>
-<hr>
-<p>Idempotency solves duplicate execution of the same intent.</p>
-<p>But it does not automatically solve:</p>
+<h3 id="23-strong-atomicity-is-a-hard-requirement">2.3 Strong atomicity is a hard requirement</h3>
+<p>If the business requirement is:</p>
 <ul>
-<li>ordering problems (events out of order)</li>
-<li>partial failures across services (sagas)</li>
-<li>exactly-once delivery guarantees in message systems</li>
-<li>correctness across replicas (stale reads)</li>
+<li>“either both updates happen or neither happens”</li>
+<li>and compensation is not acceptable</li>
 </ul>
-<p>Idempotency is a foundation, not the full reliability story.</p>
+<p>then 2PC is one of the few tools that can directly enforce this.</p>
+<h3 id="24-you-can-tolerate-higher-latency">2.4 You can tolerate higher latency</h3>
+<p>2PC is a coordination protocol.</p>
+<p>Coordination costs latency.</p>
+<p>If your SLA can tolerate that:</p>
+<ul>
+<li>2PC becomes more viable</li>
+</ul>
+<h3 id="25-you-can-tolerate-reduced-availability-during-failures">2.5 You can tolerate reduced availability during failures</h3>
+<p>If the system can degrade to:</p>
+<ul>
+<li>“temporarily unavailable” instead of “inconsistent”</li>
+</ul>
+<p>then 2PC can be used to preserve correctness.</p>
+<hr>
+<h2 id="3-where-2pc-is-usually-a-bad-fit">3. Where 2PC Is Usually a Bad Fit</h2>
+<hr>
+<h3 id="31-high-scale-high-availability-customer-facing-workflows">3.1 High-scale, high-availability customer-facing workflows</h3>
+<p>These workflows cannot afford blocking:</p>
+<ul>
+<li>checkout/payment initiation at massive scale</li>
+<li>high-throughput trading workflows</li>
+<li>systems with strict tail latency constraints</li>
+</ul>
+<h3 id="32-many-participants--microservice-sprawl">3.2 Many participants / microservice sprawl</h3>
+<p>As participant count grows, 2PC becomes operationally fragile.</p>
+<h3 id="33-workflows-with-non-transactional-dependencies">3.3 Workflows with non-transactional dependencies</h3>
+<p>If a step is:</p>
+<ul>
+<li>an external API call</li>
+<li>a third-party payment provider</li>
+<li>a notification system</li>
+</ul>
+<p>you cannot include it cleanly inside 2PC.</p>
+<p>You need sagas and idempotent steps anyway.</p>
+<hr>
+<h2 id="4-2pc-vs-saga-decision-checklist">4. 2PC vs Saga (Decision Checklist)</h2>
+<hr>
+<p>Use this checklist in design reviews:</p>
+<h3 id="choose-2pc-if">Choose 2PC if</h3>
+<ul>
+<li>hard atomicity is required (no compensation acceptable)</li>
+<li>participant set is small and controlled</li>
+<li>blocking during failures is acceptable</li>
+<li>operational overhead is acceptable</li>
+<li>latency increase is acceptable</li>
+</ul>
+<h3 id="choose-saga-if">Choose Saga if</h3>
+<ul>
+<li>the workflow spans multiple services and external dependencies</li>
+<li>availability is more important than global atomicity</li>
+<li>compensation/recovery is acceptable</li>
+<li>you need resilience under partial failures</li>
+<li>you want independent service deployability</li>
+</ul>
+<hr>
+<h2 id="5-practical-reality-hybrid-designs-exist">5. Practical Reality: Hybrid Designs Exist</h2>
+<hr>
+<p>Some systems mix approaches:</p>
+<ul>
+<li>use local ACID transactions within services</li>
+<li>coordinate across services using saga</li>
+<li>use outbox/inbox for event correctness</li>
+<li>reserve 2PC for narrow internal cases (rare)</li>
+</ul>
+<p>The important takeaway is:</p>
+<ul>
+<li>don’t treat 2PC as “never”</li>
+<li>treat it as “rare, and only when the trade-offs match”</li>
+</ul>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Timeouts create ambiguity: the client can’t tell “failed” vs “succeeded but response lost”.</li>
-<li>Retrying is unavoidable in distributed systems.</li>
-<li>Without idempotency, retries create duplicate side effects (double charge, duplicate ledger entry).</li>
-<li>Idempotency means “retry produces the same outcome as the first execution”.</li>
-<li>Idempotency keys are the standard pattern to make retries safe.</li>
-<li>Idempotency is necessary, but not sufficient for end-to-end correctness.</li>
+<li>2PC is valuable when you truly need global atomicity and can tolerate blocking.</li>
+<li>It is most reasonable with few, controlled participants and stable topology.</li>
+<li>It is usually a bad fit for high-availability, high-scale, microservice-heavy systems.</li>
+<li>Use a checklist: atomicity requirement vs availability/latency/operational cost.</li>
+<li>Most modern systems prefer sagas; 2PC remains a niche tool.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Retries are inevitable, and retries create duplicates unless you design for them.</p>
-<p>Idempotency makes retries safe by treating repeated requests as the same user intent and returning the same stored outcome instead of repeating side effects.</p>
+<p>Use 2PC only when global atomicity is mandatory and blocking is acceptable.</p>
+<p>For most microservice workflows, sagas plus idempotency/outbox/inbox provide better availability and operational resilience.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Now that we understand why idempotency exists, we’ll answer the practical design question:</p>
-<blockquote>
-<p>where should idempotency live?</p></blockquote>
-<p>We’ll compare:</p>
+<p>Next we move to “delivery reality”:</p>
 <ul>
-<li>API edge idempotency</li>
-<li>step-level idempotency (ledger/notify)</li>
-<li>workflow-level idempotency (saga replay)</li>
+<li>at-most vs at-least vs exactly-once</li>
+<li>why duplicates are normal</li>
+<li>how systems achieve exactly-once effects</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live">Idempotency — API Edge vs Step-level vs Workflow-level</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once">Processing Guarantees — At-most vs At-least vs Exactly-Once</a></strong></p>
 
         </article>
 
@@ -738,43 +714,31 @@ duplicates are a normal case at scale.</p></blockquote>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-the-core-problem-timeouts-create-ambiguity" data-toc-target="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</a>
+        <a class="toc-link" href="#1-the-key-question-are-you-willing-to-block" data-toc-target="1-the-key-question-are-you-willing-to-block">1. The Key Question: Are You Willing to Block?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-duplicate-scenario-even-with-correct-code" data-toc-target="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</a>
+        <a class="toc-link" href="#2-scenarios-where-2pc-is-reasonable" data-toc-target="2-scenarios-where-2pc-is-reasonable">2. Scenarios Where 2PC Is Reasonable</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#22-response-lost--retry--duplicate" data-toc-target="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</a>
+        <a class="toc-link" href="#3-where-2pc-is-usually-a-bad-fit" data-toc-target="3-where-2pc-is-usually-a-bad-fit">3. Where 2PC Is Usually a Bad Fit</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-what-idempotency-means-practical-definition" data-toc-target="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</a>
+        <a class="toc-link" href="#4-2pc-vs-saga-decision-checklist" data-toc-target="4-2pc-vs-saga-decision-checklist">4. 2PC vs Saga (Decision Checklist)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-duplicates-are-not-rare-they-are-guaranteed-eventually" data-toc-target="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-the-first-solution-pattern-idempotency-keys" data-toc-target="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-what-idempotency-does-not-solve-important" data-toc-target="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</a>
+        <a class="toc-link" href="#5-practical-reality-hybrid-designs-exist" data-toc-target="5-practical-reality-hybrid-designs-exist">5. Practical Reality: Hybrid Designs Exist</a>
       </li>
     
       
@@ -802,7 +766,7 @@ duplicates are a normal case at scale.</p></blockquote>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -834,7 +798,7 @@ duplicates are a normal case at scale.</p></blockquote>
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -1027,17 +991,6 @@ duplicates are a normal case at scale.</p></blockquote>
   </div>
 </footer>
 
-  
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: isDark ? "dark" : "default",
-        flowchart: { curve: "basis" }
-      });
-    </script>
   
 </body>
 </html>

@@ -228,4 +228,4 @@ Next we’ll examine the classic distributed transaction protocol:
 - when it’s worth considering
 
 👉 **Up Next: →**  
-**[Distributed Transactions — Two-Phase Commit (2PC) in Plain English](/learning/advanced-skills/high-level-design/4_correct-reliable-systems/concepts/8_21_two-phase-commit/)**
+**[Distributed Transactions — Two-Phase Commit (2PC) in Plain English](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_21_distributed-transactions-two-phase-commit)**

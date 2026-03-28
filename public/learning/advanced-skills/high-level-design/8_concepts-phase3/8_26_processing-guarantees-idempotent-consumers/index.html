@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idempotency — Why Retries Create Duplicates</title>
+<title>Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774640777">
+<link rel="stylesheet" href="/css/main.css?v=1774698989">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Idempotency — Why Retries Create Duplicates</h1>
+    <h1 class="main-heading">Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</h1>
     <h3>
   </div>
 </section>
@@ -429,7 +429,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
                                 </li>
                               
@@ -494,7 +494,35 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. </a>
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. Distributed Transactions — Practical Alternatives</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense/">8.23. Distributed Transactions — When 2PC Still Makes Sense</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/">8.24. Processing Guarantees — At-most vs At-least vs Exactly-Once</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/">8.25. Processing Guarantees — Why Duplicates Happen</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers/">8.26. Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_27_processing-guarantees-transactional-outbox-pattern/">8.27. Processing Guarantees — Transactional Outbox Pattern</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_28_processing-guarantees-inbox-dedup-store/">8.28. Processing Guarantees — Inbox / Dedup Store Pattern</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_29_processing-guarantees-ordering-reprocessing-dlqs/">8.29. </a>
                                 </li>
                               
                             </ul>
@@ -527,190 +555,213 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 18 Mar, 2026
+            Last updated on: 28 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h1 id="idempotency--why-retries-create-duplicates">Idempotency — Why Retries Create Duplicates</h1>
+          <h1 id="processing-guarantees--idempotent-consumers-exactly-once-effects">Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</h1>
 <hr>
-<p>In Phase 3 (Payment System), the first major reliability problem appeared surprisingly early:</p>
+<p>In the previous articles, we established the core reality:</p>
+<ul>
+<li>at-least-once delivery is common</li>
+<li>duplicates are inevitable</li>
+</ul>
+<p>So the goal shifts from “prevent duplicates” to:</p>
 <blockquote>
-<p>even in a simple architecture, retries can cause duplicate side effects.</p></blockquote>
-<p>This is not a “coding mistake”.</p>
-<p>It is a consequence of how networks behave:</p>
+<p><strong>make duplicates harmless.</strong></p></blockquote>
+<p>That target is often called:</p>
 <ul>
-<li>packets drop</li>
-<li>requests time out</li>
-<li>responses get lost</li>
-<li>clients retry</li>
+<li><strong>exactly-once effects</strong></li>
 </ul>
-<p>If your system treats retries like new requests, you will eventually:</p>
+<p>Meaning:</p>
 <ul>
-<li>charge a user twice</li>
-<li>create duplicate ledger entries</li>
-<li>send duplicate notifications</li>
+<li>a message may be delivered/processed multiple times</li>
+<li>but the external side effect happens once</li>
 </ul>
-<p>This article explains:</p>
-<ul>
-<li>why retries are inevitable</li>
-<li>how duplicates happen in real systems</li>
-<li>what idempotency actually means (practically)</li>
-<li>why payment systems treat idempotency as mandatory</li>
-</ul>
+<p>This article shows the standard patterns to implement idempotent consumers.</p>
 <hr>
-<h2 id="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</h2>
+<h2 id="1-the-core-idea-have-i-already-applied-this">1. The Core Idea: “Have I Already Applied This?”</h2>
 <hr>
-<p>When a client times out, it does not know what happened.</p>
-<p>Two possibilities exist:</p>
+<p>An idempotent consumer must be able to answer:</p>
+<ul>
+<li>have I already processed event <code>E</code>?</li>
+</ul>
+<p>If yes:</p>
+<ul>
+<li>do nothing (or return the same result)</li>
+</ul>
+<p>If no:</p>
+<ul>
+<li>apply the side effect</li>
+<li>record that <code>E</code> is now processed</li>
+</ul>
+<p>That “record processed” step must be durable.</p>
+<hr>
+<h2 id="2-the-inbox--dedup-store-pattern-canonical">2. The Inbox / Dedup Store Pattern (Canonical)</h2>
+<hr>
+<p>The standard approach is to store:</p>
+<ul>
+<li><code>eventId → processed</code></li>
+</ul>
+<p>This store is often called:</p>
+<ul>
+<li>inbox table</li>
+<li>dedup table</li>
+<li>processed-events table</li>
+</ul>
+<p>A typical schema (conceptual):</p>
+<ul>
+<li><code>event_id</code> (unique)</li>
+<li><code>processed_at</code></li>
+<li>optional: <code>result_snapshot</code></li>
+</ul>
+<p>The most important property is:</p>
+<blockquote>
+<p><code>event_id</code> has a <strong>unique constraint</strong>.</p></blockquote>
+<hr>
+<h2 id="3-the-only-rule-that-matters-atomicity">3. The Only Rule That Matters: Atomicity</h2>
+<hr>
+<p>To achieve exactly-once effects, you must avoid this split:</p>
 <ol>
-<li>the server never received the request</li>
-<li>the server processed the request, but the response was lost</li>
+<li>apply side effect</li>
+<li>later mark event processed</li>
 </ol>
-<p>From the client’s perspective, both look identical:</p>
-<pre tabindex="0"><code>Request timed out
-</code></pre><p>So the client retries.</p>
-<p>This is the fundamental source of duplicates.</p>
+<p>If you crash between 1 and 2:</p>
+<ul>
+<li>event will be redelivered</li>
+<li>side effect will happen twice</li>
+</ul>
+<p>So the correct pattern is:</p>
+<blockquote>
+<p>apply side effect and mark processed <strong>in the same transaction</strong>.</p></blockquote>
+<p>This turns at-least-once delivery into exactly-once effects.</p>
 <hr>
-<h2 id="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</h2>
+<h2 id="4-typical-idempotent-consumer-flow">4. Typical Idempotent Consumer Flow</h2>
 <hr>
-<p>Consider a payment request.</p>
-<h3 id="21-normal-path">2.1 Normal path</h3>
 <div class="mermaid">
 sequenceDiagram
     autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
+    participant B as Message Broker
+    participant C as Consumer Service
+    participant DB as Business Database
 
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-    PaymentService-->>API: Payment CONFIRMED
-    API-->>User: success
+    B->>C: Deliver Event (ID: 0xABC)
+
+    Note over C, DB: Open Database Transaction
+    rect rgb(232, 245, 233)
+    C->>DB: BEGIN TRANSACTION
+
+    C->>DB: INSERT INTO inbox (event_id) VALUES ('0xABC')
+
+    alt is NEW Message (Unique Constraint Success)
+        Note right of DB: ID didn't exist yet. Proceeding...
+        C->>DB: Apply Side Effect (Update Balance, Create Order, etc.)
+        C->>DB: COMMIT
+        C-->>B: ACK (Success)
+    else is DUPLICATE Message (Unique Constraint Violation)
+        Note right of DB: ⚡ ID already exists!
+        C->>DB: ROLLBACK (Abandon Side Effect)
+        C-->>B: ACK (Safe Duplicate - Tell Broker to stop)
+    end
+    end
+    Note over C, DB: Transaction Closed
 </div>
-<h2 id="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</h2>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
-
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-
-    Note over PaymentService,User: response lost (timeout)
-
-    User->>API: Retry Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc) again
-    PaymentService->>DB: INSERT payment + debit balance (again)
-</div>
-<p>If your system does not recognize that the retry is the “same intent”, it performs the side effect again.</p>
-<p>This is how you get:</p>
+<p>This is the essential algorithm.</p>
+<p>Everything else is optimization.</p>
+<hr>
+<h2 id="5-what-to-use-as-eventid">5. What to Use as <code>eventId</code></h2>
+<hr>
+<p>You need a stable unique ID for the event.</p>
+<p>Common choices:</p>
 <ul>
-<li>double charges</li>
-<li>duplicate payments</li>
-<li>mismatched ledger entries</li>
+<li>producer-generated UUID</li>
+<li>paymentId + step name (for workflow commands)</li>
+<li>message broker offset is <strong>not</strong> a stable global eventId across replays</li>
 </ul>
-<hr>
-<h2 id="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</h2>
-<hr>
-<p>A request is <strong>idempotent</strong> if:</p>
+<p>Rule:</p>
 <blockquote>
-<p>executing it multiple times produces the same result as executing it once.</p></blockquote>
-<p>For a payment:</p>
+<p>eventId must remain stable across retries/redelivery and reprocessing.</p></blockquote>
+<hr>
+<h2 id="6-failure-cases-and-how-this-pattern-handles-them">6. Failure Cases and How This Pattern Handles Them</h2>
+<hr>
+<h3 id="61-consumer-crashes-before-commit">6.1 Consumer crashes before commit</h3>
 <ul>
-<li>the first attempt may create the payment and debit funds</li>
-<li>a retry should return the same outcome</li>
-<li>it should not create a second payment or debit again</li>
+<li>inbox insert not committed</li>
+<li>event is redelivered</li>
+<li>consumer processes again safely</li>
 </ul>
-<p>Idempotency is not about avoiding retries.</p>
-<p>It is about making retries <strong>safe</strong>.</p>
-<hr>
-<h2 id="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</h2>
-<hr>
-<p>In real systems, retries are common because of:</p>
+<h3 id="62-consumer-crashes-after-commit-but-before-ack">6.2 Consumer crashes after commit but before ACK</h3>
 <ul>
-<li>transient network failures</li>
-<li>load balancer timeouts</li>
-<li>server restarts</li>
-<li>GC pauses / CPU spikes</li>
-<li>downstream dependencies slowing down</li>
-<li>client mobile networks switching</li>
+<li>broker redelivers</li>
+<li>consumer attempts inbox insert</li>
+<li>insert fails → duplicate detected → no side effect</li>
 </ul>
-<p>Even if your code is “correct”, production conditions create retries.</p>
-<p>So the right mindset is:</p>
-<blockquote>
-<p>duplicates are not an edge case.<br>
-duplicates are a normal case at scale.</p></blockquote>
+<p>This is exactly why inbox + atomic transaction works.</p>
 <hr>
-<h2 id="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</h2>
+<h2 id="7-trade-offs-and-operational-notes">7. Trade-offs and Operational Notes</h2>
 <hr>
-<p>The standard mechanism is an <strong>idempotency key</strong>:</p>
+<h3 id="71-inbox-table-growth">7.1 Inbox table growth</h3>
+<p>The inbox table grows forever unless you manage it.</p>
+<p>Common strategies:</p>
 <ul>
-<li>client generates a unique key for the user intent</li>
-<li>server stores the key with the result</li>
-<li>retries with the same key return the same result</li>
+<li>TTL cleanup for old event IDs (if replay window is bounded)</li>
+<li>partition by time</li>
+<li>keep only recent window + rely on DLQ for very old replays</li>
 </ul>
-<p>Conceptually:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency Key = &#34;same user intent&#34;
-</span></span></code></pre></div><p>A typical flow:</p>
-<ol>
-<li>Client sends POST /payments with header Idempotency-Key: X</li>
-<li>Server checks if key X already exists</li>
-<li>If yes → return stored result</li>
-<li>If no → process payment, store result under key X</li>
-</ol>
-<p>This turns “retry ambiguity” into a deterministic outcome.</p>
-<p>We’ll cover where this key should be stored (DB vs Redis) and how to do it safely in later idempotency concept pages.</p>
-<hr>
-<h2 id="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</h2>
-<hr>
-<p>Idempotency solves duplicate execution of the same intent.</p>
-<p>But it does not automatically solve:</p>
+<h3 id="72-idempotency-granularity">7.2 Idempotency granularity</h3>
+<p>Too coarse:</p>
 <ul>
-<li>ordering problems (events out of order)</li>
-<li>partial failures across services (sagas)</li>
-<li>exactly-once delivery guarantees in message systems</li>
-<li>correctness across replicas (stale reads)</li>
+<li>may incorrectly treat different events as duplicates</li>
 </ul>
-<p>Idempotency is a foundation, not the full reliability story.</p>
+<p>Too fine:</p>
+<ul>
+<li>increases storage and dedup load</li>
+</ul>
+<p>Pick an eventId that matches the side effect boundary.</p>
+<h3 id="73-cross-service-side-effects">7.3 Cross-service side effects</h3>
+<p>Inbox solves consumer DB side effects.</p>
+<p>If the consumer calls external APIs, you still need:</p>
+<ul>
+<li>idempotent external calls, or</li>
+<li>durable orchestration around them</li>
+</ul>
+<hr>
+<h2 id="8-phase-3-connection">8. Phase 3 Connection</h2>
+<hr>
+<p>Phase 3 used the same idea repeatedly:</p>
+<ul>
+<li>idempotency keys prevent duplicate payments at API boundary</li>
+<li>step-level idempotency prevents duplicate ledger entries</li>
+<li>durable workflow state prevents repeating steps incorrectly</li>
+</ul>
+<p>Idempotent consumers are the event-driven version of that same principle.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Timeouts create ambiguity: the client can’t tell “failed” vs “succeeded but response lost”.</li>
-<li>Retrying is unavoidable in distributed systems.</li>
-<li>Without idempotency, retries create duplicate side effects (double charge, duplicate ledger entry).</li>
-<li>Idempotency means “retry produces the same outcome as the first execution”.</li>
-<li>Idempotency keys are the standard pattern to make retries safe.</li>
-<li>Idempotency is necessary, but not sufficient for end-to-end correctness.</li>
+<li>At-least-once delivery creates duplicates; the goal is exactly-once effects.</li>
+<li>Idempotent consumers require a durable “already processed” record (inbox/dedup store).</li>
+<li>The side effect and the inbox insert must be in the same transaction.</li>
+<li>Unique <code>eventId</code> is the core primitive; everything else is optimization.</li>
+<li>Manage inbox growth with TTL/partitioning based on replay requirements.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Retries are inevitable, and retries create duplicates unless you design for them.</p>
-<p>Idempotency makes retries safe by treating repeated requests as the same user intent and returning the same stored outcome instead of repeating side effects.</p>
+<p>You can’t prevent duplicates in at-least-once systems, so you make processing idempotent.</p>
+<p>Do this by inserting a unique <code>eventId</code> into an inbox table and applying the side effect in the same transaction. Redeliveries become harmless no-ops, giving you exactly-once effects.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Now that we understand why idempotency exists, we’ll answer the practical design question:</p>
-<blockquote>
-<p>where should idempotency live?</p></blockquote>
-<p>We’ll compare:</p>
+<p>Next we’ll solve the producer-side reliability gap:</p>
 <ul>
-<li>API edge idempotency</li>
-<li>step-level idempotency (ledger/notify)</li>
-<li>workflow-level idempotency (saga replay)</li>
+<li>DB commit succeeds but event publish fails</li>
+<li>event publish succeeds but DB commit fails</li>
 </ul>
+<p>We’ll introduce the <strong>transactional outbox</strong> pattern.</p>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live">Idempotency — API Edge vs Step-level vs Workflow-level</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_27_processing-guarantees-transactional-outbox-pattern">Processing Guarantees — Transactional Outbox Pattern</a></strong></p>
 
         </article>
 
@@ -738,43 +789,49 @@ duplicates are a normal case at scale.</p></blockquote>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-the-core-problem-timeouts-create-ambiguity" data-toc-target="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</a>
+        <a class="toc-link" href="#1-the-core-idea-have-i-already-applied-this" data-toc-target="1-the-core-idea-have-i-already-applied-this">1. The Core Idea: “Have I Already Applied This?”</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-duplicate-scenario-even-with-correct-code" data-toc-target="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</a>
+        <a class="toc-link" href="#2-the-inbox--dedup-store-pattern-canonical" data-toc-target="2-the-inbox--dedup-store-pattern-canonical">2. The Inbox / Dedup Store Pattern (Canonical)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#22-response-lost--retry--duplicate" data-toc-target="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</a>
+        <a class="toc-link" href="#3-the-only-rule-that-matters-atomicity" data-toc-target="3-the-only-rule-that-matters-atomicity">3. The Only Rule That Matters: Atomicity</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-what-idempotency-means-practical-definition" data-toc-target="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</a>
+        <a class="toc-link" href="#4-typical-idempotent-consumer-flow" data-toc-target="4-typical-idempotent-consumer-flow">4. Typical Idempotent Consumer Flow</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-duplicates-are-not-rare-they-are-guaranteed-eventually" data-toc-target="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</a>
+        <a class="toc-link" href="#5-what-to-use-as-eventid" data-toc-target="5-what-to-use-as-eventid"></a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-the-first-solution-pattern-idempotency-keys" data-toc-target="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</a>
+        <a class="toc-link" href="#6-failure-cases-and-how-this-pattern-handles-them" data-toc-target="6-failure-cases-and-how-this-pattern-handles-them">6. Failure Cases and How This Pattern Handles Them</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-what-idempotency-does-not-solve-important" data-toc-target="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</a>
+        <a class="toc-link" href="#7-trade-offs-and-operational-notes" data-toc-target="7-trade-offs-and-operational-notes">7. Trade-offs and Operational Notes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-phase-3-connection" data-toc-target="8-phase-3-connection">8. Phase 3 Connection</a>
       </li>
     
       
@@ -802,7 +859,7 @@ duplicates are a normal case at scale.</p></blockquote>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -834,7 +891,7 @@ duplicates are a normal case at scale.</p></blockquote>
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_27_processing-guarantees-transactional-outbox-pattern/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

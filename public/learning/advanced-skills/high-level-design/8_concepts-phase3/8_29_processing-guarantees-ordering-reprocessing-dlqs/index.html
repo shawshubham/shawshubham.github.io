@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idempotency — Why Retries Create Duplicates</title>
+<title>Processing Guarantees — Ordering, Reprocessing, and DLQs</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774640777">
+<link rel="stylesheet" href="/css/main.css?v=1774702015">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Idempotency — Why Retries Create Duplicates</h1>
+    <h1 class="main-heading">Processing Guarantees — Ordering, Reprocessing, and DLQs</h1>
     <h3>
   </div>
 </section>
@@ -429,7 +429,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
                                 </li>
                               
@@ -494,7 +494,35 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. </a>
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. Distributed Transactions — Practical Alternatives</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense/">8.23. Distributed Transactions — When 2PC Still Makes Sense</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/">8.24. Processing Guarantees — At-most vs At-least vs Exactly-Once</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/">8.25. Processing Guarantees — Why Duplicates Happen</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers/">8.26. Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_27_processing-guarantees-transactional-outbox-pattern/">8.27. Processing Guarantees — Transactional Outbox Pattern</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_28_processing-guarantees-inbox-dedup-store/">8.28. Processing Guarantees — Inbox / Dedup Store Pattern</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_29_processing-guarantees-ordering-reprocessing-dlqs/">8.29. Processing Guarantees — Ordering, Reprocessing, and DLQs</a>
                                 </li>
                               
                             </ul>
@@ -527,190 +555,269 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 18 Mar, 2026
+            Last updated on: 28 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h1 id="idempotency--why-retries-create-duplicates">Idempotency — Why Retries Create Duplicates</h1>
+          <h1 id="processing-guarantees--ordering-reprocessing-and-dlqs">Processing Guarantees — Ordering, Reprocessing, and DLQs</h1>
 <hr>
-<p>In Phase 3 (Payment System), the first major reliability problem appeared surprisingly early:</p>
-<blockquote>
-<p>even in a simple architecture, retries can cause duplicate side effects.</p></blockquote>
-<p>This is not a “coding mistake”.</p>
-<p>It is a consequence of how networks behave:</p>
-<ul>
-<li>packets drop</li>
-<li>requests time out</li>
-<li>responses get lost</li>
-<li>clients retry</li>
-</ul>
-<p>If your system treats retries like new requests, you will eventually:</p>
-<ul>
-<li>charge a user twice</li>
-<li>create duplicate ledger entries</li>
-<li>send duplicate notifications</li>
-</ul>
-<p>This article explains:</p>
-<ul>
-<li>why retries are inevitable</li>
-<li>how duplicates happen in real systems</li>
-<li>what idempotency actually means (practically)</li>
-<li>why payment systems treat idempotency as mandatory</li>
-</ul>
-<hr>
-<h2 id="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</h2>
-<hr>
-<p>When a client times out, it does not know what happened.</p>
-<p>Two possibilities exist:</p>
+<p>At-least-once delivery solves “don’t lose work”, but it introduces operational realities:</p>
 <ol>
-<li>the server never received the request</li>
-<li>the server processed the request, but the response was lost</li>
+<li>events can be delivered multiple times (duplicates)</li>
+<li>events can be delivered <strong>out of order</strong></li>
+<li>some events will <strong>fail repeatedly</strong> (poison messages)</li>
 </ol>
-<p>From the client’s perspective, both look identical:</p>
-<pre tabindex="0"><code>Request timed out
-</code></pre><p>So the client retries.</p>
-<p>This is the fundamental source of duplicates.</p>
-<hr>
-<h2 id="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</h2>
-<hr>
-<p>Consider a payment request.</p>
-<h3 id="21-normal-path">2.1 Normal path</h3>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
-
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-    PaymentService-->>API: Payment CONFIRMED
-    API-->>User: success
-</div>
-<h2 id="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</h2>
-<div class="mermaid">
-sequenceDiagram
-    autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
-
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-
-    Note over PaymentService,User: response lost (timeout)
-
-    User->>API: Retry Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc) again
-    PaymentService->>DB: INSERT payment + debit balance (again)
-</div>
-<p>If your system does not recognize that the retry is the “same intent”, it performs the side effect again.</p>
-<p>This is how you get:</p>
+<p>If you don’t design for these, you get:</p>
 <ul>
-<li>double charges</li>
-<li>duplicate payments</li>
-<li>mismatched ledger entries</li>
+<li>broken projections (“balance went backwards”)</li>
+<li>stuck consumer groups</li>
+<li>retry storms that take down the system</li>
+</ul>
+<p>This article gives a practical toolkit:</p>
+<ul>
+<li>what ordering guarantees you can realistically expect</li>
+<li>how to reprocess safely</li>
+<li>how to use DLQs without hiding problems</li>
 </ul>
 <hr>
-<h2 id="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</h2>
+<h2 id="1-ordering-what-you-want-vs-what-you-get">1. Ordering: What You Want vs What You Get</h2>
 <hr>
-<p>A request is <strong>idempotent</strong> if:</p>
+<h3 id="11-what-users-expect">1.1 What users expect</h3>
+<p>Users expect monotonic progress:</p>
+<ul>
+<li>a payment moves <code>PENDING → CONFIRMED</code> once</li>
+<li>a balance doesn’t “time travel”</li>
+<li>a message list doesn’t reorder randomly</li>
+</ul>
+<h3 id="12-what-distributed-systems-provide">1.2 What distributed systems provide</h3>
+<p>Most systems do <strong>not</strong> guarantee global ordering.</p>
+<p>Common practical guarantees are:</p>
+<ul>
+<li>ordering <strong>within a partition/key</strong> (if configured correctly)</li>
+<li>no ordering across different partitions</li>
+<li>reordering is possible during retries/rebalances</li>
+</ul>
+<p>So ordering is a design decision:</p>
 <blockquote>
-<p>executing it multiple times produces the same result as executing it once.</p></blockquote>
-<p>For a payment:</p>
+<p>choose an ordering scope and enforce it with partitioning and consumer logic.</p></blockquote>
+<hr>
+<h2 id="2-out-of-order-delivery-why-it-happens">2. Out-of-Order Delivery (Why It Happens)</h2>
+<hr>
+<p>Events arrive out of order due to:</p>
 <ul>
-<li>the first attempt may create the payment and debit funds</li>
-<li>a retry should return the same outcome</li>
-<li>it should not create a second payment or debit again</li>
+<li>partitioned brokers (different partitions)</li>
+<li>retries and redelivery</li>
+<li>consumer parallelism</li>
+<li>rebalancing</li>
+<li>network delays between producers and broker</li>
 </ul>
-<p>Idempotency is not about avoiding retries.</p>
-<p>It is about making retries <strong>safe</strong>.</p>
-<hr>
-<h2 id="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</h2>
-<hr>
-<p>In real systems, retries are common because of:</p>
+<p>A simple example:</p>
 <ul>
-<li>transient network failures</li>
-<li>load balancer timeouts</li>
-<li>server restarts</li>
-<li>GC pauses / CPU spikes</li>
-<li>downstream dependencies slowing down</li>
-<li>client mobile networks switching</li>
+<li>Event 1: <code>PaymentConfirmed</code></li>
+<li>Event 2: <code>PaymentRefunded</code></li>
 </ul>
-<p>Even if your code is “correct”, production conditions create retries.</p>
-<p>So the right mindset is:</p>
-<blockquote>
-<p>duplicates are not an edge case.<br>
-duplicates are a normal case at scale.</p></blockquote>
+<p>If they arrive swapped, naive consumers can show impossible state transitions.</p>
 <hr>
-<h2 id="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</h2>
+<h2 id="3-practical-ordering-strategy-what-most-systems-do">3. Practical Ordering Strategy (What Most Systems Do)</h2>
 <hr>
-<p>The standard mechanism is an <strong>idempotency key</strong>:</p>
-<ul>
-<li>client generates a unique key for the user intent</li>
-<li>server stores the key with the result</li>
-<li>retries with the same key return the same result</li>
-</ul>
-<p>Conceptually:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency Key = &#34;same user intent&#34;
-</span></span></code></pre></div><p>A typical flow:</p>
+<p>Ordering is handled in two layers:</p>
 <ol>
-<li>Client sends POST /payments with header Idempotency-Key: X</li>
-<li>Server checks if key X already exists</li>
-<li>If yes → return stored result</li>
-<li>If no → process payment, store result under key X</li>
+<li><strong>Routing related events to an ordered stream</strong> (broker partitioning / single-writer path)</li>
+<li><strong>Enforcing monotonic progress at the consumer</strong> (version/sequence checks)</li>
 </ol>
-<p>This turns “retry ambiguity” into a deterministic outcome.</p>
-<p>We’ll cover where this key should be stored (DB vs Redis) and how to do it safely in later idempotency concept pages.</p>
+<p>This makes ordering robust even under retries and reprocessing.</p>
+<div class="mermaid">
+flowchart TD
+    subgraph Infrastructure_Layer [Layer 1: Deterministic Routing]
+        E[<b>Event</b><br/>EntityID: 101, Version: 5] -->|Hash by EntityID| P[<b>Broker Partition / Shard</b>]
+        P -->|Pinned Delivery| C[<b>Consumer Instance</b>]
+    end
+
+    subgraph Logic_Layer [Layer 2: Monotonic Guard]
+        direction TB
+        C --> V{"Check Version<br/><i>(vs lastSeen)</i>"}
+
+        V -->|v <= last| D[<b>DISCARD</b><br/>Duplicate or Stale]
+        V -->|v == last + 1| A[<b>APPLY</b><br/>Update State & Advance lastSeen]
+        V -->|v > last + 1| F[<b>GAP DETECTED</b>]
+    end
+
+    subgraph Recovery_Layer [Resolution]
+        F --> DB[(<b>Fetch Latest</b><br/>Sync from Leader DB)]
+    end
+
+    %% Styling
+    style E fill:#e1f5fe,stroke:#01579b
+    style P fill:#f3e5f5,stroke:#6a1b9a
+    style V fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    style A fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style D fill:#eceff1,stroke:#607d8b
+    style F fill:#ffebee,stroke:#c62828
+    style DB fill:#fff8e1,stroke:#f57f17
+</div>
 <hr>
-<h2 id="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</h2>
-<hr>
-<p>Idempotency solves duplicate execution of the same intent.</p>
-<p>But it does not automatically solve:</p>
+<h3 id="31-define-an-ordering-scope-payments-per-paymentid">3.1 Define an ordering scope (payments: per <code>paymentId</code>)</h3>
+<p>Most systems do not attempt global ordering.</p>
+<p>They pick an ordering scope that matches the domain entity.</p>
+<p>For payments, the natural scope is:</p>
 <ul>
-<li>ordering problems (events out of order)</li>
-<li>partial failures across services (sagas)</li>
-<li>exactly-once delivery guarantees in message systems</li>
-<li>correctness across replicas (stale reads)</li>
+<li><strong>per payment</strong> → key = <code>paymentId</code></li>
 </ul>
-<p>Idempotency is a foundation, not the full reliability story.</p>
+<p>All events/commands for the same payment should be routed through the same ordered stream (or processed by a single-writer component).</p>
+<p>This ensures the broker (or the service) can preserve <strong>relative order</strong> for that payment.</p>
+<hr>
+<h3 id="32-include-a-monotonic-versionsequence-consumer-enforced">3.2 Include a monotonic version/sequence (consumer-enforced)</h3>
+<p>Even with partitioning, consumers can see:</p>
+<ul>
+<li>duplicates</li>
+<li>replayed events</li>
+<li>out-of-order deliveries during rebalances</li>
+</ul>
+<p>So each event should carry a monotonic field such as:</p>
+<ul>
+<li><code>version</code> (payment state transitions)</li>
+<li>or <code>sequence</code></li>
+</ul>
+<p>Example (payment):</p>
+<ul>
+<li><code>PENDING</code> → version 1</li>
+<li><code>CONFIRMED</code> → version 2</li>
+<li><code>REFUNDED</code> → version 3</li>
+</ul>
+<p>Consumer maintains:</p>
+<ul>
+<li><code>lastSeenVersion[paymentId]</code></li>
+</ul>
+<p>Then apply strict monotonic rules:</p>
+<ul>
+<li>if <code>event.version &lt;= lastSeenVersion</code> → <strong>duplicate/old</strong> → ignore</li>
+<li>if <code>event.version == lastSeenVersion + 1</code> → apply and advance</li>
+<li>if <code>event.version &gt; lastSeenVersion + 1</code> → <strong>gap detected</strong> → do not apply blindly</li>
+</ul>
+<p>What to do on a gap depends on domain criticality.</p>
+<p>For payments, a safe baseline is:</p>
+<ul>
+<li><strong>fallback to source of truth</strong> (read the latest state from the leader DB)</li>
+<li>optionally buffer briefly, but never guess state transitions</li>
+</ul>
+<p>This prevents “time travel” like showing <code>REFUNDED</code> before <code>CONFIRMED</code>.</p>
+<hr>
+<h3 id="33-a-quick-note-on-chat-ordering-phase-4-preview">3.3 A quick note on chat ordering (Phase 4 preview)</h3>
+<p>Chat uses the same two-layer idea, but the ordering key and behavior differ:</p>
+<ul>
+<li>ordering scope: <strong>per conversation</strong> (<code>conversationId</code>)</li>
+<li>monotonic field: <strong>message sequence</strong> assigned at write time</li>
+<li>gaps are handled by fetching missing history (cursor/sequence-based sync)</li>
+</ul>
+<p>We’ll cover chat ordering deeply in Phase 4 (ordering expectations vs system guarantees), but the core mechanism is the same:
+<strong>partition by key + enforce monotonic sequence.</strong></p>
+<hr>
+<h2 id="4-reprocessing-replay-without-breaking-correctness">4. Reprocessing (Replay) Without Breaking Correctness</h2>
+<hr>
+<p>Reprocessing happens for normal reasons:</p>
+<ul>
+<li>bug fix in consumer logic</li>
+<li>rebuilding projections</li>
+<li>recovering from outages</li>
+</ul>
+<p>Safe replay requires two properties:</p>
+<h3 id="41-idempotent-consumers-inboxdedup">4.1 Idempotent consumers (inbox/dedup)</h3>
+<ul>
+<li>same event can arrive again</li>
+<li>consumer must not duplicate effects</li>
+</ul>
+<p>Inbox pattern is the core tool.</p>
+<h3 id="42-deterministic-processing">4.2 Deterministic processing</h3>
+<p>Reprocessing should produce the same outcome given the same input stream.</p>
+<p>Avoid non-determinism like:</p>
+<ul>
+<li>“current time” used in business rules without event time</li>
+<li>external calls without stable idempotency</li>
+</ul>
+<hr>
+<h2 id="5-poison-messages-when-retries-never-succeed">5. Poison Messages (When Retries Never Succeed)</h2>
+<hr>
+<p>A poison message is an event that fails every time:</p>
+<ul>
+<li>invalid payload</li>
+<li>schema mismatch</li>
+<li>missing required downstream state</li>
+<li>code bug</li>
+</ul>
+<p>If you retry forever, you can stall the entire consumer.</p>
+<p>So you need a strategy.</p>
+<hr>
+<h2 id="6-dlq-dead-letter-queue-the-practical-tool">6. DLQ (Dead Letter Queue): The Practical Tool</h2>
+<hr>
+<p>A DLQ is a place to send messages that cannot be processed after reasonable retries.</p>
+<h3 id="61-a-simple-dlq-policy">6.1 A simple DLQ policy</h3>
+<ul>
+<li>retry N times with backoff</li>
+<li>if still failing, send to DLQ with error context</li>
+<li>alert and investigate</li>
+<li>optionally replay after fix</li>
+</ul>
+<h3 id="62-what-must-go-into-dlq-payload">6.2 What must go into DLQ payload</h3>
+<p>Include:</p>
+<ul>
+<li>original event payload</li>
+<li>eventId</li>
+<li>partition/key</li>
+<li>failure reason + stack trace</li>
+<li>consumer version (important!)</li>
+<li>timestamp and retry count</li>
+</ul>
+<p>This makes DLQ actionable.</p>
+<hr>
+<h2 id="7-dlq-is-not-ignore-errors-common-mistake">7. DLQ Is Not “Ignore Errors” (Common Mistake)</h2>
+<hr>
+<p>DLQ is not a trash bin.</p>
+<p>If you silently drop messages into DLQ, you are building inconsistency.</p>
+<p>So good DLQ usage includes:</p>
+<ul>
+<li>alerting</li>
+<li>dashboards and ownership</li>
+<li>replay workflows</li>
+<li>reconciliation checks</li>
+</ul>
+<p>DLQ is part of operability, not just error handling.</p>
+<hr>
+<h2 id="8-phase-3--phase-4-connection">8. Phase 3 / Phase 4 Connection</h2>
+<hr>
+<p>Phase 3 (payments) and Phase 4 (real-time systems) both require:</p>
+<ul>
+<li>ordering decisions (payment status transitions, message ordering)</li>
+<li>replay safety (reconciliation, rebuild, incident recovery)</li>
+<li>DLQs for poison messages (bad events must not stall the pipeline)</li>
+</ul>
+<p>This concept is the bridge between “correctness theory” and production operational reality.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Timeouts create ambiguity: the client can’t tell “failed” vs “succeeded but response lost”.</li>
-<li>Retrying is unavoidable in distributed systems.</li>
-<li>Without idempotency, retries create duplicate side effects (double charge, duplicate ledger entry).</li>
-<li>Idempotency means “retry produces the same outcome as the first execution”.</li>
-<li>Idempotency keys are the standard pattern to make retries safe.</li>
-<li>Idempotency is necessary, but not sufficient for end-to-end correctness.</li>
+<li>Global ordering is unrealistic; define ordering scope (usually per entity key).</li>
+<li>Out-of-order delivery is normal due to retries, partitions, and rebalancing.</li>
+<li>Use partitioning + version/sequence fields to enforce monotonic state.</li>
+<li>Reprocessing is normal; it must be safe (idempotent consumers + deterministic processing).</li>
+<li>DLQs handle poison messages, but must be operationally owned and replayable.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Retries are inevitable, and retries create duplicates unless you design for them.</p>
-<p>Idempotency makes retries safe by treating repeated requests as the same user intent and returning the same stored outcome instead of repeating side effects.</p>
+<p>At-least-once delivery means duplicates, reordering, and poison messages are normal.</p>
+<p>Define ordering per key, enforce monotonicity with versions, make consumers idempotent for safe replay, and use DLQs with alerting and replay—not as a silent dumping ground.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Now that we understand why idempotency exists, we’ll answer the practical design question:</p>
-<blockquote>
-<p>where should idempotency live?</p></blockquote>
-<p>We’ll compare:</p>
+<p>Now that we understand delivery reality, we move to the core coordination pattern for multi-service correctness:</p>
 <ul>
-<li>API edge idempotency</li>
-<li>step-level idempotency (ledger/notify)</li>
-<li>workflow-level idempotency (saga replay)</li>
+<li>saga pattern fundamentals</li>
+<li>local transactions + compensation</li>
+<li>what Phase 3 evolves into for partial failures</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live">Idempotency — API Edge vs Step-level vs Workflow-level</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/concepts/8_30_saga-core-">Saga Pattern — Core Idea (Local Tx + Compensation)</a></strong></p>
 
         </article>
 
@@ -738,43 +845,49 @@ duplicates are a normal case at scale.</p></blockquote>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-the-core-problem-timeouts-create-ambiguity" data-toc-target="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</a>
+        <a class="toc-link" href="#1-ordering-what-you-want-vs-what-you-get" data-toc-target="1-ordering-what-you-want-vs-what-you-get">1. Ordering: What You Want vs What You Get</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-duplicate-scenario-even-with-correct-code" data-toc-target="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</a>
+        <a class="toc-link" href="#2-out-of-order-delivery-why-it-happens" data-toc-target="2-out-of-order-delivery-why-it-happens">2. Out-of-Order Delivery (Why It Happens)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#22-response-lost--retry--duplicate" data-toc-target="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</a>
+        <a class="toc-link" href="#3-practical-ordering-strategy-what-most-systems-do" data-toc-target="3-practical-ordering-strategy-what-most-systems-do">3. Practical Ordering Strategy (What Most Systems Do)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-what-idempotency-means-practical-definition" data-toc-target="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</a>
+        <a class="toc-link" href="#4-reprocessing-replay-without-breaking-correctness" data-toc-target="4-reprocessing-replay-without-breaking-correctness">4. Reprocessing (Replay) Without Breaking Correctness</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-duplicates-are-not-rare-they-are-guaranteed-eventually" data-toc-target="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</a>
+        <a class="toc-link" href="#5-poison-messages-when-retries-never-succeed" data-toc-target="5-poison-messages-when-retries-never-succeed">5. Poison Messages (When Retries Never Succeed)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-the-first-solution-pattern-idempotency-keys" data-toc-target="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</a>
+        <a class="toc-link" href="#6-dlq-dead-letter-queue-the-practical-tool" data-toc-target="6-dlq-dead-letter-queue-the-practical-tool">6. DLQ (Dead Letter Queue): The Practical Tool</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-what-idempotency-does-not-solve-important" data-toc-target="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</a>
+        <a class="toc-link" href="#7-dlq-is-not-ignore-errors-common-mistake" data-toc-target="7-dlq-is-not-ignore-errors-common-mistake">7. DLQ Is Not “Ignore Errors” (Common Mistake)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-phase-3--phase-4-connection" data-toc-target="8-phase-3--phase-4-connection">8. Phase 3 / Phase 4 Connection</a>
       </li>
     
       
@@ -802,7 +915,7 @@ duplicates are a normal case at scale.</p></blockquote>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_28_processing-guarantees-inbox-dedup-store/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -833,8 +946,6 @@ duplicates are a normal case at scale.</p></blockquote>
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

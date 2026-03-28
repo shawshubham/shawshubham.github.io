@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Idempotency — Why Retries Create Duplicates</title>
+<title>Processing Guarantees — Why Duplicates Happen</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1774640777">
+<link rel="stylesheet" href="/css/main.css?v=1774702015">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Idempotency — Why Retries Create Duplicates</h1>
+    <h1 class="main-heading">Processing Guarantees — Why Duplicates Happen</h1>
     <h3>
   </div>
 </section>
@@ -429,7 +429,7 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
                                 </li>
                               
-                                <li class="active">
+                                <li class="">
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
                                 </li>
                               
@@ -494,7 +494,35 @@
                                 </li>
                               
                                 <li class="">
-                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. </a>
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. Distributed Transactions — Practical Alternatives</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense/">8.23. Distributed Transactions — When 2PC Still Makes Sense</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/">8.24. Processing Guarantees — At-most vs At-least vs Exactly-Once</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/">8.25. Processing Guarantees — Why Duplicates Happen</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers/">8.26. Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_27_processing-guarantees-transactional-outbox-pattern/">8.27. Processing Guarantees — Transactional Outbox Pattern</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_28_processing-guarantees-inbox-dedup-store/">8.28. Processing Guarantees — Inbox / Dedup Store Pattern</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_29_processing-guarantees-ordering-reprocessing-dlqs/">8.29. Processing Guarantees — Ordering, Reprocessing, and DLQs</a>
                                 </li>
                               
                             </ul>
@@ -527,190 +555,281 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 18 Mar, 2026
+            Last updated on: 28 Mar, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h1 id="idempotency--why-retries-create-duplicates">Idempotency — Why Retries Create Duplicates</h1>
+          <h1 id="processing-guarantees--why-duplicates-happen">Processing Guarantees — Why Duplicates Happen</h1>
 <hr>
-<p>In Phase 3 (Payment System), the first major reliability problem appeared surprisingly early:</p>
+<p>If you choose at-least-once delivery, duplicates are not a surprise.</p>
+<p>They are a natural consequence of trying not to lose work.</p>
+<p>The core reason is simple:</p>
 <blockquote>
-<p>even in a simple architecture, retries can cause duplicate side effects.</p></blockquote>
-<p>This is not a “coding mistake”.</p>
-<p>It is a consequence of how networks behave:</p>
+<p>the system must retry whenever it cannot prove the previous attempt completed.</p></blockquote>
+<p>That “cannot prove” happens in multiple places:</p>
 <ul>
-<li>packets drop</li>
-<li>requests time out</li>
-<li>responses get lost</li>
-<li>clients retry</li>
+<li>client ↔ server</li>
+<li>producer ↔ broker</li>
+<li>broker ↔ consumer</li>
+<li>consumer ↔ database</li>
 </ul>
-<p>If your system treats retries like new requests, you will eventually:</p>
-<ul>
-<li>charge a user twice</li>
-<li>create duplicate ledger entries</li>
-<li>send duplicate notifications</li>
-</ul>
-<p>This article explains:</p>
-<ul>
-<li>why retries are inevitable</li>
-<li>how duplicates happen in real systems</li>
-<li>what idempotency actually means (practically)</li>
-<li>why payment systems treat idempotency as mandatory</li>
-</ul>
+<p>This article walks through the most common duplicate scenarios and what they imply for design.</p>
 <hr>
-<h2 id="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</h2>
+<h2 id="1-the-fundamental-ambiguity-timeout--failure">1. The Fundamental Ambiguity: Timeout ≠ Failure</h2>
 <hr>
-<p>When a client times out, it does not know what happened.</p>
-<p>Two possibilities exist:</p>
+<p>A timeout only tells you:</p>
+<ul>
+<li>“I didn’t get a response in time”</li>
+</ul>
+<p>It does not tell you:</p>
+<ul>
+<li>whether the operation happened</li>
+</ul>
+<p>So the safe default in reliable systems is:</p>
+<ul>
+<li>retry</li>
+</ul>
+<p>But retry is the act that produces duplicates unless downstream effects are idempotent.</p>
+<hr>
+<h2 id="2-duplicate-scenario-a-response-lost-after-success">2. Duplicate Scenario A: Response Lost After Success</h2>
+<hr>
+<p>Classic client/server case:</p>
 <ol>
-<li>the server never received the request</li>
-<li>the server processed the request, but the response was lost</li>
+<li>server processes request successfully</li>
+<li>response is lost or delayed</li>
+<li>client retries</li>
+<li>server processes again unless idempotent</li>
 </ol>
-<p>From the client’s perspective, both look identical:</p>
-<pre tabindex="0"><code>Request timed out
-</code></pre><p>So the client retries.</p>
-<p>This is the fundamental source of duplicates.</p>
-<hr>
-<h2 id="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</h2>
-<hr>
-<p>Consider a payment request.</p>
-<h3 id="21-normal-path">2.1 Normal path</h3>
 <div class="mermaid">
 sequenceDiagram
     autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
+    participant C as Client / Mobile
+    participant S as API Service
+    participant DB as Database
 
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
-    PaymentService-->>API: Payment CONFIRMED
-    API-->>User: success
+    rect rgb(232, 245, 233)
+    Note over C, DB: Attempt 1: The Hidden Success
+    C->>S: POST /payment (id=K)
+    S->>DB: INSERT transaction
+    DB-->>S: OK (Record Created)
+    end
+
+    Note over C, S: ⚡ Network Partition / Timeout ⚡
+    Note left of C: "Request failed, I should retry..."
+
+    rect rgb(255, 235, 238)
+    Note over C, DB: Attempt 2: The Double-Spend Risk
+    C->>S: POST /payment (id=K)
+
+    Critical "The Bug (if not idempotent)"
+        S->>DB: INSERT transaction (again!)
+        DB-->>S: OK (Duplicate created)
+    end
+    end
+
+    Note over C, DB: Result: User billed twice for one intent.
 </div>
-<h2 id="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</h2>
+<hr>
+<h2 id="3-duplicate-scenario-b-consumer-crashes-after-processing-but-before-ack">3. Duplicate Scenario B: Consumer Crashes After Processing But Before Ack</h2>
+<hr>
+<p>In message systems, one of the most common causes is:</p>
+<ul>
+<li>consumer processes the message</li>
+<li>then crashes before acknowledging it</li>
+<li>broker retries delivery</li>
+</ul>
+<p>So the broker is correct to redeliver.</p>
+<p>But the consumer may have already performed the side effect.</p>
 <div class="mermaid">
 sequenceDiagram
     autonumber
-    participant User
-    participant API
-    participant PaymentService
-    participant DB
+    participant B as Message Broker
+    participant C as Consumer Service
+    participant DB as Database
 
-    User->>API: Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc)
-    PaymentService->>DB: INSERT payment + debit balance
-    DB-->>PaymentService: OK
+    rect rgb(232, 245, 233)
+    Note over B, DB: Attempt 1: The Successful Execution
+    B->>C: Deliver Message M1
+    C->>DB: Apply Side Effect (e.g., Deduct Credits)
+    DB-->>C: OK (Balance Updated)
+    end
 
-    Note over PaymentService,User: response lost (timeout)
+    Note over C: ⚡ Consumer Crashes / OOM ⚡
+    Note over C: (ACK never reaches Broker)
 
-    User->>API: Retry Pay £100 (requestId=abc)
-    API->>PaymentService: processPayment(abc) again
-    PaymentService->>DB: INSERT payment + debit balance (again)
+    rect rgb(255, 243, 224)
+    Note over B, C: The Safety Mechanism (Redelivery)
+    Note right of B: ACK Timeout expired
+    B-->>C: Redeliver Message M1
+    end
+
+    rect rgb(255, 235, 238)
+    Note over C, DB: Attempt 2: The Double-Processing Risk
+    Critical "The Repeat (if not idempotent)"
+        C->>DB: Apply Side Effect (again!)
+        DB-->>C: OK (Credits deducted twice)
+    end
+    end
+
+    Note over B, DB: Result: Message processed twice due to missing ACK.
 </div>
-<p>If your system does not recognize that the retry is the “same intent”, it performs the side effect again.</p>
-<p>This is how you get:</p>
+<hr>
+<h2 id="4-duplicate-scenario-c-ack-sent-but-broker-doesnt-receive-it">4. Duplicate Scenario C: Ack Sent, But Broker Doesn’t Receive It</h2>
+<hr>
+<p>The reverse happens too:</p>
 <ul>
-<li>double charges</li>
-<li>duplicate payments</li>
-<li>mismatched ledger entries</li>
+<li>consumer sends ACK</li>
+<li>ACK is lost</li>
+<li>broker thinks delivery failed and redelivers</li>
+</ul>
+<p>From broker’s perspective:</p>
+<ul>
+<li>no ACK = not processed</li>
+</ul>
+<p>So it retries.</p>
+<p>This is correct behavior for at-least-once delivery.</p>
+<hr>
+<h2 id="5-duplicate-scenario-d-producer-retries-publish-uncertain-publish-outcome">5. Duplicate Scenario D: Producer Retries Publish (Uncertain Publish Outcome)</h2>
+<hr>
+<p>Producers also face ambiguity:</p>
+<ul>
+<li>did the broker receive my message?</li>
+</ul>
+<p>If the producer times out, it retries publish.</p>
+<p>If the broker actually did receive it, retries create duplicates.</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant P as Producer (App)
+    participant B as Message Broker
+    participant C as Downstream Consumer
+
+    rect rgb(232, 245, 233)
+    Note over P, B: Attempt 1: Successful but "Invisible"
+    P->>B: Publish Message (Order: 101)
+    B->>B: Persist to Disk / Replicate
+    end
+
+    Note over P, B: ⚡ Network Latency / Timeout ⚡
+    Note left of P: "No ACK received.<br/>I'll try again just in case."
+
+    rect rgb(255, 243, 224)
+    Note over P, B: Attempt 2: The Redundant Publish
+    P->>B: Publish Message (Order: 101)
+    B->>B: Store Duplicate Message
+    B-->>P: ACK OK
+    end
+
+    rect rgb(255, 235, 238)
+    Note over B, C: The Downstream Blast Radius
+    C->>B: Pull Message 1 (Order: 101)
+    C->>B: Pull Message 2 (Order: 101)
+    Note right of C: Side effects executed twice!
+    end
+</div>
+<p>This is why publishing often needs:</p>
+<ul>
+<li>idempotent producer support, or</li>
+<li>outbox pattern (publish after durable DB commit), or</li>
+<li>message keys with dedup on broker (where supported)</li>
 </ul>
 <hr>
-<h2 id="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</h2>
+<h2 id="6-duplicate-scenario-e-db-commit--message-publish-split-brain">6. Duplicate Scenario E: “DB Commit + Message Publish” Split-Brain</h2>
 <hr>
-<p>A request is <strong>idempotent</strong> if:</p>
-<blockquote>
-<p>executing it multiple times produces the same result as executing it once.</p></blockquote>
-<p>For a payment:</p>
+<p>A particularly dangerous gap:</p>
 <ul>
-<li>the first attempt may create the payment and debit funds</li>
-<li>a retry should return the same outcome</li>
-<li>it should not create a second payment or debit again</li>
+<li>service commits to DB</li>
+<li>then publishes an event</li>
+<li>publish fails (or service crashes)</li>
+<li>service retries and re-publishes or re-processes</li>
 </ul>
-<p>Idempotency is not about avoiding retries.</p>
-<p>It is about making retries <strong>safe</strong>.</p>
-<hr>
-<h2 id="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</h2>
-<hr>
-<p>In real systems, retries are common because of:</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant S as API Service
+    participant DB as Database (SQL)
+    participant B as Message Broker
+
+    rect rgb(232, 245, 233)
+    Note over S, DB: Step 1: The Local Commit
+    S->>DB: UPDATE Account (Balance = 0)
+    DB-->>S: OK (Commit Success)
+    end
+
+    Note over S: ⚡ Service Crashes / Network Fails ⚡
+
+    rect rgb(255, 235, 238)
+    Note over S, B: Step 2: The Missing Event
+    Critical "The Split-Brain"
+        S-X B: PUBLISH "AccountEmpty" Event
+    end
+    end
+
+    Note over S, B: RESULT: DB is updated, but Downstream<br/>Services never hear about it.
+</div>
+<p>This can create:</p>
 <ul>
-<li>transient network failures</li>
-<li>load balancer timeouts</li>
-<li>server restarts</li>
-<li>GC pauses / CPU spikes</li>
-<li>downstream dependencies slowing down</li>
-<li>client mobile networks switching</li>
+<li>duplicate events</li>
+<li>missing events (if it never retries)</li>
+<li>inconsistent downstream projections</li>
 </ul>
-<p>Even if your code is “correct”, production conditions create retries.</p>
-<p>So the right mindset is:</p>
-<blockquote>
-<p>duplicates are not an edge case.<br>
-duplicates are a normal case at scale.</p></blockquote>
+<p>This is why the <strong>transactional outbox</strong> exists.</p>
 <hr>
-<h2 id="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</h2>
+<h2 id="7-what-this-means-for-system-design">7. What This Means for System Design</h2>
 <hr>
-<p>The standard mechanism is an <strong>idempotency key</strong>:</p>
+<p>If duplicates are normal, you must design for them:</p>
+<h3 id="71-idempotent-effects">7.1 Idempotent effects</h3>
 <ul>
-<li>client generates a unique key for the user intent</li>
-<li>server stores the key with the result</li>
-<li>retries with the same key return the same result</li>
+<li>idempotency keys</li>
+<li>unique constraints</li>
+<li>atomic updates</li>
+<li>inbox/dedup store</li>
 </ul>
-<p>Conceptually:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency Key = &#34;same user intent&#34;
-</span></span></code></pre></div><p>A typical flow:</p>
-<ol>
-<li>Client sends POST /payments with header Idempotency-Key: X</li>
-<li>Server checks if key X already exists</li>
-<li>If yes → return stored result</li>
-<li>If no → process payment, store result under key X</li>
-</ol>
-<p>This turns “retry ambiguity” into a deterministic outcome.</p>
-<p>We’ll cover where this key should be stored (DB vs Redis) and how to do it safely in later idempotency concept pages.</p>
-<hr>
-<h2 id="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</h2>
-<hr>
-<p>Idempotency solves duplicate execution of the same intent.</p>
-<p>But it does not automatically solve:</p>
+<h3 id="72-clear-processing-boundaries">7.2 Clear processing boundaries</h3>
 <ul>
-<li>ordering problems (events out of order)</li>
-<li>partial failures across services (sagas)</li>
-<li>exactly-once delivery guarantees in message systems</li>
-<li>correctness across replicas (stale reads)</li>
+<li>“mark processed” should be atomic with side effect</li>
+<li>avoid “do side effect then later mark processed” without durability</li>
 </ul>
-<p>Idempotency is a foundation, not the full reliability story.</p>
+<h3 id="73-operational-design">7.3 Operational design</h3>
+<ul>
+<li>retries with backoff</li>
+<li>DLQs for poison messages</li>
+<li>observability for duplicate rate spikes</li>
+</ul>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>
 <hr>
 <ul>
-<li>Timeouts create ambiguity: the client can’t tell “failed” vs “succeeded but response lost”.</li>
-<li>Retrying is unavoidable in distributed systems.</li>
-<li>Without idempotency, retries create duplicate side effects (double charge, duplicate ledger entry).</li>
-<li>Idempotency means “retry produces the same outcome as the first execution”.</li>
-<li>Idempotency keys are the standard pattern to make retries safe.</li>
-<li>Idempotency is necessary, but not sufficient for end-to-end correctness.</li>
+<li>Duplicates happen because reliable systems retry under uncertainty.</li>
+<li>Timeouts create ambiguity; retries create repeats.</li>
+<li>Common causes:
+<ul>
+<li>response lost after success</li>
+<li>consumer crash before ACK</li>
+<li>ACK lost</li>
+<li>producer publish retries</li>
+<li>DB + publish split-brain</li>
+</ul>
+</li>
+<li>Therefore: at-least-once delivery requires idempotent consumers and safe publishing patterns.</li>
 </ul>
 <hr>
 <h2 id="tldr">TL;DR</h2>
 <hr>
-<p>Retries are inevitable, and retries create duplicates unless you design for them.</p>
-<p>Idempotency makes retries safe by treating repeated requests as the same user intent and returning the same stored outcome instead of repeating side effects.</p>
+<p>Duplicates are the price you pay for reliability.</p>
+<p>Any time a system cannot prove an attempt completed, it retries. That creates duplicates unless you design idempotent effects and safe processing boundaries.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next</h3>
-<p>Now that we understand why idempotency exists, we’ll answer the practical design question:</p>
-<blockquote>
-<p>where should idempotency live?</p></blockquote>
-<p>We’ll compare:</p>
+<p>Next we’ll turn duplicates into a solved problem:</p>
 <ul>
-<li>API edge idempotency</li>
-<li>step-level idempotency (ledger/notify)</li>
-<li>workflow-level idempotency (saga replay)</li>
+<li>idempotent consumers</li>
+<li>“already processed” stores</li>
+<li>exactly-once effects in practice</li>
 </ul>
 <p>👉 <strong>Up Next: →</strong><br>
-<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live">Idempotency — API Edge vs Step-level vs Workflow-level</a></strong></p>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers">Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</a></strong></p>
 
         </article>
 
@@ -738,43 +857,43 @@ duplicates are a normal case at scale.</p></blockquote>
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-the-core-problem-timeouts-create-ambiguity" data-toc-target="1-the-core-problem-timeouts-create-ambiguity">1. The Core Problem: Timeouts Create Ambiguity</a>
+        <a class="toc-link" href="#1-the-fundamental-ambiguity-timeout--failure" data-toc-target="1-the-fundamental-ambiguity-timeout--failure">1. The Fundamental Ambiguity: Timeout ≠ Failure</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-the-duplicate-scenario-even-with-correct-code" data-toc-target="2-the-duplicate-scenario-even-with-correct-code">2. The Duplicate Scenario (Even With Correct Code)</a>
+        <a class="toc-link" href="#2-duplicate-scenario-a-response-lost-after-success" data-toc-target="2-duplicate-scenario-a-response-lost-after-success">2. Duplicate Scenario A: Response Lost After Success</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#22-response-lost--retry--duplicate" data-toc-target="22-response-lost--retry--duplicate">2.2 Response lost → retry → duplicate</a>
+        <a class="toc-link" href="#3-duplicate-scenario-b-consumer-crashes-after-processing-but-before-ack" data-toc-target="3-duplicate-scenario-b-consumer-crashes-after-processing-but-before-ack">3. Duplicate Scenario B: Consumer Crashes After Processing But Before Ack</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-what-idempotency-means-practical-definition" data-toc-target="3-what-idempotency-means-practical-definition">3. What “Idempotency” Means (Practical Definition)</a>
+        <a class="toc-link" href="#4-duplicate-scenario-c-ack-sent-but-broker-doesnt-receive-it" data-toc-target="4-duplicate-scenario-c-ack-sent-but-broker-doesnt-receive-it">4. Duplicate Scenario C: Ack Sent, But Broker Doesn’t Receive It</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-why-duplicates-are-not-rare-they-are-guaranteed-eventually" data-toc-target="4-why-duplicates-are-not-rare-they-are-guaranteed-eventually">4. Why Duplicates Are Not Rare (They Are Guaranteed Eventually)</a>
+        <a class="toc-link" href="#5-duplicate-scenario-d-producer-retries-publish-uncertain-publish-outcome" data-toc-target="5-duplicate-scenario-d-producer-retries-publish-uncertain-publish-outcome">5. Duplicate Scenario D: Producer Retries Publish (Uncertain Publish Outcome)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-the-first-solution-pattern-idempotency-keys" data-toc-target="5-the-first-solution-pattern-idempotency-keys">5. The First Solution Pattern: Idempotency Keys</a>
+        <a class="toc-link" href="#6-duplicate-scenario-e-db-commit--message-publish-split-brain" data-toc-target="6-duplicate-scenario-e-db-commit--message-publish-split-brain">6. Duplicate Scenario E: “DB Commit &#43; Message Publish” Split-Brain</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-what-idempotency-does-not-solve-important" data-toc-target="6-what-idempotency-does-not-solve-important">6. What Idempotency Does NOT Solve (Important)</a>
+        <a class="toc-link" href="#7-what-this-means-for-system-design" data-toc-target="7-what-this-means-for-system-design">7. What This Means for System Design</a>
       </li>
     
       
@@ -802,7 +921,7 @@ duplicates are a normal case at scale.</p></blockquote>
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -834,7 +953,7 @@ duplicates are a normal case at scale.</p></blockquote>
     
 
     
-    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
