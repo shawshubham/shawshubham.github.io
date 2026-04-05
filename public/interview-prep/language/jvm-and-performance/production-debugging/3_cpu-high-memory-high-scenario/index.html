@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPU High / Memory High Scenario</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775423438">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">CPU High / Memory High Scenario</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. CPU High vs Memory High — Core Difference</li>
+        
+        <li>4. First Step — Confirm the Symptom Properly</li>
+        
+        <li>5. If CPU Is High — What Do I Check?</li>
+        
+        <li>6. Thread Dumps for CPU High</li>
+        
+        <li>7. Common Causes of High CPU</li>
+        
+        <li>8. If Memory Is High — What Do I Check?</li>
+        
+        <li>9. GC Behavior for Memory High</li>
+        
+        <li>10. Heap Dump for Memory High</li>
+        
+        <li>11. What If Both CPU and Memory Are High?</li>
+        
+        <li>12. Example Incident Approach — CPU High</li>
+        
+        <li>13. Example Incident Approach — Memory High</li>
+        
+        <li>14. CPU High vs Memory High — Which Artifact Helps Most?</li>
+        
+        <li>15. Important Interview Points</li>
+        
+        <li>16. Interview Follow-up Questions</li>
+        
+        <li>17. Common Mistakes</li>
+        
+        <li>18. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>When CPU is high, I investigate which threads or code paths are actively consuming compute time. When memory is high, I investigate heap growth, garbage collection behavior, and object retention. CPU issues are usually execution-path problems, while memory issues are usually allocation, retention, or garbage-collection problems. In production, I first confirm the symptom with metrics, then collect the right evidence such as thread dumps, GC logs, heap dumps, and application telemetry.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This is one of the most common production-support interview scenarios because it checks whether you can:</p>
+<ul>
+<li>distinguish CPU problems from memory problems</li>
+<li>choose the right diagnostic artifact</li>
+<li>avoid random guessing during incidents</li>
+<li>reason from symptoms to likely causes</li>
+<li>explain a structured production-debugging approach</li>
+</ul>
+<p>Interviewers usually do not want a perfect tool command first.</p>
+<p>They want to see whether you can think in a clean sequence:</p>
+<ol>
+<li>confirm the symptom</li>
+<li>classify the problem</li>
+<li>collect evidence</li>
+<li>narrow the cause</li>
+<li>explain next actions</li>
+</ol>
+<hr>
+<h2 id="3-cpu-high-vs-memory-high--core-difference">3. CPU High vs Memory High — Core Difference</h2>
+<hr>
+<p>A simple way to frame it is:</p>
+<ul>
+<li><strong>CPU high</strong> → the system is spending too much time executing work</li>
+<li><strong>Memory high</strong> → the system is retaining too much data or struggling to reclaim memory</li>
+</ul>
+<h3 id="cpu-high-usually-points-to">CPU high usually points to:</h3>
+<ul>
+<li>hot code path</li>
+<li>busy loops</li>
+<li>excessive retries</li>
+<li>lock contention side effects</li>
+<li>too many active threads</li>
+<li>expensive computations</li>
+<li>serialization / deserialization overhead</li>
+<li>high request volume</li>
+</ul>
+<h3 id="memory-high-usually-points-to">Memory high usually points to:</h3>
+<ul>
+<li>high allocation rate</li>
+<li>large object retention</li>
+<li>memory leak</li>
+<li>cache growth</li>
+<li>insufficient heap size</li>
+<li>frequent GC pressure</li>
+<li>too many long-lived objects</li>
+</ul>
+<p>So although both can slow the application, the debugging path is different.</p>
+<hr>
+<h2 id="4-first-step--confirm-the-symptom-properly">4. First Step — Confirm the Symptom Properly</h2>
+<hr>
+<p>Before assuming root cause, first confirm what is actually high.</p>
+<p>Useful signals include:</p>
+<ul>
+<li>process CPU usage</li>
+<li>pod/container CPU usage</li>
+<li>JVM heap used</li>
+<li>heap after GC</li>
+<li>GC count and pause time</li>
+<li>request latency</li>
+<li>thread count</li>
+<li>connection pool behavior</li>
+<li>queue depth</li>
+</ul>
+<p>A production-safe approach starts with:</p>
+<blockquote>
+<p>Is the problem really CPU, really memory, or both?</p></blockquote>
+<p>Because sometimes people say “application is slow,” but the actual cause may be:</p>
+<ul>
+<li>blocked threads</li>
+<li>external dependency slowness</li>
+<li>connection pool exhaustion</li>
+<li>GC pause pressure</li>
+<li>high load, not a leak</li>
+</ul>
+<hr>
+<h2 id="5-if-cpu-is-high--what-do-i-check">5. If CPU Is High — What Do I Check?</h2>
+<hr>
+<p>When CPU is high, I mainly want to find:</p>
+<blockquote>
+<p>which threads are consuming CPU, and what code are they executing?</p></blockquote>
+<h3 id="key-things-to-check">Key things to check</h3>
+<ul>
+<li>thread dumps</li>
+<li>top CPU-consuming process / thread</li>
+<li>repeated hot stack traces</li>
+<li>request rate / traffic spike</li>
+<li>tight loops or retry storms</li>
+<li>lock contention symptoms</li>
+<li>excessive logging or serialization</li>
+</ul>
+<h3 id="practical-reasoning">Practical reasoning</h3>
+<p>High CPU usually means the application is actively doing work.</p>
+<p>So I want to identify:</p>
+<ul>
+<li>which thread</li>
+<li>which code path</li>
+<li>whether the work is expected or pathological</li>
+</ul>
+<hr>
+<h2 id="6-thread-dumps-for-cpu-high">6. Thread Dumps for CPU High</h2>
+<hr>
+<p>Thread dumps are one of the most useful artifacts for CPU issues.</p>
+<p>A good approach is:</p>
+<ol>
+<li>identify that CPU is high</li>
+<li>capture multiple thread dumps a few seconds apart</li>
+<li>look for the same thread or same stack trace repeating</li>
+<li>correlate that with the hot code path</li>
+</ol>
+<h3 id="what-am-i-looking-for">What am I looking for?</h3>
+<ul>
+<li>same thread repeatedly active</li>
+<li>same business method appearing in many dumps</li>
+<li>retry loop</li>
+<li>infinite loop</li>
+<li>excessive parsing / transformation / computation</li>
+<li>contention pattern with many blocked threads and one hot owner thread</li>
+</ul>
+<h3 id="important-note">Important note</h3>
+<p><code>RUNNABLE</code> does not always mean “definitely burning CPU right now,” but repeated dumps plus CPU metrics help narrow active execution hotspots.</p>
+<hr>
+<h2 id="7-common-causes-of-high-cpu">7. Common Causes of High CPU</h2>
+<hr>
+<p>Typical causes include:</p>
+<ul>
+<li>infinite loop or busy loop</li>
+<li>excessive retries without backoff</li>
+<li>bad query result processing in application code</li>
+<li>huge object serialization / JSON mapping</li>
+<li>regex or parsing hotspot</li>
+<li>too many concurrent requests</li>
+<li>lock contention leading to wasted scheduling and thread activity</li>
+<li>excessive thread creation</li>
+<li>CPU-heavy stream or collection processing</li>
+</ul>
+<p>In an interview, it is good to say:</p>
+<blockquote>
+<p>High CPU is often not a JVM problem first. It is often an application behavior problem that the JVM is revealing.</p></blockquote>
+<hr>
+<h2 id="8-if-memory-is-high--what-do-i-check">8. If Memory Is High — What Do I Check?</h2>
+<hr>
+<p>When memory is high, I mainly want to find:</p>
+<blockquote>
+<p>is the application under normal memory load, under temporary allocation pressure, or leaking / retaining memory?</p></blockquote>
+<h3 id="key-things-to-check-1">Key things to check</h3>
+<ul>
+<li>heap usage over time</li>
+<li>heap usage after GC</li>
+<li>GC frequency</li>
+<li>Major GC / Full GC trend</li>
+<li>old generation growth</li>
+<li>heap dump, if needed</li>
+<li>object retention patterns</li>
+<li>cache/session growth</li>
+</ul>
+<h3 id="practical-reasoning-1">Practical reasoning</h3>
+<p>Memory high does not always mean memory leak.</p>
+<p>It can also mean:</p>
+<ul>
+<li>traffic is high</li>
+<li>object churn is high</li>
+<li>heap is undersized</li>
+<li>cache is large by design</li>
+</ul>
+<p>So the real question is:</p>
+<blockquote>
+<p>after GC, does memory return to a reasonable level, or does the post-GC baseline keep rising?</p></blockquote>
+<hr>
+<h2 id="9-gc-behavior-for-memory-high">9. GC Behavior for Memory High</h2>
+<hr>
+<p>A healthy pattern often looks like this:</p>
+<ul>
+<li>heap usage rises</li>
+<li>GC runs</li>
+<li>heap usage drops</li>
+<li>system continues normally</li>
+</ul>
+<p>A suspicious pattern looks like this:</p>
+<ul>
+<li>heap usage rises</li>
+<li>GC runs</li>
+<li>heap usage drops only a little</li>
+<li>next cycle starts from a higher baseline</li>
+<li>repeated cycles keep pushing memory upward</li>
+</ul>
+<p>That kind of pattern may indicate:</p>
+<ul>
+<li>object retention</li>
+<li>leak behavior</li>
+<li>old generation pressure</li>
+</ul>
+<p>This is why GC logs and heap-after-GC metrics are important.</p>
+<hr>
+<h2 id="10-heap-dump-for-memory-high">10. Heap Dump for Memory High</h2>
+<hr>
+<p>If memory keeps rising and GC is not reclaiming enough, a heap dump becomes very useful.</p>
+<p>A heap dump helps answer:</p>
+<ul>
+<li>which object types occupy the most memory?</li>
+<li>which objects are retaining others?</li>
+<li>why are these objects still reachable?</li>
+</ul>
+<p>Typical things to look for:</p>
+<ul>
+<li>large collections</li>
+<li>growing maps or caches</li>
+<li>session objects</li>
+<li>retained request payloads</li>
+<li>listener leaks</li>
+<li><code>ThreadLocal</code> retention</li>
+<li>singleton/global references holding unnecessary data</li>
+</ul>
+<hr>
+<h2 id="11-what-if-both-cpu-and-memory-are-high">11. What If Both CPU and Memory Are High?</h2>
+<hr>
+<p>This is also common.</p>
+<p>When both are high, a few combined patterns are possible:</p>
+<h3 id="pattern-1--gc-pressure">Pattern 1 — GC pressure</h3>
+<p>Memory is high, GC runs frequently, and CPU also rises because GC work is consuming CPU.</p>
+<h3 id="pattern-2--allocation-storm">Pattern 2 — allocation storm</h3>
+<p>Application creates too many temporary objects very quickly, causing both high CPU and heavy GC activity.</p>
+<h3 id="pattern-3--leak-with-gc-struggle">Pattern 3 — leak with GC struggle</h3>
+<p>Heap keeps filling, GC works harder and more often, pauses increase, and CPU usage rises due to GC pressure.</p>
+<h3 id="pattern-4--high-traffic--overload">Pattern 4 — high traffic / overload</h3>
+<p>The service is genuinely processing too much work, causing both heavy allocation and high compute usage.</p>
+<p>So when both are high, you must separate:</p>
+<ul>
+<li>application work</li>
+<li>GC work</li>
+<li>retained memory</li>
+<li>traffic/load effects</li>
+</ul>
+<hr>
+<h2 id="12-example-incident-approach--cpu-high">12. Example Incident Approach — CPU High</h2>
+<hr>
+<p>If an interviewer asks:</p>
+<blockquote>
+<p>CPU is high in production. What would you do?</p></blockquote>
+<p>A strong structured answer is:</p>
+<ol>
+<li>confirm CPU spike from monitoring</li>
+<li>check whether it is process-wide, container-wide, or JVM-specific</li>
+<li>capture thread dumps</li>
+<li>identify hot or repeating thread stacks</li>
+<li>correlate with traffic, logs, recent deploys, retries, queue consumers, or batch activity</li>
+<li>identify whether the CPU is due to business logic, excessive looping, lock contention, or GC</li>
+<li>mitigate if needed, then fix root cause</li>
+</ol>
+<hr>
+<h2 id="13-example-incident-approach--memory-high">13. Example Incident Approach — Memory High</h2>
+<hr>
+<p>If an interviewer asks:</p>
+<blockquote>
+<p>Memory is high in production. What would you do?</p></blockquote>
+<p>A strong structured answer is:</p>
+<ol>
+<li>confirm heap growth trend from monitoring</li>
+<li>check GC behavior and whether heap drops after GC</li>
+<li>check whether old generation keeps growing</li>
+<li>determine whether this looks like high load, object churn, or retention/leak</li>
+<li>capture heap dump if needed</li>
+<li>inspect retained objects and reference chains</li>
+<li>identify the code path or data structure causing retention</li>
+<li>fix the retention issue or adjust memory design/tuning as needed</li>
+</ol>
+<hr>
+<h2 id="14-cpu-high-vs-memory-high--which-artifact-helps-most">14. CPU High vs Memory High — Which Artifact Helps Most?</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Most Useful Artifact</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>High CPU</td>
+          <td>thread dump, CPU metrics, profiler, request rate</td>
+      </tr>
+      <tr>
+          <td>High memory</td>
+          <td>heap metrics, GC logs, heap dump</td>
+      </tr>
+      <tr>
+          <td>Suspected deadlock</td>
+          <td>thread dump</td>
+      </tr>
+      <tr>
+          <td>Suspected memory leak</td>
+          <td>heap dump + GC trend</td>
+      </tr>
+      <tr>
+          <td>Frequent GC pauses</td>
+          <td>GC logs + heap metrics</td>
+      </tr>
+  </tbody>
+</table>
+<p>This table is useful because many candidates jump to heap dump for every problem, which is not correct.</p>
+<hr>
+<h2 id="15-important-interview-points">15. Important Interview Points</h2>
+<hr>
+<p>Strong points to mention in interviews:</p>
+<ul>
+<li>high CPU and high memory are different diagnostic paths</li>
+<li>CPU issues are usually execution-path problems</li>
+<li>memory issues are usually allocation, retention, or GC problems</li>
+<li>confirm the symptom first instead of guessing</li>
+<li>thread dumps are stronger for execution issues</li>
+<li>heap dumps are stronger for retention issues</li>
+<li>GC behavior is the bridge between memory usage and runtime impact</li>
+</ul>
+<hr>
+<h2 id="16-interview-follow-up-questions">16. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;How would you debug CPU high or memory high in production?&rdquo;</strong>, interviewers often ask related follow-ups.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>How do you know whether memory high is a leak?</td>
+          <td>Investigation maturity</td>
+      </tr>
+      <tr>
+          <td>Why check heap after GC?</td>
+          <td>GC reasoning</td>
+      </tr>
+      <tr>
+          <td>Why capture multiple thread dumps for CPU high?</td>
+          <td>Runtime debugging depth</td>
+      </tr>
+      <tr>
+          <td>What if both CPU and memory are high?</td>
+          <td>Systems thinking</td>
+      </tr>
+      <tr>
+          <td>What artifact is best for deadlock vs memory leak?</td>
+          <td>Diagnostic choice</td>
+      </tr>
+      <tr>
+          <td>Can GC itself cause CPU high?</td>
+          <td>JVM runtime understanding</td>
+      </tr>
+      <tr>
+          <td>How would you separate high traffic from a leak?</td>
+          <td>Production reasoning</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="17-common-mistakes">17. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>assuming high memory always means a leak</li>
+<li>assuming high CPU always means bad code in one method</li>
+<li>capturing heap dump first for a pure CPU issue</li>
+<li>ignoring GC when both CPU and memory are high</li>
+<li>not distinguishing application work from GC work</li>
+<li>not confirming whether memory drops after GC</li>
+</ul>
+<hr>
+<h2 id="18-interview-summary-answer-best-answer">18. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>How would you debug a CPU high or memory high issue in production?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>I would first confirm whether the real problem is CPU, memory, or both using monitoring data. If CPU is high, I would focus on active execution paths using thread dumps and look for hot or repeating stacks, loops, contention, or workload spikes. If memory is high, I would focus on heap growth, GC behavior, and whether memory drops properly after GC. If it does not, I would investigate retention using heap dumps. So the main idea is to match the symptom with the right evidence instead of treating every incident the same way.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/jvm-and-performance/" class="btn nav-btn">
+        JVM and Performance - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

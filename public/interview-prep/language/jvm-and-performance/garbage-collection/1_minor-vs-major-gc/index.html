@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minor GC vs Major GC</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775422974">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Minor GC vs Major GC</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Quick Heap Refresher</li>
+        
+        <li>4. What is Minor GC?</li>
+        
+        <li>5. What is Major GC?</li>
+        
+        <li>6. Minor GC vs Major GC — Core Difference</li>
+        
+        <li>7. How Objects Move Across Generations</li>
+        
+        <li>8. Why Minor GC Is Usually Faster</li>
+        
+        <li>9. Why Major GC Is Usually More Expensive</li>
+        
+        <li>10. Where Does Full GC Fit In?</li>
+        
+        <li>11. Example Timeline</li>
+        
+        <li>12. What Is a Bad Sign in Production?</li>
+        
+        <li>13. Important Interview Points</li>
+        
+        <li>14. Interview Follow-up Questions</li>
+        
+        <li>15. Common Mistakes</li>
+        
+        <li>16. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Minor GC cleans the Young Generation, where newly created objects usually start their life. Major GC cleans the Old Generation, where longer-lived objects are stored. Minor GC is usually more frequent and faster, while Major GC is usually less frequent and more expensive.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This is one of the most common JVM and production-support questions because it checks whether you understand:</p>
+<ul>
+<li>how heap memory is divided</li>
+<li>where new objects are allocated</li>
+<li>why some GC events are frequent and cheap</li>
+<li>why others are heavier and more disruptive</li>
+<li>how memory pressure affects application performance</li>
+</ul>
+<p>Interviewers often ask this before moving to:</p>
+<ul>
+<li>Young Generation vs Old Generation</li>
+<li>Full GC</li>
+<li>stop-the-world pauses</li>
+<li>GC tuning</li>
+<li>memory leak analysis</li>
+</ul>
+<hr>
+<h2 id="3-quick-heap-refresher">3. Quick Heap Refresher</h2>
+<hr>
+<p>The JVM heap is commonly divided into generations.</p>
+<p>A simplified view is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Heap
+</span></span><span style="display:flex;"><span>├── Young Generation
+</span></span><span style="display:flex;"><span>│   ├── Eden
+</span></span><span style="display:flex;"><span>│   └── Survivor spaces
+</span></span><span style="display:flex;"><span>└── Old Generation
+</span></span></code></pre></div><h3 id="young-generation">Young Generation</h3>
+<p>This is where most newly created objects start.</p>
+<h3 id="old-generation">Old Generation</h3>
+<p>This is where objects that survive for longer are moved.</p>
+<p>This division exists because most objects in Java die young, so the JVM can optimize garbage collection around that behavior.</p>
+<hr>
+<h2 id="4-what-is-minor-gc">4. What is Minor GC?</h2>
+<hr>
+<p>A <strong>Minor GC</strong> happens when the JVM collects garbage from the <strong>Young Generation</strong>.</p>
+<p>This usually happens when the Eden space becomes full.</p>
+<h3 id="what-typically-happens">What typically happens?</h3>
+<ul>
+<li>new objects are created in Eden</li>
+<li>when Eden fills up, Minor GC runs</li>
+<li>objects that are no longer reachable are removed</li>
+<li>objects that survive may be moved to Survivor spaces</li>
+<li>objects that survive multiple collection cycles may eventually be promoted to the Old Generation</li>
+</ul>
+<h3 id="important-characteristics">Important characteristics</h3>
+<ul>
+<li>usually frequent</li>
+<li>usually faster than Major GC</li>
+<li>focuses on short-lived objects</li>
+</ul>
+<hr>
+<h2 id="5-what-is-major-gc">5. What is Major GC?</h2>
+<hr>
+<p>A <strong>Major GC</strong> happens when the JVM collects garbage from the <strong>Old Generation</strong>.</p>
+<p>This is more expensive because Old Generation usually contains:</p>
+<ul>
+<li>more objects</li>
+<li>larger objects</li>
+<li>longer-lived objects</li>
+</ul>
+<h3 id="important-characteristics-1">Important characteristics</h3>
+<ul>
+<li>usually less frequent than Minor GC</li>
+<li>usually more expensive</li>
+<li>often causes longer pauses than Minor GC</li>
+<li>often indicates more serious memory pressure</li>
+</ul>
+<hr>
+<h2 id="6-minor-gc-vs-major-gc--core-difference">6. Minor GC vs Major GC — Core Difference</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>Minor GC</th>
+          <th>Major GC</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Cleans</td>
+          <td>Young Generation</td>
+          <td>Old Generation</td>
+      </tr>
+      <tr>
+          <td>Typical frequency</td>
+          <td>More frequent</td>
+          <td>Less frequent</td>
+      </tr>
+      <tr>
+          <td>Typical cost</td>
+          <td>Lower</td>
+          <td>Higher</td>
+      </tr>
+      <tr>
+          <td>Object type focus</td>
+          <td>Short-lived objects</td>
+          <td>Long-lived objects</td>
+      </tr>
+      <tr>
+          <td>Performance impact</td>
+          <td>Usually smaller</td>
+          <td>Usually larger</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="7-how-objects-move-across-generations">7. How Objects Move Across Generations</h2>
+<hr>
+<p>A common lifecycle is:</p>
+<ol>
+<li>object is created in Eden</li>
+<li>Minor GC runs</li>
+<li>if object is still reachable, it survives</li>
+<li>after surviving enough cycles, it may be promoted to Old Generation</li>
+<li>later, if it becomes unreachable in Old Generation, it can be collected during Major GC</li>
+</ol>
+<p>So the important idea is:</p>
+<blockquote>
+<p>Minor GC mostly deals with young, newly created objects. Major GC deals with older, longer-lived objects.</p></blockquote>
+<hr>
+<h2 id="8-why-minor-gc-is-usually-faster">8. Why Minor GC Is Usually Faster</h2>
+<hr>
+<p>Minor GC is usually faster because:</p>
+<ul>
+<li>Young Generation is smaller than Old Generation</li>
+<li>most objects there are already dead</li>
+<li>the JVM is optimized for short-lived object cleanup</li>
+</ul>
+<p>This makes Minor GC a normal and expected part of application execution.</p>
+<p>A few Minor GCs by themselves are not automatically a problem.</p>
+<hr>
+<h2 id="9-why-major-gc-is-usually-more-expensive">9. Why Major GC Is Usually More Expensive</h2>
+<hr>
+<p>Major GC is usually heavier because:</p>
+<ul>
+<li>Old Generation is larger</li>
+<li>objects there are more likely to still be alive</li>
+<li>collection work is more expensive</li>
+<li>pauses may be more noticeable</li>
+</ul>
+<p>If Major GC runs too often, it can be a warning sign of:</p>
+<ul>
+<li>insufficient heap sizing</li>
+<li>too many long-lived objects</li>
+<li>poor object lifecycle management</li>
+<li>memory leak behavior</li>
+</ul>
+<hr>
+<h2 id="10-where-does-full-gc-fit-in">10. Where Does Full GC Fit In?</h2>
+<hr>
+<p>This is a very common follow-up question.</p>
+<p>A <strong>Full GC</strong> usually means a broader garbage collection cycle involving more than just one region, often including:</p>
+<ul>
+<li>Young Generation</li>
+<li>Old Generation</li>
+<li>sometimes more JVM-managed memory areas depending on collector behavior</li>
+</ul>
+<p>In interviews, a safe distinction is:</p>
+<ul>
+<li><strong>Minor GC</strong> → Young Generation</li>
+<li><strong>Major GC</strong> → Old Generation</li>
+<li><strong>Full GC</strong> → broader and usually heavier cleanup cycle</li>
+</ul>
+<p>Do not assume every collector behaves in exactly the same way internally, but this distinction is good for interview explanation.</p>
+<hr>
+<h2 id="11-example-timeline">11. Example Timeline</h2>
+<hr>
+<p>Imagine this flow:</p>
+<ul>
+<li>application creates many short-lived request objects</li>
+<li>Eden fills up</li>
+<li>Minor GC runs and removes most dead objects</li>
+<li>some surviving objects move forward</li>
+<li>over time, long-lived objects accumulate in Old Generation</li>
+<li>later, Old Generation becomes pressured</li>
+<li>Major GC runs</li>
+</ul>
+<p>This is why request-heavy systems often see many Minor GCs, but frequent Major GCs are more concerning.</p>
+<hr>
+<h2 id="12-what-is-a-bad-sign-in-production">12. What Is a Bad Sign in Production?</h2>
+<hr>
+<p>A few important production signals are:</p>
+<h3 id="frequent-minor-gc">Frequent Minor GC</h3>
+<p>May be okay if:</p>
+<ul>
+<li>pauses are short</li>
+<li>application throughput is fine</li>
+</ul>
+<p>But it may also indicate heavy object churn.</p>
+<h3 id="frequent-major-gc">Frequent Major GC</h3>
+<p>Usually more concerning because it may indicate:</p>
+<ul>
+<li>Old Generation pressure</li>
+<li>long-lived object retention</li>
+<li>memory leak</li>
+<li>poor heap tuning</li>
+</ul>
+<h3 id="full-gc-happening-repeatedly">Full GC happening repeatedly</h3>
+<p>Often treated as a serious signal and usually deserves investigation.</p>
+<hr>
+<h2 id="13-important-interview-points">13. Important Interview Points</h2>
+<hr>
+<p>Strong points to mention in interviews:</p>
+<ul>
+<li>Minor GC cleans Young Generation</li>
+<li>Major GC cleans Old Generation</li>
+<li>objects usually start in Eden</li>
+<li>long-lived objects may be promoted to Old Generation</li>
+<li>Minor GC is usually more frequent and cheaper</li>
+<li>Major GC is usually less frequent and more expensive</li>
+<li>frequent Major GC often deserves investigation</li>
+</ul>
+<hr>
+<h2 id="14-interview-follow-up-questions">14. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;Minor GC vs Major GC&rdquo;</strong>, interviewers often ask related follow-ups.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>What is Young Generation?</td>
+          <td>Heap structure</td>
+      </tr>
+      <tr>
+          <td>What is Old Generation?</td>
+          <td>Object lifecycle understanding</td>
+      </tr>
+      <tr>
+          <td>What is Eden space?</td>
+          <td>GC basics</td>
+      </tr>
+      <tr>
+          <td>What are Survivor spaces?</td>
+          <td>Promotion flow</td>
+      </tr>
+      <tr>
+          <td>What is Full GC?</td>
+          <td>Broader GC understanding</td>
+      </tr>
+      <tr>
+          <td>Why is Major GC more expensive?</td>
+          <td>Runtime cost reasoning</td>
+      </tr>
+      <tr>
+          <td>What does frequent Major GC indicate?</td>
+          <td>Production diagnostics</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="15-common-mistakes">15. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>thinking Minor GC means “small issue” and Major GC means “big issue” in a simplistic way</li>
+<li>assuming every GC log uses identical terminology across all collectors</li>
+<li>confusing Major GC with Full GC as if they are always exactly the same</li>
+<li>not knowing that most objects die young</li>
+<li>assuming any Minor GC is automatically bad</li>
+</ul>
+<hr>
+<h2 id="16-interview-summary-answer-best-answer">16. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is the difference between Minor GC and Major GC?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Minor GC cleans the Young Generation, where newly created objects usually begin their life, so it is typically more frequent and faster. Major GC cleans the Old Generation, where longer-lived objects are stored, so it is usually less frequent but more expensive. Frequent Major GC is often more concerning in production because it can indicate memory pressure or long-lived object retention.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/jvm-and-performance/" class="btn nav-btn">
+        JVM and Performance - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

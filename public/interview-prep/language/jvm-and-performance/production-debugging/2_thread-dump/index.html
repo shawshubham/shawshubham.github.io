@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thread Dump</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775423438">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Thread Dump</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is a Thread Dump?</li>
+        
+        <li>4. When Do We Take a Thread Dump?</li>
+        
+        <li>5. What Does a Thread Dump Contain?</li>
+        
+        <li>6. Important Thread States in a Thread Dump</li>
+        
+        <li>7. Why Thread Dumps Are Useful</li>
+        
+        <li>8. Example: Blocked Threads on the Same Lock</li>
+        
+        <li>9. Example: Deadlock Detection</li>
+        
+        <li>10. Example: Request Hang Investigation</li>
+        
+        <li>11. How Do We Capture a Thread Dump?</li>
+        
+        <li>12. Why One Thread Dump Is Sometimes Not Enough</li>
+        
+        <li>13. Thread Dump vs Heap Dump</li>
+        
+        <li>14. Example Interview Debugging Approach</li>
+        
+        <li>15. Important Interview Points</li>
+        
+        <li>16. Interview Follow-up Questions</li>
+        
+        <li>17. Common Mistakes</li>
+        
+        <li>18. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>A thread dump is a snapshot of all JVM threads at a particular moment, showing what each thread is doing, its state, and often what lock or resource it is waiting on. In production debugging, thread dumps are used to investigate issues such as thread hangs, deadlocks, blocked threads, long waits, high CPU, and request stalls.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This is one of the most common production-support and JVM debugging questions because it checks whether you understand:</p>
+<ul>
+<li>what a thread dump is</li>
+<li>when to capture one</li>
+<li>what kinds of problems it helps diagnose</li>
+<li>how to interpret thread states at a high level</li>
+<li>how to investigate hangs, deadlocks, and blocked applications</li>
+</ul>
+<p>Interviewers often ask this after:</p>
+<ul>
+<li>Heap vs Stack</li>
+<li>CPU high scenario</li>
+<li>memory leak debugging</li>
+<li>synchronized vs volatile</li>
+<li>deadlock and thread states</li>
+</ul>
+<hr>
+<h2 id="3-what-is-a-thread-dump">3. What is a Thread Dump?</h2>
+<hr>
+<p>A thread dump is a snapshot of the threads running inside a JVM at a specific point in time.</p>
+<p>It typically shows for each thread:</p>
+<ul>
+<li>thread name</li>
+<li>thread state</li>
+<li>stack trace</li>
+<li>what code it is executing</li>
+<li>whether it is waiting, blocked, sleeping, or running</li>
+<li>lock information, if relevant</li>
+</ul>
+<p>A thread dump does <strong>not</strong> directly tell you everything by itself.</p>
+<p>Its value comes from helping you answer questions like:</p>
+<ul>
+<li>what is the application doing right now?</li>
+<li>which threads are stuck?</li>
+<li>are threads waiting on the same lock?</li>
+<li>is there a deadlock?</li>
+<li>are request threads blocked?</li>
+</ul>
+<hr>
+<h2 id="4-when-do-we-take-a-thread-dump">4. When Do We Take a Thread Dump?</h2>
+<hr>
+<p>A thread dump is useful when the application appears unhealthy from a thread-execution perspective.</p>
+<p>Common situations include:</p>
+<ul>
+<li>application is hanging</li>
+<li>requests are stuck</li>
+<li>thread pool seems exhausted</li>
+<li>CPU is high</li>
+<li>threads appear blocked</li>
+<li>application is not responding but process is still alive</li>
+<li>suspected deadlock</li>
+</ul>
+<p>So a thread dump is mainly a <strong>runtime execution diagnostic tool</strong>.</p>
+<hr>
+<h2 id="5-what-does-a-thread-dump-contain">5. What Does a Thread Dump Contain?</h2>
+<hr>
+<p>A typical thread dump contains entries for many threads such as:</p>
+<ul>
+<li>application worker threads</li>
+<li>request-processing threads</li>
+<li>GC threads</li>
+<li>JVM internal threads</li>
+<li>scheduler threads</li>
+<li>monitoring threads</li>
+</ul>
+<p>For each thread, you usually see:</p>
+<ul>
+<li>thread name</li>
+<li>priority / thread id</li>
+<li>Java thread state</li>
+<li>stack trace frames</li>
+<li>lock or monitor information</li>
+</ul>
+<p>Example shape:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&#34;http-nio-8080-exec-12&#34; #45 prio=5 os_prio=0 tid=0x...
+</span></span><span style="display:flex;"><span>   java.lang.Thread.State: BLOCKED (on object monitor)
+</span></span><span style="display:flex;"><span>        at com.example.AccountService.transfer(AccountService.java:42)
+</span></span><span style="display:flex;"><span>        - waiting to lock &lt;0x00000007c0012345&gt; (a java.lang.Object)
+</span></span><span style="display:flex;"><span>        at com.example.TransferController.transfer(TransferController.java:18)
+</span></span></code></pre></div><p>You do not need to memorize the exact format.
+You need to understand what kind of evidence it provides.</p>
+<hr>
+<h2 id="6-important-thread-states-in-a-thread-dump">6. Important Thread States in a Thread Dump</h2>
+<hr>
+<p>A few states matter a lot in interviews and production debugging.</p>
+<h3 id="runnable"><code>RUNNABLE</code></h3>
+<p>The thread is ready to run or currently running.</p>
+<p>Important note:</p>
+<ul>
+<li><code>RUNNABLE</code> does not always mean actively consuming CPU at that exact moment</li>
+<li>it means the thread is not blocked or waiting in Java-level terms</li>
+</ul>
+<h3 id="blocked"><code>BLOCKED</code></h3>
+<p>The thread is waiting to acquire a monitor lock.</p>
+<p>This often suggests lock contention or a synchronized section bottleneck.</p>
+<h3 id="waiting"><code>WAITING</code></h3>
+<p>The thread is waiting indefinitely until another thread signals it.</p>
+<h3 id="timed_waiting"><code>TIMED_WAITING</code></h3>
+<p>The thread is waiting for a specified period.</p>
+<p>Common examples:</p>
+<ul>
+<li><code>Thread.sleep(...)</code></li>
+<li>timed waits</li>
+<li>timeout-based parking</li>
+</ul>
+<h3 id="terminated"><code>TERMINATED</code></h3>
+<p>The thread has finished execution.</p>
+<hr>
+<h2 id="7-why-thread-dumps-are-useful">7. Why Thread Dumps Are Useful</h2>
+<hr>
+<p>Thread dumps are useful because they show <strong>what threads are doing right now</strong>.</p>
+<p>This helps answer practical questions such as:</p>
+<ul>
+<li>are request threads stuck in database calls?</li>
+<li>are many threads blocked on the same lock?</li>
+<li>are worker threads waiting forever?</li>
+<li>is the application deadlocked?</li>
+<li>is one hot code path repeatedly appearing in many thread stacks?</li>
+</ul>
+<p>This is why thread dumps are one of the most important artifacts for diagnosing live JVM issues.</p>
+<hr>
+<h2 id="8-example-blocked-threads-on-the-same-lock">8. Example: Blocked Threads on the Same Lock</h2>
+<hr>
+<p>Suppose multiple threads try to enter the same synchronized section.</p>
+<p>One thread may hold the lock, while others appear as <code>BLOCKED</code> in the dump.</p>
+<p>That can indicate:</p>
+<ul>
+<li>lock contention</li>
+<li>slow critical section</li>
+<li>synchronized bottleneck</li>
+</ul>
+<p>If many request threads are blocked behind the same lock, throughput can collapse even if CPU is not fully used.</p>
+<hr>
+<h2 id="9-example-deadlock-detection">9. Example: Deadlock Detection</h2>
+<hr>
+<p>One of the strongest uses of a thread dump is detecting deadlocks.</p>
+<p>A deadlock happens when two or more threads wait on each other in a circular way.</p>
+<p>Example idea:</p>
+<ul>
+<li>Thread A holds Lock 1 and waits for Lock 2</li>
+<li>Thread B holds Lock 2 and waits for Lock 1</li>
+</ul>
+<p>Neither can continue.</p>
+<p>Thread dumps often make this visible because they show:</p>
+<ul>
+<li>what each thread is waiting for</li>
+<li>which lock it already owns</li>
+<li>deadlock information, sometimes explicitly reported by the JVM</li>
+</ul>
+<hr>
+<h2 id="10-example-request-hang-investigation">10. Example: Request Hang Investigation</h2>
+<hr>
+<p>Suppose a web application becomes slow and requests stop returning.</p>
+<p>A thread dump may show that request threads are all stuck in one of these patterns:</p>
+<ul>
+<li>blocked on a synchronized section</li>
+<li>waiting on a database connection pool</li>
+<li>waiting on external I/O</li>
+<li>parked in a thread pool queue</li>
+<li>deadlocked</li>
+</ul>
+<p>So a thread dump helps you move from:</p>
+<blockquote>
+<p>“the app is hanging”</p></blockquote>
+<p>to:</p>
+<blockquote>
+<p>“these specific threads are blocked in this code path for this reason”</p></blockquote>
+<hr>
+<h2 id="11-how-do-we-capture-a-thread-dump">11. How Do We Capture a Thread Dump?</h2>
+<hr>
+<p>Common ways include:</p>
+<ul>
+<li><code>jstack &lt;pid&gt;</code></li>
+<li><code>jcmd &lt;pid&gt; Thread.print</code></li>
+<li>sending <code>kill -3</code> to the JVM process on Unix-like systems</li>
+<li>using tools like VisualVM or Java Mission Control</li>
+</ul>
+<p>You do not need deep syntax memorization for interviews, but you should know that thread dumps can be captured from a live JVM using standard JVM tools.</p>
+<hr>
+<h2 id="12-why-one-thread-dump-is-sometimes-not-enough">12. Why One Thread Dump Is Sometimes Not Enough</h2>
+<hr>
+<p>A single thread dump is only one moment in time.</p>
+<p>Sometimes that is enough, especially for:</p>
+<ul>
+<li>deadlock</li>
+<li>obvious blocking</li>
+<li>obvious waiting</li>
+</ul>
+<p>But for issues like intermittent slowness or high CPU, it is often better to take <strong>multiple thread dumps a few seconds apart</strong>.</p>
+<p>Why?</p>
+<p>Because repeated dumps help answer questions like:</p>
+<ul>
+<li>is the same thread still stuck?</li>
+<li>is the same stack trace repeating?</li>
+<li>is progress happening or not?</li>
+<li>is one thread constantly appearing as active?</li>
+</ul>
+<p>This is a very practical debugging habit.</p>
+<hr>
+<h2 id="13-thread-dump-vs-heap-dump">13. Thread Dump vs Heap Dump</h2>
+<hr>
+<p>This is a common interview comparison.</p>
+<h3 id="thread-dump">Thread dump</h3>
+<p>Used to understand <strong>thread execution state</strong>.</p>
+<p>It helps diagnose:</p>
+<ul>
+<li>hangs</li>
+<li>blocked threads</li>
+<li>deadlocks</li>
+<li>waiting threads</li>
+<li>execution bottlenecks</li>
+</ul>
+<h3 id="heap-dump">Heap dump</h3>
+<p>Used to understand <strong>heap memory state</strong>.</p>
+<p>It helps diagnose:</p>
+<ul>
+<li>memory leaks</li>
+<li>retained objects</li>
+<li>heap growth</li>
+<li>object retention issues</li>
+</ul>
+<p>So:</p>
+<ul>
+<li>thread dump → execution problem</li>
+<li>heap dump → memory problem</li>
+</ul>
+<hr>
+<h2 id="14-example-interview-debugging-approach">14. Example Interview Debugging Approach</h2>
+<hr>
+<p>If an interviewer asks:</p>
+<blockquote>
+<p>The application is stuck. How would you use a thread dump?</p></blockquote>
+<p>A strong answer is:</p>
+<ol>
+<li>capture a thread dump from the running JVM</li>
+<li>check thread states such as <code>BLOCKED</code>, <code>WAITING</code>, and <code>RUNNABLE</code></li>
+<li>look for repeated stack traces across many threads</li>
+<li>check whether many threads are waiting on the same lock or resource</li>
+<li>check for deadlock or request-thread bottlenecks</li>
+<li>if needed, capture multiple dumps over time and compare them</li>
+</ol>
+<p>This is practical and production-oriented.</p>
+<hr>
+<h2 id="15-important-interview-points">15. Important Interview Points</h2>
+<hr>
+<p>Strong points to mention in interviews:</p>
+<ul>
+<li>thread dump is a snapshot of JVM threads</li>
+<li>it helps debug hangs, deadlocks, blocked threads, and request stalls</li>
+<li>thread state interpretation matters more than memorizing raw format</li>
+<li><code>BLOCKED</code> often suggests lock contention</li>
+<li>multiple dumps are often more useful than a single dump</li>
+<li>thread dump is for execution diagnosis, not memory diagnosis</li>
+</ul>
+<hr>
+<h2 id="16-interview-follow-up-questions">16. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;What is a thread dump?&rdquo;</strong>, interviewers often ask related follow-ups.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>How do you capture a thread dump?</td>
+          <td>JVM tooling familiarity</td>
+      </tr>
+      <tr>
+          <td>What does <code>BLOCKED</code> mean?</td>
+          <td>Thread-state understanding</td>
+      </tr>
+      <tr>
+          <td>What does <code>WAITING</code> mean?</td>
+          <td>Runtime state understanding</td>
+      </tr>
+      <tr>
+          <td>How would you detect a deadlock?</td>
+          <td>Practical debugging</td>
+      </tr>
+      <tr>
+          <td>Why take multiple thread dumps?</td>
+          <td>Investigation maturity</td>
+      </tr>
+      <tr>
+          <td>Thread dump vs heap dump?</td>
+          <td>Diagnostic differentiation</td>
+      </tr>
+      <tr>
+          <td>What would you look for in a request-hang situation?</td>
+          <td>Production troubleshooting</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="17-common-mistakes">17. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>treating thread dump as only a deadlock tool</li>
+<li>confusing thread dump with heap dump</li>
+<li>assuming <code>RUNNABLE</code> always means high CPU</li>
+<li>relying on only one dump for a time-based issue</li>
+<li>reading thread dumps without checking repeated patterns across threads</li>
+</ul>
+<hr>
+<h2 id="18-interview-summary-answer-best-answer">18. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is a thread dump and when would you use it?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>A thread dump is a snapshot of all JVM threads at a specific moment, including their states, stack traces, and often lock information. I use it when an application is hanging, requests are stuck, CPU is high, or deadlock is suspected. It helps identify blocked threads, waiting threads, lock contention, deadlocks, and bottlenecks in live execution. For intermittent issues, taking multiple thread dumps over time is often more useful than taking just one.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/jvm-and-performance/" class="btn nav-btn">
+        JVM and Performance - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>
