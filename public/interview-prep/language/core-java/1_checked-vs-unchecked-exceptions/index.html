@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checked vs Unchecked Exception</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775317789">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Checked vs Unchecked Exception</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. What is an Exception?</li>
+        
+        <li>3. Exception Hierarchy in Java</li>
+        
+        <li>4. What is a Checked Exception?</li>
+        
+        <li>5. What is an Unchecked Exception?</li>
+        
+        <li>6. Key Difference Between Checked and Unchecked Exceptions</li>
+        
+        <li>7. Why Java Has Both</li>
+        
+        <li>8. Should We Catch Unchecked Exceptions?</li>
+        
+        <li>9. When Should We Create Custom Checked vs Unchecked Exceptions?</li>
+        
+        <li>10. Example of Checked vs Unchecked in API Design</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Follow-up Questions</li>
+        
+        <li>13. Common Mistakes</li>
+        
+        <li>14. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 4 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Checked exceptions are checked at compile time, so the compiler forces us to either handle them or declare them using <code>throws</code>. Unchecked exceptions are not checked at compile time; they usually represent programming bugs or invalid runtime conditions and do not need to be explicitly handled.</strong></p></blockquote>
+<hr>
+<h2 id="2-what-is-an-exception">2. What is an Exception?</h2>
+<hr>
+<p>An exception is an event that interrupts the normal flow of program execution.</p>
+<p>In Java, exceptions are represented as objects and are part of the <code>Throwable</code> hierarchy.</p>
+<p>Common examples include:</p>
+<ul>
+<li>file not found</li>
+<li>invalid number format</li>
+<li>null access</li>
+<li>division by zero</li>
+</ul>
+<p>Exceptions help us separate normal business logic from error handling logic.</p>
+<hr>
+<h2 id="3-exception-hierarchy-in-java">3. Exception Hierarchy in Java</h2>
+<hr>
+<p>At a high level, Java’s hierarchy looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Throwable
+</span></span><span style="display:flex;"><span>├── Error
+</span></span><span style="display:flex;"><span>└── Exception
+</span></span><span style="display:flex;"><span>    ├── RuntimeException
+</span></span><span style="display:flex;"><span>    └── Other checked exceptions
+</span></span></code></pre></div><p>Important point:</p>
+<ul>
+<li><code>Error</code> usually represents serious JVM/system problems</li>
+<li><code>Exception</code> represents conditions applications may want to handle</li>
+<li><code>RuntimeException</code> and its subclasses are <strong>unchecked exceptions</strong></li>
+<li>Other subclasses of <code>Exception</code> are usually <strong>checked exceptions</strong></li>
+</ul>
+<hr>
+<h2 id="4-what-is-a-checked-exception">4. What is a Checked Exception?</h2>
+<hr>
+<p>A checked exception is an exception that the compiler checks at compile time.</p>
+<p>If a method may throw a checked exception, we must do one of the following:</p>
+<ul>
+<li>handle it using <code>try-catch</code></li>
+<li>declare it using <code>throws</code></li>
+</ul>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.BufferedReader;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.FileReader;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CheckedExceptionExample</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            BufferedReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BufferedReader(<span style="color:#66d9ef">new</span> FileReader(<span style="color:#e6db74">&#34;data.txt&#34;</span>));
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(reader.<span style="color:#a6e22e">readLine</span>());
+</span></span><span style="display:flex;"><span>            reader.<span style="color:#a6e22e">close</span>();
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (IOException e) {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Handled checked exception: &#34;</span> <span style="color:#f92672">+</span> e.<span style="color:#a6e22e">getMessage</span>());
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here <code>IOException</code> is checked, so Java forces us to handle or declare it.</p>
+<h3 id="common-checked-exceptions">Common checked exceptions</h3>
+<ul>
+<li><code>IOException</code></li>
+<li><code>SQLException</code></li>
+<li><code>ClassNotFoundException</code></li>
+<li><code>ParseException</code></li>
+</ul>
+<hr>
+<h2 id="5-what-is-an-unchecked-exception">5. What is an Unchecked Exception?</h2>
+<hr>
+<p>An unchecked exception is an exception that is <strong>not checked by the compiler</strong> at compile time.</p>
+<p>These are subclasses of <code>RuntimeException</code>.</p>
+<p>We are not forced to catch or declare them.</p>
+<h3 id="example-1">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UncheckedExceptionExample</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) {
+</span></span><span style="display:flex;"><span>        String text <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(text.<span style="color:#a6e22e">length</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This throws <code>NullPointerException</code> at runtime.</p>
+<p>The compiler does not force us to handle it.</p>
+<h3 id="common-unchecked-exceptions">Common unchecked exceptions</h3>
+<ul>
+<li><code>NullPointerException</code></li>
+<li><code>ArithmeticException</code></li>
+<li><code>IllegalArgumentException</code></li>
+<li><code>ArrayIndexOutOfBoundsException</code></li>
+<li><code>NumberFormatException</code></li>
+</ul>
+<hr>
+<h2 id="6-key-difference-between-checked-and-unchecked-exceptions">6. Key Difference Between Checked and Unchecked Exceptions</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>Checked Exception</th>
+          <th>Unchecked Exception</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Compile-time check</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Must handle or declare?</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Base type</td>
+          <td>Subclass of <code>Exception</code> (excluding <code>RuntimeException</code>)</td>
+          <td>Subclass of <code>RuntimeException</code></td>
+      </tr>
+      <tr>
+          <td>Typical cause</td>
+          <td>External/recoverable conditions</td>
+          <td>Programming mistakes / invalid state</td>
+      </tr>
+      <tr>
+          <td>Example</td>
+          <td><code>IOException</code></td>
+          <td><code>NullPointerException</code></td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="7-why-java-has-both">7. Why Java Has Both</h2>
+<hr>
+<p>Java uses both because not all problems are of the same nature.</p>
+<h3 id="checked-exceptions">Checked exceptions</h3>
+<p>These usually represent problems that the application may reasonably recover from.</p>
+<p>Examples:</p>
+<ul>
+<li>file missing</li>
+<li>database temporarily unavailable</li>
+<li>network call failed</li>
+</ul>
+<p>These are often external conditions.</p>
+<h3 id="unchecked-exceptions">Unchecked exceptions</h3>
+<p>These usually represent bugs or invalid usage.</p>
+<p>Examples:</p>
+<ul>
+<li>null dereference</li>
+<li>wrong method arguments</li>
+<li>invalid array index</li>
+</ul>
+<p>These usually indicate that the code should be fixed rather than just caught everywhere.</p>
+<hr>
+<h2 id="8-should-we-catch-unchecked-exceptions">8. Should We Catch Unchecked Exceptions?</h2>
+<hr>
+<p>Usually, we do <strong>not</strong> catch unchecked exceptions everywhere.</p>
+<p>Instead:</p>
+<ul>
+<li>fix the code causing them</li>
+<li>validate input earlier</li>
+<li>use global exception handling in applications where appropriate</li>
+</ul>
+<p>For example, in Spring Boot, <code>RuntimeException</code> may be handled centrally using exception handlers.</p>
+<p>The important point is:</p>
+<blockquote>
+<p>Unchecked exceptions are not ignored — they are just not forced by the compiler.</p></blockquote>
+<hr>
+<h2 id="9-when-should-we-create-custom-checked-vs-unchecked-exceptions">9. When Should We Create Custom Checked vs Unchecked Exceptions?</h2>
+<hr>
+<h3 id="use-custom-checked-exceptions-when">Use custom checked exceptions when:</h3>
+<ul>
+<li>callers are expected to explicitly handle the condition</li>
+<li>the condition is recoverable or business-relevant</li>
+<li>you want to force the API user to think about it</li>
+</ul>
+<h3 id="use-custom-unchecked-exceptions-when">Use custom unchecked exceptions when:</h3>
+<ul>
+<li>the problem represents invalid input, bad state, or programming misuse</li>
+<li>recovery is usually not expected at the immediate caller level</li>
+<li>you want cleaner APIs without excessive <code>throws</code> declarations</li>
+</ul>
+<p>In modern enterprise applications, custom unchecked exceptions are often more common unless there is a strong reason to force handling.</p>
+<hr>
+<h2 id="10-example-of-checked-vs-unchecked-in-api-design">10. Example of Checked vs Unchecked in API Design</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InsufficientBalanceException</span> <span style="color:#66d9ef">extends</span> Exception {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">InsufficientBalanceException</span>(String message) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(message);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InvalidAccountStateException</span> <span style="color:#66d9ef">extends</span> RuntimeException {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">InvalidAccountStateException</span>(String message) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(message);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Possible interpretation:</p>
+<ul>
+<li><code>InsufficientBalanceException</code> could be checked if the caller is expected to handle it explicitly</li>
+<li><code>InvalidAccountStateException</code> could be unchecked if it represents a business rule violation or invalid internal state</li>
+</ul>
+<p>The exact choice depends on API design and expected handling responsibility.</p>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<p>Strong points to mention in interviews:</p>
+<ul>
+<li>checked exceptions are compiler-enforced</li>
+<li>unchecked exceptions are subclasses of <code>RuntimeException</code></li>
+<li>checked exceptions usually model recoverable/external failures</li>
+<li>unchecked exceptions usually model programming errors or invalid runtime state</li>
+<li>just because an exception is unchecked does not mean it should be ignored</li>
+<li>overusing checked exceptions can make APIs noisy</li>
+</ul>
+<hr>
+<h2 id="12-interview-follow-up-questions">12. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;Checked vs Unchecked exception&rdquo;</strong>, interviewers often ask deeper follow-up questions.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Why is <code>NullPointerException</code> unchecked?</td>
+          <td>Runtime bug understanding</td>
+      </tr>
+      <tr>
+          <td>Why is <code>IOException</code> checked?</td>
+          <td>Recoverable failure understanding</td>
+      </tr>
+      <tr>
+          <td>Should we create custom checked exceptions?</td>
+          <td>API design</td>
+      </tr>
+      <tr>
+          <td>What is the difference between <code>throw</code> and <code>throws</code>?</td>
+          <td>Exception syntax</td>
+      </tr>
+      <tr>
+          <td>Can we catch unchecked exceptions?</td>
+          <td>Runtime handling</td>
+      </tr>
+      <tr>
+          <td>Should we catch <code>Exception</code> everywhere?</td>
+          <td>Best practices</td>
+      </tr>
+      <tr>
+          <td>Should business exceptions be checked or unchecked?</td>
+          <td>Design judgment</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="13-common-mistakes">13. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>Saying checked exceptions happen at compile time and unchecked happen at runtime</li>
+<li>Thinking unchecked exceptions cannot be caught</li>
+<li>Assuming checked exceptions are always better API design</li>
+<li>Catching very broad exceptions unnecessarily</li>
+<li>Using checked exceptions for every business rule</li>
+<li>Ignoring exception hierarchy</li>
+</ul>
+<p>Important correction:</p>
+<blockquote>
+<p>Both checked and unchecked exceptions happen at runtime.<br>
+The difference is whether the compiler forces us to handle or declare them.</p></blockquote>
+<hr>
+<h2 id="14-interview-summary-answer-best-answer">14. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is the difference between checked and unchecked exceptions in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Checked exceptions are checked by the compiler, so we must either handle them with <code>try-catch</code> or declare them using <code>throws</code>. They usually represent recoverable external conditions like file or database failures. Unchecked exceptions are subclasses of <code>RuntimeException</code>, are not enforced by the compiler, and usually represent programming bugs or invalid runtime state such as null access or bad arguments.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/core-java/" class="btn nav-btn">
+        Core Java - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

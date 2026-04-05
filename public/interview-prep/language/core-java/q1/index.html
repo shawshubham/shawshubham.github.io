@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1773822449">
+<link rel="stylesheet" href="/css/main.css?v=1775215494">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -96,6 +96,16 @@
         
         
         
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. What Does Immutable Mean?</li>
+        
+        <li>3. How String Is Made Immutable Internally</li>
+        
+        <li>4. Why String Is Immutable (Very Important for Interviews)</li>
+        
+        <li>5. Interview Follow-up Questions</li>
+        
       </ul>
     </div>
   
@@ -103,14 +113,112 @@
       <div class="topic-meta">
         <p class="last-updated">
           
-            Last updated on: 16 Feb, 2026
+            Last updated on: 3 Apr, 2026
           
         </p>
       </div>
     </div>
     
     <article class="topic-content">
-      
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>String is immutable in Java because once a String object is created, its value cannot be changed.<br>
+This improves security, enables string pooling, improves performance, and makes Strings thread-safe.</strong></p></blockquote>
+<hr>
+<h2 id="2-what-does-immutable-mean">2. What Does Immutable Mean?</h2>
+<hr>
+<p>Immutable means:</p>
+<blockquote>
+<p>The object’s state cannot change after it is created.</p></blockquote>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>;
+</span></span><span style="display:flex;"><span>s <span style="color:#f92672">=</span> s <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; world&#34;</span>;
+</span></span></code></pre></div><p>Here:</p>
+<ul>
+<li>&ldquo;hello&rdquo; is not modified</li>
+<li>A <strong>new String object</strong> &ldquo;hello world&rdquo; is created</li>
+<li>s now points to the new object</li>
+</ul>
+<hr>
+<h2 id="3-how-string-is-made-immutable-internally">3. How String Is Made Immutable Internally</h2>
+<hr>
+<p>String class is declared like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">String</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">[]</span> value;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Key points:</p>
+<ul>
+<li>Class is <strong>final</strong> → cannot be subclassed</li>
+<li>Internal array is <strong>private</strong></li>
+<li>Array reference is <strong>final</strong></li>
+<li>No setter methods</li>
+<li>Any modification creates <strong>new object</strong></li>
+</ul>
+<hr>
+<h2 id="4-why-string-is-immutable-very-important-for-interviews">4. Why String Is Immutable (Very Important for Interviews)</h2>
+<hr>
+<p>This is usually what interviewer actually wants.</p>
+<h3 id="reason-1--string-pool-memory-optimization">Reason 1 — String Pool (Memory Optimization)</h3>
+<p>Java stores strings in <strong>String Pool</strong>.</p>
+<p>If strings were mutable:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String a <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>;
+</span></span><span style="display:flex;"><span>String b <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>;
+</span></span></code></pre></div><p>Both would point to same object.</p>
+<p>If a changes → b would also change → <strong>huge problem</strong>.</p>
+<p>So immutability allows <strong>string pooling</strong> safely.</p>
+<h3 id="reason-2--security">Reason 2 — Security</h3>
+<p>Strings are used in:</p>
+<ul>
+<li>Database URLs</li>
+<li>File paths</li>
+<li>Network connections</li>
+<li>Class loading</li>
+<li>User credentials</li>
+</ul>
+<p>If Strings were mutable, someone could change the value after validation.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/safe/file.txt&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// validate path</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// attacker changes string to &#34;/etc/passwd&#34;</span>
+</span></span></code></pre></div><p>Immutability prevents this.</p>
+<h3 id="reason-3--thread-safety">Reason 3 — Thread Safety</h3>
+<p>Since String cannot change, multiple threads can use same String safely.</p>
+<p>No synchronization required.</p>
+<h3 id="reason-4--hashcode-caching-performance">Reason 4 — HashCode Caching (Performance)</h3>
+<p>String is heavily used as <strong>HashMap key</strong>.</p>
+<p>Hashcode is cached:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> hash;
+</span></span></code></pre></div><p>If String were mutable, hashCode would change → HashMap would break.</p>
+<p>So immutability allows:</p>
+<ul>
+<li>Cached hashcode</li>
+<li>Faster HashMap operations</li>
+</ul>
+<hr>
+<h2 id="5-interview-follow-up-questions">5. Interview Follow-up Questions</h2>
+<hr>
+<p>Expect these:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up</th>
+          <th>They test</th>
+      </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+<p>| How to create immutable class? | OOP knowledge |</p>
+<p>Why String used as HashMap key?
+hashing
+String pool vs heap?
+memory
+StringBuilder vs String?
+performance
+How many objects created?
+memory model</p>
+
     </article>
   </div>
 </section>

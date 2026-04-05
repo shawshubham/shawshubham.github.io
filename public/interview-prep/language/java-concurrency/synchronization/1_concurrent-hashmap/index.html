@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConcurrentHashMap</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775394835">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">ConcurrentHashMap</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Why HashMap Is Not Safe for Multiple Threads</li>
+        
+        <li>4. What is ConcurrentHashMap?</li>
+        
+        <li>5. Key Difference Between HashMap and ConcurrentHashMap</li>
+        
+        <li>6. How ConcurrentHashMap Achieves Thread Safety</li>
+        
+        <li>7. Old Segment-Based vs Modern Implementation</li>
+        
+        <li>8. Why Reads Are Fast</li>
+        
+        <li>9. Why Writes Still Need Coordination</li>
+        
+        <li>10. Why Hashtable Is Usually Not Preferred</li>
+        
+        <li>11. Why Collections.synchronizedMap(...) Is Different</li>
+        
+        <li>12. Null Keys and Null Values</li>
+        
+        <li>13. Example Using ConcurrentHashMap</li>
+        
+        <li>14. Atomic Compound Operations on ConcurrentHashMap</li>
+        
+        <li>15. When Should We Use ConcurrentHashMap?</li>
+        
+        <li>16. Important Interview Points</li>
+        
+        <li>17. Interview Follow-up Questions</li>
+        
+        <li>18. Common Mistakes</li>
+        
+        <li>19. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong><code>ConcurrentHashMap</code> is a thread-safe implementation of <code>Map</code> designed for concurrent access by multiple threads. Unlike <code>HashMap</code>, it allows high concurrency for reads and controlled concurrency for writes, so multiple threads can work with the map safely without locking the entire structure for every operation.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This is a very common follow-up after:</p>
+<ul>
+<li><code>HashMap</code> internals</li>
+<li><code>HashMap</code> thread safety</li>
+<li><code>synchronized</code> vs <code>volatile</code></li>
+</ul>
+<p>Interviewers use this question to test whether you understand:</p>
+<ul>
+<li>why <code>HashMap</code> is unsafe in multithreaded code</li>
+<li>how thread-safe collections differ from normal collections</li>
+<li>concurrency vs performance trade-offs</li>
+<li>modern Java concurrent collection design</li>
+</ul>
+<hr>
+<h2 id="3-why-hashmap-is-not-safe-for-multiple-threads">3. Why <code>HashMap</code> Is Not Safe for Multiple Threads</h2>
+<hr>
+<p><code>HashMap</code> is not thread-safe.</p>
+<p>If multiple threads read and write a <code>HashMap</code> at the same time without proper synchronization, problems may occur such as:</p>
+<ul>
+<li>lost updates</li>
+<li>stale reads</li>
+<li>inconsistent state</li>
+<li>corrupted internal structure during resize</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>Integer, String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span></code></pre></div><p>If two threads call <code>put()</code> or one thread calls <code>put()</code> while another calls <code>get()</code> at the same time, behavior is not guaranteed to be correct.</p>
+<p>That is why <code>HashMap</code> must not be used directly in concurrent write scenarios.</p>
+<hr>
+<h2 id="4-what-is-concurrenthashmap">4. What is <code>ConcurrentHashMap</code>?</h2>
+<hr>
+<p><code>ConcurrentHashMap</code> is a thread-safe implementation of the <code>Map</code> interface.</p>
+<p>It is designed for situations where multiple threads need to read and update the map concurrently.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.ConcurrentHashMap;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Map;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>Integer, String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(1, <span style="color:#e6db74">&#34;Alice&#34;</span>);
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(2, <span style="color:#e6db74">&#34;Bob&#34;</span>);
+</span></span></code></pre></div><p>It gives better scalability than simply wrapping a <code>HashMap</code> with one big synchronized lock.</p>
+<hr>
+<h2 id="5-key-difference-between-hashmap-and-concurrenthashmap">5. Key Difference Between <code>HashMap</code> and <code>ConcurrentHashMap</code></h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th><code>HashMap</code></th>
+          <th><code>ConcurrentHashMap</code></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Thread-safe</td>
+          <td>No</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Concurrent reads</td>
+          <td>Unsafe with concurrent writes</td>
+          <td>Safe</td>
+      </tr>
+      <tr>
+          <td>Concurrent writes</td>
+          <td>Unsafe</td>
+          <td>Supported with internal coordination</td>
+      </tr>
+      <tr>
+          <td>Null keys/values</td>
+          <td>Allowed</td>
+          <td>Not allowed</td>
+      </tr>
+      <tr>
+          <td>Performance under concurrency</td>
+          <td>Poor / unsafe</td>
+          <td>Much better</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="6-how-concurrenthashmap-achieves-thread-safety">6. How <code>ConcurrentHashMap</code> Achieves Thread Safety</h2>
+<hr>
+<p>At a high level, <code>ConcurrentHashMap</code> does <strong>not</strong> lock the whole map for every operation.</p>
+<p>That is the main idea.</p>
+<p>Instead, it allows:</p>
+<ul>
+<li>very efficient concurrent reads</li>
+<li>controlled synchronization for writes</li>
+<li>better throughput than one global map lock</li>
+</ul>
+<h3 id="simplified-view">Simplified view</h3>
+<ul>
+<li>reads are usually non-blocking</li>
+<li>writes use finer-grained coordination</li>
+<li>only the affected portion of the map is coordinated, not always the whole map</li>
+</ul>
+<p>This is why <code>ConcurrentHashMap</code> scales much better than synchronizing all access manually.</p>
+<hr>
+<h2 id="7-old-segment-based-vs-modern-implementation">7. Old Segment-Based vs Modern Implementation</h2>
+<hr>
+<p>This is a common interview point.</p>
+<h3 id="older-explanation">Older explanation</h3>
+<p>Older Java versions used <strong>segment-based locking</strong>.</p>
+<p>That means the map was divided into segments, and different threads could lock different segments.</p>
+<h3 id="modern-explanation">Modern explanation</h3>
+<p>In modern Java, <code>ConcurrentHashMap</code> no longer uses the old segment-based design.</p>
+<p>Instead, it uses a more fine-grained internal approach based on:</p>
+<ul>
+<li>per-bin coordination</li>
+<li>CAS operations</li>
+<li>synchronized blocks where needed</li>
+</ul>
+<p>So in interviews, the safest answer is:</p>
+<blockquote>
+<p>Older versions used segmented locking, but modern <code>ConcurrentHashMap</code> uses finer-grained coordination instead of one big global lock.</p></blockquote>
+<hr>
+<h2 id="8-why-reads-are-fast">8. Why Reads Are Fast</h2>
+<hr>
+<p><code>ConcurrentHashMap</code> is optimized for concurrent reads.</p>
+<p>In many cases:</p>
+<ul>
+<li>multiple threads can call <code>get()</code> safely at the same time</li>
+<li>reads do not block each other the way a fully synchronized map might</li>
+</ul>
+<p>This is very valuable in read-heavy applications.</p>
+<hr>
+<h2 id="9-why-writes-still-need-coordination">9. Why Writes Still Need Coordination</h2>
+<hr>
+<p>Writes cannot be completely lock-free in all cases because the map structure may need to change.</p>
+<p>Examples:</p>
+<ul>
+<li>inserting a new key</li>
+<li>updating a bucket/bin</li>
+<li>resizing</li>
+<li>handling collisions</li>
+</ul>
+<p>So <code>ConcurrentHashMap</code> uses internal coordination to keep correctness while still allowing good concurrency.</p>
+<hr>
+<h2 id="10-why-hashtable-is-usually-not-preferred">10. Why <code>Hashtable</code> Is Usually Not Preferred</h2>
+<hr>
+<p><code>Hashtable</code> is also thread-safe, but it is much older and less scalable.</p>
+<p>Why?</p>
+<p>Because it effectively synchronizes every operation at a coarse level.</p>
+<p>That means:</p>
+<ul>
+<li>less concurrency</li>
+<li>more contention</li>
+<li>poorer performance under multi-threaded access</li>
+</ul>
+<p>So in modern Java:</p>
+<ul>
+<li><code>Hashtable</code> is rarely preferred</li>
+<li><code>ConcurrentHashMap</code> is usually the better choice</li>
+</ul>
+<hr>
+<h2 id="11-why-collectionssynchronizedmap-is-different">11. Why <code>Collections.synchronizedMap(...)</code> Is Different</h2>
+<hr>
+<p>We can also create a synchronized map like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>Integer, String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> Collections.<span style="color:#a6e22e">synchronizedMap</span>(<span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>());
+</span></span></code></pre></div><p>This makes access thread-safe by synchronizing map operations.</p>
+<p>But this is still different from <code>ConcurrentHashMap</code>.</p>
+<h3 id="difference">Difference</h3>
+<ul>
+<li><code>synchronizedMap(...)</code> uses one wrapper lock for map operations</li>
+<li><code>ConcurrentHashMap</code> is designed for much better concurrent access</li>
+</ul>
+<p>So both are thread-safe, but <code>ConcurrentHashMap</code> usually performs better in concurrent environments.</p>
+<hr>
+<h2 id="12-null-keys-and-null-values">12. Null Keys and Null Values</h2>
+<hr>
+<p>This is a common interview question.</p>
+<p><code>ConcurrentHashMap</code> does <strong>not</strong> allow:</p>
+<ul>
+<li>null keys</li>
+<li>null values</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>Integer, String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(<span style="color:#66d9ef">null</span>, <span style="color:#e6db74">&#34;Alice&#34;</span>); <span style="color:#75715e">// throws NullPointerException</span>
+</span></span></code></pre></div><p>Why?</p>
+<p>Because in concurrent code, <code>null</code> creates ambiguity.</p>
+<p>For example, when <code>get(key)</code> returns <code>null</code>, it becomes unclear whether:</p>
+<ul>
+<li>the key is absent</li>
+<li>or the key exists but maps to null</li>
+</ul>
+<p>Disallowing null removes this ambiguity.</p>
+<hr>
+<h2 id="13-example-using-concurrenthashmap">13. Example Using <code>ConcurrentHashMap</code></h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Map;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.ConcurrentHashMap;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcurrentHashMapExample</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> InterruptedException {
+</span></span><span style="display:flex;"><span>        Map<span style="color:#f92672">&lt;</span>Integer, String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Thread t1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Thread(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 1; i <span style="color:#f92672">&lt;=</span> 5; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>                map.<span style="color:#a6e22e">put</span>(i, <span style="color:#e6db74">&#34;Thread-1-Value-&#34;</span> <span style="color:#f92672">+</span> i);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Thread t2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Thread(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 6; i <span style="color:#f92672">&lt;=</span> 10; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>                map.<span style="color:#a6e22e">put</span>(i, <span style="color:#e6db74">&#34;Thread-2-Value-&#34;</span> <span style="color:#f92672">+</span> i);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        t1.<span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>        t2.<span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        t1.<span style="color:#a6e22e">join</span>();
+</span></span><span style="display:flex;"><span>        t2.<span style="color:#a6e22e">join</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Final map: &#34;</span> <span style="color:#f92672">+</span> map);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This example shows multiple threads safely updating the same map.</p>
+<hr>
+<h2 id="14-atomic-compound-operations-on-concurrenthashmap">14. Atomic Compound Operations on <code>ConcurrentHashMap</code></h2>
+<hr>
+<p>Another strong interview point is that <code>ConcurrentHashMap</code> provides useful atomic methods such as:</p>
+<ul>
+<li><code>putIfAbsent()</code></li>
+<li><code>compute()</code></li>
+<li><code>computeIfAbsent()</code></li>
+<li><code>replace()</code></li>
+<li><code>remove(key, value)</code></li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>map.<span style="color:#a6e22e">putIfAbsent</span>(1, <span style="color:#e6db74">&#34;Alice&#34;</span>);
+</span></span></code></pre></div><p>These methods are important because doing compound logic manually with separate <code>get()</code> and <code>put()</code> calls can still introduce races.</p>
+<p>So when working with concurrent maps, prefer built-in atomic methods when possible.</p>
+<hr>
+<h2 id="15-when-should-we-use-concurrenthashmap">15. When Should We Use <code>ConcurrentHashMap</code>?</h2>
+<hr>
+<p>Use it when:</p>
+<ul>
+<li>multiple threads access the same map</li>
+<li>reads and writes happen concurrently</li>
+<li>performance matters under concurrency</li>
+<li>a normal <code>HashMap</code> would require too much manual synchronization</li>
+</ul>
+<p>Common use cases:</p>
+<ul>
+<li>caches</li>
+<li>in-memory shared state</li>
+<li>registries</li>
+<li>frequency counting with concurrent updates</li>
+</ul>
+<hr>
+<h2 id="16-important-interview-points">16. Important Interview Points</h2>
+<hr>
+<p>Strong points to mention in interviews:</p>
+<ul>
+<li><code>ConcurrentHashMap</code> is thread-safe</li>
+<li>it allows better concurrency than <code>Hashtable</code> or <code>synchronizedMap(...)</code></li>
+<li>reads are generally efficient and do not require one global lock</li>
+<li>modern implementations do not use the old segment design</li>
+<li>null keys and null values are not allowed</li>
+<li>built-in atomic methods like <code>putIfAbsent()</code> are very important</li>
+</ul>
+<hr>
+<h2 id="17-interview-follow-up-questions">17. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;What is ConcurrentHashMap?&rdquo;</strong>, interviewers often ask related follow-ups.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Why is <code>HashMap</code> unsafe in multithreading?</td>
+          <td>Concurrency basics</td>
+      </tr>
+      <tr>
+          <td>How is <code>ConcurrentHashMap</code> different from <code>Hashtable</code>?</td>
+          <td>Legacy vs modern design</td>
+      </tr>
+      <tr>
+          <td>Does <code>ConcurrentHashMap</code> lock the whole map?</td>
+          <td>Internal design understanding</td>
+      </tr>
+      <tr>
+          <td>Why are null keys/values not allowed?</td>
+          <td>API design reasoning</td>
+      </tr>
+      <tr>
+          <td>What is the difference between <code>ConcurrentHashMap</code> and <code>Collections.synchronizedMap()</code>?</td>
+          <td>Performance and concurrency trade-off</td>
+      </tr>
+      <tr>
+          <td>What atomic methods does <code>ConcurrentHashMap</code> provide?</td>
+          <td>Practical usage</td>
+      </tr>
+      <tr>
+          <td>Is iteration fail-fast?</td>
+          <td>Collection behavior</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="18-common-mistakes">18. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>saying <code>ConcurrentHashMap</code> is just a synchronized <code>HashMap</code></li>
+<li>assuming the whole map is locked for every operation</li>
+<li>saying modern <code>ConcurrentHashMap</code> still uses only segments</li>
+<li>forgetting that null keys and values are not allowed</li>
+<li>doing compound logic with separate <code>get()</code> and <code>put()</code> instead of atomic methods</li>
+</ul>
+<hr>
+<h2 id="19-interview-summary-answer-best-answer">19. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is <code>ConcurrentHashMap</code> and how is it different from <code>HashMap</code>?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p><code>ConcurrentHashMap</code> is a thread-safe implementation of <code>Map</code> designed for concurrent access by multiple threads. Unlike <code>HashMap</code>, it supports safe concurrent reads and writes using finer-grained internal coordination instead of one global lock for every operation. It scales much better in multithreaded applications, does not allow null keys or values, and provides useful atomic methods like <code>putIfAbsent()</code> and <code>computeIfAbsent()</code>.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

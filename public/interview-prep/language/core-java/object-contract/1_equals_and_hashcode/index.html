@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>equals() vs hashCode()</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775306506">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">equals() vs hashCode()</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. What is equals()?</li>
+        
+        <li>3. What is hashCode()?</li>
+        
+        <li>4. Contract Between equals() and hashCode() (Very Important)</li>
+        
+        <li>5. How HashMap Uses equals() and hashCode()</li>
+        
+        <li>6. Example Class with equals() and hashCode()</li>
+        
+        <li>7. What Happens If Only equals() Is Overridden?</li>
+        
+        <li>8. Interview Follow-up Questions</li>
+        
+        <li>9. Common Mistakes</li>
+        
+        <li>10. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 3 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>equals() is used to compare logical equality between two objects,<br>
+while hashCode() returns an integer used by hash-based collections like HashMap and HashSet.<br>
+If two objects are equal according to equals(), they must return the same hashCode().</strong></p></blockquote>
+<hr>
+<h2 id="2-what-is-equals">2. What is equals()?</h2>
+<hr>
+<p>The equals() method is used to compare two objects for equality.</p>
+<p>However, the behavior of equals() depends on whether the class overrides it or not.</p>
+<h3 id="default-behavior-object-class">Default Behavior (Object Class)</h3>
+<p>By default, the equals() method from the Object class compares <strong>memory references</strong>, similar to the == operator.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Object obj1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Object();
+</span></span><span style="display:flex;"><span>Object obj2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Object();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(obj1.<span style="color:#a6e22e">equals</span>(obj2)); <span style="color:#75715e">// false</span>
+</span></span></code></pre></div><p>Even if the objects contain the same data, it returns false because they are different objects in memory.</p>
+<h3 id="overridden-equals-logical-equality">Overridden equals() (Logical Equality)</h3>
+<p>Many classes like String, Integer, LocalDate, etc., override equals() to compare <strong>logical content</strong> instead of memory reference.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String a <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String(<span style="color:#e6db74">&#34;hello&#34;</span>);
+</span></span><span style="display:flex;"><span>String b <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String(<span style="color:#e6db74">&#34;hello&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(a.<span style="color:#a6e22e">equals</span>(b)); <span style="color:#75715e">// true</span>
+</span></span></code></pre></div><p>Here:</p>
+<ul>
+<li>a and b are different objects</li>
+<li>But their contents are the same</li>
+<li>So equals() returns <strong>true</strong></li>
+</ul>
+<h3 id="important-conclusion">Important Conclusion</h3>
+<p>So depending on the class implementation, equals() may compare:</p>
+<ul>
+<li>memory reference (default behavior)</li>
+<li>logical content (overridden behavior)</li>
+</ul>
+<h3 id="equals-vs-">equals() vs ==</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Comparison</th>
+          <th>What it checks</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>==</td>
+          <td>Reference equality (same object in memory)</td>
+      </tr>
+      <tr>
+          <td>equals() default</td>
+          <td>Reference equality</td>
+      </tr>
+      <tr>
+          <td>equals() overridden</td>
+          <td>Logical/content equality</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="3-what-is-hashcode">3. What is hashCode()?</h2>
+<hr>
+<p><code>hashCode()</code> returns an integer value representing the object.</p>
+<p>This value is mainly used by <strong>hash-based collections</strong> like:</p>
+<ul>
+<li>HashMap</li>
+<li>HashSet</li>
+<li>Hashtable</li>
+<li>ConcurrentHashMap</li>
+</ul>
+<p>The hash code is used to decide <strong>which bucket an object will be stored in</strong>.</p>
+<h4 id="example">Example:</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;abc&#34;</span>;
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(s.<span style="color:#a6e22e">hashCode</span>());
+</span></span></code></pre></div><h3 id="31-why-string-objects-have-same-hashcode">3.1 Why String Objects Have Same hashCode</h3>
+<p>For many classes like <strong>String, Integer, etc., overrides hashCode()</strong> to calculate hash based on the <strong>object’s content</strong>.</p>
+<p>Inside String class, hashCode is something like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> hash <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">char</span> c : value) {
+</span></span><span style="display:flex;"><span>    hash <span style="color:#f92672">=</span> 31 <span style="color:#f92672">*</span> hash <span style="color:#f92672">+</span> c;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>So hashCode depends on <strong>content</strong>, not memory address.</p>
+<p>So:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> String(<span style="color:#e6db74">&#34;hello&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> String(<span style="color:#e6db74">&#34;hello&#34;</span>);
+</span></span></code></pre></div><p>Both have same content → same hashCode.</p>
+<p>Even though they are different objects.</p>
+<h4 id="important-point">Important point:</h4>
+<blockquote>
+<p>Two different objects can have the same hashCode.</p></blockquote>
+<p>hashCode is <strong>not a unique identifier</strong>.</p>
+<hr>
+<h2 id="4-contract-between-equals-and-hashcode-very-important">4. Contract Between equals() and hashCode() (Very Important)</h2>
+<hr>
+<p>Java defines a contract between <code>equals()</code> and <code>hashCode()</code>.</p>
+<h3 id="rule-1">Rule 1</h3>
+<p>If two objects are equal according to equals(), they <strong>must</strong> have the same hashCode().</p>
+<h3 id="rule-2">Rule 2</h3>
+<p>If two objects have the same hashCode(), they are <strong>not necessarily equal</strong> (collision can happen).</p>
+<h3 id="rule-3">Rule 3</h3>
+<p>If you override equals(), you <strong>must override hashCode()</strong>.</p>
+<p>Otherwise hash-based collections will behave incorrectly.</p>
+<hr>
+<h2 id="5-how-hashmap-uses-equals-and-hashcode">5. How HashMap Uses equals() and hashCode()</h2>
+<hr>
+<p>When you insert a key into a HashMap, Java uses both methods.</p>
+<h3 id="internal-flow-of-hashmap-simplified">Internal Flow of HashMap (Simplified)</h3>
+<div class="mermaid">
+graph TD
+    %% Styling Definitions
+    classDef startEnd fill:#f9fbfd,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef process fill:#e1f5fe,stroke:#0288d1,stroke-width:1.5px;
+    classDef decision fill:#fffde7,stroke:#fbc02d,stroke-width:1.5px;
+    classDef action fill:#e8f5e9,stroke:#388e3c,stroke-width:1.5px;
+
+    %% Diagram Flow
+    A([🏁 Start: put key, value]):::startEnd --> B[1️⃣ Calculate key.hashCode]:::process
+    B --> C[2️⃣ Find Bucket Index]:::process
+    C --> D{Is bucket empty?}:::decision
+
+    D -- Yes 🟢 --> E[Add new entry to bucket]:::action
+    D -- No 🔴 --> F[3️⃣ Grab first entry in bucket]:::process
+
+    F --> G{key.equals existing key?}:::decision
+
+    G -- Yes 🟢 --> H[4️⃣ Update value for that key]:::action
+    G -- No 🔴 --> I{Is there a next entry?}:::decision
+
+    I -- Yes 🟢 --> J[Move to next entry]:::process
+    J --> G
+
+    I -- No 🔴 --> K[5️⃣ Add new entry to end of bucket]:::action
+
+    E --> L([🔚 End]):::startEnd
+    H --> L
+    K --> L
+</div>
+<p>So:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Method</th>
+          <th>Purpose</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>hashCode()</td>
+          <td>Find bucket</td>
+      </tr>
+      <tr>
+          <td>equals()</td>
+          <td>Find exact key inside bucket</td>
+      </tr>
+  </tbody>
+</table>
+<p>Both methods are required for HashMap to work correctly.</p>
+<hr>
+<h2 id="6-example-class-with-equals-and-hashcode">6. Example Class with equals() and hashCode()</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Objects;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> id;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Employee(<span style="color:#66d9ef">int</span> id, String name) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">id</span> <span style="color:#f92672">=</span> id;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">equals</span>(Object o) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span> <span style="color:#f92672">==</span> o) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(o <span style="color:#66d9ef">instanceof</span> Employee)) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        Employee other <span style="color:#f92672">=</span> (Employee) o;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> id <span style="color:#f92672">==</span> other.<span style="color:#a6e22e">id</span> <span style="color:#f92672">&amp;&amp;</span> Objects.<span style="color:#a6e22e">equals</span>(name, other.<span style="color:#a6e22e">name</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">hashCode</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Objects.<span style="color:#a6e22e">hash</span>(id, name);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="7-what-happens-if-only-equals-is-overridden">7. What Happens If Only equals() Is Overridden?</h2>
+<hr>
+<p>If we override equals() but not hashCode(), hash-based collections may behave incorrectly.</p>
+<h4 id="example-1">Example:</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Set<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> set <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> Employee(1, <span style="color:#e6db74">&#34;Shubham&#34;</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(set.<span style="color:#a6e22e">contains</span>(<span style="color:#66d9ef">new</span> Employee(1, <span style="color:#e6db74">&#34;Shubham&#34;</span>)));
+</span></span></code></pre></div><p>This may return <strong>false</strong> if hashCode() is not overridden properly, even though objects are logically equal.</p>
+<p>This happens because HashSet uses hashCode to find the bucket first.</p>
+<hr>
+<h2 id="8-interview-follow-up-questions">8. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;equals() vs hashCode()&rdquo;</strong>, interviewers often ask deeper questions.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Why does HashMap use both equals and hashCode?</td>
+          <td>HashMap internals</td>
+      </tr>
+      <tr>
+          <td>Can two objects have same hashCode but not equal?</td>
+          <td>Collisions</td>
+      </tr>
+      <tr>
+          <td>Can two objects be equal but have different hashCode?</td>
+          <td>Contract knowledge</td>
+      </tr>
+      <tr>
+          <td>What happens if only equals is overridden?</td>
+          <td>Collections behavior</td>
+      </tr>
+      <tr>
+          <td>What happens if only hashCode is overridden?</td>
+          <td>Object equality</td>
+      </tr>
+      <tr>
+          <td>Which fields should be used in equals/hashCode?</td>
+          <td>Object identity</td>
+      </tr>
+      <tr>
+          <td>Should mutable fields be used in hashCode?</td>
+          <td>Bugs &amp; design</td>
+      </tr>
+      <tr>
+          <td>Difference between == and equals?</td>
+          <td>Reference vs logical equality</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="9-common-mistakes">9. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>Overriding <code>equals()</code> but not <code>hashCode()</code></li>
+<li>Using mutable fields in <code>hashCode()</code></li>
+<li>Thinking <code>hashCode()</code> is unique</li>
+<li>Confusing <code>==</code> with <code>equals()</code></li>
+<li>Not understanding HashMap internal flow</li>
+<li>Returning random numbers in <code>hashCode()</code></li>
+<li>Using all fields including non-identity fields</li>
+</ul>
+<hr>
+<h2 id="10-interview-summary-answer-best-answer">10. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is the difference between <code>equals()</code> and <code>hashCode()</code>?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p><code>equals()</code> is used to compare logical equality between two objects, while <code>hashCode()</code> is used by hash-based collections to determine the bucket location for storing objects.<br>
+HashMap first uses <code>hashCode()</code> to locate the bucket and then uses <code>equals()</code> to find the exact key inside the bucket.<br>
+If two objects are equal according to <code>equals()</code>, they must have the same <code>hashCode()</code>.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/core-java/" class="btn nav-btn">
+        Core Java - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

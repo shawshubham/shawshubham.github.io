@@ -1,7 +1,9 @@
 ---
-title: "Core Java - Interview Questions"
-description: "Filterable index of problems with links to original source and solutions."
+title: "JVM and Performance - Interview Questions"
+description: "Filterable index of questions with proper answer for it."
+featureHome: "/interview-prep/"
+featureLabel: "Interview Preparation"
 weight: 1
-date: 2026-02-08
+date: 2026-04-04
 layout: interview-prep-all-questions-index
 ---

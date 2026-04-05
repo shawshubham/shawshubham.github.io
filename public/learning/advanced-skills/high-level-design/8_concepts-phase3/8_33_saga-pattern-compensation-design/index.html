@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saga Pattern — Compensation Design (Rules &amp; Pitfalls)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775209990">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Saga Pattern — Compensation Design (Rules &amp; Pitfalls)</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">High-Level Design (HLD)</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. Phase 0: Introduction</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/1_introduction/1_1_introduction/">1.1. Introduction — How to Use This Section</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. Phase 1: Foundations — Designing Your First Real System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_1_introduction/">2.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_2_simple-web-system/">2.2. Example 1: Simple Web System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_3_high-level-architecture/">2.3. Example 1: Simple Web System — High-Level Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_4_architecture-choices-and-trade-offs/">2.4. Example 1: Simple Web System — Architecture Choices &amp; Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_5_early-scaling-signals-and-limitations/">2.5. Example 1: Simple Web System — Early Scaling Signals &amp; Limitations</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/2_foundation-designing-first-app/2_6_phase1-summary/">2.6. Phase 1 Summary: Concepts Introduced</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">3. Phase 2: Scaling for Reads — Designing a News Feed System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_1_introduction/">3.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_2_problem-and-requirement/">3.2. Example 2: News Feed System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_3_baseline-architecture/">3.3. Example 2: News Feed System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_4_database-bottleneck/">3.4. Example 2: News Feed System — Database Bottleneck</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_5_introducing-caching/">3.5. Example 2: News Feed System — Introducing Caching</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_6_application-server-bottleneck/">3.6. Example 2: News Feed System — Application Server Bottleneck &amp; Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_7_global-users-and-cdn/">3.7. Example 2: News Feed System — Global Users &amp; Content Delivery Networks</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_8_consistency-trade-offs/">3.8. Example 2: News Feed System — Consistency Trade-offs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/3_scaling-for-reads/3_9_phase2-summary/">3.9. Phase 2 Summary — Scaling Read‑Heavy Systems</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">4. Phase 3: Correct Systems — Designing Reliable Transactions</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_1_introduction/">4.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_2_problem-and-requirement/">4.2. Example 3: Payment System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_3_baseline-architecture/">4.3. Example 3: Payment System — Baseline Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_4_handling-duplicate-request/">4.4. Example 3: Payment System — Handling Duplicate Requests (Idempotency)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_5_scaling-the-architecture/">4.5. Example 3: Payment System — Scaling the Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_6_replication-lag-and-stale-reads/">4.6. Example 3: Payment System — Replication Lag and Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_7_replication-and-write-consistency/">4.7. Example 3: Payment System — Replication and Write Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_8_partial-failure-across-services/">4.8. Example 3: Payment System — Partial Failure Across Services</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_9_distributed-coordination-saga/">4.9. Example 3: Payment System — Distributed Coordination with Saga (Orchestration vs Choreography)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_10_making-sagas-reliable/">4.10. Example 3: Payment System — Making Sagas Reliable (Durable State &#43; Retries &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/4_correct-reliable-systems/4_11_phase3-summary/">4.11. Phase 3 Summary — Payment System (Correctness &amp; Reliability)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">5. Phase 4: Real-Time &amp; Event-Driven Systems - Designing Real-Time Messaging System</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_1_introduction/">5.1. Phase 4: Real-Time &amp; Event-Driven Systems — Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_2_problem-and-requirements/">5.2. Example 4: Real-Time Messaging System — Problem &amp; Requirements</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/5_realtime-event-driven-systems/5_3_baseline-architecture/">5.3. Example 4: Real-Time Messaging System — Baseline Architecture (Polling → Simple Push)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">6. Concepts - Core Foundations (Phase 1)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_1_monolithic-architecture/">6.1. Monolithic Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_2_layered-n-tier-architecture/">6.2. Layered (N-Tier) Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_3_client-server-architecture/">6.3. Client–Server Architecture</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_4_stateless-vs-stateful-applications/">6.4. Stateless vs Stateful Applications</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_5_sync-vs-async-communication/">6.5. Synchronous vs Asynchronous Communication</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_6_single-database/">6.6. Single Database as Source of Truth</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/6_concepts-phase1/6_7_architectural-trade-offs/">6.7. Architectural Trade-offs</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">7. Concepts - Scaling Foundations (Phase 2)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_1_what-is-caching/">7.1. Caching — What is Caching ?</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_2_cache-hit-and-miss/">7.2. Caching — Cache Hit vs Cache Miss</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_3_caching-patterns/">7.3. Caching — Caching Patterns</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_4_cache-invalidation/">7.4. Caching — Cache Invalidation</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_5_cache-eviction-policies/">7.5. Caching — Cache Eviction Policies</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_6_local-vs-distributed-cache/">7.6. Caching — Local vs Distributed Cache</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_7_horizontal-scaling/">7.7. Horizontal Scaling</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_8_load-balancing/">7.8. Load Balancing</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_9_stateless-application-servers/">7.9. Stateless Application Servers</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_10_cdn/">7.10. Content Delivery Networks (CDN)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/7_concepts-phase2/7_11_eventual-consistency/">7.11. Eventual Consistency</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase is-open">
+                          <details class="subject-phase-details" open>
+                            <summary class="subject-phase-title">8. Concepts - Correct Systems (Phase 3)</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_1_introduction/">8.1. Concepts Hub — Correctness &amp; Reliability Toolkit (Phase 3)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_2_acid-transactions-what-they-guarantee/">8.2. ACID Transactions — What Transactions Guarantee</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_3_acid-isolation-levels-and-read-phenomena/">8.3. ACID Transactions — Isolation Levels &amp; Read Phenomena</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_4_locking-contention-deadlocks/">8.4. ACID Transactions — Locking, Contention, and Deadlocks</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_5_atomic-money-updates/">8.5. ACID Transactions — Atomic Money Updates (Single-statement Patterns)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_6_idempotency-why-retries-create-duplicates/">8.6. Idempotency — Why Retries Create Duplicates</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_7_idempotency-where-it-live/">8.7. Idempotency — API Edge vs Step-level vs Workflow-level</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_8_idempotency-storage-patterns/">8.8. Idempotency — Storage Patterns (DB-first vs Redis/KV)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_9_idempotency-cross-store-consistency-trap/">8.9. Idempotency — Cross-store Consistency Trap (DB &#43; Redis)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_10_idempotency-vs-dedup-vs-exactly-once/">8.10. Idempotency vs Deduplication vs Exactly-Once (What They Really Mean)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_11_database-replication-basics/">8.11. Database Replication — Leader/Replica Basics</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_12_database-replication-lag-stale-reads/">8.12. Database Replication — Replication Lag &amp; Stale Reads</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_13_database-replication-read-strategies/">8.13. Database Replication — Read Strategies (Critical vs Non-critical &#43; Read-your-writes)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_14_database-replication-monitoring-safe-degradation/">8.14. Database Replication — Monitoring Lag &amp; Safe Degradation</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_15_database-sync-replication-quorum-reads/">8.15. Database Replication — Synchronous Replication &amp; Quorum Reads (Advanced)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_16_consistency-models-vocabulary/">8.16. Consistency Models — Vocabulary That Actually Matters</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_17_consistency-stale-reads-lost-updates-inconsistency/">8.17. Consistency Models — Stale Reads vs Lost Updates vs Inconsistent State</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_18_consistency-designing-us-around-consistency/">8.18. Consistency Models — Designing UX Around Consistency</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_19_consistency-with-caches/">8.19. Consistency Models — Consistency With Caches (Bridge)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_20_districuted-transactions-why-global-acid-is-hard/">8.20. Distributed Transactions — Why “Global ACID” is Hard</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_21_distributed-transactions-two-phase-commit/">8.21. Distributed Transactions — Two-Phase Commit (2PC) in Plain English</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_22_distributed-transaction-2pc-practical-alternatives/">8.22. Distributed Transactions — Practical Alternatives</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_23_distributed-transactions-when-2pc-makes-sense/">8.23. Distributed Transactions — When 2PC Still Makes Sense</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_24_processing-guarantees-atmost-atleast-exactly-once/">8.24. Processing Guarantees — At-most vs At-least vs Exactly-Once</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_25_processing-guarantees-why-duplicates-happen/">8.25. Processing Guarantees — Why Duplicates Happen</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_26_processing-guarantees-idempotent-consumers/">8.26. Processing Guarantees — Idempotent Consumers (Exactly-once Effects)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_27_processing-guarantees-transactional-outbox-pattern/">8.27. Processing Guarantees — Transactional Outbox Pattern</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_28_processing-guarantees-inbox-dedup-store/">8.28. Processing Guarantees — Inbox / Dedup Store Pattern</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_29_processing-guarantees-ordering-reprocessing-dlqs/">8.29. Processing Guarantees — Ordering, Reprocessing, and DLQs</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_30_saga-pattern-core-idea/">8.30. Saga Pattern — Core Idea (Local Transactions &#43; Compensation)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_31_saga-pattern-orchestration-vs-choreography/">8.31. Saga Pattern — Orchestration vs Choreography</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_32_saga-pattern-durable-workflow-state-machine/">8.32. Saga Pattern — Durable Workflow State Machine</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_33_saga-pattern-compensation-design/">8.33. Saga Pattern — Compensation Design (Rules &amp; Pitfalls)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_34_saga-pattern-choreography-reliability/">8.34. Saga Pattern — Choreography Reliability (Deep Dive)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">9. Concepts - Storage Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 29 Mar, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h1 id="saga-pattern--compensation-design-rules--pitfalls">Saga Pattern — Compensation Design (Rules &amp; Pitfalls)</h1>
+<hr>
+<p>In a saga, local transactions commit step-by-step.</p>
+<p>That means once a step commits, you cannot “roll back globally”.</p>
+<p>So if the workflow fails later, you need a recovery action.</p>
+<p>That recovery action is called <strong>compensation</strong>.</p>
+<p>The most important thing to internalize is:</p>
+<blockquote>
+<p>compensation is not a perfect undo.<br>
+it is a domain-specific action that restores correctness invariants.</p></blockquote>
+<p>This article explains how to design compensations for payment workflows and avoid the pitfalls that cause real incidents.</p>
+<hr>
+<h2 id="1-compensation-vs-rollback-the-critical-difference">1. Compensation vs Rollback (The Critical Difference)</h2>
+<hr>
+<h3 id="rollback-local-transaction">Rollback (local transaction)</h3>
+<ul>
+<li>happens inside one DB transaction</li>
+<li>restores the exact previous state</li>
+<li>automatic and precise</li>
+</ul>
+<h3 id="compensation-distributed-workflow">Compensation (distributed workflow)</h3>
+<ul>
+<li>happens after local commits already happened</li>
+<li>cannot guarantee returning to the exact previous state</li>
+<li>may require new writes (refund, reversal, release)</li>
+<li>may fail itself and require retries/recovery</li>
+</ul>
+<p>Rollback is a database feature.</p>
+<p>Compensation is a system design feature.</p>
+<hr>
+<h2 id="2-identify-what-youre-protecting-invariants">2. Identify What You’re Protecting: Invariants</h2>
+<hr>
+<p>Before writing compensations, define invariants that must hold end-to-end.</p>
+<p>Payment examples:</p>
+<ul>
+<li>money must not disappear</li>
+<li>money must not be created</li>
+<li>ledger must reconcile with balances</li>
+<li>user-visible status must not lie (or must clearly express uncertainty)</li>
+</ul>
+<p>Compensation is designed to restore these invariants even when the workflow cannot complete.</p>
+<hr>
+<h2 id="3-refund-vs-reversal-vs-release-common-payment-compensations">3. Refund vs Reversal vs Release (Common Payment Compensations)</h2>
+<hr>
+<p>Compensation is not one thing. It depends on what already happened.</p>
+<h3 id="31-release-undo-a-reservation--hold">3.1 Release (undo a reservation / hold)</h3>
+<p>If you reserved funds but did not capture:</p>
+<ul>
+<li>move funds from <code>reserved</code> back to <code>available</code></li>
+</ul>
+<p>This is the cleanest compensation because money never left the account.</p>
+<h3 id="32-reversal-undo-a-ledger-posting">3.2 Reversal (undo a ledger posting)</h3>
+<p>If you already posted to the ledger:</p>
+<ul>
+<li>create a reversing ledger entry (not delete history)</li>
+</ul>
+<p>Reversal is preferred because it preserves auditability:</p>
+<ul>
+<li>you don’t erase records; you offset them.</li>
+</ul>
+<h3 id="33-refund-money-already-moved-externally">3.3 Refund (money already moved externally)</h3>
+<p>If you already captured funds and moved money:</p>
+<ul>
+<li>you may need a refund workflow</li>
+</ul>
+<p>Refund is often not instantaneous:</p>
+<ul>
+<li>it can be delayed</li>
+<li>it can fail</li>
+<li>it may require external settlement rails</li>
+</ul>
+<p>So refund compensation is often itself a saga.</p>
+<hr>
+<h2 id="4-design-rule-compensations-must-be-idempotent">4. Design Rule: Compensations Must Be Idempotent</h2>
+<hr>
+<p>Compensation steps are still steps.</p>
+<p>They can be retried.</p>
+<p>So they must be idempotent just like forward steps.</p>
+<p>Examples:</p>
+<ul>
+<li><code>paymentId:RELEASE_RESERVATION</code></li>
+<li><code>paymentId:POST_REVERSAL</code></li>
+<li><code>paymentId:ISSUE_REFUND</code></li>
+</ul>
+<p>This avoids “double refund” incidents.</p>
+<hr>
+<h2 id="5-not-everything-is-compensatable-and-thats-ok">5. Not Everything Is Compensatable (And That’s OK)</h2>
+<hr>
+<p>Some steps cannot be undone cleanly:</p>
+<ul>
+<li>sending an email/SMS (you can send a correction, but not “unsend”)</li>
+<li>notifying downstream systems (you can send a follow-up event)</li>
+<li>external third-party API calls that already took effect</li>
+</ul>
+<p>So you classify steps:</p>
+<h3 id="51-compensatable-steps">5.1 Compensatable steps</h3>
+<ul>
+<li>holds/reservations</li>
+<li>ledger entries (via reversal)</li>
+<li>state transitions (via compensating transitions)</li>
+</ul>
+<h3 id="52-non-compensatable-steps">5.2 Non-compensatable steps</h3>
+<ul>
+<li>notifications</li>
+<li>external irreversible side effects</li>
+</ul>
+<p>For non-compensatable steps, the design approach is:</p>
+<ul>
+<li>make them last (after core correctness is finalized), or</li>
+<li>make them safe to repeat / send corrections, or</li>
+<li>treat them as “best effort” with retry/DLQ</li>
+</ul>
+<hr>
+<h2 id="6-partial-compensation-and-needs_review">6. Partial Compensation and <code>NEEDS_REVIEW</code></h2>
+<hr>
+<p>Sometimes compensation fails or becomes ambiguous:</p>
+<ul>
+<li>you attempted reversal, but the ledger service timed out</li>
+<li>you cannot tell if it succeeded</li>
+<li>repeated retries are risky</li>
+</ul>
+<p>This is where <code>NEEDS_REVIEW</code> is a correct outcome.</p>
+<p>A good saga design includes:</p>
+<ul>
+<li>a terminal “in doubt” state</li>
+<li>reconciliation tooling</li>
+<li>manual operations path</li>
+</ul>
+<p>It is better to be explicitly uncertain than to lie.</p>
+<hr>
+<h2 id="7-common-pitfalls-what-breaks-real-systems">7. Common Pitfalls (What Breaks Real Systems)</h2>
+<hr>
+<h3 id="pitfall-a--treating-compensation-as-delete-the-record">Pitfall A — Treating compensation as “delete the record”</h3>
+<p>Deleting payment/ledger records destroys auditability and makes reconciliation impossible.</p>
+<p>Prefer:</p>
+<ul>
+<li>offsetting entries (reversal)</li>
+<li>explicit state transitions</li>
+</ul>
+<h3 id="pitfall-b--compensating-after-irreversible-steps">Pitfall B — Compensating after irreversible steps</h3>
+<p>If you send irreversible side effects early (notifications, third-party calls), compensation becomes messy.</p>
+<p>Fix:</p>
+<ul>
+<li>reorder steps so irreversible actions happen last.</li>
+</ul>
+<h3 id="pitfall-c--non-idempotent-compensations">Pitfall C — Non-idempotent compensations</h3>
+<p>If compensation can run twice, you can double-refund or over-correct.</p>
+<p>Always use idempotency keys and durable step state.</p>
+<h3 id="pitfall-d--no-timeouts--no-terminal-uncertainty-state">Pitfall D — No timeouts / no terminal uncertainty state</h3>
+<p>If you retry forever, incidents never end.</p>
+<p>If you guess outcomes, you create silent money mismatches.</p>
+<p>Always have:</p>
+<ul>
+<li>bounded retries</li>
+<li>escalation to <code>NEEDS_REVIEW</code></li>
+</ul>
+<hr>
+<h2 id="8-phase-3-connection-payment-system">8. Phase 3 Connection (Payment System)</h2>
+<hr>
+<p>Phase 3’s payment workflow evolution naturally leads here:</p>
+<ul>
+<li>partial failures across services require a saga</li>
+<li>sagas require compensations</li>
+<li>compensations require idempotency and auditability</li>
+</ul>
+<p>A robust payment system is defined by:</p>
+<ul>
+<li>how well it handles failure paths</li>
+<li>not just by how well it handles the happy path</li>
+</ul>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<hr>
+<ul>
+<li>Compensation is not rollback; it is a domain-specific recovery action after commits.</li>
+<li>Design compensations around invariants (money conservation, auditability, truthful status).</li>
+<li>Prefer release/reversal over deletion; refund is often its own workflow.</li>
+<li>Compensations must be idempotent and retry-safe.</li>
+<li>Some steps are not compensatable—place them late or make them correctable.</li>
+<li>Include <code>NEEDS_REVIEW</code> and reconciliation for ambiguous outcomes.</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<hr>
+<p>Sagas recover from partial failures using compensation steps, not global rollbacks.</p>
+<p>Design compensations to restore invariants, keep them idempotent, avoid irreversible side effects early, and treat “in doubt” as a first-class outcome (<code>NEEDS_REVIEW</code>) with reconciliation support.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next</h3>
+<p>Next we’ll go deeper on choreography reliability:</p>
+<ul>
+<li>how choreography-based sagas remain correct under at-least-once delivery</li>
+<li>outbox/inbox per service</li>
+<li>why observability is harder and how teams mitigate it</li>
+</ul>
+<p>👉 <strong>Up Next: →</strong><br>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_34_saga-pattern-choreography-reliability">Saga Pattern — Choreography Reliability (Deep Dive)</a></strong></p>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-compensation-vs-rollback-the-critical-difference" data-toc-target="1-compensation-vs-rollback-the-critical-difference">1. Compensation vs Rollback (The Critical Difference)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-identify-what-youre-protecting-invariants" data-toc-target="2-identify-what-youre-protecting-invariants">2. Identify What You’re Protecting: Invariants</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-refund-vs-reversal-vs-release-common-payment-compensations" data-toc-target="3-refund-vs-reversal-vs-release-common-payment-compensations">3. Refund vs Reversal vs Release (Common Payment Compensations)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-design-rule-compensations-must-be-idempotent" data-toc-target="4-design-rule-compensations-must-be-idempotent">4. Design Rule: Compensations Must Be Idempotent</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-not-everything-is-compensatable-and-thats-ok" data-toc-target="5-not-everything-is-compensatable-and-thats-ok">5. Not Everything Is Compensatable (And That’s OK)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-partial-compensation-and-needs_review" data-toc-target="6-partial-compensation-and-needs_review"></a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-common-pitfalls-what-breaks-real-systems" data-toc-target="7-common-pitfalls-what-breaks-real-systems">7. Common Pitfalls (What Breaks Real Systems)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-phase-3-connection-payment-system" data-toc-target="8-phase-3-connection-payment-system">8. Phase 3 Connection (Payment System)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#tldr" data-toc-target="tldr">TL;DR</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_32_saga-pattern-durable-workflow-state-machine/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/high-level-design/" class="btn nav-btn">
+      High-Level Design (HLD) : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_34_saga-pattern-choreography-reliability/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

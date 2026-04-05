@@ -337,4 +337,4 @@ Now that we understand delivery reality, we move to the core coordination patter
 - what Phase 3 evolves into for partial failures
 
 👉 **Up Next: →**  
-**[Saga Pattern — Core Idea (Local Tx + Compensation)](/learning/advanced-skills/high-level-design/4_correct-reliable-systems/concepts/8_30_saga-core-)**
+**[Saga Pattern — Core Idea (Local Tx + Compensation)](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_30_saga-pattern-core-idea)**

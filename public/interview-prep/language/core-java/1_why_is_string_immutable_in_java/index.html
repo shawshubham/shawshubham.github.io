@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why is String immutable in Java?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775305755">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Why is String immutable in Java?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. What Does Immutable Mean?</li>
+        
+        <li>3. How String Is Made Immutable Internally</li>
+        
+        <li>4. Why String Is Immutable (Very Important for Interviews)</li>
+        
+        <li>5. Interview Follow-up Questions</li>
+        
+        <li>6. How to Create Your Own Immutable Class</li>
+        
+        <li>7. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 3 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>String is immutable in Java because once a String object is created, its value cannot be changed.<br>
+This improves security, enables string pooling, improves performance, and makes Strings thread-safe.</strong></p></blockquote>
+<hr>
+<h2 id="2-what-does-immutable-mean">2. What Does Immutable Mean?</h2>
+<hr>
+<p>Immutable means:</p>
+<blockquote>
+<p>The object’s state cannot change after it is created.</p></blockquote>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>;
+</span></span><span style="display:flex;"><span>s <span style="color:#f92672">=</span> s <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; world&#34;</span>;
+</span></span></code></pre></div><p>Here:</p>
+<ul>
+<li>&ldquo;hello&rdquo; is not modified</li>
+<li>A <strong>new String object</strong> &ldquo;hello world&rdquo; is created</li>
+<li>s now points to the new object</li>
+</ul>
+<hr>
+<h2 id="3-how-string-is-made-immutable-internally">3. How String Is Made Immutable Internally</h2>
+<hr>
+<p>String class is declared like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">String</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">[]</span> value;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Key points:</p>
+<ul>
+<li>Class is <strong>final</strong> → cannot be subclassed</li>
+<li>Internal array is <strong>private</strong></li>
+<li>Array reference is <strong>final</strong></li>
+<li>No setter methods</li>
+<li>Any modification creates <strong>new object</strong></li>
+</ul>
+<hr>
+<h2 id="4-why-string-is-immutable-very-important-for-interviews">4. Why String Is Immutable (Very Important for Interviews)</h2>
+<hr>
+<p>This is usually what interviewer actually wants.</p>
+<h3 id="reason-1--string-pool-memory-optimization">Reason 1 — String Pool (Memory Optimization)</h3>
+<p>Java stores strings in <strong>String Pool</strong>.</p>
+<p>If strings were mutable:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String a <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>;
+</span></span><span style="display:flex;"><span>String b <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>;
+</span></span></code></pre></div><p>Both would point to same object.</p>
+<p>If a changes → b would also change → <strong>huge problem</strong>.</p>
+<p>So immutability allows <strong>string pooling</strong> safely.</p>
+<h3 id="reason-2--security">Reason 2 — Security</h3>
+<p>Strings are used in:</p>
+<ul>
+<li>Database URLs</li>
+<li>File paths</li>
+<li>Network connections</li>
+<li>Class loading</li>
+<li>User credentials</li>
+</ul>
+<p>If Strings were mutable, someone could change the value after validation.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/safe/file.txt&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// validate path</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// attacker changes string to &#34;/etc/passwd&#34;</span>
+</span></span></code></pre></div><p>Immutability prevents this.</p>
+<h3 id="reason-3--thread-safety">Reason 3 — Thread Safety</h3>
+<p>Since String cannot change, multiple threads can use same String safely.</p>
+<p>No synchronization required.</p>
+<h3 id="reason-4--hashcode-caching-performance">Reason 4 — HashCode Caching (Performance)</h3>
+<p>String is heavily used as <strong>HashMap key</strong>.</p>
+<p>Hashcode is cached:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> hash;
+</span></span></code></pre></div><p>If String were mutable, hashCode would change → HashMap would break.</p>
+<p>So immutability allows:</p>
+<ul>
+<li>Cached hashcode</li>
+<li>Faster HashMap operations</li>
+</ul>
+<hr>
+<h2 id="5-interview-follow-up-questions">5. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;Why is String immutable?&rdquo;</strong>, interviewers often ask related follow-up questions to check deeper understanding.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>How to create an immutable class?</td>
+          <td>OOP design principles</td>
+      </tr>
+      <tr>
+          <td>Why is String used as HashMap key?</td>
+          <td>Hashing &amp; immutability</td>
+      </tr>
+      <tr>
+          <td>What is String pool vs heap?</td>
+          <td>Memory model</td>
+      </tr>
+      <tr>
+          <td>String vs StringBuilder vs StringBuffer?</td>
+          <td>Performance</td>
+      </tr>
+      <tr>
+          <td>How many objects are created in <code>String s = new String(&quot;abc&quot;);</code></td>
+          <td>Memory &amp; string pool</td>
+      </tr>
+      <tr>
+          <td>What is intern() method?</td>
+          <td>String pool behavior</td>
+      </tr>
+      <tr>
+          <td>Can we make String mutable?</td>
+          <td>Understanding of final &amp; immutability</td>
+      </tr>
+      <tr>
+          <td>Why are wrapper classes immutable?</td>
+          <td>Design reasoning</td>
+      </tr>
+      <tr>
+          <td>Is immutability related to thread safety?</td>
+          <td>Concurrency basics</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="6-how-to-create-your-own-immutable-class">6. How to Create Your Own Immutable Class</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> id;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(String name, <span style="color:#66d9ef">int</span> id) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">id</span> <span style="color:#f92672">=</span> id;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> name;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getId</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> id;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Rules:</p>
+<ol>
+<li>Class final</li>
+<li>Fields private final</li>
+<li>No setters</li>
+<li>Initialize via constructor</li>
+<li>Return copies if mutable objects</li>
+</ol>
+<hr>
+<h2 id="7-interview-summary-answer-best-answer">7. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>Why is String immutable?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>String is immutable for four main reasons:</p>
+<ol>
+<li>String pool memory optimization</li>
+<li>Security (used in file paths, DB connections, class loading)</li>
+<li>Thread safety</li>
+<li>Hashcode caching for HashMap performance</li>
+</ol>
+<p>Internally String class is final and stores characters in a private final array, so once created its value cannot change.</p></blockquote>
+<p>This is a <strong>perfect interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/core-java/" class="btn nav-btn">
+        Core Java - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

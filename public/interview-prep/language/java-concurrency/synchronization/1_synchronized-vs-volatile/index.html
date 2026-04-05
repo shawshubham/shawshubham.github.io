@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>synchronized vs volatile</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775394839">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">synchronized vs volatile</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is synchronized?</li>
+        
+        <li>4. What is volatile?</li>
+        
+        <li>5. Key Difference Between synchronized and volatile</li>
+        
+        <li>6. Visibility vs Atomicity</li>
+        
+        <li>7. Why volatile Is Not Enough for count&#43;&#43;</li>
+        
+        <li>8. Example Where volatile Is Appropriate</li>
+        
+        <li>9. Example Where synchronized Is Required</li>
+        
+        <li>10. Does synchronized Also Provide Visibility?</li>
+        
+        <li>11. When Should We Use Which?</li>
+        
+        <li>12. Common Interview Trap</li>
+        
+        <li>13. Important Interview Points</li>
+        
+        <li>14. Interview Follow-up Questions</li>
+        
+        <li>15. Common Mistakes</li>
+        
+        <li>16. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong><code>synchronized</code> is used to provide mutual exclusion and visibility, meaning only one thread can execute the protected block at a time. <code>volatile</code> only provides visibility of variable updates across threads, but it does not provide atomicity or locking. Use <code>synchronized</code> when multiple threads modify shared state and correctness depends on compound operations. Use <code>volatile</code> when threads only need to see the latest value of a variable.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This is one of the most common Java concurrency interview questions because it checks whether you understand:</p>
+<ul>
+<li>visibility</li>
+<li>atomicity</li>
+<li>race conditions</li>
+<li>mutual exclusion</li>
+<li>practical thread-safety design</li>
+</ul>
+<p>Many candidates know the words <code>synchronized</code> and <code>volatile</code>, but interviewers want to see whether you know <strong>when each one is actually correct</strong>.</p>
+<hr>
+<h2 id="3-what-is-synchronized">3. What is <code>synchronized</code>?</h2>
+<hr>
+<p><code>synchronized</code> is a Java keyword used to protect a critical section so that only one thread can execute it at a time.</p>
+<p>It provides:</p>
+<ul>
+<li><strong>mutual exclusion</strong></li>
+<li><strong>visibility guarantees</strong></li>
+</ul>
+<p>Java synchronization works using an <strong>intrinsic lock</strong>, also called a <strong>monitor lock</strong>.</p>
+<p>A thread must acquire the monitor before entering synchronized code, and it releases the monitor when it exits.</p>
+<h3 id="31-synchronized-method">3.1 Synchronized method</h3>
+<p>A synchronized instance method locks on the current object, that is, <code>this</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">increment</span>() {
+</span></span><span style="display:flex;"><span>        count<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getCount</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> count;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here both <code>increment()</code> and <code>getCount()</code> use the same monitor lock: <code>this</code>.</p>
+<p>So if one thread is inside <code>increment()</code>, another thread cannot enter either:</p>
+<ul>
+<li><code>increment()</code></li>
+<li><code>getCount()</code></li>
+</ul>
+<p>until the lock is released.</p>
+<h3 id="32-synchronized-block">3.2 Synchronized block</h3>
+<p>Instead of synchronizing the whole method, Java also allows synchronizing only the critical section.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">increment</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+</span></span><span style="display:flex;"><span>            count<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getCount</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> count;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This also locks on <code>this</code>, so it behaves the same as the synchronized method version with respect to locking.</p>
+<p>The main advantage is finer control: <em>you lock only the code that actually needs protection</em>.</p>
+<h3 id="33-how-java-locks-with-synchronized">3.3 How Java locks with synchronized</h3>
+<p>Java does not lock the method itself.<br>
+It locks the <strong>monitor associated with an object</strong>.</p>
+<ul>
+<li>synchronized instance method → locks this</li>
+<li>synchronized (this) block → locks this</li>
+<li>static synchronized method → locks ClassName.class</li>
+</ul>
+<p>Two synchronized sections block each other only if they try to acquire the <strong>same lock object</strong>.</p>
+<h3 id="34-visibility-guarantee">3.4 Visibility guarantee</h3>
+<p><code>synchronized</code> is not only about locking.</p>
+<p>When one thread exits a synchronized block or method, changes made inside that critical section become visible to another thread that later acquires the same lock.</p>
+<p>So synchronized provides both:</p>
+<ul>
+<li><strong>mutual exclusion</strong></li>
+<li><strong>visibility</strong></li>
+</ul>
+<h3 id="example-summary">Example summary</h3>
+<p>In the Counter example:</p>
+<ul>
+<li>both methods lock on the same object</li>
+<li>they cannot run concurrently on the same Counter instance</li>
+<li>this protects shared state and ensures updated values are visible across threads</li>
+</ul>
+<hr>
+<h2 id="4-what-is-volatile">4. What is <code>volatile</code>?</h2>
+<hr>
+<p><code>volatile</code> is a Java keyword used on variables.</p>
+<p>It tells the JVM that:</p>
+<ul>
+<li>reads of this variable should see the latest written value</li>
+<li>writes to this variable should be visible across threads immediately</li>
+</ul>
+<p>It provides:</p>
+<ul>
+<li><strong>visibility</strong></li>
+<li><strong>ordering guarantees around that variable</strong></li>
+</ul>
+<p>It does <strong>not</strong> provide:</p>
+<ul>
+<li>mutual exclusion</li>
+<li>atomicity for compound operations</li>
+</ul>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TaskRunner</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">boolean</span> running <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">stop</span>() {
+</span></span><span style="display:flex;"><span>        running <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">runLoop</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (running) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// do work</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here <code>volatile</code> is appropriate because one thread updates <code>running</code> and another thread reads it.</p>
+<hr>
+<h2 id="5-key-difference-between-synchronized-and-volatile">5. Key Difference Between <code>synchronized</code> and <code>volatile</code></h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th><code>synchronized</code></th>
+          <th><code>volatile</code></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Type</td>
+          <td>keyword for methods/blocks</td>
+          <td>keyword for variables</td>
+      </tr>
+      <tr>
+          <td>Mutual exclusion</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Visibility</td>
+          <td>Yes</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Atomicity for compound operations</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Locking involved</td>
+          <td>Yes</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Use case</td>
+          <td>protect shared mutable state</td>
+          <td>latest value visibility</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="6-visibility-vs-atomicity">6. Visibility vs Atomicity</h2>
+<hr>
+<p>This is the core of the question.</p>
+<h3 id="visibility">Visibility</h3>
+<p>If one thread updates a variable, can another thread see the latest value?</p>
+<p>Both <code>synchronized</code> and <code>volatile</code> help with visibility.</p>
+<h3 id="atomicity">Atomicity</h3>
+<p>Is an entire operation completed as one indivisible step?</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>count<span style="color:#f92672">++</span>
+</span></span></code></pre></div><p>This looks like one operation, but internally it is roughly:</p>
+<ol>
+<li>read current value</li>
+<li>add 1</li>
+<li>write new value</li>
+</ol>
+<p>That is a <strong>compound operation</strong>, not atomic.</p>
+<p>So if multiple threads execute <code>count++</code> concurrently, <code>volatile</code> alone is not enough.</p>
+<hr>
+<h2 id="7-why-volatile-is-not-enough-for-count">7. Why <code>volatile</code> Is Not Enough for <code>count++</code></h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">increment</span>() {
+</span></span><span style="display:flex;"><span>        count<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This is <strong>not thread-safe</strong>.</p>
+<p>Why?</p>
+<p>Because <code>volatile</code> ensures that threads see the latest value, but it does not prevent two threads from doing this at the same time:</p>
+<ul>
+<li>Thread A reads 5</li>
+<li>Thread B reads 5</li>
+<li>Thread A writes 6</li>
+<li>Thread B writes 6</li>
+</ul>
+<p>One increment is lost.</p>
+<p>This is a race condition.</p>
+<p>For such cases, use:</p>
+<ul>
+<li><code>synchronized</code></li>
+<li><code>AtomicInteger</code></li>
+<li><code>Lock</code></li>
+</ul>
+<hr>
+<h2 id="8-example-where-volatile-is-appropriate">8. Example Where <code>volatile</code> Is Appropriate</h2>
+<hr>
+<p>A stop flag is the classic example.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Worker</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">boolean</span> running <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">stopWork</span>() {
+</span></span><span style="display:flex;"><span>        running <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doWork</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (running) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// keep working</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Why is <code>volatile</code> enough here?</p>
+<p>Because:</p>
+<ul>
+<li>one thread writes the flag</li>
+<li>another thread reads it</li>
+<li>there is no compound read-modify-write operation</li>
+</ul>
+<p>So visibility is enough.</p>
+<hr>
+<h2 id="9-example-where-synchronized-is-required">9. Example Where <code>synchronized</code> Is Required</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BankAccount</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> balance <span style="color:#f92672">=</span> 1000;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">withdraw</span>(<span style="color:#66d9ef">int</span> amount) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (balance <span style="color:#f92672">&gt;=</span> amount) {
+</span></span><span style="display:flex;"><span>            balance <span style="color:#f92672">-=</span> amount;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getBalance</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> balance;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here <code>synchronized</code> is needed because:</p>
+<ul>
+<li>checking balance</li>
+<li>subtracting amount</li>
+<li>updating state</li>
+</ul>
+<p>must happen safely as one protected critical section.</p>
+<p>If multiple threads withdraw at the same time without synchronization, balance correctness may break.</p>
+<hr>
+<h2 id="10-does-synchronized-also-provide-visibility">10. Does <code>synchronized</code> Also Provide Visibility?</h2>
+<hr>
+<p>Yes.</p>
+<p>This is important.</p>
+<p>Some people think:</p>
+<ul>
+<li><code>volatile</code> = visibility</li>
+<li><code>synchronized</code> = only locking</li>
+</ul>
+<p>That is incomplete.</p>
+<p><code>synchronized</code> also provides visibility guarantees.</p>
+<p>When a thread exits a synchronized block, its changes are flushed so that another thread entering the same synchronized block can see them.</p>
+<p>So:</p>
+<ul>
+<li><code>volatile</code> gives visibility without locking</li>
+<li><code>synchronized</code> gives visibility plus mutual exclusion</li>
+</ul>
+<hr>
+<h2 id="11-when-should-we-use-which">11. When Should We Use Which?</h2>
+<hr>
+<h3 id="use-volatile-when">Use <code>volatile</code> when:</h3>
+<ul>
+<li>a variable is read by multiple threads</li>
+<li>one thread updates it and others only need the latest value</li>
+<li>no compound update logic is involved</li>
+<li>example: status flag, shutdown flag, configuration refresh marker</li>
+</ul>
+<h3 id="use-synchronized-when">Use <code>synchronized</code> when:</h3>
+<ul>
+<li>multiple threads modify shared mutable state</li>
+<li>operations must happen atomically</li>
+<li>correctness depends on protecting a critical section</li>
+<li>example: counters, balance updates, shared collections, compound checks and writes</li>
+</ul>
+<hr>
+<h2 id="12-common-interview-trap">12. Common Interview Trap</h2>
+<hr>
+<p>Interviewers often ask:</p>
+<blockquote>
+<p>If <code>volatile</code> makes values visible to all threads, why not just use <code>volatile</code> everywhere instead of <code>synchronized</code>?</p></blockquote>
+<p>Correct answer:</p>
+<blockquote>
+<p>Because visibility alone is not enough for thread safety. Many operations are compound and require atomicity. <code>volatile</code> cannot protect critical sections or prevent race conditions. <code>synchronized</code> is needed when multiple steps must execute safely together.</p></blockquote>
+<hr>
+<h2 id="13-important-interview-points">13. Important Interview Points</h2>
+<hr>
+<p>Strong points to mention in interviews:</p>
+<ul>
+<li><code>volatile</code> provides visibility, not mutual exclusion</li>
+<li><code>synchronized</code> provides both mutual exclusion and visibility</li>
+<li><code>count++</code> is not atomic</li>
+<li><code>volatile</code> is suitable for flags, not compound state updates</li>
+<li><code>synchronized</code> is required when correctness depends on protecting shared mutable state</li>
+<li><code>AtomicInteger</code> is often better than <code>synchronized</code> for simple atomic counters</li>
+</ul>
+<hr>
+<h2 id="14-interview-follow-up-questions">14. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;synchronized vs volatile&rdquo;</strong>, interviewers often ask related follow-ups.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Does <code>synchronized</code> also guarantee visibility?</td>
+          <td>Memory model understanding</td>
+      </tr>
+      <tr>
+          <td>Why is <code>count++</code> not safe with <code>volatile</code>?</td>
+          <td>Atomicity understanding</td>
+      </tr>
+      <tr>
+          <td>When should we use <code>AtomicInteger</code> instead?</td>
+          <td>Concurrent utility awareness</td>
+      </tr>
+      <tr>
+          <td>Is <code>volatile</code> enough for singleton double-checked locking?</td>
+          <td>Advanced concurrency knowledge</td>
+      </tr>
+      <tr>
+          <td>Does <code>volatile</code> use locking?</td>
+          <td>Internal behavior</td>
+      </tr>
+      <tr>
+          <td>Can multiple threads enter a volatile block?</td>
+          <td>Concept correctness</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="15-common-mistakes">15. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>thinking <code>volatile</code> makes all operations thread-safe</li>
+<li>assuming <code>synchronized</code> only gives locking and not visibility</li>
+<li>using <code>volatile</code> for counters</li>
+<li>not understanding the difference between visibility and atomicity</li>
+<li>overusing <code>synchronized</code> where simple atomic classes would be better</li>
+</ul>
+<hr>
+<h2 id="16-interview-summary-answer-best-answer">16. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is the difference between <code>synchronized</code> and <code>volatile</code> in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p><code>volatile</code> ensures that reads and writes of a variable are visible across threads, but it does not provide atomicity or locking. <code>synchronized</code> provides both visibility and mutual exclusion, so only one thread can execute the protected block at a time. We use <code>volatile</code> for simple visibility-based cases like flags, and <code>synchronized</code> when shared mutable state requires compound operations to be executed safely.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>
