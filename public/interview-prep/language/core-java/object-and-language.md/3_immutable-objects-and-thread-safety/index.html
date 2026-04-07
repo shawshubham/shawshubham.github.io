@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Immutable Objects and Thread Safety</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775501999">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Immutable Objects and Thread Safety</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is an Immutable Object?</li>
+        
+        <li>4. Why Immutable Objects Are Thread-Safe</li>
+        
+        <li>5. How to Create an Immutable Class</li>
+        
+        <li>6. Immutable Class with Mutable Field (Important Interview Point)</li>
+        
+        <li>7. Why String is Immutable</li>
+        
+        <li>8. Mutable vs Immutable Objects</li>
+        
+        <li>9. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 6 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>An immutable object is an object whose state cannot be changed after it is created. Immutable objects are inherently thread-safe because multiple threads can access them without synchronization since their state never changes. String is the most common example of an immutable class in Java.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>object immutability</li>
+<li>thread safety</li>
+<li>String immutability</li>
+<li>concurrency basics</li>
+<li>defensive copying</li>
+</ul>
+<p>This is a very common Core Java interview question.</p>
+<hr>
+<h2 id="3-what-is-an-immutable-object">3. What is an Immutable Object?</h2>
+<hr>
+<p>An <strong>immutable object</strong> is an object whose state cannot be modified after creation.</p>
+<p>Once the object is created:</p>
+<ul>
+<li>fields cannot change</li>
+<li>object state cannot change</li>
+<li>no setters</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Java&#34;</span>;
+</span></span><span style="display:flex;"><span>s.<span style="color:#a6e22e">concat</span>(<span style="color:#e6db74">&#34; World&#34;</span>);
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(s);
+</span></span></code></pre></div><p>Output:</p>
+<pre tabindex="0"><code>Java
+</code></pre><p>Because String is immutable, concat creates a new object.</p>
+<hr>
+<h2 id="4-why-immutable-objects-are-thread-safe">4. Why Immutable Objects Are Thread-Safe</h2>
+<hr>
+<p>If an object cannot change after creation, then multiple threads can read it safely.</p>
+<p>Problem with mutable objects:</p>
+<pre tabindex="0"><code>Thread 1 modifies object
+Thread 2 reads object at same time
+→ Inconsistent state
+</code></pre><p>Immutable objects solve this problem because:</p>
+<blockquote>
+<p>No thread can modify the object state.</p></blockquote>
+<p>So immutable objects are <strong>naturally thread-safe</strong>.</p>
+<hr>
+<h2 id="5-how-to-create-an-immutable-class">5. How to Create an Immutable Class</h2>
+<hr>
+<p>Steps to make a class immutable:</p>
+<ol>
+<li>Make class final</li>
+<li>Make fields private and final</li>
+<li>Do not provide setters</li>
+<li>Initialize fields via constructor</li>
+<li>Return defensive copies for mutable fields</li>
+</ol>
+<h3 id="example-immutable-class">Example Immutable Class</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> id;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(<span style="color:#66d9ef">int</span> id, String name) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">id</span> <span style="color:#f92672">=</span> id;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getId</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> id;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> name;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This class is immutable because state cannot change after creation.</p>
+<hr>
+<h2 id="6-immutable-class-with-mutable-field-important-interview-point">6. Immutable Class with Mutable Field (Important Interview Point)</h2>
+<hr>
+<p>If a class contains mutable objects like Date or List, we must use <strong>defensive copying</strong>.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> id;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Date joiningDate;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(<span style="color:#66d9ef">int</span> id, Date joiningDate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">id</span> <span style="color:#f92672">=</span> id;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">joiningDate</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Date(joiningDate.<span style="color:#a6e22e">getTime</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Date <span style="color:#a6e22e">getJoiningDate</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Date(joiningDate.<span style="color:#a6e22e">getTime</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This prevents external code from modifying internal state.</p>
+<p>This is a very important interview concept.</p>
+<hr>
+<h2 id="7-why-string-is-immutable">7. Why String is Immutable</h2>
+<hr>
+<p>Interviewers love this question.</p>
+<p>Reasons String is immutable:</p>
+<ul>
+<li>Security (file paths, URLs, DB connections)</li>
+<li>String pool optimization</li>
+<li>Thread safety</li>
+<li>Hashcode caching</li>
+</ul>
+<p>If String were mutable, string pool would break and security issues could occur.</p>
+<hr>
+<h2 id="8-mutable-vs-immutable-objects">8. Mutable vs Immutable Objects</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Mutable</th>
+          <th>Immutable</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>State can change</td>
+          <td>State cannot change</td>
+      </tr>
+      <tr>
+          <td>Not thread-safe</td>
+          <td>Thread-safe</td>
+      </tr>
+      <tr>
+          <td>Requires synchronization</td>
+          <td>No synchronization needed</td>
+      </tr>
+      <tr>
+          <td>Example: ArrayList</td>
+          <td>Example: String</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="9-interview-summary-answer-best-answer">9. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is an immutable object and why is it thread-safe?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>An immutable object is an object whose state cannot be changed after it is created. Immutable objects are thread-safe because their state never changes, so multiple threads can access them without synchronization. To create an immutable class in Java, we make the class final, fields private and final, initialize them via constructor, avoid setters, and return defensive copies for mutable fields.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/core-java/" class="btn nav-btn">
+        Core Java - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

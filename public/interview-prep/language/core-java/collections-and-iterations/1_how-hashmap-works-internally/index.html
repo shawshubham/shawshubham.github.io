@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How does HashMap work internally?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775431294">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">How does HashMap work internally?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. What is HashMap?</li>
+        
+        <li>3. Internal Structure of HashMap</li>
+        
+        <li>4. How put() Works Internally</li>
+        
+        <li>5. How get() Works Internally</li>
+        
+        <li>6. What is Collision?</li>
+        
+        <li>7. How Collision Is Handled</li>
+        
+        <li>8. Why hashCode() and equals() Both Matter</li>
+        
+        <li>9. What is Load Factor?</li>
+        
+        <li>10. What is Rehashing?</li>
+        
+        <li>11. Is HashMap Thread-Safe?</li>
+        
+        <li>12. Can We Implement Our Own HashMap?</li>
+        
+        <li>13. Interview Follow-up Questions</li>
+        
+        <li>14. Common Mistakes</li>
+        
+        <li>15. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 4 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>HashMap stores data as key-value pairs and uses the key’s <code>hashCode()</code> to decide the bucket where the entry should go. If multiple keys land in the same bucket, HashMap uses <code>equals()</code> to identify the correct key.</strong></p></blockquote>
+<hr>
+<h2 id="2-what-is-hashmap">2. What is HashMap?</h2>
+<hr>
+<p><code>HashMap</code> is a data structure in Java used to store data in <strong>key-value</strong> form.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>Integer, String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(1, <span style="color:#e6db74">&#34;Alice&#34;</span>);
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(2, <span style="color:#e6db74">&#34;Bob&#34;</span>);
+</span></span></code></pre></div><p>Here:</p>
+<ul>
+<li><code>1</code> and <code>2</code> are keys</li>
+<li><code>&quot;Alice&quot;</code> and <code>&quot;Bob&quot;</code> are values</li>
+</ul>
+<p>A <code>HashMap</code> allows fast insertion, lookup, and deletion on average.</p>
+<h3 id="time-and-space-complexity">Time and Space Complexity</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Operation</th>
+          <th>Average Case</th>
+          <th>Worst Case</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>put()</code></td>
+          <td>O(1)</td>
+          <td>O(n)</td>
+      </tr>
+      <tr>
+          <td><code>get()</code></td>
+          <td>O(1)</td>
+          <td>O(n)</td>
+      </tr>
+      <tr>
+          <td><code>remove()</code></td>
+          <td>O(1)</td>
+          <td>O(n)</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="space-complexity">Space Complexity</h3>
+<ul>
+<li><strong>O(n)</strong>, where <code>n</code> is the number of key-value pairs stored in the map</li>
+</ul>
+<p>These average-case time complexities are possible because <code>HashMap</code> uses hashing to distribute entries across buckets.</p>
+<p>The worst case happens when too many keys collide into the same bucket.</p>
+<hr>
+<h2 id="3-internal-structure-of-hashmap">3. Internal Structure of HashMap</h2>
+<hr>
+<p>Internally, <code>HashMap</code> uses an <strong>array of buckets</strong>.</p>
+<p>Each bucket can store one or more entries.</p>
+<p>Each entry contains:</p>
+<ul>
+<li>key</li>
+<li>value</li>
+<li>hash</li>
+<li>reference to next entry (in case of collision)</li>
+</ul>
+<p>Conceptually it looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>bucket[0] -&gt; null
+</span></span><span style="display:flex;"><span>bucket[1] -&gt; Entry(key1, value1)
+</span></span><span style="display:flex;"><span>bucket[2] -&gt; Entry(key2, value2) -&gt; Entry(key3, value3)
+</span></span><span style="display:flex;"><span>bucket[3] -&gt; null
+</span></span></code></pre></div><p>So a <code>HashMap</code> is not just a simple list of entries. It first spreads keys across buckets using hashing.</p>
+<hr>
+<h2 id="4-how-put-works-internally">4. How put() Works Internally</h2>
+<hr>
+<p>When we do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(key, value);
+</span></span></code></pre></div><p>Java follows these steps.</p>
+<h3 id="step-1--calculate-hash">Step 1 — Calculate hash</h3>
+<p>It calls:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>key.<span style="color:#a6e22e">hashCode</span>()
+</span></span></code></pre></div><p>But HashMap does not directly use this raw value as-is.</p>
+<p>It applies a small bit-spreading step so that higher bits also influence bucket selection:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> h <span style="color:#f92672">=</span> key.<span style="color:#a6e22e">hashCode</span>();
+</span></span><span style="display:flex;"><span>hash <span style="color:#f92672">=</span> h <span style="color:#f92672">^</span> (h <span style="color:#f92672">&gt;&gt;&gt;</span> 16);
+</span></span></code></pre></div><p>This improves distribution when bucket index is calculated.</p>
+<h3 id="step-2--find-bucket-index">Step 2 — Find bucket index</h3>
+<p>Conceptually, bucket index is derived from the hash and array length.</p>
+<p>A simplified explanation is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>index <span style="color:#f92672">=</span> hash <span style="color:#f92672">%</span> arrayLength
+</span></span></code></pre></div><p>But Java HashMap actually uses a faster approach because bucket array size is kept as a <strong>power of 2</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>index <span style="color:#f92672">=</span> (n <span style="color:#f92672">-</span> 1) <span style="color:#f92672">&amp;</span> hash;
+</span></span></code></pre></div><p>where n is the current bucket array length.</p>
+<p>This is faster than modulo and works efficiently because the capacity is always a power of 2.</p>
+<h3 id="step-3--check-bucket">Step 3 — Check bucket</h3>
+<ul>
+<li>If bucket is empty → insert entry directly</li>
+<li>If bucket already has entries → collision handling starts</li>
+</ul>
+<h3 id="step-4--use-equals">Step 4 — Use equals()</h3>
+<p>If entries already exist in that bucket, <code>HashMap</code> compares keys using <code>equals()</code>.</p>
+<ul>
+<li>If same key is found → update value</li>
+<li>Else → add new entry</li>
+</ul>
+<hr>
+<h2 id="5-how-get-works-internally">5. How get() Works Internally</h2>
+<hr>
+<p>When we do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>map.<span style="color:#a6e22e">get</span>(key);
+</span></span></code></pre></div><p>Java does the following:</p>
+<ol>
+<li>call <code>key.hashCode()</code></li>
+<li>apply hash spreading</li>
+<li>compute bucket index</li>
+<li>go to that bucket</li>
+<li>traverse entries in that bucket</li>
+<li>use <code>equals()</code> to find the exact matching key</li>
+<li>return the value</li>
+</ol>
+<p>This is why both <code>hashCode()</code> and <code>equals()</code> are critical.</p>
+<hr>
+<h2 id="6-what-is-collision">6. What is Collision?</h2>
+<hr>
+<p>A <strong>collision</strong> happens when two different keys produce the same bucket index.</p>
+<p>Example:</p>
+<ul>
+<li>key1 goes to bucket 5</li>
+<li>key2 also goes to bucket 5</li>
+</ul>
+<p>Both keys are different, but they land in the same bucket.</p>
+<p>That does <strong>not</strong> mean the keys are equal.
+It only means their hashes mapped to the same bucket.</p>
+<p><code>HashMap</code> handles this by storing multiple entries in the same bucket and then using <code>equals()</code> to distinguish them.</p>
+<hr>
+<h2 id="7-how-collision-is-handled">7. How Collision Is Handled</h2>
+<hr>
+<p>In older implementations, collisions were handled using a <strong>linked list</strong>.</p>
+<p>So if multiple keys landed in the same bucket, entries were chained together.</p>
+<p>In modern Java versions, if too many entries pile up in one bucket, the linked list can be converted into a <strong>balanced tree</strong> to improve lookup performance.</p>
+<p>So collision handling may use:</p>
+<ul>
+<li>linked list</li>
+<li>balanced tree (for large collision chains)</li>
+</ul>
+<hr>
+<h2 id="8-why-hashcode-and-equals-both-matter">8. Why hashCode() and equals() Both Matter</h2>
+<hr>
+<p>This is one of the most important interview points.</p>
+<p><code>HashMap</code> needs both methods:</p>
+<h3 id="hashcode"><code>hashCode()</code></h3>
+<p>Used to find the correct bucket quickly.</p>
+<h3 id="equals"><code>equals()</code></h3>
+<p>Used to find the exact key inside that bucket.</p>
+<p>So:</p>
+<ul>
+<li><code>hashCode()</code> gives speed</li>
+<li><code>equals()</code> gives correctness</li>
+</ul>
+<p>If <code>equals()</code> and <code>hashCode()</code> are not implemented properly, <code>HashMap</code> will behave incorrectly.</p>
+<hr>
+<h2 id="9-what-is-load-factor">9. What is Load Factor?</h2>
+<hr>
+<p>The <strong>load factor</strong> tells us when <code>HashMap</code> should resize.</p>
+<p>Default load factor is usually:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>0.<span style="color:#a6e22e">75</span>
+</span></span></code></pre></div><p>HashMap uses this to calculate a <strong>threshold</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>threshold <span style="color:#f92672">=</span> capacity <span style="color:#f92672">*</span> loadFactor
+</span></span></code></pre></div><p>For example, if:</p>
+<ul>
+<li>capacity = 16</li>
+<li>load factor = 0.75</li>
+</ul>
+<p>Then:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>threshold <span style="color:#f92672">=</span> 16 <span style="color:#f92672">*</span> 0.<span style="color:#a6e22e">75</span> <span style="color:#f92672">=</span> 12
+</span></span></code></pre></div><p>That means when the number of entries becomes greater than 12, the map resizes or<br>
+we can say when the map becomes 75% full, it resizes its internal bucket array.</p>
+<p>Why?</p>
+<p>Because if too many entries are packed into too few buckets, collisions increase and performance degrades.</p>
+<p>So in interview terms:</p>
+<ul>
+<li>load factor = resize policy</li>
+<li>threshold = actual resize trigger</li>
+</ul>
+<hr>
+<h2 id="10-what-is-rehashing">10. What is Rehashing?</h2>
+<hr>
+<p>When the number of entries crosses the load factor threshold, <code>HashMap</code> creates a larger bucket array.</p>
+<p>Typically, the capacity is doubled.</p>
+<p>Example:</p>
+<ul>
+<li>old capacity = 16</li>
+<li>new capacity = 32</li>
+</ul>
+<p>Then all existing entries are redistributed into the new bucket array.</p>
+<p>This process is called <strong>rehashing</strong>.</p>
+<p>Rehashing improves distribution and reduces collisions, but it is more expensive than a normal insertion because many existing entries must be repositioned.</p>
+<hr>
+<h2 id="11-is-hashmap-thread-safe">11. Is HashMap Thread-Safe?</h2>
+<hr>
+<p>No, <code>HashMap</code> is <strong>not thread-safe</strong>.</p>
+<p>If multiple threads modify a <code>HashMap</code> at the same time without synchronization, it can lead to inconsistent behavior.</p>
+<p>For concurrent scenarios, Java provides alternatives like:</p>
+<ul>
+<li><code>ConcurrentHashMap</code></li>
+<li>synchronized wrappers</li>
+</ul>
+<hr>
+<h2 id="12-can-we-implement-our-own-hashmap">12. Can We Implement Our Own HashMap?</h2>
+<hr>
+<p>Yes. Interviewers sometimes ask for a simplified custom <code>HashMap</code> implementation.</p>
+<p>Usually they do not expect the full production-grade JDK version.</p>
+<p>They want to see whether you understand:</p>
+<ul>
+<li>bucket array</li>
+<li>hashing</li>
+<li>bucket index calculation</li>
+<li>collision handling</li>
+<li><code>put()</code> and <code>get()</code></li>
+<li>why <code>equals()</code> is needed after <code>hashCode()</code></li>
+</ul>
+<p>A minimal custom <code>HashMap</code> can be implemented using:</p>
+<ul>
+<li>an array of buckets</li>
+<li>an <code>Entry</code> node containing key, value, and next pointer</li>
+<li>linked-list chaining for collisions</li>
+</ul>
+<p>Typical methods include:</p>
+<ul>
+<li><code>put(K key, V value)</code></li>
+<li><code>get(K key)</code></li>
+<li>optional <code>remove(K key)</code></li>
+</ul>
+<p>This kind of implementation demonstrates that you understand how <code>HashMap</code> works internally, even if it does not include advanced JDK features like treeification, fail-fast iterators, or concurrency support.</p>
+<h3 id="simplified-example">Simplified Example:</h3>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/Core-Java-Learning/blob/master/src/main/java/com/theshubhamco/interviewquestion/corejava/collections/hashmap/MyHashMap.java">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyHashMap</span><span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>        K key;
+</span></span><span style="display:flex;"><span>        V value;
+</span></span><span style="display:flex;"><span>        Entry<span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;</span> next;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Entry(K key, V value) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">key</span> <span style="color:#f92672">=</span> key;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> value;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Entry<span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;[]</span> buckets;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> capacity <span style="color:#f92672">=</span> 16;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@SuppressWarnings</span>(<span style="color:#e6db74">&#34;unchecked&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">MyHashMap</span>() {
+</span></span><span style="display:flex;"><span>        buckets <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Entry<span style="color:#f92672">[</span>capacity<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getIndex</span>(K key) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> hash <span style="color:#f92672">=</span> key <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">?</span> 0 : key.<span style="color:#a6e22e">hashCode</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (capacity <span style="color:#f92672">-</span> 1) <span style="color:#f92672">&amp;</span> hash;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">put</span>(K key, V value) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> getIndex(key);
+</span></span><span style="display:flex;"><span>        Entry<span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;</span> head <span style="color:#f92672">=</span> buckets<span style="color:#f92672">[</span>index<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Entry<span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;</span> current <span style="color:#f92672">=</span> head;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (current <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> ((key <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> current.<span style="color:#a6e22e">key</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) <span style="color:#f92672">||</span>
+</span></span><span style="display:flex;"><span>                (key <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> key.<span style="color:#a6e22e">equals</span>(current.<span style="color:#a6e22e">key</span>))) {
+</span></span><span style="display:flex;"><span>                current.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> value;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            current <span style="color:#f92672">=</span> current.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Entry<span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;</span> newEntry <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Entry<span style="color:#f92672">&lt;&gt;</span>(key, value);
+</span></span><span style="display:flex;"><span>        newEntry.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> head;
+</span></span><span style="display:flex;"><span>        buckets<span style="color:#f92672">[</span>index<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> newEntry;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> V <span style="color:#a6e22e">get</span>(K key) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> getIndex(key);
+</span></span><span style="display:flex;"><span>        Entry<span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;</span> current <span style="color:#f92672">=</span> buckets<span style="color:#f92672">[</span>index<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (current <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> ((key <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> current.<span style="color:#a6e22e">key</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) <span style="color:#f92672">||</span>
+</span></span><span style="display:flex;"><span>                (key <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> key.<span style="color:#a6e22e">equals</span>(current.<span style="color:#a6e22e">key</span>))) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> current.<span style="color:#a6e22e">value</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            current <span style="color:#f92672">=</span> current.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="13-interview-follow-up-questions">13. Interview Follow-up Questions</h2>
+<hr>
+<p>After asking <strong>&ldquo;How does HashMap work internally?&rdquo;</strong>, interviewers often ask follow-up questions.</p>
+<h3 id="common-follow-up-questions">Common Follow-up Questions</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Follow-up Question</th>
+          <th>What Interviewer Is Testing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>What is collision?</td>
+          <td>Hashing basics</td>
+      </tr>
+      <tr>
+          <td>How is collision handled?</td>
+          <td>Internal structure</td>
+      </tr>
+      <tr>
+          <td>What is load factor?</td>
+          <td>Performance awareness</td>
+      </tr>
+      <tr>
+          <td>What is rehashing?</td>
+          <td>Resizing behavior</td>
+      </tr>
+      <tr>
+          <td>Why do we need equals() if hashCode() already exists?</td>
+          <td>Correctness vs speed</td>
+      </tr>
+      <tr>
+          <td>Can two unequal keys have same hashCode()?</td>
+          <td>Collision understanding</td>
+      </tr>
+      <tr>
+          <td>What happens if key is mutable?</td>
+          <td>Real-world bug awareness</td>
+      </tr>
+      <tr>
+          <td>Is HashMap thread-safe?</td>
+          <td>Concurrency basics</td>
+      </tr>
+      <tr>
+          <td>Difference between HashMap and ConcurrentHashMap?</td>
+          <td>Production knowledge</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="14-common-mistakes">14. Common Mistakes</h2>
+<hr>
+<p>Common mistakes developers make:</p>
+<ul>
+<li>Saying <code>HashMap</code> uses only <code>hashCode()</code></li>
+<li>Forgetting that <code>equals()</code> is also used</li>
+<li>Thinking same hashCode means same object</li>
+<li>Ignoring collisions</li>
+<li>Not knowing what load factor means</li>
+<li>Confusing rehashing with collision handling</li>
+<li>Saying <code>HashMap</code> is thread-safe</li>
+<li>Using mutable keys carelessly</li>
+</ul>
+<hr>
+<h2 id="15-interview-summary-answer-best-answer">15. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>How does <code>HashMap</code> work internally?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p><code>HashMap</code> stores entries in an array of buckets. It first uses the key’s <code>hashCode()</code>, applies a hash-spreading step, and then computes the bucket index. Inside that bucket, it uses <code>equals()</code> to identify the exact key. If multiple keys land in the same bucket, that is a collision, and HashMap handles it using chained entries and, in modern Java, sometimes balanced trees. It also resizes itself based on threshold, which is calculated using capacity × load factor.</p></blockquote>
+<p>This is a <strong>strong interview answer</strong>.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/core-java/" class="btn nav-btn">
+        Core Java - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

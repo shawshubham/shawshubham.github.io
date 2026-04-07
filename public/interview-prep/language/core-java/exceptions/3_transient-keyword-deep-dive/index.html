@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>transient Keyword Deep Dive</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775549541">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">transient Keyword Deep Dive</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is transient?</li>
+        
+        <li>4. What Happens During Deserialization?</li>
+        
+        <li>5. Why Use transient?</li>
+        
+        <li>6. Example — Serialization with transient</li>
+        
+        <li>7. Important Interview Points</li>
+        
+        <li>8. transient vs static</li>
+        
+        <li>9. Advanced Note (Good Interview Signal)</li>
+        
+        <li>10. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 6 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>The transient keyword in Java is used to exclude a field from serialization. When an object is serialized, transient fields are not saved and are initialized with default values during deserialization. It is commonly used for sensitive or temporary data.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>Java serialization internals</li>
+<li>field-level control during serialization</li>
+<li>handling sensitive data</li>
+<li>default values after deserialization</li>
+</ul>
+<p>This is a common Core Java interview question.</p>
+<hr>
+<h2 id="3-what-is-transient">3. What is transient?</h2>
+<hr>
+<p>The <code>transient</code> keyword is used to <strong>skip a field during serialization</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> <span style="color:#66d9ef">implements</span> Serializable {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> id;
+</span></span><span style="display:flex;"><span>    String name;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">transient</span> String password;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here:</p>
+<ul>
+<li><code>id</code> and <code>name</code> will be serialized</li>
+<li><code>password</code> will NOT be serialized</li>
+</ul>
+<hr>
+<h2 id="4-what-happens-during-deserialization">4. What Happens During Deserialization?</h2>
+<hr>
+<p>When the object is deserialized:</p>
+<ul>
+<li>transient fields are not restored from the stream</li>
+<li>they are assigned <strong>default values</strong></li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">transient</span> <span style="color:#66d9ef">int</span> x;        <span style="color:#75715e">// default → 0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">transient</span> String name;  <span style="color:#75715e">// default → null</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">transient</span> <span style="color:#66d9ef">boolean</span> flag; <span style="color:#75715e">// default → false</span>
+</span></span></code></pre></div><hr>
+<h2 id="5-why-use-transient">5. Why Use transient?</h2>
+<hr>
+<p>Common use cases:</p>
+<ul>
+<li>Sensitive data (passwords, tokens)</li>
+<li>Temporary fields (derived/calculated values)</li>
+<li>Non-serializable dependencies (e.g., Thread, Socket)</li>
+</ul>
+<hr>
+<h2 id="6-example--serialization-with-transient">6. Example — Serialization with transient</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> <span style="color:#66d9ef">implements</span> Serializable {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> id;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">transient</span> String password;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Employee(<span style="color:#66d9ef">int</span> id, String password) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">id</span> <span style="color:#f92672">=</span> id;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">password</span> <span style="color:#f92672">=</span> password;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>After serialization + deserialization:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Employee e <span style="color:#f92672">=</span> ... <span style="color:#75715e">// deserialized</span>
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(e.<span style="color:#a6e22e">password</span>); <span style="color:#75715e">// null</span>
+</span></span></code></pre></div><hr>
+<h2 id="7-important-interview-points">7. Important Interview Points</h2>
+<hr>
+<h3 id="are-transient-fields-serialized">Are transient fields serialized?</h3>
+<p>Answer: No.</p>
+<h3 id="what-value-do-they-get-after-deserialization">What value do they get after deserialization?</h3>
+<p>Answer: Default values.</p>
+<h3 id="can-static-fields-be-transient">Can static fields be transient?</h3>
+<p>Answer: Yes syntactically, but it has no effect because static fields are not serialized anyway.</p>
+<h3 id="can-final-fields-be-transient">Can final fields be transient?</h3>
+<p>Answer: Yes, but they will still not be serialized; careful initialization is required.</p>
+<hr>
+<h2 id="8-transient-vs-static">8. transient vs static</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>transient</th>
+          <th>static</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Purpose</td>
+          <td>Skip serialization</td>
+          <td>Belongs to class</td>
+      </tr>
+      <tr>
+          <td>Serialized?</td>
+          <td>No</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Applies to</td>
+          <td>Instance variables</td>
+          <td>Class variables</td>
+      </tr>
+      <tr>
+          <td>Default after deserialization</td>
+          <td>Yes (default values)</td>
+          <td>Not applicable</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="9-advanced-note-good-interview-signal">9. Advanced Note (Good Interview Signal)</h2>
+<hr>
+<p>Even if a field is transient, you can still control serialization using custom methods:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeObject</span>(ObjectOutputStream out) <span style="color:#66d9ef">throws</span> IOException {
+</span></span><span style="display:flex;"><span>    out.<span style="color:#a6e22e">defaultWriteObject</span>();
+</span></span><span style="display:flex;"><span>    out.<span style="color:#a6e22e">writeObject</span>(password); <span style="color:#75715e">// manually serialize</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">readObject</span>(ObjectInputStream in) <span style="color:#66d9ef">throws</span> IOException, ClassNotFoundException {
+</span></span><span style="display:flex;"><span>    in.<span style="color:#a6e22e">defaultReadObject</span>();
+</span></span><span style="display:flex;"><span>    password <span style="color:#f92672">=</span> (String) in.<span style="color:#a6e22e">readObject</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>So transient can be bypassed with custom serialization logic.</p>
+<hr>
+<h2 id="10-interview-summary-answer-best-answer">10. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is transient keyword in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>The transient keyword in Java is used to exclude a field from serialization. When an object is serialized, transient fields are not saved, and during deserialization they are initialized with default values. It is commonly used for sensitive or temporary data and for fields that should not be persisted.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/core-java/" class="btn nav-btn">
+        Core Java - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>
