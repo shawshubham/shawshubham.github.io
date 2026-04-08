@@ -52,13 +52,24 @@ public String toString() {
 
 Here `@Override` tells the compiler that the method is overriding a parent method.
 
+#### Key Insight
+
+> Annotation = Metadata (information)  
+> Not execution logic
+
+Actual behavior comes from:
+
+- compiler
+- frameworks
+- reflection-based processing
+
 ---
 
 ## 4. Types of Annotations
 
 ---
 
-### 1. Built-in Annotations
+### 4.1 Built-in Annotations
 
 - `@Override`
 - `@Deprecated`
@@ -74,7 +85,7 @@ void oldMethod() {
 
 ---
 
-### 2. Custom Annotations
+### 4.2 Custom Annotations (Real Understanding)
 
 We can create our own annotations.
 
@@ -92,11 +103,79 @@ class Demo {
 }
 ```
 
+#### ⚠️ Important Clarification
+
+👉 This alone does **nothing**
+
+> Annotation itself has no behavior.
+
+### Real Understanding
+
+Custom annotations become powerful when:
+
+1. They are read using reflection
+2. Some logic is applied based on them
+
+### Example: Logging Annotation
+
+#### Step 1: Define annotation
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@interface LogExecution {
+}
+```
+
+#### Step 2: Use annotation
+
+```java
+class PaymentService {
+
+    @LogExecution
+    public void processPayment() {
+        System.out.println("Processing payment...");
+    }
+}
+```
+
+#### Step 3: Process annotation (actual behavior)
+
+```java
+Method method = PaymentService.class.getMethod("processPayment");
+
+if (method.isAnnotationPresent(LogExecution.class)) {
+    System.out.println("Logging before execution...");
+}
+```
+
+### Real-World Mapping
+
+This is exactly how frameworks work:
+
+- Spring → @Transactional, @Autowired, @RestController
+- JUnit → @Test
+- Hibernate → @Entity
+
+### 💡 Mental Model
+
+```text
+Annotation (Metadata) + Processor (Reflection / Framework) = Behavior
+```
+
 ---
 
-### 3. Meta-Annotations
+### 4.3 Meta-Annotations
 
 These are annotations used to define other annotations.
+
+They control:
+
+- where annotation can be used
+- when it is available
+- how it behaves
+
+Examples:
 
 - `@Target`
 - `@Retention`
@@ -105,23 +184,46 @@ These are annotations used to define other annotations.
 
 ---
 
-## 5. Important Meta-Annotations
+## 5. Important Meta-Annotations (Deep Dive)
 
 ---
 
-### @Target
+### 5.1 @Target → Where can annotation be used?
 
-Specifies where annotation can be applied.
+Specifies allowed locations.
 
 ```java
 @Target(ElementType.METHOD)
+@interface MyAnnotation {}
+```
+
+Common values:
+
+- METHOD
+- FIELD
+- CLASS
+- PARAMETER
+- CONSTRUCTOR
+
+> If @Target is missing → annotation is allowed on all element types
+
+#### Example
+
+```java
+@Target(ElementType.FIELD)
+@interface Sensitive {}
+
+class User {
+    @Sensitive
+    String password;
+}
 ```
 
 ---
 
-### @Retention
+### 5.2 @Retention → When is annotation available?
 
-Defines how long annotation is retained.
+Defines lifecycle of annotation.
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)
@@ -129,9 +231,57 @@ Defines how long annotation is retained.
 
 Types:
 
-- SOURCE → discarded at compile time
-- CLASS → available in class file
-- RUNTIME → available at runtime (used with reflection)
+1. **SOURCE**
+   - Removed during compilation
+   - Not present in `.class`
+
+Example: Lombok
+
+2. **CLASS**
+   - Present in `.class`
+   - Not available at runtime
+
+3. **RUNTIME** ✅ (Most Important)
+   - Available at runtime
+   - Can be accessed using reflection
+
+#### Critical Insight
+
+> - If you forget @Retention(RUNTIME), your annotation will not work with reflection.
+> - **Default**: RetentionPolicy.CLASS
+
+This is a very common interview trap.
+
+---
+
+### 5.3 @Documented
+
+- Included in JavaDocs
+- Used for documentation purposes
+
+---
+
+### 5.4 @Inherited
+
+```java
+@Inherited
+@interface MyAnnotation {}
+```
+
+#### Example:
+
+```java
+@MyAnnotation
+class Parent {}
+
+class Child extends Parent {}
+```
+
+Child class inherits annotation.
+
+#### ⚠️ Important Limitation
+
+> Works only for class-level annotations (not methods or fields)
 
 ---
 
@@ -147,11 +297,12 @@ They are used by:
 - Tools
 - Frameworks (via reflection)
 
-Example:
+### Real Framework Behavior
 
-- Spring reads `@Component`
-- JUnit reads `@Test`
-- Hibernate reads `@Entity`
+- Spring scans classes using reflection
+- Finds annotations like `@Component`
+- Creates objects (beans)
+- Injects dependencies
 
 ---
 
@@ -165,11 +316,28 @@ Annotations are heavily used in frameworks:
 - Hibernate → `@Entity`, `@Table`
 - JUnit → `@Test`
 
-They enable:
+### What They Enable
 
 - dependency injection
 - configuration
 - validation
+- aspect-oriented programming (AOP)
+
+### Key Insight
+
+> Annotations enable **declarative programming**
+
+Instead of writing logic:
+
+```java
+startTransaction();
+```
+
+We write:
+
+```java
+@Transactional
+```
 
 ---
 
@@ -181,6 +349,7 @@ They enable:
 - improves readability
 - enables declarative programming
 - widely used in frameworks
+- decouples configuration from logic
 
 ---
 
@@ -216,4 +385,4 @@ If interviewer asks:
 
 Answer like this:
 
-> Annotations in Java are metadata added to classes, methods, or fields. They do not directly change program behavior but are used by the compiler, tools, or frameworks to provide additional functionality such as validation, configuration, or dependency injection. They are heavily used in frameworks like Spring and Hibernate.
+> Annotations in Java are metadata added to classes, methods, or fields. They do not directly change program behavior but are used by the compiler, tools, or frameworks to provide additional functionality such as validation, configuration, or dependency injection. Custom annotations combined with reflection enable frameworks like Spring to implement features like dependency injection and transactions. Meta-annotations like @Target and @Retention define where annotations can be used and whether they are available at runtime. They are heavily used in frameworks like Spring and Hibernate.

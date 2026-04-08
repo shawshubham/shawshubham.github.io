@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thread Creation Methods in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775634184">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Thread Creation Methods in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Main Ways to Create Threads in Java</li>
+        
+        <li>4. Method 1 — Extending Thread Class</li>
+        
+        <li>5. Method 2 — Implementing Runnable</li>
+        
+        <li>6. Method 3 — Using Lambda with Runnable</li>
+        
+        <li>7. Method 4 — Using Callable with ExecutorService</li>
+        
+        <li>8. Method 5 — Using ExecutorService (Preferred in Real Systems)</li>
+        
+        <li>9. Comparison Table</li>
+        
+        <li>10. Important Interview Points</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>In Java, threads can be created mainly by extending the Thread class, implementing Runnable, using Callable with ExecutorService, or submitting tasks to thread pools. In modern Java, implementing Runnable or using ExecutorService is preferred over extending Thread directly.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>basic multithreading APIs</li>
+<li>task-based vs thread-based design</li>
+<li>modern thread creation practices</li>
+<li>differences between Runnable, Callable, and ExecutorService</li>
+</ul>
+<p>This is a common Java concurrency interview question.</p>
+<hr>
+<h2 id="3-main-ways-to-create-threads-in-java">3. Main Ways to Create Threads in Java</h2>
+<hr>
+<p>The common ways are:</p>
+<ol>
+<li>Extending <code>Thread</code></li>
+<li>Implementing <code>Runnable</code></li>
+<li>Using <code>Callable</code> with <code>ExecutorService</code></li>
+<li>Using thread pools through <code>ExecutorService</code></li>
+</ol>
+<hr>
+<h2 id="4-method-1--extending-thread-class">4. Method 1 — Extending Thread Class</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyThread</span> <span style="color:#66d9ef">extends</span> Thread {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span>() {
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Thread is running&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>MyThread t <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MyThread();
+</span></span><span style="display:flex;"><span>t.<span style="color:#a6e22e">start</span>();
+</span></span></code></pre></div><h3 id="pros">Pros</h3>
+<ul>
+<li>simple for learning</li>
+</ul>
+<h3 id="cons">Cons</h3>
+<ul>
+<li>Java does not support multiple inheritance of classes</li>
+<li>task logic gets tightly coupled with thread itself</li>
+</ul>
+<p>So this approach is usually not preferred in real applications.</p>
+<hr>
+<h2 id="5-method-2--implementing-runnable">5. Method 2 — Implementing Runnable</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyTask</span> <span style="color:#66d9ef">implements</span> Runnable {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span>() {
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Runnable task is running&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Thread t <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Thread(<span style="color:#66d9ef">new</span> MyTask());
+</span></span><span style="display:flex;"><span>t.<span style="color:#a6e22e">start</span>();
+</span></span></code></pre></div><h3 id="why-better">Why Better?</h3>
+<ul>
+<li>separates task from thread</li>
+<li>supports inheritance from another class</li>
+<li>more flexible and reusable</li>
+</ul>
+<p>This is the most commonly taught and used classic approach.</p>
+<hr>
+<h2 id="6-method-3--using-lambda-with-runnable">6. Method 3 — Using Lambda with Runnable</h2>
+<hr>
+<p>Since <code>Runnable</code> is a functional interface, we can use lambda.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Thread t <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Thread(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Running using lambda&#34;</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>t.<span style="color:#a6e22e">start</span>();
+</span></span></code></pre></div><p>This is cleaner and more readable.</p>
+<hr>
+<h2 id="7-method-4--using-callable-with-executorservice">7. Method 4 — Using Callable with ExecutorService</h2>
+<hr>
+<p><code>Callable</code> is used when task should return a result.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ExecutorService executor <span style="color:#f92672">=</span> Executors.<span style="color:#a6e22e">newFixedThreadPool</span>(2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Callable<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> task <span style="color:#f92672">=</span> () <span style="color:#f92672">-&gt;</span> 100;
+</span></span><span style="display:flex;"><span>Future<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> executor.<span style="color:#a6e22e">submit</span>(task);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(future.<span style="color:#a6e22e">get</span>());
+</span></span><span style="display:flex;"><span>executor.<span style="color:#a6e22e">shutdown</span>();
+</span></span></code></pre></div><h3 id="why-use-callable">Why Use Callable?</h3>
+<ul>
+<li>returns result</li>
+<li>can throw checked exceptions</li>
+<li>works well with <code>Future</code></li>
+</ul>
+<hr>
+<h2 id="8-method-5--using-executorservice-preferred-in-real-systems">8. Method 5 — Using ExecutorService (Preferred in Real Systems)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ExecutorService executor <span style="color:#f92672">=</span> Executors.<span style="color:#a6e22e">newFixedThreadPool</span>(2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>executor.<span style="color:#a6e22e">submit</span>(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Task executed by thread pool&#34;</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>executor.<span style="color:#a6e22e">shutdown</span>();
+</span></span></code></pre></div><p>This is preferred because:</p>
+<ul>
+<li>avoids manual thread creation</li>
+<li>reuses threads</li>
+<li>improves performance</li>
+<li>easier lifecycle management</li>
+</ul>
+<hr>
+<h2 id="9-comparison-table">9. Comparison Table</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Method</th>
+          <th>Returns Result</th>
+          <th>Reusable</th>
+          <th>Preferred in Real Apps</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Extend Thread</td>
+          <td>No</td>
+          <td>Low</td>
+          <td>No</td>
+      </tr>
+      <tr>
+          <td>Implement Runnable</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Callable</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>ExecutorService</td>
+          <td>Optional</td>
+          <td>High</td>
+          <td>Yes</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="10-important-interview-points">10. Important Interview Points</h2>
+<hr>
+<h3 id="which-method-is-preferred-in-modern-java">Which method is preferred in modern Java?</h3>
+<p>Answer: ExecutorService with Runnable or Callable.</p>
+<hr>
+<h3 id="why-is-extending-thread-discouraged">Why is extending Thread discouraged?</h3>
+<p>Answer: It tightly couples task with thread and prevents extending another class.</p>
+<hr>
+<h3 id="difference-between-runnable-and-callable">Difference between Runnable and Callable?</h3>
+<p>Answer:</p>
+<ul>
+<li>Runnable → no result, no checked exception</li>
+<li>Callable → returns result, allows checked exception</li>
+</ul>
+<hr>
+<h3 id="does-calling-run-create-a-new-thread">Does calling run() create a new thread?</h3>
+<p>Answer: No. Only <code>start()</code> creates a new thread.</p>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What are the ways to create a thread in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>In Java, threads can be created by extending the Thread class, implementing Runnable, using Callable with ExecutorService, or submitting tasks to thread pools. In practice, implementing Runnable or using ExecutorService is preferred because it separates task logic from thread management and supports better scalability.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

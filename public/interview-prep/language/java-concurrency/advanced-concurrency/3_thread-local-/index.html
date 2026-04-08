@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThreadLocal in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775638436">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">ThreadLocal in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is ThreadLocal?</li>
+        
+        <li>4. Basic Example</li>
+        
+        <li>5. Example with Multiple Threads</li>
+        
+        <li>6. Common Methods</li>
+        
+        <li>7. Why Use ThreadLocal?</li>
+        
+        <li>8. How It Works Internally</li>
+        
+        <li>9. Important Warning — Memory Leak Risk</li>
+        
+        <li>10. ThreadLocal vs Shared Variable</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>ThreadLocal in Java provides thread-specific storage, meaning each thread gets its own independent copy of a variable. It is used when we want data to be isolated per thread instead of shared across threads.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>thread confinement</li>
+<li>per-thread state management</li>
+<li>avoiding shared mutable state</li>
+<li>real-world concurrency utilities</li>
+</ul>
+<p>This is a common Java concurrency interview question.</p>
+<hr>
+<h2 id="3-what-is-threadlocal">3. What is ThreadLocal?</h2>
+<hr>
+<p><code>ThreadLocal</code> is a class in:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>java.<span style="color:#a6e22e">lang</span>
+</span></span></code></pre></div><p>It allows us to store data that is:</p>
+<ul>
+<li>unique to each thread</li>
+<li>not shared between threads</li>
+</ul>
+<p>So instead of one common variable for all threads:</p>
+<blockquote>
+<p>each thread gets its own private value</p></blockquote>
+<hr>
+<h2 id="4-basic-example">4. Basic Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ThreadLocal<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> local <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadLocal<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>local.<span style="color:#a6e22e">set</span>(100);
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(local.<span style="color:#a6e22e">get</span>());
+</span></span></code></pre></div><p>This value belongs only to the current thread.</p>
+<hr>
+<h2 id="5-example-with-multiple-threads">5. Example with Multiple Threads</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ThreadLocal<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> userContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadLocal<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Runnable task1 <span style="color:#f92672">=</span> () <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    userContext.<span style="color:#a6e22e">set</span>(<span style="color:#e6db74">&#34;User-A&#34;</span>);
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; -&gt; &#34;</span> <span style="color:#f92672">+</span> userContext.<span style="color:#a6e22e">get</span>());
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Runnable task2 <span style="color:#f92672">=</span> () <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    userContext.<span style="color:#a6e22e">set</span>(<span style="color:#e6db74">&#34;User-B&#34;</span>);
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; -&gt; &#34;</span> <span style="color:#f92672">+</span> userContext.<span style="color:#a6e22e">get</span>());
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> Thread(task1).<span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> Thread(task2).<span style="color:#a6e22e">start</span>();
+</span></span></code></pre></div><p>Each thread sees its own value.</p>
+<hr>
+<h2 id="6-common-methods">6. Common Methods</h2>
+<hr>
+<h3 id="set">set()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>threadLocal.<span style="color:#a6e22e">set</span>(value);
+</span></span></code></pre></div><p>Stores value for current thread.</p>
+<hr>
+<h3 id="get">get()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>threadLocal.<span style="color:#a6e22e">get</span>();
+</span></span></code></pre></div><p>Returns value for current thread.</p>
+<hr>
+<h3 id="remove">remove()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>threadLocal.<span style="color:#a6e22e">remove</span>();
+</span></span></code></pre></div><p>Removes current thread’s value.</p>
+<p>This is very important in real applications.</p>
+<hr>
+<h3 id="withinitial">withInitial()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ThreadLocal<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> local <span style="color:#f92672">=</span> ThreadLocal.<span style="color:#a6e22e">withInitial</span>(() <span style="color:#f92672">-&gt;</span> 0);
+</span></span></code></pre></div><p>Provides default initial value.</p>
+<hr>
+<h2 id="7-why-use-threadlocal">7. Why Use ThreadLocal?</h2>
+<hr>
+<p>Use ThreadLocal when:</p>
+<ul>
+<li>data should not be shared across threads</li>
+<li>each thread needs its own context</li>
+<li>passing values through multiple method calls is inconvenient</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>user/session context</li>
+<li>database connection per thread</li>
+<li>transaction context</li>
+<li>request tracing</li>
+</ul>
+<hr>
+<h2 id="8-how-it-works-internally">8. How It Works Internally</h2>
+<hr>
+<p>Each <code>Thread</code> object maintains its own <code>ThreadLocalMap</code>.</p>
+<p>So:</p>
+<ul>
+<li>ThreadLocal is like a key</li>
+<li>each thread stores its own value against that key</li>
+</ul>
+<hr>
+<h3 id="visual">Visual</h3>
+<div class="mermaid">
+flowchart LR
+    T1[Thread 1] --> V1[ThreadLocal Value A]
+    T2[Thread 2] --> V2[ThreadLocal Value B]
+    T3[Thread 3] --> V3[ThreadLocal Value C]
+</div>
+<hr>
+<h2 id="9-important-warning--memory-leak-risk">9. Important Warning — Memory Leak Risk</h2>
+<hr>
+<p>This is the most important interview point.</p>
+<p>If ThreadLocal is used in thread pools and <code>remove()</code> is not called:</p>
+<ul>
+<li>thread gets reused</li>
+<li>old value may remain attached</li>
+<li>memory leak or data leakage may happen</li>
+</ul>
+<p>Best practice:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    threadLocal.<span style="color:#a6e22e">set</span>(value);
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// business logic</span>
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>    threadLocal.<span style="color:#a6e22e">remove</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="10-threadlocal-vs-shared-variable">10. ThreadLocal vs Shared Variable</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Shared Variable</th>
+          <th>ThreadLocal</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Same value visible to all threads</td>
+          <td>Separate value per thread</td>
+      </tr>
+      <tr>
+          <td>Requires synchronization</td>
+          <td>No synchronization needed</td>
+      </tr>
+      <tr>
+          <td>Risk of race condition</td>
+          <td>Thread-confined</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<h3 id="is-threadlocal-thread-safe">Is ThreadLocal thread-safe?</h3>
+<p>Answer: Yes, because each thread gets its own isolated value.</p>
+<hr>
+<h3 id="does-threadlocal-share-data-between-threads">Does ThreadLocal share data between threads?</h3>
+<p>Answer: No.</p>
+<hr>
+<h3 id="why-must-we-call-remove">Why must we call remove()?</h3>
+<p>Answer: To prevent stale values and memory leaks, especially in thread pools.</p>
+<hr>
+<h3 id="is-threadlocal-useful-for-passing-request-context">Is ThreadLocal useful for passing request context?</h3>
+<p>Answer: Yes.</p>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is ThreadLocal in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>ThreadLocal in Java provides thread-specific storage, where each thread has its own independent copy of a variable. It is useful when data should be isolated per thread, such as request context, transaction state, or user session information. It also avoids synchronization, but remove() must be called carefully in thread pools to avoid memory leaks.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

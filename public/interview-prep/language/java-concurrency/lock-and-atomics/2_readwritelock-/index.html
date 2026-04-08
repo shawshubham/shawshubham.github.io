@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReadWriteLock in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775634775">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">ReadWriteLock in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is ReadWriteLock?</li>
+        
+        <li>4. Basic Example</li>
+        
+        <li>5. How It Works</li>
+        
+        <li>6. Why Use ReadWriteLock?</li>
+        
+        <li>7. ReadWriteLock vs synchronized</li>
+        
+        <li>8. ReentrantReadWriteLock Features</li>
+        
+        <li>9. When to Use ReadWriteLock</li>
+        
+        <li>10. Important Interview Points</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>ReadWriteLock is a locking mechanism in Java that allows multiple threads to read a shared resource concurrently while ensuring exclusive access for write operations. It improves performance in read-heavy scenarios.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>read vs write contention</li>
+<li>improving throughput in read-heavy systems</li>
+<li>advanced locking beyond synchronized</li>
+<li>real-world concurrency optimization</li>
+</ul>
+<hr>
+<h2 id="3-what-is-readwritelock">3. What is ReadWriteLock?</h2>
+<hr>
+<p><code>ReadWriteLock</code> is an interface in:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>java.<span style="color:#a6e22e">util</span>.<span style="color:#a6e22e">concurrent</span>.<span style="color:#a6e22e">locks</span>
+</span></span></code></pre></div><p>It provides two separate locks:</p>
+<ul>
+<li><strong>Read Lock</strong> → shared (multiple readers allowed)</li>
+<li><strong>Write Lock</strong> → exclusive (only one writer, no readers)</li>
+</ul>
+<p>Common implementation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReentrantReadWriteLock
+</span></span></code></pre></div><hr>
+<h2 id="4-basic-example">4. Basic Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.locks.ReentrantReadWriteLock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DataStore</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> value <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReentrantReadWriteLock rwLock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReentrantReadWriteLock();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">read</span>() {
+</span></span><span style="display:flex;"><span>        rwLock.<span style="color:#a6e22e">readLock</span>().<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> value;
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>            rwLock.<span style="color:#a6e22e">readLock</span>().<span style="color:#a6e22e">unlock</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">write</span>(<span style="color:#66d9ef">int</span> newValue) {
+</span></span><span style="display:flex;"><span>        rwLock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            value <span style="color:#f92672">=</span> newValue;
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>            rwLock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">unlock</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="5-how-it-works">5. How It Works</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Multiple Readers] -->|Allowed| B[Read Lock]
+    C[Writer] -->|Exclusive| D[Write Lock]
+    B -->|Blocked by Writer| D
+    D -->|Blocks Readers| B
+</div>
+<p>Rules:</p>
+<ul>
+<li>multiple readers → allowed simultaneously</li>
+<li>writer present → no readers allowed</li>
+<li>reader present → writer must wait</li>
+</ul>
+<hr>
+<h2 id="6-why-use-readwritelock">6. Why Use ReadWriteLock?</h2>
+<hr>
+<p>Compared to <code>synchronized</code>:</p>
+<ul>
+<li>synchronized allows <strong>only one thread</strong> at a time</li>
+<li>ReadWriteLock allows <strong>multiple readers</strong></li>
+</ul>
+<p>So:</p>
+<blockquote>
+<p>Better performance when reads &raquo; writes</p></blockquote>
+<hr>
+<h2 id="7-readwritelock-vs-synchronized">7. ReadWriteLock vs synchronized</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>synchronized</th>
+          <th>ReadWriteLock</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Concurrent reads</td>
+          <td>No</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Write access</td>
+          <td>Exclusive</td>
+          <td>Exclusive</td>
+      </tr>
+      <tr>
+          <td>Performance (read-heavy)</td>
+          <td>Lower</td>
+          <td>Higher</td>
+      </tr>
+      <tr>
+          <td>Complexity</td>
+          <td>Simple</td>
+          <td>Higher</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="8-reentrantreadwritelock-features">8. ReentrantReadWriteLock Features</h2>
+<hr>
+<h3 id="1-reentrancy">1. Reentrancy</h3>
+<p>Same thread can acquire read/write lock multiple times.</p>
+<hr>
+<h3 id="2-lock-downgrading">2. Lock Downgrading</h3>
+<p>Allowed: write → read</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>rwLock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// update</span>
+</span></span><span style="display:flex;"><span>    rwLock.<span style="color:#a6e22e">readLock</span>().<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>    rwLock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">unlock</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="3-no-lock-upgrading-important">3. No Lock Upgrading (Important)</h3>
+<p>Cannot safely go from read → write (may cause deadlock).</p>
+<hr>
+<h3 id="4-fairness-policy">4. Fairness Policy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> ReentrantReadWriteLock(<span style="color:#66d9ef">true</span>);
+</span></span></code></pre></div><ul>
+<li>fair → FIFO</li>
+<li>non-fair → better throughput</li>
+</ul>
+<hr>
+<h2 id="9-when-to-use-readwritelock">9. When to Use ReadWriteLock</h2>
+<hr>
+<p>Use when:</p>
+<ul>
+<li>system is <strong>read-heavy</strong></li>
+<li>many threads read same data</li>
+<li>writes are infrequent</li>
+</ul>
+<p>Avoid when:</p>
+<ul>
+<li>writes are frequent</li>
+<li>simple locking is sufficient</li>
+</ul>
+<hr>
+<h2 id="10-important-interview-points">10. Important Interview Points</h2>
+<hr>
+<h3 id="can-multiple-threads-read-simultaneously">Can multiple threads read simultaneously?</h3>
+<p>Answer: Yes.</p>
+<hr>
+<h3 id="can-read-and-write-happen-together">Can read and write happen together?</h3>
+<p>Answer: No.</p>
+<hr>
+<h3 id="can-we-upgrade-read-lock-to-write-lock">Can we upgrade read lock to write lock?</h3>
+<p>Answer: No (not safely).</p>
+<hr>
+<h3 id="what-is-lock-downgrading">What is lock downgrading?</h3>
+<p>Answer: Converting write lock to read lock.</p>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is ReadWriteLock in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>ReadWriteLock is a concurrency mechanism that allows multiple threads to read shared data simultaneously while ensuring exclusive access for write operations. It improves performance in read-heavy systems by reducing contention compared to synchronized locking.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

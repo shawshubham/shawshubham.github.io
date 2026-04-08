@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForkJoinPool in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775638439">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">ForkJoinPool in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is ForkJoinPool?</li>
+        
+        <li>4. Key Concept — Divide and Conquer</li>
+        
+        <li>5. Basic Example</li>
+        
+        <li>6. Fork vs Join</li>
+        
+        <li>7. Work Stealing Algorithm (VERY IMPORTANT)</li>
+        
+        <li>8. Types of Tasks</li>
+        
+        <li>9. When to Use ForkJoinPool</li>
+        
+        <li>10. When NOT to Use</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>ForkJoinPool is a specialized thread pool in Java designed for parallel execution of tasks using the divide-and-conquer approach. It uses a work-stealing algorithm to efficiently utilize CPU resources.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>parallel processing</li>
+<li>divide-and-conquer algorithms</li>
+<li>advanced thread pool behavior</li>
+<li>performance optimization in CPU-bound tasks</li>
+</ul>
+<p>This is a common advanced Java concurrency interview question.</p>
+<hr>
+<h2 id="3-what-is-forkjoinpool">3. What is ForkJoinPool?</h2>
+<hr>
+<p><code>ForkJoinPool</code> is part of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>java.<span style="color:#a6e22e">util</span>.<span style="color:#a6e22e">concurrent</span>
+</span></span></code></pre></div><p>It is designed for:</p>
+<ul>
+<li>breaking tasks into smaller subtasks</li>
+<li>executing them in parallel</li>
+<li>combining results</li>
+</ul>
+<hr>
+<h2 id="4-key-concept--divide-and-conquer">4. Key Concept — Divide and Conquer</h2>
+<hr>
+<p>Instead of solving a problem directly:</p>
+<ol>
+<li>Split task into smaller subtasks</li>
+<li>Solve them in parallel</li>
+<li>Combine results</li>
+</ol>
+<hr>
+<h2 id="5-basic-example">5. Basic Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.RecursiveTask;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.ForkJoinPool;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SumTask</span> <span style="color:#66d9ef">extends</span> RecursiveTask<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> arr;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> start, end;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    SumTask(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> arr, <span style="color:#66d9ef">int</span> start, <span style="color:#66d9ef">int</span> end) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">arr</span> <span style="color:#f92672">=</span> arr;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">start</span> <span style="color:#f92672">=</span> start;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">end</span> <span style="color:#f92672">=</span> end;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> Integer <span style="color:#a6e22e">compute</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (end <span style="color:#f92672">-</span> start <span style="color:#f92672">&lt;=</span> 2) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> start; i <span style="color:#f92672">&lt;</span> end; i<span style="color:#f92672">++</span>) sum <span style="color:#f92672">+=</span> arr<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> sum;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> mid <span style="color:#f92672">=</span> (start <span style="color:#f92672">+</span> end) <span style="color:#f92672">/</span> 2;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        SumTask left <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SumTask(arr, start, mid);
+</span></span><span style="display:flex;"><span>        SumTask right <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SumTask(arr, mid, end);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        left.<span style="color:#a6e22e">fork</span>(); <span style="color:#75715e">// async</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> rightResult <span style="color:#f92672">=</span> right.<span style="color:#a6e22e">compute</span>(); <span style="color:#75715e">// sync</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> leftResult <span style="color:#f92672">=</span> left.<span style="color:#a6e22e">join</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> leftResult <span style="color:#f92672">+</span> rightResult;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ForkJoinPool pool <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ForkJoinPool();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> result <span style="color:#f92672">=</span> pool.<span style="color:#a6e22e">invoke</span>(<span style="color:#66d9ef">new</span> SumTask(<span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span>{1,2,3,4}, 0, 4));
+</span></span></code></pre></div><hr>
+<h2 id="6-fork-vs-join">6. Fork vs Join</h2>
+<hr>
+<ul>
+<li><code>fork()</code> → submit subtask asynchronously</li>
+<li><code>join()</code> → wait for result</li>
+</ul>
+<p>Flow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Split → fork → compute → join → combine
+</span></span></code></pre></div><hr>
+<h2 id="7-work-stealing-algorithm-very-important">7. Work Stealing Algorithm (VERY IMPORTANT)</h2>
+<hr>
+<p>Each thread has its own queue.</p>
+<p>If a thread becomes idle:</p>
+<blockquote>
+<p>It steals tasks from other threads’ queues.</p></blockquote>
+<hr>
+<h3 id="visual">Visual</h3>
+<div class="mermaid">
+flowchart LR
+    T1[Thread 1 Queue] --> T2[Thread 2 Queue]
+    T3[Idle Thread] -->|Steals Task| T1
+</div>
+<p>This ensures:</p>
+<ul>
+<li>better CPU utilization</li>
+<li>load balancing</li>
+</ul>
+<hr>
+<h2 id="8-types-of-tasks">8. Types of Tasks</h2>
+<hr>
+<h3 id="recursivetask-returns-result">RecursiveTask (returns result)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyTask</span> <span style="color:#66d9ef">extends</span> RecursiveTask<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> {}
+</span></span></code></pre></div><hr>
+<h3 id="recursiveaction-no-result">RecursiveAction (no result)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyTask</span> <span style="color:#66d9ef">extends</span> RecursiveAction {}
+</span></span></code></pre></div><hr>
+<h2 id="9-when-to-use-forkjoinpool">9. When to Use ForkJoinPool</h2>
+<hr>
+<p>Use when:</p>
+<ul>
+<li>tasks can be split recursively</li>
+<li>CPU-bound operations</li>
+<li>large data processing</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>parallel sorting</li>
+<li>matrix operations</li>
+<li>file processing</li>
+</ul>
+<hr>
+<h2 id="10-when-not-to-use">10. When NOT to Use</h2>
+<hr>
+<p>Avoid when:</p>
+<ul>
+<li>tasks are I/O bound</li>
+<li>tasks cannot be divided</li>
+<li>overhead of splitting is high</li>
+</ul>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<h3 id="what-is-work-stealing">What is work stealing?</h3>
+<p>Answer: Idle threads steal tasks from busy threads.</p>
+<hr>
+<h3 id="difference-between-executorservice-and-forkjoinpool">Difference between ExecutorService and ForkJoinPool?</h3>
+<p>Answer:</p>
+<ul>
+<li>ExecutorService → general-purpose</li>
+<li>ForkJoinPool → optimized for recursive parallel tasks</li>
+</ul>
+<hr>
+<h3 id="does-forkjoinpool-use-daemon-threads">Does ForkJoinPool use daemon threads?</h3>
+<p>Answer: Yes, by default.</p>
+<hr>
+<h3 id="what-is-common-pool">What is common pool?</h3>
+<p>Answer: Shared ForkJoinPool used by parallel streams and CompletableFuture.</p>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is ForkJoinPool in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>ForkJoinPool is a specialized thread pool designed for parallel execution using divide-and-conquer. It splits tasks into subtasks, executes them concurrently, and combines results. It uses a work-stealing algorithm to efficiently utilize CPU resources and is ideal for CPU-bound parallel computations.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

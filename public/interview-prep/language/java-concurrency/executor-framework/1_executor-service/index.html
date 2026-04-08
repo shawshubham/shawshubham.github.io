@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExecutorService in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775600970">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">ExecutorService in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is ExecutorService?</li>
+        
+        <li>4. Why Not Create Threads Manually?</li>
+        
+        <li>5. Basic Example</li>
+        
+        <li>6. Common Methods</li>
+        
+        <li>7. Thread Pool Types (Quick Overview)</li>
+        
+        <li>8. Lifecycle of ExecutorService</li>
+        
+        <li>9. Important Interview Points</li>
+        
+        <li>10. Real-World Usage</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 7 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>ExecutorService is a part of Java’s Executor Framework that manages a pool of threads and provides a higher-level API to execute tasks asynchronously, instead of creating and managing threads manually.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>thread pool management</li>
+<li>asynchronous task execution</li>
+<li>resource optimization</li>
+<li>real-world concurrency design</li>
+</ul>
+<p>This is a very common backend interview question.</p>
+<hr>
+<h2 id="3-what-is-executorservice">3. What is ExecutorService?</h2>
+<hr>
+<p>ExecutorService is an interface that:</p>
+<ul>
+<li>manages a pool of worker threads</li>
+<li>accepts tasks (Runnable / Callable)</li>
+<li>schedules and executes tasks</li>
+<li>handles thread lifecycle internally</li>
+</ul>
+<p>Instead of doing:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> Thread(task).<span style="color:#a6e22e">start</span>();
+</span></span></code></pre></div><p>We use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ExecutorService executor <span style="color:#f92672">=</span> Executors.<span style="color:#a6e22e">newFixedThreadPool</span>(2);
+</span></span><span style="display:flex;"><span>executor.<span style="color:#a6e22e">submit</span>(task);
+</span></span></code></pre></div><hr>
+<h2 id="4-why-not-create-threads-manually">4. Why Not Create Threads Manually?</h2>
+<hr>
+<p>Problems with manual thread creation:</p>
+<ul>
+<li>expensive (thread creation cost)</li>
+<li>no reuse</li>
+<li>difficult to manage lifecycle</li>
+<li>can lead to too many threads (OOM risk)</li>
+</ul>
+<p>ExecutorService solves this by:</p>
+<ul>
+<li>reusing threads</li>
+<li>controlling concurrency</li>
+<li>improving performance</li>
+</ul>
+<hr>
+<h2 id="5-basic-example">5. Basic Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.ExecutorService;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.Executors;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ExecutorService executor <span style="color:#f92672">=</span> Executors.<span style="color:#a6e22e">newFixedThreadPool</span>(2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>executor.<span style="color:#a6e22e">submit</span>(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">getName</span>());
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>executor.<span style="color:#a6e22e">shutdown</span>();
+</span></span></code></pre></div><hr>
+<h2 id="6-common-methods">6. Common Methods</h2>
+<hr>
+<h3 id="submit">submit()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Future<span style="color:#f92672">&lt;?&gt;</span> f <span style="color:#f92672">=</span> executor.<span style="color:#a6e22e">submit</span>(task);
+</span></span></code></pre></div><ul>
+<li>accepts Runnable or Callable</li>
+<li>returns Future</li>
+</ul>
+<hr>
+<h3 id="execute">execute()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>executor.<span style="color:#a6e22e">execute</span>(task);
+</span></span></code></pre></div><ul>
+<li>accepts only Runnable</li>
+<li>does not return result</li>
+</ul>
+<hr>
+<h3 id="shutdown">shutdown()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>executor.<span style="color:#a6e22e">shutdown</span>();
+</span></span></code></pre></div><ul>
+<li>stops accepting new tasks</li>
+<li>completes existing tasks</li>
+</ul>
+<hr>
+<h3 id="shutdownnow">shutdownNow()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>executor.<span style="color:#a6e22e">shutdownNow</span>();
+</span></span></code></pre></div><ul>
+<li>attempts to stop all tasks immediately</li>
+</ul>
+<hr>
+<h2 id="7-thread-pool-types-quick-overview">7. Thread Pool Types (Quick Overview)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Executors.<span style="color:#a6e22e">newFixedThreadPool</span>(n);
+</span></span><span style="display:flex;"><span>Executors.<span style="color:#a6e22e">newCachedThreadPool</span>();
+</span></span><span style="display:flex;"><span>Executors.<span style="color:#a6e22e">newSingleThreadExecutor</span>();
+</span></span><span style="display:flex;"><span>Executors.<span style="color:#a6e22e">newScheduledThreadPool</span>(n);
+</span></span></code></pre></div><p>We will cover these in detail in a separate article.</p>
+<hr>
+<h2 id="8-lifecycle-of-executorservice">8. Lifecycle of ExecutorService</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Create Executor] --> B[Submit Tasks]
+    B --> C[Execute Tasks]
+    C --> D[Shutdown]
+</div>
+<hr>
+<h2 id="9-important-interview-points">9. Important Interview Points</h2>
+<hr>
+<h3 id="difference-between-submit-and-execute">Difference between submit() and execute()?</h3>
+<p>Answer:</p>
+<ul>
+<li>submit() → returns Future</li>
+<li>execute() → no return</li>
+</ul>
+<hr>
+<h3 id="why-use-thread-pool">Why use thread pool?</h3>
+<p>Answer: To reuse threads and control concurrency.</p>
+<hr>
+<h3 id="what-happens-if-we-dont-call-shutdown">What happens if we don’t call shutdown()?</h3>
+<p>Answer: Application may not terminate because threads are still running.</p>
+<hr>
+<h3 id="is-executorservice-thread-safe">Is ExecutorService thread-safe?</h3>
+<p>Answer: Yes, it is designed for concurrent use.</p>
+<hr>
+<h2 id="10-real-world-usage">10. Real-World Usage</h2>
+<hr>
+<p>ExecutorService is used in:</p>
+<ul>
+<li>backend services</li>
+<li>parallel processing</li>
+<li>API calls</li>
+<li>batch processing</li>
+<li>microservices</li>
+</ul>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is ExecutorService in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>ExecutorService is a part of Java’s concurrency framework that manages a pool of threads and allows asynchronous execution of tasks. It helps improve performance by reusing threads, controlling concurrency, and simplifying thread management compared to manual thread creation.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

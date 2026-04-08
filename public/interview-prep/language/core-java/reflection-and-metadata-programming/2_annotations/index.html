@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1775555937">
+<link rel="stylesheet" href="/css/main.css?v=1775582365">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -104,7 +104,7 @@
         
         <li>4. Types of Annotations</li>
         
-        <li>5. Important Meta-Annotations</li>
+        <li>5. Important Meta-Annotations (Deep Dive)</li>
         
         <li>6. How Annotations Work Internally</li>
         
@@ -156,10 +156,20 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Hello&#34;</span>;
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Here <code>@Override</code> tells the compiler that the method is overriding a parent method.</p>
+<h4 id="key-insight">Key Insight</h4>
+<blockquote>
+<p>Annotation = Metadata (information)<br>
+Not execution logic</p></blockquote>
+<p>Actual behavior comes from:</p>
+<ul>
+<li>compiler</li>
+<li>frameworks</li>
+<li>reflection-based processing</li>
+</ul>
 <hr>
 <h2 id="4-types-of-annotations">4. Types of Annotations</h2>
 <hr>
-<h3 id="1-built-in-annotations">1. Built-in Annotations</h3>
+<h3 id="41-built-in-annotations">4.1 Built-in Annotations</h3>
 <ul>
 <li><code>@Override</code></li>
 <li><code>@Deprecated</code></li>
@@ -170,7 +180,7 @@
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">oldMethod</span>() {
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
-<h3 id="2-custom-annotations">2. Custom Annotations</h3>
+<h3 id="42-custom-annotations-real-understanding">4.2 Custom Annotations (Real Understanding)</h3>
 <p>We can create our own annotations.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@interface</span> MyAnnotation {
 </span></span><span style="display:flex;"><span>    String <span style="color:#a6e22e">value</span>();
@@ -179,9 +189,55 @@
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@MyAnnotation</span>(value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Test&#34;</span>)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Demo</span> {
 </span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="-important-clarification">⚠️ Important Clarification</h4>
+<p>👉 This alone does <strong>nothing</strong></p>
+<blockquote>
+<p>Annotation itself has no behavior.</p></blockquote>
+<h3 id="real-understanding">Real Understanding</h3>
+<p>Custom annotations become powerful when:</p>
+<ol>
+<li>They are read using reflection</li>
+<li>Some logic is applied based on them</li>
+</ol>
+<h3 id="example-logging-annotation">Example: Logging Annotation</h3>
+<h4 id="step-1-define-annotation">Step 1: Define annotation</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Retention</span>(RetentionPolicy.<span style="color:#a6e22e">RUNTIME</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Target</span>(ElementType.<span style="color:#a6e22e">METHOD</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@interface</span> LogExecution {
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="step-2-use-annotation">Step 2: Use annotation</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentService</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@LogExecution</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processPayment</span>() {
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Processing payment...&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="step-3-process-annotation-actual-behavior">Step 3: Process annotation (actual behavior)</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Method method <span style="color:#f92672">=</span> PaymentService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getMethod</span>(<span style="color:#e6db74">&#34;processPayment&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (method.<span style="color:#a6e22e">isAnnotationPresent</span>(LogExecution.<span style="color:#a6e22e">class</span>)) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Logging before execution...&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="real-world-mapping">Real-World Mapping</h3>
+<p>This is exactly how frameworks work:</p>
+<ul>
+<li>Spring → @Transactional, @Autowired, @RestController</li>
+<li>JUnit → @Test</li>
+<li>Hibernate → @Entity</li>
+</ul>
+<h3 id="-mental-model">💡 Mental Model</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Annotation (Metadata) + Processor (Reflection / Framework) = Behavior
 </span></span></code></pre></div><hr>
-<h3 id="3-meta-annotations">3. Meta-Annotations</h3>
+<h3 id="43-meta-annotations">4.3 Meta-Annotations</h3>
 <p>These are annotations used to define other annotations.</p>
+<p>They control:</p>
+<ul>
+<li>where annotation can be used</li>
+<li>when it is available</li>
+<li>how it behaves</li>
+</ul>
+<p>Examples:</p>
 <ul>
 <li><code>@Target</code></li>
 <li><code>@Retention</code></li>
@@ -189,21 +245,86 @@
 <li><code>@Inherited</code></li>
 </ul>
 <hr>
-<h2 id="5-important-meta-annotations">5. Important Meta-Annotations</h2>
+<h2 id="5-important-meta-annotations-deep-dive">5. Important Meta-Annotations (Deep Dive)</h2>
 <hr>
-<h3 id="target">@Target</h3>
-<p>Specifies where annotation can be applied.</p>
+<h3 id="51-target--where-can-annotation-be-used">5.1 @Target → Where can annotation be used?</h3>
+<p>Specifies allowed locations.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Target</span>(ElementType.<span style="color:#a6e22e">METHOD</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@interface</span> MyAnnotation {}
+</span></span></code></pre></div><p>Common values:</p>
+<ul>
+<li>METHOD</li>
+<li>FIELD</li>
+<li>CLASS</li>
+<li>PARAMETER</li>
+<li>CONSTRUCTOR</li>
+</ul>
+<blockquote>
+<p>If @Target is missing → annotation is allowed on all element types</p></blockquote>
+<h4 id="example">Example</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Target</span>(ElementType.<span style="color:#a6e22e">FIELD</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@interface</span> Sensitive {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Sensitive</span>
+</span></span><span style="display:flex;"><span>    String password;
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
-<h3 id="retention">@Retention</h3>
-<p>Defines how long annotation is retained.</p>
+<h3 id="52-retention--when-is-annotation-available">5.2 @Retention → When is annotation available?</h3>
+<p>Defines lifecycle of annotation.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Retention</span>(RetentionPolicy.<span style="color:#a6e22e">RUNTIME</span>)
 </span></span></code></pre></div><p>Types:</p>
+<ol>
+<li><strong>SOURCE</strong>
 <ul>
-<li>SOURCE → discarded at compile time</li>
-<li>CLASS → available in class file</li>
-<li>RUNTIME → available at runtime (used with reflection)</li>
+<li>Removed during compilation</li>
+<li>Not present in <code>.class</code></li>
 </ul>
+</li>
+</ol>
+<p>Example: Lombok</p>
+<ol start="2">
+<li>
+<p><strong>CLASS</strong></p>
+<ul>
+<li>Present in <code>.class</code></li>
+<li>Not available at runtime</li>
+</ul>
+</li>
+<li>
+<p><strong>RUNTIME</strong> ✅ (Most Important)</p>
+<ul>
+<li>Available at runtime</li>
+<li>Can be accessed using reflection</li>
+</ul>
+</li>
+</ol>
+<h4 id="critical-insight">Critical Insight</h4>
+<blockquote>
+<ul>
+<li>If you forget @Retention(RUNTIME), your annotation will not work with reflection.</li>
+<li><strong>Default</strong>: RetentionPolicy.CLASS</li>
+</ul></blockquote>
+<p>This is a very common interview trap.</p>
+<hr>
+<h3 id="53-documented">5.3 @Documented</h3>
+<ul>
+<li>Included in JavaDocs</li>
+<li>Used for documentation purposes</li>
+</ul>
+<hr>
+<h3 id="54-inherited">5.4 @Inherited</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Inherited</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@interface</span> MyAnnotation {}
+</span></span></code></pre></div><h4 id="example-1">Example:</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@MyAnnotation</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Parent</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Child</span> <span style="color:#66d9ef">extends</span> Parent {}
+</span></span></code></pre></div><p>Child class inherits annotation.</p>
+<h4 id="-important-limitation">⚠️ Important Limitation</h4>
+<blockquote>
+<p>Works only for class-level annotations (not methods or fields)</p></blockquote>
 <hr>
 <h2 id="6-how-annotations-work-internally">6. How Annotations Work Internally</h2>
 <hr>
@@ -214,11 +335,12 @@
 <li>Tools</li>
 <li>Frameworks (via reflection)</li>
 </ul>
-<p>Example:</p>
+<h3 id="real-framework-behavior">Real Framework Behavior</h3>
 <ul>
-<li>Spring reads <code>@Component</code></li>
-<li>JUnit reads <code>@Test</code></li>
-<li>Hibernate reads <code>@Entity</code></li>
+<li>Spring scans classes using reflection</li>
+<li>Finds annotations like <code>@Component</code></li>
+<li>Creates objects (beans)</li>
+<li>Injects dependencies</li>
 </ul>
 <hr>
 <h2 id="7-real-world-usage">7. Real-World Usage</h2>
@@ -229,13 +351,21 @@
 <li>Hibernate → <code>@Entity</code>, <code>@Table</code></li>
 <li>JUnit → <code>@Test</code></li>
 </ul>
-<p>They enable:</p>
+<h3 id="what-they-enable">What They Enable</h3>
 <ul>
 <li>dependency injection</li>
 <li>configuration</li>
 <li>validation</li>
+<li>aspect-oriented programming (AOP)</li>
 </ul>
-<hr>
+<h3 id="key-insight-1">Key Insight</h3>
+<blockquote>
+<p>Annotations enable <strong>declarative programming</strong></p></blockquote>
+<p>Instead of writing logic:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>startTransaction();
+</span></span></code></pre></div><p>We write:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Transactional</span>
+</span></span></code></pre></div><hr>
 <h2 id="8-advantages-of-annotations">8. Advantages of Annotations</h2>
 <hr>
 <ul>
@@ -243,6 +373,7 @@
 <li>improves readability</li>
 <li>enables declarative programming</li>
 <li>widely used in frameworks</li>
+<li>decouples configuration from logic</li>
 </ul>
 <hr>
 <h2 id="9-important-interview-questions">9. Important Interview Questions</h2>
@@ -263,7 +394,7 @@
 <p>What are annotations in Java?</p></blockquote>
 <p>Answer like this:</p>
 <blockquote>
-<p>Annotations in Java are metadata added to classes, methods, or fields. They do not directly change program behavior but are used by the compiler, tools, or frameworks to provide additional functionality such as validation, configuration, or dependency injection. They are heavily used in frameworks like Spring and Hibernate.</p></blockquote>
+<p>Annotations in Java are metadata added to classes, methods, or fields. They do not directly change program behavior but are used by the compiler, tools, or frameworks to provide additional functionality such as validation, configuration, or dependency injection. Custom annotations combined with reflection enable frameworks like Spring to implement features like dependency injection and transactions. Meta-annotations like @Target and @Retention define where annotations can be used and whether they are available at runtime. They are heavily used in frameworks like Spring and Hibernate.</p></blockquote>
 
     </article>
   </div>

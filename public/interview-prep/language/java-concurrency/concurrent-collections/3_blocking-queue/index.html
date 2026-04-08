@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlockingQueue in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775638439">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">BlockingQueue in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is BlockingQueue?</li>
+        
+        <li>4. Key Idea</li>
+        
+        <li>5. Producer-Consumer Example</li>
+        
+        <li>6. Important Methods</li>
+        
+        <li>7. Types of BlockingQueue</li>
+        
+        <li>8. Visual Flow (Producer-Consumer)</li>
+        
+        <li>9. Why Use BlockingQueue?</li>
+        
+        <li>10. Important Interview Points</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>BlockingQueue is a thread-safe queue in Java that supports operations which wait (block) when the queue is empty or full, making it ideal for producer-consumer scenarios.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>inter-thread communication</li>
+<li>producer-consumer pattern</li>
+<li>blocking vs non-blocking structures</li>
+<li>real-world concurrency design</li>
+</ul>
+<p>This is a very common backend interview question.</p>
+<hr>
+<h2 id="3-what-is-blockingqueue">3. What is BlockingQueue?</h2>
+<hr>
+<p><code>BlockingQueue</code> is an interface in:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>java.<span style="color:#a6e22e">util</span>.<span style="color:#a6e22e">concurrent</span>
+</span></span></code></pre></div><p>It extends Queue and provides <strong>blocking operations</strong>.</p>
+<hr>
+<h2 id="4-key-idea">4. Key Idea</h2>
+<hr>
+<p>BlockingQueue automatically handles synchronization between threads.</p>
+<blockquote>
+<p>No need to manually use synchronized, wait(), or notify().</p></blockquote>
+<hr>
+<h2 id="5-producer-consumer-example">5. Producer-Consumer Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.BlockingQueue;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.ArrayBlockingQueue;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>BlockingQueue<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> queue <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayBlockingQueue<span style="color:#f92672">&lt;&gt;</span>(2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Producer</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> Thread(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>        queue.<span style="color:#a6e22e">put</span>(1);
+</span></span><span style="display:flex;"><span>        queue.<span style="color:#a6e22e">put</span>(2);
+</span></span><span style="display:flex;"><span>        queue.<span style="color:#a6e22e">put</span>(3); <span style="color:#75715e">// waits if full</span>
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">catch</span> (InterruptedException e) {
+</span></span><span style="display:flex;"><span>        e.<span style="color:#a6e22e">printStackTrace</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}).<span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Consumer</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> Thread(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>        Thread.<span style="color:#a6e22e">sleep</span>(1000);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(queue.<span style="color:#a6e22e">take</span>());
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(queue.<span style="color:#a6e22e">take</span>());
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(queue.<span style="color:#a6e22e">take</span>());
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">catch</span> (InterruptedException e) {
+</span></span><span style="display:flex;"><span>        e.<span style="color:#a6e22e">printStackTrace</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}).<span style="color:#a6e22e">start</span>();
+</span></span></code></pre></div><hr>
+<h2 id="6-important-methods">6. Important Methods</h2>
+<hr>
+<h3 id="put">put()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>queue.<span style="color:#a6e22e">put</span>(item);
+</span></span></code></pre></div><ul>
+<li>blocks if queue is full</li>
+</ul>
+<hr>
+<h3 id="take">take()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>queue.<span style="color:#a6e22e">take</span>();
+</span></span></code></pre></div><ul>
+<li>blocks if queue is empty</li>
+</ul>
+<hr>
+<h3 id="offer">offer()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>queue.<span style="color:#a6e22e">offer</span>(item);
+</span></span></code></pre></div><ul>
+<li>returns false if full (non-blocking)</li>
+</ul>
+<hr>
+<h3 id="poll">poll()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>queue.<span style="color:#a6e22e">poll</span>();
+</span></span></code></pre></div><ul>
+<li>returns null if empty (non-blocking)</li>
+</ul>
+<hr>
+<h3 id="peek">peek()</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>queue.<span style="color:#a6e22e">peek</span>();
+</span></span></code></pre></div><ul>
+<li>returns head without removing</li>
+</ul>
+<hr>
+<h2 id="7-types-of-blockingqueue">7. Types of BlockingQueue</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Type</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>ArrayBlockingQueue</td>
+          <td>bounded, fixed size</td>
+      </tr>
+      <tr>
+          <td>LinkedBlockingQueue</td>
+          <td>optionally bounded</td>
+      </tr>
+      <tr>
+          <td>PriorityBlockingQueue</td>
+          <td>priority-based</td>
+      </tr>
+      <tr>
+          <td>DelayQueue</td>
+          <td>delayed elements</td>
+      </tr>
+      <tr>
+          <td>SynchronousQueue</td>
+          <td>no storage (direct handoff)</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="8-visual-flow-producer-consumer">8. Visual Flow (Producer-Consumer)</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+    P[Producer] --> Q[BlockingQueue]
+    Q --> C[Consumer]
+</div>
+<hr>
+<h2 id="9-why-use-blockingqueue">9. Why Use BlockingQueue?</h2>
+<hr>
+<ul>
+<li>built-in thread safety</li>
+<li>handles blocking automatically</li>
+<li>avoids manual wait/notify</li>
+<li>simplifies concurrent code</li>
+</ul>
+<hr>
+<h2 id="10-important-interview-points">10. Important Interview Points</h2>
+<hr>
+<h3 id="does-blockingqueue-need-synchronization">Does BlockingQueue need synchronization?</h3>
+<p>Answer: No, it is internally thread-safe.</p>
+<hr>
+<h3 id="difference-between-put-and-offer">Difference between put() and offer()?</h3>
+<p>Answer:</p>
+<ul>
+<li>put() → blocks</li>
+<li>offer() → returns immediately</li>
+</ul>
+<hr>
+<h3 id="difference-between-take-and-poll">Difference between take() and poll()?</h3>
+<p>Answer:</p>
+<ul>
+<li>take() → blocks</li>
+<li>poll() → returns null if empty</li>
+</ul>
+<hr>
+<h3 id="what-is-synchronousqueue">What is SynchronousQueue?</h3>
+<p>Answer: A queue with no capacity where each insert waits for a remove.</p>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is BlockingQueue in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>BlockingQueue is a thread-safe queue that supports blocking operations when the queue is empty or full. It is commonly used in producer-consumer scenarios and simplifies inter-thread communication by handling synchronization internally.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

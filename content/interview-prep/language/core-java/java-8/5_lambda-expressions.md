@@ -135,6 +135,32 @@ Comparator<String> cmp = (a, b) -> a.length() - b.length();
 Predicate<Integer> isEven = n -> n % 2 == 0;
 ```
 
+### Detailed Example:
+
+```java
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Predicate;
+
+public class LambdaExamples {
+    public static void main(String[] args) {
+        Runnable r = () -> System.out.println("Hello");
+
+        Comparator<String> cmp = (a, b) -> a.length() - b.length();
+
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+
+        List<String> names = List.of("Java", "Spring", "Kafka");
+
+        r.run();
+        System.out.println(cmp.compare("Java", "Python")); // negative value
+        System.out.println(isEven.test(4)); // true
+
+        names.forEach(name -> System.out.println(name));
+    }
+}
+```
+
 ---
 
 ## 7. Lambda vs Anonymous Class
@@ -189,6 +215,46 @@ Example:
 ```java
 List<String> names = List.of("Java", "Spring", "Kafka");
 names.forEach(name -> System.out.println(name));
+```
+
+### Why lambda works in `forEach`
+
+This code:
+
+```java
+List<String> names = List.of("Java", "Spring", "Kafka");
+names.forEach(name -> System.out.println(name));
+```
+
+still uses a functional interface.
+
+The reason is that forEach is defined roughly like this:
+
+```java
+void forEach(Consumer<? super T> action)
+```
+
+So here:
+
+- forEach(...) expects a Consumer<String>
+- Consumer is a functional interface
+- your lambda:
+
+```java
+name -> System.out.println(name)
+```
+
+is an implementation of:
+
+```java
+void accept(String name)
+```
+
+So internally, this is conceptually like:
+
+```java
+Consumer<String> printer = name -> System.out.println(name);
+names.forEach(printer);
 ```
 
 ---

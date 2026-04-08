@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CopyOnWriteArrayList in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775638439">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">CopyOnWriteArrayList in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is CopyOnWriteArrayList?</li>
+        
+        <li>4. Why is it Thread-Safe?</li>
+        
+        <li>5. Basic Example</li>
+        
+        <li>6. Snapshot Iteration</li>
+        
+        <li>7. Internal Working (Conceptual)</li>
+        
+        <li>8. Advantages</li>
+        
+        <li>9. Disadvantages</li>
+        
+        <li>10. CopyOnWriteArrayList vs ArrayList</li>
+        
+        <li>11. When to Use CopyOnWriteArrayList</li>
+        
+        <li>12. Important Interview Points</li>
+        
+        <li>13. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>CopyOnWriteArrayList is a thread-safe variant of ArrayList in which every write operation creates a new copy of the underlying array. It is best suited for read-heavy and write-light scenarios.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>thread-safe collections in Java</li>
+<li>read-heavy vs write-heavy trade-offs</li>
+<li>snapshot iteration behavior</li>
+<li>concurrent collection design</li>
+</ul>
+<p>This is a common Java concurrency interview question.</p>
+<hr>
+<h2 id="3-what-is-copyonwritearraylist">3. What is CopyOnWriteArrayList?</h2>
+<hr>
+<p><code>CopyOnWriteArrayList</code> is a class in:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>java.<span style="color:#a6e22e">util</span>.<span style="color:#a6e22e">concurrent</span>
+</span></span></code></pre></div><p>It is a thread-safe version of <code>ArrayList</code>.</p>
+<p>Key idea:</p>
+<blockquote>
+<p>On every write operation (<code>add</code>, <code>remove</code>, <code>set</code>), it creates a fresh copy of the internal array.</p></blockquote>
+<p>So:</p>
+<ul>
+<li>reads happen on stable snapshot</li>
+<li>writes are expensive</li>
+</ul>
+<hr>
+<h2 id="4-why-is-it-thread-safe">4. Why is it Thread-Safe?</h2>
+<hr>
+<p>Because readers access an immutable snapshot of the array, while writers create a completely new copy.</p>
+<p>This avoids:</p>
+<ul>
+<li>race conditions during iteration</li>
+<li>ConcurrentModificationException in most iteration scenarios</li>
+</ul>
+<hr>
+<h2 id="5-basic-example">5. Basic Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.CopyOnWriteArrayList;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>CopyOnWriteArrayList<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CopyOnWriteArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;A&#34;</span>);
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;B&#34;</span>);
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;C&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (String item : list) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(item);
+</span></span><span style="display:flex;"><span>    list.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;X&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Important:</p>
+<ul>
+<li>iteration works on old snapshot</li>
+<li>modification does not affect current iteration</li>
+<li>no ConcurrentModificationException</li>
+</ul>
+<hr>
+<h2 id="6-snapshot-iteration">6. Snapshot Iteration</h2>
+<hr>
+<p>This is the most important concept.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>CopyOnWriteArrayList<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CopyOnWriteArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;A&#34;</span>);
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;B&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (String item : list) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(item);
+</span></span><span style="display:flex;"><span>    list.<span style="color:#a6e22e">add</span>(<span style="color:#e6db74">&#34;C&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Output:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A
+</span></span><span style="display:flex;"><span>B
+</span></span></code></pre></div><p>Even though <code>C</code> is added during iteration, current loop does not see it.</p>
+<p>Why?</p>
+<blockquote>
+<p>Iterator uses a snapshot of the array at the time iteration started.</p></blockquote>
+<hr>
+<h2 id="7-internal-working-conceptual">7. Internal Working (Conceptual)</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Read Operation] --> B[Read Existing Snapshot]
+    C[Write Operation] --> D[Copy Current Array]
+    D --> E[Modify New Copy]
+    E --> F[Replace Old Reference]
+</div>
+<hr>
+<h2 id="8-advantages">8. Advantages</h2>
+<hr>
+<ul>
+<li>thread-safe</li>
+<li>safe iteration without explicit synchronization</li>
+<li>no ConcurrentModificationException during iteration</li>
+<li>excellent for read-heavy workloads</li>
+</ul>
+<hr>
+<h2 id="9-disadvantages">9. Disadvantages</h2>
+<hr>
+<ul>
+<li>every write copies full array</li>
+<li>high memory overhead for frequent writes</li>
+<li>poor choice for write-heavy scenarios</li>
+</ul>
+<hr>
+<h2 id="10-copyonwritearraylist-vs-arraylist">10. CopyOnWriteArrayList vs ArrayList</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>ArrayList</th>
+          <th>CopyOnWriteArrayList</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Thread-safe</td>
+          <td>No</td>
+          <td>Yes</td>
+      </tr>
+      <tr>
+          <td>Iteration during modification</td>
+          <td>Fails fast</td>
+          <td>Uses snapshot</td>
+      </tr>
+      <tr>
+          <td>Read performance</td>
+          <td>Fast</td>
+          <td>Fast</td>
+      </tr>
+      <tr>
+          <td>Write performance</td>
+          <td>Fast</td>
+          <td>Slow</td>
+      </tr>
+      <tr>
+          <td>Best use case</td>
+          <td>General purpose</td>
+          <td>Read-heavy concurrent access</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="11-when-to-use-copyonwritearraylist">11. When to Use CopyOnWriteArrayList</h2>
+<hr>
+<p>Use when:</p>
+<ul>
+<li>reads are much more frequent than writes</li>
+<li>list size is moderate</li>
+<li>safe iteration is important</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>event listener lists</li>
+<li>observer lists</li>
+<li>configuration snapshots</li>
+</ul>
+<p>Avoid when:</p>
+<ul>
+<li>writes are frequent</li>
+<li>list is large</li>
+<li>memory usage is critical</li>
+</ul>
+<hr>
+<h2 id="12-important-interview-points">12. Important Interview Points</h2>
+<hr>
+<h3 id="why-is-copyonwritearraylist-thread-safe">Why is CopyOnWriteArrayList thread-safe?</h3>
+<p>Answer: Because writes create a new copy and readers work on snapshot data.</p>
+<hr>
+<h3 id="does-it-throw-concurrentmodificationexception">Does it throw ConcurrentModificationException?</h3>
+<p>Answer: No, iteration is snapshot-based.</p>
+<hr>
+<h3 id="is-it-good-for-write-heavy-systems">Is it good for write-heavy systems?</h3>
+<p>Answer: No, writes are expensive because full array is copied.</p>
+<hr>
+<h3 id="when-should-we-use-it">When should we use it?</h3>
+<p>Answer: In read-heavy, write-light concurrent scenarios.</p>
+<hr>
+<h2 id="13-interview-summary-answer-best-answer">13. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is CopyOnWriteArrayList in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>CopyOnWriteArrayList is a thread-safe version of ArrayList where every write operation creates a new copy of the internal array. It provides safe snapshot-based iteration without ConcurrentModificationException and is best suited for read-heavy, write-light concurrent scenarios.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

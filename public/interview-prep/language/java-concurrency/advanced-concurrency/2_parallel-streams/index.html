@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallel Streams in Java</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775638888">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Parallel Streams in Java</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What are Parallel Streams?</li>
+        
+        <li>4. Basic Example</li>
+        
+        <li>5. How It Works Internally</li>
+        
+        <li>6. Example — Parallel Computation</li>
+        
+        <li>7. Sequential vs Parallel Stream</li>
+        
+        <li>8. When to Use Parallel Streams</li>
+        
+        <li>9. When NOT to Use</li>
+        
+        <li>10. Common Pitfalls</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Parallel streams in Java allow processing of data in parallel using multiple threads, leveraging the ForkJoinPool under the hood to improve performance for CPU-bound operations.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>parallel processing using streams</li>
+<li>abstraction over multithreading</li>
+<li>performance trade-offs</li>
+<li>when parallelism is beneficial</li>
+</ul>
+<p>This is a common advanced Java concurrency interview question.</p>
+<hr>
+<h2 id="3-what-are-parallel-streams">3. What are Parallel Streams?</h2>
+<hr>
+<p>Parallel streams are a feature of Java Streams API that allow operations to be executed in parallel.</p>
+<p>Instead of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>list.<span style="color:#a6e22e">stream</span>()
+</span></span></code></pre></div><p>We use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>list.<span style="color:#a6e22e">parallelStream</span>()
+</span></span></code></pre></div><hr>
+<h2 id="4-basic-example">4. Basic Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> List.<span style="color:#a6e22e">of</span>(1, 2, 3, 4, 5);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">parallelStream</span>()
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">forEach</span>(System.<span style="color:#a6e22e">out</span>::println);
+</span></span></code></pre></div><p>Output order may vary because execution is parallel.</p>
+<hr>
+<h2 id="5-how-it-works-internally">5. How It Works Internally</h2>
+<hr>
+<p>Parallel streams use:</p>
+<blockquote>
+<p><strong>ForkJoinPool.commonPool()</strong></p></blockquote>
+<p>Flow:</p>
+<div class="mermaid">
+flowchart LR
+    A[Data Split] --> B[Multiple Threads]
+    B --> C[Process in Parallel]
+    C --> D[Combine Results]
+</div>
+<hr>
+<h2 id="6-example--parallel-computation">6. Example — Parallel Computation</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">parallelStream</span>()
+</span></span><span style="display:flex;"><span>              .<span style="color:#a6e22e">mapToInt</span>(i <span style="color:#f92672">-&gt;</span> i <span style="color:#f92672">*</span> 2)
+</span></span><span style="display:flex;"><span>              .<span style="color:#a6e22e">sum</span>();
+</span></span></code></pre></div><p>Steps:</p>
+<ul>
+<li>split data</li>
+<li>process in parallel</li>
+<li>combine result</li>
+</ul>
+<hr>
+<h2 id="7-sequential-vs-parallel-stream">7. Sequential vs Parallel Stream</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>Sequential Stream</th>
+          <th>Parallel Stream</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Execution</td>
+          <td>Single thread</td>
+          <td>Multiple threads</td>
+      </tr>
+      <tr>
+          <td>Order</td>
+          <td>Maintained</td>
+          <td>Not guaranteed</td>
+      </tr>
+      <tr>
+          <td>Performance</td>
+          <td>Lower</td>
+          <td>Higher (for large data)</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="8-when-to-use-parallel-streams">8. When to Use Parallel Streams</h2>
+<hr>
+<p>Use when:</p>
+<ul>
+<li>tasks are CPU-bound</li>
+<li>large dataset</li>
+<li>independent operations</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>data processing</li>
+<li>mathematical computations</li>
+</ul>
+<hr>
+<h2 id="9-when-not-to-use">9. When NOT to Use</h2>
+<hr>
+<p>Avoid when:</p>
+<ul>
+<li>tasks are I/O-bound</li>
+<li>small datasets</li>
+<li>order matters strictly</li>
+<li>shared mutable state is involved</li>
+</ul>
+<hr>
+<h2 id="10-common-pitfalls">10. Common Pitfalls</h2>
+<hr>
+<h3 id="101-shared-mutable-state">10.1 Shared Mutable State</h3>
+<p>Avoid mutating shared objects inside a parallel stream.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> result <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">parallelStream</span>().<span style="color:#a6e22e">forEach</span>(result::add); <span style="color:#75715e">// Not thread-safe</span>
+</span></span></code></pre></div><p>Why it is a problem:</p>
+<ul>
+<li>multiple threads modify the same ArrayList</li>
+<li>can lead to race conditions or corrupted results</li>
+</ul>
+<p>Better approach:</p>
+<ul>
+<li>use stream collectors</li>
+<li>avoid shared mutable state</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> result <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">parallelStream</span>()
+</span></span><span style="display:flex;"><span>                           .<span style="color:#a6e22e">collect</span>(Collectors.<span style="color:#a6e22e">toList</span>());
+</span></span></code></pre></div><hr>
+<h3 id="102-performance-overhead">10.2 Performance Overhead</h3>
+<p>Parallelism has overhead → not always faster.</p>
+<p>Why:</p>
+<ul>
+<li>splitting work across threads has overhead</li>
+<li>combining results also has overhead</li>
+<li>for small collections or lightweight operations, sequential streams may be faster</li>
+</ul>
+<p>Better approach:</p>
+<ul>
+<li>use parallel streams only when:
+<ul>
+<li>data size is large</li>
+<li>work per element is significant</li>
+<li>task is CPU-intensive</li>
+</ul>
+</li>
+<li>otherwise prefer normal stream</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>list.<span style="color:#a6e22e">stream</span>().<span style="color:#a6e22e">map</span>(<span style="color:#66d9ef">this</span>::process).<span style="color:#a6e22e">toList</span>();          <span style="color:#75715e">// often better for small/light tasks</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">parallelStream</span>().<span style="color:#a6e22e">map</span>(<span style="color:#66d9ef">this</span>::heavyProcess).<span style="color:#a6e22e">toList</span>(); <span style="color:#75715e">// better candidate for parallelism</span>
+</span></span></code></pre></div><hr>
+<h3 id="103-order-issues">10.3 Order Issues</h3>
+<p>Parallel streams may not preserve encounter order in all operations.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>list.<span style="color:#a6e22e">parallelStream</span>().<span style="color:#a6e22e">forEach</span>(System.<span style="color:#a6e22e">out</span>::println); <span style="color:#75715e">// order not guaranteed</span>
+</span></span></code></pre></div><p>If order matters, use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>list.<span style="color:#a6e22e">parallelStream</span>().<span style="color:#a6e22e">forEachOrdered</span>(System.<span style="color:#a6e22e">out</span>::println);
+</span></span></code></pre></div><p>But note:</p>
+<ul>
+<li><code>forEachOrdered()</code> preserves order</li>
+<li>preserving order can reduce parallel performance</li>
+</ul>
+<p>So:</p>
+<ul>
+<li>use <code>forEach()</code> when order does not matter</li>
+<li>use <code>forEachOrdered()</code> only when order is required</li>
+</ul>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<h3 id="do-parallel-streams-use-thread-pool">Do parallel streams use thread pool?</h3>
+<p>Answer: Yes, ForkJoinPool.commonPool().</p>
+<hr>
+<h3 id="are-parallel-streams-always-faster">Are parallel streams always faster?</h3>
+<p>Answer: No, depends on workload and data size.</p>
+<hr>
+<h3 id="can-we-control-thread-pool">Can we control thread pool?</h3>
+<p>Answer: Not directly, unless using custom ForkJoinPool.</p>
+<hr>
+<h3 id="difference-between-foreach-and-foreachordered">Difference between forEach and forEachOrdered?</h3>
+<p>Answer:</p>
+<ul>
+<li>forEach → no order guarantee</li>
+<li>forEachOrdered → maintains order</li>
+</ul>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What are parallel streams in Java?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Parallel streams allow processing of data in parallel using multiple threads, internally backed by ForkJoinPool. They improve performance for CPU-bound operations on large datasets but should be used carefully due to overhead, lack of ordering guarantees, and potential issues with shared mutable state.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/language/java-concurrency/" class="btn nav-btn">
+        Java Concurrency - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

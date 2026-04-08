@@ -8,7 +8,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1775555949">
+<link rel="stylesheet" href="/css/main.css?v=1775596776">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -104,7 +104,7 @@
         
         <li>4. Why Use Enum?</li>
         
-        <li>5. Enum is a Class (Important Concept)</li>
+        <li>5. Enum Is a Special Kind of Class (Important Concept)</li>
         
         <li>6. Enum with switch-case</li>
         
@@ -178,15 +178,27 @@
 <li>providing type safety</li>
 </ul>
 <hr>
-<h2 id="5-enum-is-a-class-important-concept">5. Enum is a Class (Important Concept)</h2>
+<h2 id="5-enum-is-a-special-kind-of-class-important-concept">5. Enum Is a Special Kind of Class (Important Concept)</h2>
 <hr>
-<p>Enums in Java are internally classes.</p>
-<p>They can have:</p>
+<p>A common misconception is that an enum is just a fixed list of constants.</p>
+<p>That is not fully true.</p>
+<p>In Java, an <code>enum</code> is actually a <strong>special kind of class</strong>.</p>
+<p>This means an enum can contain:</p>
 <ul>
 <li>fields</li>
 <li>constructors</li>
 <li>methods</li>
+<li>overridden behavior per constant</li>
 </ul>
+<p>So enum constants are not just plain labels — they are actually <strong>objects</strong> of the enum type.</p>
+<hr>
+<h3 id="key-idea">Key Idea</h3>
+<p>When you write:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Status.<span style="color:#a6e22e">SUCCESS</span>
+</span></span></code></pre></div><p><code>SUCCESS</code> is not just a string or integer.</p>
+<p>It is an <strong>instance of the <code>Status</code> enum</strong>.</p>
+<p>That is why enums can hold state and behavior.</p>
+<hr>
 <h3 id="example-1">Example</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> Status {
 </span></span><span style="display:flex;"><span>    SUCCESS(200),
@@ -203,6 +215,47 @@
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
+<h3 id="what-is-happening-here">What is happening here?</h3>
+<ul>
+<li><code>Status</code> is an enum type</li>
+<li><code>SUCCESS</code> and <code>ERROR</code> are fixed objects created from that enum</li>
+<li>each constant stores its own <code>code</code></li>
+<li><code>getCode()</code> is an instance method available on each constant</li>
+</ul>
+<p>Usage:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(Status.<span style="color:#a6e22e">SUCCESS</span>.<span style="color:#a6e22e">getCode</span>()); <span style="color:#75715e">// 200</span>
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(Status.<span style="color:#a6e22e">ERROR</span>.<span style="color:#a6e22e">getCode</span>());   <span style="color:#75715e">// 500</span>
+</span></span></code></pre></div><hr>
+<h3 id="important-notes">Important Notes</h3>
+<h4 id="1-enum-constructor-is-implicitly-private">1. Enum constructor is implicitly private</h4>
+<p>You cannot create enum objects manually using <code>new</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Status s <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Status(200); <span style="color:#75715e">// ❌ Not allowed</span>
+</span></span></code></pre></div><p>This ensures the set of enum constants remains fixed.</p>
+<hr>
+<h4 id="2-enum-can-have-methods">2. Enum can have methods</h4>
+<p>Enums are useful when each constant needs related behavior or metadata.</p>
+<p>This makes them much more powerful than using simple <code>int</code> or <code>String</code> constants.</p>
+<hr>
+<h4 id="3-enum-gives-type-safety">3. Enum gives type safety</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">process</span>(Status status) { ... }
+</span></span></code></pre></div><p>Here only valid <code>Status</code> values can be passed.</p>
+<p>This is safer than passing raw strings like <code>&quot;SUCCESS&quot;</code> or <code>&quot;ERROR&quot;</code>.</p>
+<hr>
+<h3 id="why-this-matters-in-real-applications">Why This Matters in Real Applications</h3>
+<p>Because in production code, enums are often used not just as labels, but as <strong>domain-safe constants with behavior</strong>.</p>
+<p>Examples:</p>
+<ul>
+<li>order status with display labels</li>
+<li>payment status with codes</li>
+<li>user roles with permissions</li>
+<li>HTTP-like status mappings</li>
+<li>workflow states with transition logic</li>
+</ul>
+<hr>
+<h3 id="interview-insight">Interview Insight</h3>
+<blockquote>
+<p>Enum in Java is not just a group of constants. It is a special class whose constants are fixed object instances. That is why enums can have fields, constructors, and methods.</p></blockquote>
+<hr>
 <h2 id="6-enum-with-switch-case">6. Enum with switch-case</h2>
 <hr>
 <p>Enums are commonly used with switch statements.</p>
@@ -217,12 +270,40 @@
 </span></span></code></pre></div><hr>
 <h2 id="7-important-methods-of-enum">7. Important Methods of Enum</h2>
 <hr>
-<p>All enums inherit from <code>java.lang.Enum</code>.</p>
+<p>All enums in Java implicitly extend <code>java.lang.Enum</code>.</p>
+<p>That means every enum gets some useful built-in methods.</p>
+<p>These methods are commonly asked in interviews and are also useful in real code.</p>
 <p>Common methods:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Day.<span style="color:#a6e22e">valueOf</span>(<span style="color:#e6db74">&#34;MONDAY&#34;</span>);
-</span></span><span style="display:flex;"><span>Day.<span style="color:#a6e22e">values</span>();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">/*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* 1. values() example -
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - Returns all enum constants as an array.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - Use this when you want to iterate through all possible enum values.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Day day : Day.<span style="color:#a6e22e">values</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(day);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* 2. valueOf() example -
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - Converts a string into the matching enum constant.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - The string must match exactly, otherwise it throws IllegalArgumentException
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
+</span></span><span style="display:flex;"><span>Day day <span style="color:#f92672">=</span> Day.<span style="color:#a6e22e">valueOf</span>(<span style="color:#e6db74">&#34;MONDAY&#34;</span>);
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(day); <span style="color:#75715e">// MONDAY</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* 3. name() example -
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - Returns the exact name of the enum constant.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - This is useful when you want the declared constant name as a string.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(Day.<span style="color:#a6e22e">MONDAY</span>.<span style="color:#a6e22e">name</span>()); <span style="color:#75715e">// MONDAY</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* 4. ordinal() example -
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - Returns the position of the enum constant based on declaration order.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* - Do not use ordinal() for business logic or database storage, because changing the enum order can break behavior.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
 </span></span><span style="display:flex;"><span>Day.<span style="color:#a6e22e">MONDAY</span>.<span style="color:#a6e22e">ordinal</span>();
-</span></span><span style="display:flex;"><span>Day.<span style="color:#a6e22e">MONDAY</span>.<span style="color:#a6e22e">name</span>();
 </span></span></code></pre></div><hr>
 <h2 id="8-enum-vs-constants">8. Enum vs Constants</h2>
 <hr>
