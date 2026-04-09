@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@Transactional in Spring</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775654067">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">@Transactional in Spring</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is a Transaction?</li>
+        
+        <li>4. How @Transactional Works</li>
+        
+        <li>5. Where is it Used?</li>
+        
+        <li>6. Exception Behavior (VERY IMPORTANT)</li>
+        
+        <li>7. Real-World Example</li>
+        
+        <li>8. Common Pitfalls (VERY IMPORTANT)</li>
+        
+        <li>9. Important Configurations</li>
+        
+        <li>10. Real Production Debugging Angle</li>
+        
+        <li>11. Important Interview Questions</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>@Transactional in Spring is used to manage database transactions declaratively. It ensures that a set of operations either fully succeed (commit) or fail together (rollback), maintaining data consistency.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests:</p>
+<ul>
+<li>understanding of <strong>data consistency</strong></li>
+<li>knowledge of <strong>transaction management</strong></li>
+<li>real-world debugging ability</li>
+<li>awareness of <strong>Spring AOP internals</strong></li>
+</ul>
+<p>👉 Very common in <strong>backend + production support interviews</strong></p>
+<hr>
+<h2 id="3-what-is-a-transaction">3. What is a Transaction?</h2>
+<hr>
+<p>A transaction is a <strong>unit of work</strong> that must follow ACID properties:</p>
+<ul>
+<li><strong>Atomicity</strong> → all or nothing</li>
+<li><strong>Consistency</strong> → valid state</li>
+<li><strong>Isolation</strong> → independent execution</li>
+<li><strong>Durability</strong> → persists after commit</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>transferMoney() {
+</span></span><span style="display:flex;"><span>    debit(accountA);
+</span></span><span style="display:flex;"><span>    credit(accountB);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 If one fails → both should rollback</p>
+<hr>
+<h2 id="4-how-transactional-works">4. How @Transactional Works</h2>
+<hr>
+<p>Spring uses <strong>AOP (Proxy-based mechanism)</strong></p>
+<p>Flow:</p>
+<div class="mermaid">
+flowchart LR
+    A[Client Call] --> B[Proxy Layer]
+    B --> C[Start Transaction]
+    C --> D[Business Logic]
+    D --> E{Success?}
+    E -->|Yes| F[Commit]
+    E -->|No| G[Rollback]
+</div>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentService</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Transactional</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processPayment</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// DB operations</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Spring:</p>
+<ul>
+<li>opens transaction before method</li>
+<li>commits after success</li>
+<li>rolls back on failure</li>
+</ul>
+<hr>
+<h2 id="5-where-is-it-used">5. Where is it Used?</h2>
+<hr>
+<p>👉 Typically used in:</p>
+<ul>
+<li><strong>Service layer</strong> (best practice)</li>
+</ul>
+<p>❌ Avoid:</p>
+<ul>
+<li>Controller layer (bad design)</li>
+<li>Repository layer (too granular)</li>
+</ul>
+<hr>
+<h2 id="6-exception-behavior-very-important">6. Exception Behavior (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="default-behavior">Default Behavior:</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Exception Type</th>
+          <th>Rollback?</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>RuntimeException</td>
+          <td>✅ Yes</td>
+      </tr>
+      <tr>
+          <td>Checked Exception</td>
+          <td>❌ No</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Transactional</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">process</span>() <span style="color:#66d9ef">throws</span> Exception {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Exception(); <span style="color:#75715e">// ❌ NO rollback</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="fix">Fix:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Transactional</span>(rollbackFor <span style="color:#f92672">=</span> Exception.<span style="color:#a6e22e">class</span>)
+</span></span></code></pre></div><hr>
+<h2 id="7-real-world-example">7. Real-World Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Transactional</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">placeOrder</span>() {
+</span></span><span style="display:flex;"><span>    orderRepository.<span style="color:#a6e22e">save</span>(order);
+</span></span><span style="display:flex;"><span>    paymentService.<span style="color:#a6e22e">charge</span>();
+</span></span><span style="display:flex;"><span>    inventoryService.<span style="color:#a6e22e">reserve</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>If:</p>
+<ul>
+<li>payment fails ❌</li>
+<li>inventory fails ❌</li>
+</ul>
+<p>👉 Entire transaction rolls back</p>
+<hr>
+<h2 id="8-common-pitfalls-very-important">8. Common Pitfalls (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="1-self-invocation-problem">1. Self Invocation Problem</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">internalMethod</span>(); <span style="color:#75715e">// ❌ Transaction NOT applied</span>
+</span></span></code></pre></div><p>👉 Because Spring uses <strong>proxy</strong>, internal calls bypass it</p>
+<hr>
+<h3 id="2-wrong-exception-handling">2. Wrong Exception Handling</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">catch</span> (Exception e) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// swallowed → NO rollback</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 If exception is handled → Spring thinks it&rsquo;s success</p>
+<hr>
+<h3 id="3-long-transactions">3. Long Transactions</h3>
+<ul>
+<li>holding DB locks too long</li>
+<li>causes performance issues</li>
+</ul>
+<hr>
+<h3 id="4-transaction-on-private-methods">4. Transaction on Private Methods</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Transactional</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">method</span>() {}
+</span></span></code></pre></div><p>❌ Won’t work (proxy limitation)</p>
+<hr>
+<h3 id="5-mixing-external-calls">5. Mixing External Calls</h3>
+<ul>
+<li>DB + API call in same transaction</li>
+<li>leads to inconsistency</li>
+</ul>
+<hr>
+<h2 id="9-important-configurations">9. Important Configurations</h2>
+<hr>
+<h3 id="propagation">Propagation</h3>
+<p>Defines how transactions behave when nested:</p>
+<ul>
+<li>REQUIRED (default)</li>
+<li>REQUIRES_NEW</li>
+<li>SUPPORTS</li>
+</ul>
+<hr>
+<h3 id="isolation">Isolation</h3>
+<p>Controls data visibility:</p>
+<ul>
+<li>READ_COMMITTED (most common)</li>
+<li>REPEATABLE_READ</li>
+<li>SERIALIZABLE</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Transactional</span>(
+</span></span><span style="display:flex;"><span>    propagation <span style="color:#f92672">=</span> Propagation.<span style="color:#a6e22e">REQUIRED</span>,
+</span></span><span style="display:flex;"><span>    isolation <span style="color:#f92672">=</span> Isolation.<span style="color:#a6e22e">READ_COMMITTED</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><hr>
+<h2 id="10-real-production-debugging-angle">10. Real Production Debugging Angle</h2>
+<hr>
+<p>If transaction not working:</p>
+<ol>
+<li>Check if method is called via <strong>Spring proxy</strong></li>
+<li>Check <strong>exception type</strong></li>
+<li>Check logs → commit vs rollback</li>
+<li>Verify DB auto-commit settings</li>
+<li>Check nested transactions</li>
+<li>Check if method is <strong>public</strong></li>
+</ol>
+<hr>
+<p>👉 Common real issue:</p>
+<blockquote>
+<p>&ldquo;Why is my data partially saved even after exception?&rdquo;</p></blockquote>
+<p>Answer:</p>
+<ul>
+<li>checked exception OR</li>
+<li>exception swallowed OR</li>
+<li>self-invocation</li>
+</ul>
+<hr>
+<h2 id="11-important-interview-questions">11. Important Interview Questions</h2>
+<hr>
+<h3 id="why-does-transactional-not-work-sometimes">Why does @Transactional not work sometimes?</h3>
+<p>Answer:</p>
+<ul>
+<li>proxy-based → internal calls bypass it</li>
+<li>wrong exception type</li>
+<li>method visibility issues</li>
+</ul>
+<hr>
+<h3 id="why-service-layer">Why Service layer?</h3>
+<p>Answer:</p>
+<ul>
+<li>transaction should cover business logic</li>
+<li>not too granular (repo)</li>
+<li>not too high-level (controller)</li>
+</ul>
+<hr>
+<h3 id="what-is-propagation">What is propagation?</h3>
+<p>Answer:
+Defines how transactions behave when one transaction calls another.</p>
+<hr>
+<h3 id="can-we-use-it-on-class-level">Can we use it on class level?</h3>
+<p>Answer:
+Yes, applies to all public methods.</p>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is @Transactional in Spring?</p></blockquote>
+<p>Answer:</p>
+<blockquote>
+<p>@Transactional is used to manage database transactions declaratively in Spring. It ensures atomicity by committing changes on success and rolling back on failure. By default, it rolls back on runtime exceptions, and it works using proxy-based AOP, so method calls must go through the Spring container for it to be effective.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/frameworks/spring-boot/" class="btn nav-btn">
+        Spring-Boot - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Is Slow — How to Debug</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775657156">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Database Is Slow — How to Debug</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. First Principle</li>
+        
+        <li>4. Step-by-Step Debugging Approach (VERY IMPORTANT)</li>
+        
+        <li>5. Real-World Example</li>
+        
+        <li>6. Real Production Flow</li>
+        
+        <li>7. Common Root Causes (VERY IMPORTANT)</li>
+        
+        <li>8. Common Mistakes</li>
+        
+        <li>9. Production Debugging Checklist</li>
+        
+        <li>10. Important Interview Questions</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>When a database is slow, I debug it systematically by checking slow queries, execution plans, indexing, locks, connection pool health, resource usage, and recent changes. The goal is to identify whether the bottleneck is query design, contention, infrastructure, or application behavior.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This is one of the most important support and production debugging questions.</p>
+<p>It tests:</p>
+<ul>
+<li>structured troubleshooting ability</li>
+<li>understanding of SQL performance</li>
+<li>ability to separate DB issue from app issue</li>
+<li>real production thinking under pressure</li>
+</ul>
+<p>👉 Very common in backend, production support, and trading-system interviews.</p>
+<hr>
+<h2 id="3-first-principle">3. First Principle</h2>
+<hr>
+<p>When someone says:</p>
+<blockquote>
+<p>&ldquo;The database is slow&rdquo;</p></blockquote>
+<p>that may actually mean several different things:</p>
+<ul>
+<li>one query is slow</li>
+<li>many queries are slow</li>
+<li>locks are blocking work</li>
+<li>DB CPU/memory is high</li>
+<li>app is waiting for connections</li>
+<li>downstream network latency exists</li>
+</ul>
+<p>👉 So first, do <strong>not</strong> assume the root cause. Narrow it down.</p>
+<hr>
+<h2 id="4-step-by-step-debugging-approach-very-important">4. Step-by-Step Debugging Approach (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="step-1--identify-what-is-slow">Step 1 — Identify What Is Slow</h3>
+<p>Ask:</p>
+<ul>
+<li>all queries or specific query?</li>
+<li>read or write path?</li>
+<li>one service or multiple services?</li>
+<li>sudden issue or ongoing issue?</li>
+</ul>
+<p>This helps decide whether it is:</p>
+<ul>
+<li>query-specific</li>
+<li>table-specific</li>
+<li>application-specific</li>
+<li>infrastructure-wide</li>
+</ul>
+<hr>
+<h3 id="step-2--check-slow-queries">Step 2 — Check Slow Queries</h3>
+<p>Look for:</p>
+<ul>
+<li>long-running queries</li>
+<li>frequently executed expensive queries</li>
+<li>queries timing out</li>
+</ul>
+<p>Common tools:</p>
+<ul>
+<li>slow query log</li>
+<li>APM traces</li>
+<li>DB monitoring dashboard</li>
+</ul>
+<hr>
+<h3 id="step-3--analyze-execution-plan">Step 3 — Analyze Execution Plan</h3>
+<p>Use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">EXPLAIN</span> <span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> orders <span style="color:#66d9ef">WHERE</span> customer_id <span style="color:#f92672">=</span> <span style="color:#ae81ff">101</span>;
+</span></span></code></pre></div><p>Check for:</p>
+<ul>
+<li>full table scan</li>
+<li>bad join strategy</li>
+<li>index not used</li>
+<li>large sort/temporary operations</li>
+</ul>
+<p>👉 Execution plan is one of the most important things to inspect.</p>
+<hr>
+<h3 id="step-4--check-indexes">Step 4 — Check Indexes</h3>
+<p>Ask:</p>
+<ul>
+<li>is filtering column indexed?</li>
+<li>is join column indexed?</li>
+<li>is index selective enough?</li>
+<li>is index missing or unused?</li>
+</ul>
+<p>Problems from poor indexing:</p>
+<ul>
+<li>table scans</li>
+<li>slower reads</li>
+<li>more rows locked</li>
+</ul>
+<hr>
+<h3 id="step-5--check-locks--blocking--deadlocks">Step 5 — Check Locks / Blocking / Deadlocks</h3>
+<p>If DB appears slow, it may actually be <strong>waiting</strong>, not executing.</p>
+<p>Check for:</p>
+<ul>
+<li>blocked sessions</li>
+<li>lock waits</li>
+<li>deadlocks</li>
+<li>long open transactions</li>
+</ul>
+<p>👉 A blocked query can look like a slow query.</p>
+<hr>
+<h3 id="step-6--check-resource-usage">Step 6 — Check Resource Usage</h3>
+<p>Look at DB server health:</p>
+<ul>
+<li>CPU usage</li>
+<li>memory pressure</li>
+<li>disk I/O</li>
+<li>network latency</li>
+</ul>
+<p>Possible problems:</p>
+<ul>
+<li>CPU saturation from expensive queries</li>
+<li>disk bottleneck due to scans/sorts</li>
+<li>memory pressure causing spill to disk</li>
+</ul>
+<hr>
+<h3 id="step-7--check-connection-pool--application-side">Step 7 — Check Connection Pool / Application Side</h3>
+<p>Sometimes DB is blamed, but issue is in app layer.</p>
+<p>Check:</p>
+<ul>
+<li>active DB connections</li>
+<li>pool exhaustion</li>
+<li>connection wait times</li>
+<li>long transactions holding connections</li>
+</ul>
+<p>👉 If app cannot get DB connection, user still experiences slowness.</p>
+<hr>
+<h3 id="step-8--check-recent-changes">Step 8 — Check Recent Changes</h3>
+<p>Always verify recent changes:</p>
+<ul>
+<li>deployment</li>
+<li>new feature</li>
+<li>schema/index change</li>
+<li>traffic spike</li>
+<li>batch job started</li>
+</ul>
+<p>👉 Many production incidents start after a change.</p>
+<hr>
+<h2 id="5-real-world-example">5. Real-World Example</h2>
+<hr>
+<p>Suppose an order API becomes slow.</p>
+<p>You investigate:</p>
+<ol>
+<li>API latency increased from 100 ms to 5 sec</li>
+<li>application logs show DB call taking time</li>
+<li><code>EXPLAIN</code> shows full table scan on <code>orders</code></li>
+<li>recent deployment introduced filter on non-indexed column</li>
+</ol>
+<p>👉 Root cause: missing index after query change</p>
+<hr>
+<h2 id="6-real-production-flow">6. Real Production Flow</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[User/API Slow] --> B[Check App Metrics and Logs]
+    B --> C[Identify DB Call]
+    C --> D[Check Slow Query / EXPLAIN]
+    D --> E[Check Index / Lock / Resource]
+    E --> F[Find Root Cause]
+</div>
+<hr>
+<h2 id="7-common-root-causes-very-important">7. Common Root Causes (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="1-missing-or-poor-indexes">1. Missing or Poor Indexes</h3>
+<ul>
+<li>full scan</li>
+<li>slow filtering</li>
+<li>slow joins</li>
+</ul>
+<hr>
+<h3 id="2-bad-query-design">2. Bad Query Design</h3>
+<p>Examples:</p>
+<ul>
+<li>selecting unnecessary columns</li>
+<li>inefficient joins</li>
+<li>subqueries causing overhead</li>
+<li>no pagination</li>
+</ul>
+<hr>
+<h3 id="3-locking--blocking">3. Locking / Blocking</h3>
+<ul>
+<li>one transaction holds lock</li>
+<li>others wait behind it</li>
+</ul>
+<hr>
+<h3 id="4-high-data-volume">4. High Data Volume</h3>
+<ul>
+<li>query was fine earlier</li>
+<li>now table is much larger</li>
+</ul>
+<hr>
+<h3 id="5-connection-pool-exhaustion">5. Connection Pool Exhaustion</h3>
+<ul>
+<li>app waiting for DB connections</li>
+</ul>
+<hr>
+<h3 id="6-infrastructure-bottleneck">6. Infrastructure Bottleneck</h3>
+<ul>
+<li>high CPU</li>
+<li>disk I/O pressure</li>
+<li>storage latency</li>
+</ul>
+<hr>
+<h3 id="7-long-transactions">7. Long Transactions</h3>
+<ul>
+<li>locks held longer</li>
+<li>resources occupied too long</li>
+</ul>
+<hr>
+<h2 id="8-common-mistakes">8. Common Mistakes</h2>
+<hr>
+<p>❌ Assuming DB is slow without checking application logs<br>
+❌ Adding indexes blindly without checking query pattern<br>
+❌ Ignoring locks and blocked sessions<br>
+❌ Looking only at query text, not execution plan<br>
+❌ Treating connection pool issue as pure DB issue</p>
+<hr>
+<h2 id="9-production-debugging-checklist">9. Production Debugging Checklist</h2>
+<hr>
+<p>When DB is slow, I check:</p>
+<ol>
+<li>Which API / query is affected?</li>
+<li>Is the query actually slow or blocked?</li>
+<li>What does the execution plan show?</li>
+<li>Are indexes correct?</li>
+<li>Are there lock waits or deadlocks?</li>
+<li>Is DB CPU / memory / I/O healthy?</li>
+<li>Is connection pool exhausted?</li>
+<li>Was there a recent deployment or traffic spike?</li>
+</ol>
+<hr>
+<h2 id="10-important-interview-questions">10. Important Interview Questions</h2>
+<hr>
+<h3 id="what-is-your-first-step-if-db-is-slow">What is your first step if DB is slow?</h3>
+<p>Answer:
+First identify whether the slowness is from a specific query, blocking, connection issues, or overall DB resource pressure.</p>
+<hr>
+<h3 id="why-is-explain-important">Why is EXPLAIN important?</h3>
+<p>Answer:
+It shows how the database plans to execute a query, including scans, joins, and index usage.</p>
+<hr>
+<h3 id="can-slow-api-always-mean-slow-query">Can slow API always mean slow query?</h3>
+<p>Answer:
+No. It may be lock wait, connection pool exhaustion, network latency, or downstream contention.</p>
+<hr>
+<h3 id="how-do-you-separate-app-issue-from-db-issue">How do you separate app issue from DB issue?</h3>
+<p>Answer:
+Check app logs, query timings, DB metrics, and connection pool behavior together instead of looking at only one layer.</p>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>Database is slow, how will you debug?</p></blockquote>
+<p>Answer:</p>
+<blockquote>
+<p>I would debug it systematically by first identifying which query or workflow is slow. Then I would check slow query logs, analyze the execution plan using EXPLAIN, verify indexing, and check for locks or blocked sessions. I would also inspect DB CPU, memory, disk I/O, and application-side connection pool health. Finally, I would verify recent deployments or traffic changes. This helps isolate whether the issue is query design, locking, infrastructure, or application behavior.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/data-and-messaging/sql-databases/" class="btn nav-btn">
+        SQL and Databases - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

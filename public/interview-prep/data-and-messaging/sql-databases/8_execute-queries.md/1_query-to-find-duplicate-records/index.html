@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Query to Find Duplicate Records in SQL</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775657493">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Query to Find Duplicate Records in SQL</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Basic Query</li>
+        
+        <li>4. How It Works</li>
+        
+        <li>5. Real-World Example</li>
+        
+        <li>6. Duplicate Based on Multiple Columns</li>
+        
+        <li>7. How to Fetch Full Duplicate Rows</li>
+        
+        <li>8. Common Interview Variations</li>
+        
+        <li>9. Common Mistakes</li>
+        
+        <li>10. Production Angle</li>
+        
+        <li>11. Important Interview Questions</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Duplicate records in SQL are usually found using <code>GROUP BY</code> with <code>HAVING COUNT(*) &gt; 1</code>. The idea is to group rows by the column or combination of columns that should be unique, then identify groups that appear more than once.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests:</p>
+<ul>
+<li>SQL fundamentals</li>
+<li>understanding of grouping and aggregation</li>
+<li>ability to write practical queries quickly</li>
+<li>awareness of data quality issues</li>
+</ul>
+<p>👉 Very common in SQL interviews because it checks both syntax and thinking.</p>
+<hr>
+<h2 id="3-basic-query">3. Basic Query</h2>
+<hr>
+<p>Suppose we have a table:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>employees
+</span></span><span style="display:flex;"><span><span style="color:#75715e">---------
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>id <span style="color:#f92672">|</span> name <span style="color:#f92672">|</span> email <span style="color:#f92672">|</span> department
+</span></span></code></pre></div><p>If interviewer asks:</p>
+<blockquote>
+<p>Find duplicate names</p></blockquote>
+<p>Query:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> name, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> name
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>;
+</span></span></code></pre></div><hr>
+<h2 id="4-how-it-works">4. How It Works</h2>
+<hr>
+<h3 id="group-by-name"><code>GROUP BY name</code></h3>
+<p>Groups all rows having same <code>name</code></p>
+<h3 id="count"><code>COUNT(*)</code></h3>
+<p>Counts how many rows exist in each group</p>
+<h3 id="having-count--1"><code>HAVING COUNT(*) &gt; 1</code></h3>
+<p>Filters only those groups that appear more than once</p>
+<p>👉 <code>HAVING</code> is used because filtering happens <strong>after aggregation</strong>.</p>
+<hr>
+<h2 id="5-real-world-example">5. Real-World Example</h2>
+<hr>
+<p>Suppose table data is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1 | Shubham | a@test.com | Eng
+</span></span><span style="display:flex;"><span>2 | Rahul   | b@test.com | QA
+</span></span><span style="display:flex;"><span>3 | Shubham | c@test.com | Eng
+</span></span></code></pre></div><p>Query result:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Shubham | 2
+</span></span></code></pre></div><p>👉 Meaning <code>Shubham</code> appears twice</p>
+<hr>
+<h2 id="6-duplicate-based-on-multiple-columns">6. Duplicate Based on Multiple Columns</h2>
+<hr>
+<p>Sometimes duplicate is not based on one column, but combination.</p>
+<p>Example:</p>
+<blockquote>
+<p>Find duplicate <code>name + department</code></p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> name, department, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> name, department
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>;
+</span></span></code></pre></div><p>👉 This is more realistic in production systems.</p>
+<hr>
+<h2 id="7-how-to-fetch-full-duplicate-rows">7. How to Fetch Full Duplicate Rows</h2>
+<hr>
+<p>Sometimes interviewer asks:</p>
+<blockquote>
+<p>I don’t just want duplicate values, I want the full rows.</p></blockquote>
+<p>Query:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> name <span style="color:#66d9ef">IN</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">SELECT</span> name
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> name
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><hr>
+<p>For composite duplicates:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees e
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> (e.name, e.department) <span style="color:#66d9ef">IN</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">SELECT</span> name, department
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> name, department
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><hr>
+<h2 id="8-common-interview-variations">8. Common Interview Variations</h2>
+<hr>
+<h3 id="variation-1--find-duplicate-emails">Variation 1 — Find Duplicate Emails</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> email, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> email
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>;
+</span></span></code></pre></div><hr>
+<h3 id="variation-2--find-unique-records-only">Variation 2 — Find Unique Records Only</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> name, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> name
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span></code></pre></div><hr>
+<h3 id="variation-3--delete-duplicate-records">Variation 3 — Delete Duplicate Records</h3>
+<p>This is a more advanced follow-up and usually requires window functions or self-join.</p>
+<p>👉 For now, interviewers often just want detection query first.</p>
+<hr>
+<h2 id="9-common-mistakes">9. Common Mistakes</h2>
+<hr>
+<p>❌ Using <code>WHERE COUNT(*) &gt; 1</code><br>
+❌ Forgetting <code>GROUP BY</code><br>
+❌ Not clarifying which columns define duplicate<br>
+❌ Returning duplicate values only when interviewer asked for full rows</p>
+<hr>
+<h2 id="10-production-angle">10. Production Angle</h2>
+<hr>
+<p>Duplicate record checks are useful for:</p>
+<ul>
+<li>data cleanup</li>
+<li>migration validation</li>
+<li>enforcing business uniqueness</li>
+<li>identifying ingestion issues</li>
+</ul>
+<p>👉 In real systems, duplicates often happen due to:</p>
+<ul>
+<li>missing unique constraints</li>
+<li>retry logic bugs</li>
+<li>race conditions</li>
+<li>bad upstream data</li>
+</ul>
+<hr>
+<h2 id="11-important-interview-questions">11. Important Interview Questions</h2>
+<hr>
+<h3 id="why-use-having-instead-of-where">Why use HAVING instead of WHERE?</h3>
+<p>Answer:
+Because <code>WHERE</code> filters rows before grouping, while <code>HAVING</code> filters after aggregation.</p>
+<hr>
+<h3 id="what-if-duplicate-is-based-on-two-columns">What if duplicate is based on two columns?</h3>
+<p>Answer:
+Use both columns in <code>GROUP BY</code>.</p>
+<hr>
+<h3 id="how-do-you-fetch-full-duplicate-rows">How do you fetch full duplicate rows?</h3>
+<p>Answer:
+Use the duplicate-detection query as a subquery and fetch matching rows from main table.</p>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>Write a query to find duplicate records</p></blockquote>
+<p>Answer:</p>
+<blockquote>
+<p>To find duplicate records in SQL, I usually group by the column or combination of columns that should be unique and then filter with <code>HAVING COUNT(*) &gt; 1</code>. For example: <code>SELECT name, COUNT(*) FROM employees GROUP BY name HAVING COUNT(*) &gt; 1;</code>. If full duplicate rows are needed, I would use this as a subquery and fetch the matching rows from the main table.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/data-and-messaging/sql-databases/" class="btn nav-btn">
+        SQL and Databases - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

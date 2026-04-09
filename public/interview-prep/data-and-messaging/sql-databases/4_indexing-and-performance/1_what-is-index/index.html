@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Index in SQL and How It Improves Performance?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775649620">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Index in SQL and How It Improves Performance?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is an Index?</li>
+        
+        <li>4. Example Without Index</li>
+        
+        <li>5. Example With Index</li>
+        
+        <li>6. How Index Works (Conceptual)</li>
+        
+        <li>7. Types of Index (High Level)</li>
+        
+        <li>8. Advantages of Index</li>
+        
+        <li>9. Disadvantages of Index</li>
+        
+        <li>10. When Index is NOT Used (VERY IMPORTANT)</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>An index is a data structure that improves query performance by allowing the database to quickly locate rows without scanning the entire table. It speeds up read operations but can slow down writes.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>database performance optimization</li>
+<li>how queries are executed internally</li>
+<li>trade-offs between reads and writes</li>
+<li>real-world backend performance tuning</li>
+</ul>
+<p>This is a very common backend interview question.</p>
+<hr>
+<h2 id="3-what-is-an-index">3. What is an Index?</h2>
+<hr>
+<p>An index is similar to an index in a book:</p>
+<ul>
+<li>instead of scanning the entire table</li>
+<li>database directly jumps to required data</li>
+</ul>
+<p>Without index:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Full Table Scan → slow
+</span></span></code></pre></div><p>With index:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Index Lookup → fast
+</span></span></code></pre></div><hr>
+<h2 id="4-example-without-index">4. Example Without Index</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> users <span style="color:#66d9ef">WHERE</span> email <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;abc@example.com&#39;</span>;
+</span></span></code></pre></div><p>Without index:</p>
+<ul>
+<li>DB scans every row</li>
+<li>time complexity: O(n)</li>
+</ul>
+<hr>
+<h2 id="5-example-with-index">5. Example With Index</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">INDEX</span> idx_email <span style="color:#66d9ef">ON</span> users(email);
+</span></span></code></pre></div><p>Now:</p>
+<ul>
+<li>DB uses index</li>
+<li>jumps directly to matching rows</li>
+<li>time complexity: O(log n)</li>
+</ul>
+<hr>
+<h2 id="6-how-index-works-conceptual">6. How Index Works (Conceptual)</h2>
+<hr>
+<p>Most databases use <strong>B-Tree structure</strong>.</p>
+<div class="mermaid">
+flowchart TD
+    A[Root] --> B[Intermediate Nodes]
+    B --> C[Leaf Nodes]
+</div>
+<ul>
+<li>sorted structure</li>
+<li>allows fast search, insert, delete</li>
+</ul>
+<hr>
+<h2 id="7-types-of-index-high-level">7. Types of Index (High Level)</h2>
+<hr>
+<ul>
+<li>Primary Index (on primary key)</li>
+<li>Secondary Index (on non-key columns)</li>
+<li>Unique Index</li>
+<li>Composite Index (multiple columns)</li>
+</ul>
+<hr>
+<h2 id="8-advantages-of-index">8. Advantages of Index</h2>
+<hr>
+<ul>
+<li>faster SELECT queries</li>
+<li>efficient filtering and joins</li>
+<li>improves overall query performance</li>
+</ul>
+<hr>
+<h2 id="9-disadvantages-of-index">9. Disadvantages of Index</h2>
+<hr>
+<ul>
+<li>slows down INSERT/UPDATE/DELETE</li>
+<li>consumes extra storage</li>
+<li>requires maintenance</li>
+</ul>
+<hr>
+<h2 id="10-when-index-is-not-used-very-important">10. When Index is NOT Used (VERY IMPORTANT)</h2>
+<hr>
+<p>Index may not be used when:</p>
+<ul>
+<li>using functions on column</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> <span style="color:#66d9ef">LOWER</span>(email) <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;abc&#39;</span>
+</span></span></code></pre></div><hr>
+<ul>
+<li>leading wildcard</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> name <span style="color:#66d9ef">LIKE</span> <span style="color:#e6db74">&#39;%abc&#39;</span>
+</span></span></code></pre></div><hr>
+<ul>
+<li>low selectivity (too many duplicate values)</li>
+</ul>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<h3 id="does-index-always-improve-performance">Does index always improve performance?</h3>
+<p>Answer: No, only for read-heavy queries.</p>
+<hr>
+<h3 id="why-index-slows-down-writes">Why index slows down writes?</h3>
+<p>Answer: Because index also needs to be updated.</p>
+<hr>
+<h3 id="what-is-composite-index">What is composite index?</h3>
+<p>Answer: Index on multiple columns.</p>
+<hr>
+<h3 id="what-is-full-table-scan">What is full table scan?</h3>
+<p>Answer: DB reads entire table when no index is used.</p>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is index and how it improves performance?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>An index is a data structure that allows the database to quickly locate rows without scanning the entire table. It improves read performance by using structures like B-Trees for efficient lookup. However, it adds overhead to write operations and consumes extra storage, so it should be used carefully.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/data-and-messaging/sql-databases/" class="btn nav-btn">
+        SQL and Databases - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

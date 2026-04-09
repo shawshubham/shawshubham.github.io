@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API is Slow — How Will You Debug?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1775652718">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">API is Slow — How Will You Debug?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. First Principle — Do Not Guess</li>
+        
+        <li>4. High-Level Debugging Flow</li>
+        
+        <li>5. Step-by-Step Debugging Approach</li>
+        
+        <li>6. Structured Interview Answer (Very Important)</li>
+        
+        <li>7. Example Strong Answer (Spoken Style)</li>
+        
+        <li>8. Important Interview Points</li>
+        
+        <li>9. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 8 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>If an API is slow, I would debug it layer by layer: first confirm the symptom, then check application logs, CPU, memory, GC, thread state, database latency, and downstream calls. The goal is to identify whether the bottleneck is in application code, infrastructure, database, or network.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>structured production debugging</li>
+<li>end-to-end request flow</li>
+<li>performance bottleneck isolation</li>
+<li>practical backend troubleshooting</li>
+</ul>
+<p>This is one of the most important backend and production support interview questions.</p>
+<hr>
+<h2 id="3-first-principle--do-not-guess">3. First Principle — Do Not Guess</h2>
+<hr>
+<p>When an API is slow, do not jump to conclusions.</p>
+<p>A slow API could be caused by:</p>
+<ul>
+<li>high CPU</li>
+<li>memory pressure / GC</li>
+<li>database slowness</li>
+<li>thread contention</li>
+<li>downstream API latency</li>
+<li>network issue</li>
+<li>connection pool exhaustion</li>
+<li>bad code or inefficient query</li>
+</ul>
+<p>So the correct approach is:</p>
+<blockquote>
+<p><strong>Debug step by step and isolate the bottleneck.</strong></p></blockquote>
+<hr>
+<h2 id="4-high-level-debugging-flow">4. High-Level Debugging Flow</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Confirm Slow API] --> B[Check Logs]
+    B --> C[Check CPU / Memory / GC]
+    C --> D[Check Thread State]
+    D --> E[Check DB Queries]
+    E --> F[Check External Calls]
+    F --> G[Identify Bottleneck]
+</div>
+<hr>
+<h2 id="5-step-by-step-debugging-approach">5. Step-by-Step Debugging Approach</h2>
+<hr>
+<h3 id="1-confirm-the-problem">1. Confirm the Problem</h3>
+<p>First confirm:</p>
+<ul>
+<li>Is slowness happening for one endpoint or all endpoints?</li>
+<li>Is it constant or intermittent?</li>
+<li>Did it start after a deployment?</li>
+<li>Are error rates also increasing?</li>
+</ul>
+<p>This helps decide whether the problem is:</p>
+<ul>
+<li>endpoint-specific</li>
+<li>service-wide</li>
+<li>environment-related</li>
+</ul>
+<hr>
+<h3 id="2-check-application-logs">2. Check Application Logs</h3>
+<p>Look for:</p>
+<ul>
+<li>exceptions</li>
+<li>timeout messages</li>
+<li>downstream call failures</li>
+<li>database errors</li>
+<li>retry storms</li>
+</ul>
+<p>Linux commands:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tail -f app.log
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tail -f app.log | grep ERROR
+</span></span></code></pre></div><hr>
+<h3 id="3-check-cpu-usage">3. Check CPU Usage</h3>
+<p>Use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>top
+</span></span></code></pre></div><p>or</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ps -eo pid,ppid,cmd,%cpu --sort<span style="color:#f92672">=</span>-%cpu
+</span></span></code></pre></div><p>If CPU is high:</p>
+<ul>
+<li>infinite loop?</li>
+<li>excessive computation?</li>
+<li>thread contention?</li>
+<li>too many requests?</li>
+</ul>
+<hr>
+<h3 id="4-check-memory-usage">4. Check Memory Usage</h3>
+<p>Use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>free -m
+</span></span></code></pre></div><p>or monitor JVM memory / container memory.</p>
+<p>Check:</p>
+<ul>
+<li>high heap usage</li>
+<li>memory leaks</li>
+<li>excessive object creation</li>
+</ul>
+<hr>
+<h3 id="5-check-gc-behavior">5. Check GC Behavior</h3>
+<p>If JVM application is slow:</p>
+<ul>
+<li>frequent GC pauses?</li>
+<li>long full GC?</li>
+<li>heap pressure?</li>
+</ul>
+<p>Symptoms:</p>
+<ul>
+<li>latency spikes</li>
+<li>CPU high due to GC</li>
+<li>throughput drop</li>
+</ul>
+<hr>
+<h3 id="6-take-thread-dump">6. Take Thread Dump</h3>
+<p>Very important for Java applications.</p>
+<p>Use thread dump to check:</p>
+<ul>
+<li>blocked threads</li>
+<li>deadlocks</li>
+<li>waiting threads</li>
+<li>stuck requests</li>
+<li>thread pool exhaustion</li>
+</ul>
+<p>Typical command:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>jstack &lt;pid&gt;
+</span></span></code></pre></div><p>Look for:</p>
+<ul>
+<li>many threads in BLOCKED or WAITING state</li>
+<li>same code path repeated</li>
+<li>lock contention</li>
+</ul>
+<hr>
+<h3 id="7-check-database-queries">7. Check Database Queries</h3>
+<p>This is one of the most common root causes.</p>
+<p>Questions to ask:</p>
+<ul>
+<li>Is query slow?</li>
+<li>Is index missing?</li>
+<li>Is DB under heavy load?</li>
+<li>Is connection pool exhausted?</li>
+</ul>
+<p>Check:</p>
+<ul>
+<li>slow query logs</li>
+<li>execution plan</li>
+<li>DB CPU / locks / waits</li>
+</ul>
+<hr>
+<h3 id="8-check-external-api-calls--downstream-services">8. Check External API Calls / Downstream Services</h3>
+<p>If your API depends on another service:</p>
+<ul>
+<li>is downstream service slow?</li>
+<li>network latency high?</li>
+<li>timeout misconfigured?</li>
+<li>retries causing amplification?</li>
+</ul>
+<p>This is common in microservices.</p>
+<hr>
+<h3 id="9-check-connection-pools">9. Check Connection Pools</h3>
+<p>Examples:</p>
+<ul>
+<li>DB connection pool</li>
+<li>HTTP client pool</li>
+<li>thread pool</li>
+</ul>
+<p>If pool is exhausted:</p>
+<ul>
+<li>requests queue up</li>
+<li>latency increases</li>
+<li>timeouts happen</li>
+</ul>
+<hr>
+<h3 id="10-correlate-with-recent-change">10. Correlate with Recent Change</h3>
+<p>Always ask:</p>
+<ul>
+<li>did deployment happen recently?</li>
+<li>config change?</li>
+<li>traffic spike?</li>
+<li>DB migration?</li>
+</ul>
+<p>Sometimes the fastest root cause comes from change history.</p>
+<hr>
+<h2 id="6-structured-interview-answer-very-important">6. Structured Interview Answer (Very Important)</h2>
+<hr>
+<p>A strong way to answer in interview:</p>
+<ol>
+<li><strong>Confirm scope of issue</strong></li>
+<li><strong>Check logs for errors/timeouts</strong></li>
+<li><strong>Check CPU, memory, and GC</strong></li>
+<li><strong>Take thread dump if Java app</strong></li>
+<li><strong>Inspect DB queries and connection pool</strong></li>
+<li><strong>Check downstream services / network</strong></li>
+<li><strong>Correlate with recent deployment or traffic spike</strong></li>
+<li><strong>Identify bottleneck and then fix</strong></li>
+</ol>
+<p>This sounds structured and production-ready.</p>
+<hr>
+<h2 id="7-example-strong-answer-spoken-style">7. Example Strong Answer (Spoken Style)</h2>
+<hr>
+<blockquote>
+<p>If an API is slow, I would first confirm whether the issue is endpoint-specific or service-wide. Then I would check logs for exceptions, timeouts, or downstream failures. After that I would inspect CPU, memory, and GC behavior to see whether the application is resource-constrained. For Java services, I would also take a thread dump to check for blocked threads or thread pool exhaustion. Next, I would investigate database performance, slow queries, and connection pool usage, and then verify whether any downstream API or network dependency is causing latency. Finally, I would correlate the issue with any recent deployment, config change, or traffic spike to isolate the root cause.</p></blockquote>
+<hr>
+<h2 id="8-important-interview-points">8. Important Interview Points</h2>
+<hr>
+<h3 id="what-should-you-check-first">What should you check first?</h3>
+<p>Answer: Confirm scope and check logs first.</p>
+<hr>
+<h3 id="why-thread-dump-is-important">Why thread dump is important?</h3>
+<p>Answer: It shows blocked, waiting, or stuck threads.</p>
+<hr>
+<h3 id="why-db-is-often-the-bottleneck">Why DB is often the bottleneck?</h3>
+<p>Answer: Slow queries, missing indexes, lock contention, connection pool issues.</p>
+<hr>
+<h3 id="why-not-jump-directly-to-code">Why not jump directly to code?</h3>
+<p>Answer: Because bottleneck may be infra, DB, network, or downstream dependency.</p>
+<hr>
+<h2 id="9-interview-summary-answer-best-answer">9. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>API is slow — how will you debug?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>I would debug it layer by layer. First I would confirm whether the issue is endpoint-specific or service-wide. Then I would check logs, CPU, memory, and GC behavior. For a Java service, I would take a thread dump to check blocked threads or thread pool exhaustion. After that, I would inspect database queries, indexes, connection pools, and downstream API latency. This structured approach helps isolate whether the problem is in application code, database, infrastructure, or network.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+
+
+    
+    
+    <a href="/" class="btn nav-btn">
+        The Shubham Co : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>
