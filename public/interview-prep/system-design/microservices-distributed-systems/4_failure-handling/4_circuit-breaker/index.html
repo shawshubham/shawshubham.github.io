@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Circuit Breaker and How Does It Prevent Failures?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776603255">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Circuit Breaker and How Does It Prevent Failures?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem — Why Circuit Breaker is Needed</li>
+        
+        <li>4. What Circuit Breaker Does</li>
+        
+        <li>5. Circuit Breaker States (VERY IMPORTANT)</li>
+        
+        <li>6. Real-World Flow</li>
+        
+        <li>7. Real-World Example</li>
+        
+        <li>8. Benefits</li>
+        
+        <li>9. Common Mistakes</li>
+        
+        <li>10. Circuit Breaker &#43; Retry &#43; Timeout</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 19 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Circuit Breaker is a resilience pattern that stops sending requests to a failing service after repeated failures, preventing system overload and allowing the service time to recover.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>how to prevent cascading failures</li>
+<li>system stability under failure</li>
+<li>advanced resilience patterns</li>
+<li>production-grade system design</li>
+</ul>
+<p>👉 This is one of the most important microservices interview topics.</p>
+<hr>
+<h2 id="3-problem--why-circuit-breaker-is-needed">3. Problem — Why Circuit Breaker is Needed</h2>
+<hr>
+<p>Consider:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service → Payment Service
+</span></span></code></pre></div><p>If Payment Service is down:</p>
+<ul>
+<li>Order Service keeps calling it</li>
+<li>requests keep failing</li>
+<li>retries increase load</li>
+<li>system gets overloaded</li>
+</ul>
+<p>👉 This leads to cascading failure.</p>
+<hr>
+<h2 id="4-what-circuit-breaker-does">4. What Circuit Breaker Does</h2>
+<hr>
+<p>Circuit Breaker:</p>
+<ul>
+<li>monitors failures</li>
+<li>stops calls after threshold</li>
+<li>allows system to recover</li>
+</ul>
+<hr>
+<p>👉 Instead of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Call → Fail → Retry → Fail → Retry → Fail
+</span></span></code></pre></div><p>👉 It becomes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Call → Fail → Fail → Fail → Circuit Opens → Stop Calls
+</span></span></code></pre></div><hr>
+<h2 id="5-circuit-breaker-states-very-important">5. Circuit Breaker States (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="1-closed-state-normal">1. Closed State (Normal)</h3>
+<ul>
+<li>requests flow normally</li>
+<li>failures are monitored</li>
+</ul>
+<hr>
+<h3 id="2-open-state-failure-mode">2. Open State (Failure Mode)</h3>
+<ul>
+<li>calls are blocked immediately</li>
+<li>no request sent to service</li>
+</ul>
+<hr>
+<h3 id="3-half-open-state-recovery-check">3. Half-Open State (Recovery Check)</h3>
+<ul>
+<li>allow limited requests</li>
+<li>if success → close circuit</li>
+<li>if fail → open again</li>
+</ul>
+<hr>
+<h2 id="6-real-world-flow">6. Real-World Flow</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Normal traffic → Closed
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Failures increase → Threshold reached
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Circuit opens → All subsequent calls fail fast (no downstream call)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Cooldown period (e.g., 30s) → Circuit remains Open
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>After cooldown → Half-open (allow limited test requests)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Test request succeeds → Circuit closes (normal traffic resumes)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Test request fails → Circuit re-opens (back to fail-fast)
+</span></span></code></pre></div><h3 id="important-clarifications-interview-level">Important Clarifications (Interview-Level)</h3>
+<ul>
+<li>When the circuit is <strong>Open</strong>, all incoming requests <strong>fail fast</strong> — no calls are made to the downstream service.</li>
+<li>The circuit <strong>does NOT reset per request</strong> — it remains open for a configured cooldown duration.</li>
+<li>After the cooldown, the circuit moves to <strong>Half-open</strong>, where only a <strong>limited number of trial requests</strong> are allowed.</li>
+<li>If the trial succeeds → circuit <strong>closes</strong><br>
+If it fails → circuit <strong>re-opens immediately</strong></li>
+<li>Circuit breaker is typically applied <strong>per downstream dependency or API call path</strong>, not always for the entire microservice.</li>
+<li>Circuit state is maintained on the <strong>caller side (client/service making the call)</strong>, not the downstream service.</li>
+</ul>
+<hr>
+<h2 id="7-real-world-example">7. Real-World Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service
+</span></span></code></pre></div><p>If Payment fails repeatedly:</p>
+<ul>
+<li>Circuit breaker opens</li>
+<li>Order Service stops calling Payment</li>
+<li>fallback response is returned</li>
+</ul>
+<p>👉 System remains responsive</p>
+<hr>
+<h2 id="8-benefits">8. Benefits</h2>
+<hr>
+<ul>
+<li>prevents cascading failures</li>
+<li>reduces load on failing service</li>
+<li>improves system stability</li>
+<li>enables graceful degradation</li>
+</ul>
+<hr>
+<h2 id="9-common-mistakes">9. Common Mistakes</h2>
+<hr>
+<p>❌ Not using circuit breaker in distributed systems<br>
+❌ Setting wrong failure threshold<br>
+❌ No fallback mechanism<br>
+❌ Not monitoring circuit state</p>
+<hr>
+<h2 id="10-circuit-breaker--retry--timeout">10. Circuit Breaker + Retry + Timeout</h2>
+<hr>
+<p>👉 Together they work as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request → Timeout → Retry (with backoff)
+</span></span><span style="display:flex;"><span>→ still failing → Circuit Breaker opens
+</span></span><span style="display:flex;"><span>→ fallback response returned
+</span></span></code></pre></div><hr>
+<p>👉 Roles:</p>
+<ul>
+<li>Timeout → limits waiting time</li>
+<li>Retry → handles temporary failures</li>
+<li>Circuit Breaker → stops repeated failures</li>
+</ul>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<ul>
+<li>circuit breaker protects system from overload</li>
+<li>works based on failure threshold</li>
+<li>has three states (closed, open, half-open)</li>
+<li>must be combined with timeout and retry</li>
+</ul>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is Circuit Breaker?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Circuit Breaker is a resilience pattern that prevents repeated calls to a failing service by stopping requests after a failure threshold is reached. It helps avoid cascading failures and allows the system to recover by temporarily blocking requests and retrying after a cooldown period.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/microservices-distributed-systems/" class="btn nav-btn">
+        Microservices and Distributed Systems - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

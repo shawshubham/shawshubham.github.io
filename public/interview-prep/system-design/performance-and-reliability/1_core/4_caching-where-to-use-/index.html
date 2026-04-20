@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Caching and Where Should You Use It?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776625160">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Caching and Where Should You Use It?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem — Why Caching Is Needed</li>
+        
+        <li>4. What Caching Does</li>
+        
+        <li>5. Where to Use Caching (VERY IMPORTANT)</li>
+        
+        <li>6. Types of Caching</li>
+        
+        <li>7. Common Caching Strategies</li>
+        
+        <li>8. Cache Invalidation (CRITICAL)</li>
+        
+        <li>9. Real-World Example</li>
+        
+        <li>10. Common Mistakes</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+        <li>13. Learn More (Next Topic)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 19 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Caching is a technique used to store frequently accessed data in a fast-access storage layer so that future requests can be served quickly without hitting the main data source. It significantly reduces latency and improves system performance.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>performance optimization</li>
+<li>reducing database load</li>
+<li>real-world system design decisions</li>
+</ul>
+<p>👉 Caching is one of the most important techniques in system design interviews.</p>
+<hr>
+<h2 id="3-problem--why-caching-is-needed">3. Problem — Why Caching Is Needed</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Service → Database
+</span></span></code></pre></div><p>Every request hits the database:</p>
+<ul>
+<li>high latency</li>
+<li>increased DB load</li>
+<li>scalability issues</li>
+</ul>
+<p>👉 Database becomes the bottleneck</p>
+<hr>
+<h2 id="4-what-caching-does">4. What Caching Does</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Service → Cache → Database
+</span></span></code></pre></div><p>Flow:</p>
+<ul>
+<li>check cache first</li>
+<li>if data exists → return immediately</li>
+<li>else → fetch from DB and store in cache</li>
+</ul>
+<hr>
+<p>👉 This reduces DB calls and improves response time</p>
+<hr>
+<h2 id="5-where-to-use-caching-very-important">5. Where to Use Caching (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="1-read-heavy-data">1. Read-Heavy Data</h3>
+<ul>
+<li>frequently accessed data</li>
+<li>rarely changes</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>product details</li>
+<li>user profile</li>
+</ul>
+<hr>
+<h3 id="2-expensive-computation">2. Expensive Computation</h3>
+<ul>
+<li>results that take time to compute</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>reports</li>
+<li>analytics results</li>
+</ul>
+<hr>
+<h3 id="3-external-api-responses">3. External API Responses</h3>
+<ul>
+<li>avoid repeated external calls</li>
+</ul>
+<hr>
+<h3 id="4-session-data">4. Session Data</h3>
+<ul>
+<li>user sessions</li>
+<li>authentication tokens</li>
+</ul>
+<hr>
+<h3 id="5-configuration-data">5. Configuration Data</h3>
+<ul>
+<li>feature flags</li>
+<li>system configs</li>
+</ul>
+<hr>
+<h2 id="6-types-of-caching">6. Types of Caching</h2>
+<hr>
+<h3 id="1-application-cache-in-memory">1. Application Cache (In-Memory)</h3>
+<ul>
+<li>stored in application memory</li>
+<li>very fast</li>
+</ul>
+<hr>
+<h3 id="2-distributed-cache">2. Distributed Cache</h3>
+<ul>
+<li>shared across multiple services</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>Redis</li>
+<li>Memcached</li>
+</ul>
+<hr>
+<h3 id="3-cdn-cache">3. CDN Cache</h3>
+<ul>
+<li>caches static content at edge</li>
+</ul>
+<hr>
+<h3 id="4-database-cache">4. Database Cache</h3>
+<ul>
+<li>query results stored for reuse</li>
+</ul>
+<hr>
+<h2 id="7-common-caching-strategies">7. Common Caching Strategies</h2>
+<hr>
+<h3 id="1-cache-aside-lazy-loading">1. Cache Aside (Lazy Loading)</h3>
+<p>Flow:</p>
+<ul>
+<li>check cache</li>
+<li>if miss → fetch from DB → update cache</li>
+</ul>
+<p>👉 Most commonly used</p>
+<hr>
+<h3 id="2-write-through">2. Write Through</h3>
+<ul>
+<li>write to cache and DB together</li>
+</ul>
+<hr>
+<h3 id="3-write-back">3. Write Back</h3>
+<ul>
+<li>write to cache first, DB updated later</li>
+</ul>
+<hr>
+<h3 id="4-read-through">4. Read Through</h3>
+<ul>
+<li>cache fetches data automatically</li>
+</ul>
+<hr>
+<h2 id="8-cache-invalidation-critical">8. Cache Invalidation (CRITICAL)</h2>
+<hr>
+<p>👉 Hardest problem in caching</p>
+<p>Approaches:</p>
+<ul>
+<li>TTL (time-based expiry)</li>
+<li>manual invalidation</li>
+<li>event-driven updates</li>
+</ul>
+<hr>
+<h2 id="9-real-world-example">9. Real-World Example</h2>
+<hr>
+<h3 id="scenario-product-api">Scenario: Product API</h3>
+<p>Without cache:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Every request → DB hit
+</span></span></code></pre></div><p>With cache:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>First request → DB
+</span></span><span style="display:flex;"><span>Next requests → Cache
+</span></span></code></pre></div><p>👉 Significant latency reduction</p>
+<hr>
+<h2 id="10-common-mistakes">10. Common Mistakes</h2>
+<hr>
+<p>❌ Caching everything blindly<br>
+❌ No cache invalidation strategy<br>
+❌ Stale data issues<br>
+❌ Cache memory overuse</p>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<ul>
+<li>caching reduces latency and DB load</li>
+<li>best for read-heavy data</li>
+<li>cache invalidation is critical</li>
+<li>Redis is commonly used</li>
+</ul>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is caching and where should you use it?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Caching is a technique where frequently accessed data is stored in a fast-access layer like Redis to reduce latency and avoid repeated database calls. It is typically used for read-heavy data, expensive computations, and external API responses. A proper cache invalidation strategy is important to ensure data consistency.</p></blockquote>
+<hr>
+<h2 id="13-learn-more-next-topic">13. Learn More (Next Topic)</h2>
+<hr>
+<p>👉 Next: <strong>What is Backpressure?</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/performance-and-reliability/" class="btn nav-btn">
+        Performance &amp; Reliability - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

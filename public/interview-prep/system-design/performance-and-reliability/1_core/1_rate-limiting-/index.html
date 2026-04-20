@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Rate Limiting and Why Is It Important?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776604244">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Rate Limiting and Why Is It Important?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem — Why Rate Limiting Is Needed</li>
+        
+        <li>4. What Rate Limiting Does</li>
+        
+        <li>5. Why It Is Important</li>
+        
+        <li>6. Common Places to Apply Rate Limiting</li>
+        
+        <li>7. Common Dimensions for Limiting</li>
+        
+        <li>8. Real-World Example</li>
+        
+        <li>9. Common Rate Limiting Algorithms</li>
+        
+        <li>10. Rate Limiting vs Throttling</li>
+        
+        <li>11. Important Design Considerations</li>
+        
+        <li>12. Common Mistakes</li>
+        
+        <li>13. Important Interview Points</li>
+        
+        <li>14. Interview Summary Answer (Best Answer)</li>
+        
+        <li>15. Learn More (Next Topic)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 19 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Rate limiting is a mechanism used to restrict how many requests a client can make to an API within a given time window. It is important because it protects the system from abuse, prevents overload, and helps ensure fair usage across clients.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>API protection basics</li>
+<li>traffic control in distributed systems</li>
+<li>overload prevention</li>
+<li>fairness and system stability under load</li>
+</ul>
+<p>👉 This is a very common backend and system design interview question.</p>
+<hr>
+<h2 id="3-problem--why-rate-limiting-is-needed">3. Problem — Why Rate Limiting Is Needed</h2>
+<hr>
+<p>Suppose your API is exposed to external clients:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Clients → API Gateway → Services
+</span></span></code></pre></div><p>If one client sends too many requests:</p>
+<ul>
+<li>backend services become overloaded</li>
+<li>legitimate clients suffer</li>
+<li>latency increases</li>
+<li>failure rates rise</li>
+</ul>
+<p>👉 A single noisy client can degrade the whole system.</p>
+<hr>
+<h2 id="4-what-rate-limiting-does">4. What Rate Limiting Does</h2>
+<hr>
+<p>Rate limiting enforces a request quota.</p>
+<p>Examples:</p>
+<ul>
+<li>100 requests per minute per API key</li>
+<li>1000 requests per hour per customer</li>
+<li>10 login attempts per minute per IP</li>
+</ul>
+<hr>
+<p>If the limit is exceeded:</p>
+<ul>
+<li>request is rejected</li>
+<li>server typically returns:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>429 Too Many Requests
+</span></span></code></pre></div><hr>
+<h2 id="5-why-it-is-important">5. Why It Is Important</h2>
+<hr>
+<h3 id="1-protects-the-system">1. Protects the System</h3>
+<ul>
+<li>prevents overload</li>
+<li>reduces risk of traffic storms</li>
+</ul>
+<hr>
+<h3 id="2-ensures-fair-usage">2. Ensures Fair Usage</h3>
+<ul>
+<li>stops one client from consuming all capacity</li>
+</ul>
+<hr>
+<h3 id="3-improves-reliability">3. Improves Reliability</h3>
+<ul>
+<li>keeps services stable under high traffic</li>
+</ul>
+<hr>
+<h3 id="4-helps-security">4. Helps Security</h3>
+<ul>
+<li>reduces brute-force attempts</li>
+<li>limits abusive behavior</li>
+</ul>
+<hr>
+<h2 id="6-common-places-to-apply-rate-limiting">6. Common Places to Apply Rate Limiting</h2>
+<hr>
+<h3 id="1-api-gateway">1. API Gateway</h3>
+<p>Most common place.</p>
+<p>👉 Good because requests are blocked early.</p>
+<hr>
+<h3 id="2-load-balancer--edge-layer">2. Load Balancer / Edge Layer</h3>
+<p>Can protect services before traffic reaches app layer.</p>
+<hr>
+<h3 id="3-application-layer">3. Application Layer</h3>
+<p>Useful when limits depend on business logic.</p>
+<hr>
+<h2 id="7-common-dimensions-for-limiting">7. Common Dimensions for Limiting</h2>
+<hr>
+<p>Rate limits can be applied per:</p>
+<ul>
+<li>API key</li>
+<li>user</li>
+<li>tenant</li>
+<li>IP address</li>
+<li>endpoint</li>
+</ul>
+<hr>
+<p>👉 In real systems, limits are often different for different clients or APIs.</p>
+<hr>
+<h2 id="8-real-world-example">8. Real-World Example</h2>
+<hr>
+<p>Suppose payment API supports external clients.</p>
+<p>Limit:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>100 requests/minute per client
+</span></span></code></pre></div><p>If one client sends 1000 requests in a minute:</p>
+<ul>
+<li>first 100 may be accepted</li>
+<li>rest are rejected with <code>429</code></li>
+</ul>
+<p>👉 This protects the backend and keeps service available for others.</p>
+<hr>
+<h2 id="9-common-rate-limiting-algorithms">9. Common Rate Limiting Algorithms</h2>
+<hr>
+<h3 id="1-fixed-window">1. Fixed Window</h3>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>100 requests per minute
+</span></span></code></pre></div><p>Simple, but may allow bursts near window boundaries.</p>
+<hr>
+<h3 id="2-sliding-window">2. Sliding Window</h3>
+<p>Tracks requests over a rolling time period.</p>
+<p>More accurate than fixed window.</p>
+<hr>
+<h3 id="3-token-bucket">3. Token Bucket</h3>
+<p>Requests consume tokens from a bucket.</p>
+<ul>
+<li>tokens refill over time</li>
+<li>allows controlled bursts</li>
+</ul>
+<p>👉 Very common in real systems.</p>
+<hr>
+<h3 id="4-leaky-bucket">4. Leaky Bucket</h3>
+<p>Processes requests at a fixed rate.</p>
+<p>Useful for smoothing traffic.</p>
+<hr>
+<h2 id="10-rate-limiting-vs-throttling">10. Rate Limiting vs Throttling</h2>
+<hr>
+<ul>
+<li><strong>Rate limiting</strong> → hard cap on request count</li>
+<li><strong>Throttling</strong> → controls speed/flow of requests</li>
+</ul>
+<hr>
+<p>👉 Rate limiting rejects excess requests; throttling may delay or slow them.</p>
+<hr>
+<h2 id="11-important-design-considerations">11. Important Design Considerations</h2>
+<hr>
+<h3 id="burst-handling">Burst Handling</h3>
+<ul>
+<li>some APIs should allow short bursts</li>
+<li>token bucket works well here</li>
+</ul>
+<hr>
+<h3 id="different-limits-for-different-clients">Different Limits for Different Clients</h3>
+<ul>
+<li>premium clients may get higher limits</li>
+<li>internal APIs may have different policies</li>
+</ul>
+<hr>
+<h3 id="retry-behavior">Retry Behavior</h3>
+<ul>
+<li>clients should back off after <code>429</code></li>
+<li><code>Retry-After</code> header can help</li>
+</ul>
+<hr>
+<h2 id="12-common-mistakes">12. Common Mistakes</h2>
+<hr>
+<p>❌ Applying same limit to every endpoint<br>
+❌ Not identifying clients properly<br>
+❌ No monitoring of rejected requests<br>
+❌ Ignoring retries after <code>429</code><br>
+❌ Using only autoscaling without traffic control</p>
+<hr>
+<h2 id="13-important-interview-points">13. Important Interview Points</h2>
+<hr>
+<ul>
+<li>rate limiting protects APIs from abuse and overload</li>
+<li>it is commonly implemented at API gateway level</li>
+<li><code>429 Too Many Requests</code> is the standard response</li>
+<li>token bucket is a popular real-world algorithm</li>
+</ul>
+<hr>
+<h2 id="14-interview-summary-answer-best-answer">14. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is rate limiting and why is it important?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Rate limiting is a mechanism that restricts how many requests a client can make within a defined time window. It is important because it protects the system from abuse, prevents overload, ensures fair usage among clients, and improves overall reliability. It is commonly implemented at the API gateway layer and typically returns HTTP 429 when limits are exceeded.</p></blockquote>
+<hr>
+<h2 id="15-learn-more-next-topic">15. Learn More (Next Topic)</h2>
+<hr>
+<p>👉 Next: <strong>How Do You Protect APIs from Request Storms and Abuse?</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/performance-and-reliability/" class="btn nav-btn">
+        Performance &amp; Reliability - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

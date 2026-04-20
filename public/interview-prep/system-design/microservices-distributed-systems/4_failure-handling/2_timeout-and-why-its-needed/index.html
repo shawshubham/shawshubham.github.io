@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Timeout and Why Is It Important in Microservices?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776539961">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Timeout and Why Is It Important in Microservices?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem — Without Timeout</li>
+        
+        <li>4. What Timeout Does</li>
+        
+        <li>5. Real-World Example</li>
+        
+        <li>6. Why Timeout Is Critical</li>
+        
+        <li>7. Common Timeout Scenarios</li>
+        
+        <li>8. Common Mistakes</li>
+        
+        <li>9. Timeout vs Retry (Important)</li>
+        
+        <li>10. Important Interview Points</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 18 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Timeout is a limit on how long a service waits for a response from another service. If the response is not received within the defined time, the request is terminated to prevent blocking resources and avoid cascading failures.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>latency control in distributed systems</li>
+<li>how to prevent system slowdown</li>
+<li>resource management (threads, connections)</li>
+<li>real-world failure prevention</li>
+</ul>
+<p>👉 Timeout is one of the most critical resilience mechanisms in microservices.</p>
+<hr>
+<h2 id="3-problem--without-timeout">3. Problem — Without Timeout</h2>
+<hr>
+<p>Consider:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service → Payment Service
+</span></span></code></pre></div><p>If <code>Payment Service</code> is slow or unresponsive:</p>
+<ul>
+<li>Order Service keeps waiting</li>
+<li>threads remain blocked</li>
+<li>connection pool gets exhausted</li>
+<li>system becomes slow</li>
+</ul>
+<p>👉 Eventually, the entire system degrades.</p>
+<hr>
+<h2 id="4-what-timeout-does">4. What Timeout Does</h2>
+<hr>
+<p>Timeout ensures:</p>
+<ul>
+<li>request does not wait indefinitely</li>
+<li>system can fail fast</li>
+<li>resources are released quickly</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Wait max 2 seconds → if no response → fail request
+</span></span></code></pre></div><hr>
+<h2 id="5-real-world-example">5. Real-World Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service
+</span></span></code></pre></div><p>If Payment takes 10 seconds:</p>
+<h3 id="without-timeout">Without Timeout</h3>
+<ul>
+<li>Order waits 10 seconds</li>
+<li>user experiences delay</li>
+</ul>
+<h3 id="with-timeout-2-seconds">With Timeout (2 seconds)</h3>
+<ul>
+<li>Order fails fast</li>
+<li>fallback can be triggered</li>
+</ul>
+<hr>
+<h2 id="6-why-timeout-is-critical">6. Why Timeout Is Critical</h2>
+<hr>
+<h3 id="1-prevents-thread-blocking">1. Prevents Thread Blocking</h3>
+<ul>
+<li>threads are limited</li>
+<li>blocked threads reduce system capacity</li>
+</ul>
+<hr>
+<h3 id="2-prevents-resource-exhaustion">2. Prevents Resource Exhaustion</h3>
+<ul>
+<li>DB connections</li>
+<li>HTTP connections</li>
+</ul>
+<hr>
+<h3 id="3-avoids-cascading-failures">3. Avoids Cascading Failures</h3>
+<ul>
+<li>slow service doesn’t impact entire system</li>
+</ul>
+<hr>
+<h3 id="4-enables-fail-fast-systems">4. Enables Fail-Fast Systems</h3>
+<ul>
+<li>faster error handling</li>
+<li>better user experience</li>
+</ul>
+<hr>
+<h2 id="7-common-timeout-scenarios">7. Common Timeout Scenarios</h2>
+<hr>
+<ul>
+<li>slow database query</li>
+<li>downstream service latency</li>
+<li>network delay</li>
+<li>external API slowness</li>
+</ul>
+<hr>
+<h2 id="8-common-mistakes">8. Common Mistakes</h2>
+<hr>
+<p>❌ No timeout configured<br>
+❌ Timeout too high (acts like no timeout)<br>
+❌ Same timeout for all services<br>
+❌ Ignoring timeout exceptions</p>
+<hr>
+<h2 id="9-timeout-vs-retry-important">9. Timeout vs Retry (Important)</h2>
+<hr>
+<ul>
+<li>Timeout → stop waiting</li>
+<li>Retry → try again after failure</li>
+</ul>
+<p>👉 Retry should always respect timeout limits</p>
+<hr>
+<h2 id="10-important-interview-points">10. Important Interview Points</h2>
+<hr>
+<ul>
+<li>timeout prevents resource blocking</li>
+<li>enables fail-fast behavior</li>
+<li>critical for system stability</li>
+<li>must be tuned properly per service</li>
+</ul>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is timeout and why is it important?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Timeout defines how long a service waits for a response from another service. It is important because it prevents threads and resources from being blocked indefinitely, enables fail-fast behavior, and helps avoid cascading failures in microservices systems.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/microservices-distributed-systems/" class="btn nav-btn">
+        Microservices and Distributed Systems - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

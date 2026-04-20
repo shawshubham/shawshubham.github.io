@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Backpressure and Why Is It Important?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776669516">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Backpressure and Why Is It Important?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem — What Happens Without Backpressure</li>
+        
+        <li>4. What Backpressure Does</li>
+        
+        <li>5. How Backpressure Works (VERY IMPORTANT)</li>
+        
+        <li>6. Common Backpressure Techniques</li>
+        
+        <li>7. Real-World Example</li>
+        
+        <li>8. Backpressure vs Rate Limiting</li>
+        
+        <li>9. Common Mistakes</li>
+        
+        <li>10. Important Interview Points</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+        <li>12. Learn More (Next Topic)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 20 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Backpressure is a mechanism used to control the rate of incoming requests when a system is overloaded, by slowing down or rejecting new requests to prevent system failure.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>handling overload situations</li>
+<li>protecting system stability</li>
+<li>controlling request flow in distributed systems</li>
+</ul>
+<p>👉 This is a key concept for building resilient systems.</p>
+<hr>
+<h2 id="3-problem--what-happens-without-backpressure">3. Problem — What Happens Without Backpressure</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Service → DB / Downstream
+</span></span></code></pre></div><p>If incoming traffic exceeds system capacity:</p>
+<ul>
+<li>requests keep piling up</li>
+<li>thread pools get exhausted</li>
+<li>memory usage increases</li>
+<li>system becomes slow or crashes</li>
+</ul>
+<p>👉 System collapses under load.</p>
+<hr>
+<h2 id="4-what-backpressure-does">4. What Backpressure Does</h2>
+<hr>
+<p>Instead of accepting all requests:</p>
+<ul>
+<li>system slows down intake</li>
+<li>rejects excess requests</li>
+<li>signals clients to reduce traffic</li>
+</ul>
+<hr>
+<p>👉 Prevents overload and keeps system stable</p>
+<hr>
+<h2 id="5-how-backpressure-works-very-important">5. How Backpressure Works (VERY IMPORTANT)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Incoming requests &gt; System capacity
+</span></span><span style="display:flex;"><span>→ Apply limits
+</span></span><span style="display:flex;"><span>→ Slow down or reject requests
+</span></span><span style="display:flex;"><span>→ System remains stable
+</span></span></code></pre></div><hr>
+<p>👉 Key idea:</p>
+<blockquote>
+<p>System should handle only what it can process.</p></blockquote>
+<hr>
+<h2 id="6-common-backpressure-techniques">6. Common Backpressure Techniques</h2>
+<hr>
+<h3 id="1-queue-limits">1. Queue Limits</h3>
+<ul>
+<li>limit size of request queue</li>
+<li>reject requests when queue is full</li>
+</ul>
+<hr>
+<h3 id="2-thread-pool-limits">2. Thread Pool Limits</h3>
+<ul>
+<li>restrict number of concurrent requests</li>
+<li>prevents resource exhaustion</li>
+</ul>
+<hr>
+<h3 id="3-rate-limiting">3. Rate Limiting</h3>
+<ul>
+<li>limit incoming request rate</li>
+</ul>
+<hr>
+<h3 id="4-load-shedding">4. Load Shedding</h3>
+<ul>
+<li>drop low-priority requests under load</li>
+</ul>
+<hr>
+<h3 id="5-circuit-breaker">5. Circuit Breaker</h3>
+<ul>
+<li>stop calling overloaded downstream services</li>
+</ul>
+<hr>
+<h2 id="7-real-world-example">7. Real-World Example</h2>
+<hr>
+<h3 id="scenario-traffic-spike">Scenario: Traffic Spike</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service
+</span></span></code></pre></div><p>If Payment Service is slow:</p>
+<ul>
+<li>Order Service queues requests</li>
+<li>queue fills up</li>
+</ul>
+<p>With backpressure:</p>
+<ul>
+<li>Order Service stops accepting new requests</li>
+<li>returns <code>503 Service Unavailable</code></li>
+</ul>
+<p>👉 Prevents cascading failure</p>
+<hr>
+<h2 id="8-backpressure-vs-rate-limiting">8. Backpressure vs Rate Limiting</h2>
+<hr>
+<ul>
+<li><strong>Rate Limiting</strong> → controls traffic at entry</li>
+<li><strong>Backpressure</strong> → reacts when system is overloaded</li>
+</ul>
+<hr>
+<p>👉 Both are complementary</p>
+<hr>
+<h2 id="9-common-mistakes">9. Common Mistakes</h2>
+<hr>
+<p>❌ Accepting unlimited requests<br>
+❌ No queue limits<br>
+❌ No rejection strategy<br>
+❌ Ignoring system capacity</p>
+<hr>
+<h2 id="10-important-interview-points">10. Important Interview Points</h2>
+<hr>
+<ul>
+<li>backpressure prevents system overload</li>
+<li>protects resources like threads and memory</li>
+<li>works with rate limiting and load shedding</li>
+<li>essential for high-traffic systems</li>
+</ul>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is backpressure?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Backpressure is a mechanism used to control incoming traffic when a system is overloaded. Instead of accepting all requests, the system slows down or rejects excess requests to prevent resource exhaustion and maintain stability. It is commonly implemented using queue limits, thread pool limits, and load shedding.</p></blockquote>
+<hr>
+<h2 id="12-learn-more-next-topic">12. Learn More (Next Topic)</h2>
+<hr>
+<p>👉 Next: <strong>What is Load Shedding?</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/performance-and-reliability/" class="btn nav-btn">
+        Performance &amp; Reliability - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

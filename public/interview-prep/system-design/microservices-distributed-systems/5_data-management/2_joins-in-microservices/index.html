@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Can&#39;t We Use Joins Across Microservices?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776621528">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Why Can&#39;t We Use Joins Across Microservices?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem — Why Joins Work in Monoliths</li>
+        
+        <li>4. Why Joins Do Not Fit Microservices</li>
+        
+        <li>5. Why It Is a Problem (VERY IMPORTANT)</li>
+        
+        <li>6. Real-World Example</li>
+        
+        <li>7. What to Use Instead of Joins</li>
+        
+        <li>8. Trade-Offs of Alternatives</li>
+        
+        <li>9. Important Design Insight</li>
+        
+        <li>10. Common Mistakes</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 18 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>We generally cannot use joins across microservices because each service is expected to own its own database and data model. Direct joins would tightly couple services at the database level, break service independence, and create deployment and scaling problems.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>database-per-service principle</li>
+<li>service independence in microservices</li>
+<li>distributed data challenges</li>
+<li>trade-offs in microservices architecture</li>
+</ul>
+<p>👉 This is a very common practical microservices interview question.</p>
+<hr>
+<h2 id="3-problem--why-joins-work-in-monoliths">3. Problem — Why Joins Work in Monoliths</h2>
+<hr>
+<p>In a monolith:</p>
+<ul>
+<li>all modules usually share one database</li>
+<li>data lives in the same schema or instance</li>
+<li>SQL joins are easy and natural</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> o.id, <span style="color:#66d9ef">c</span>.name
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> orders o
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">JOIN</span> customers <span style="color:#66d9ef">c</span> <span style="color:#66d9ef">ON</span> o.customer_id <span style="color:#f92672">=</span> <span style="color:#66d9ef">c</span>.id;
+</span></span></code></pre></div><hr>
+<p>👉 This works because both tables are in the same database.</p>
+<hr>
+<h2 id="4-why-joins-do-not-fit-microservices">4. Why Joins Do Not Fit Microservices</h2>
+<hr>
+<p>In microservices:</p>
+<ul>
+<li><code>Order Service</code> owns order data</li>
+<li><code>Customer Service</code> owns customer data</li>
+<li>each service has its own database</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service DB → orders
+</span></span><span style="display:flex;"><span>Customer Service DB → customers
+</span></span></code></pre></div><hr>
+<p>👉 A direct SQL join across these databases is not a good design because it breaks service boundaries.</p>
+<hr>
+<h2 id="5-why-it-is-a-problem-very-important">5. Why It Is a Problem (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="1-tight-coupling">1. Tight Coupling</h3>
+<p>If one service directly joins another service’s DB:</p>
+<ul>
+<li>schemas become dependent</li>
+<li>one service change can break another</li>
+</ul>
+<hr>
+<h3 id="2-breaks-service-ownership">2. Breaks Service Ownership</h3>
+<p>Each service should own and control its data.</p>
+<p>Direct joins mean:</p>
+<ul>
+<li>another service is depending on internal database structure</li>
+</ul>
+<hr>
+<h3 id="3-deployment-becomes-risky">3. Deployment Becomes Risky</h3>
+<p>If Customer Service changes a table or column:</p>
+<ul>
+<li>Order Service queries may fail</li>
+</ul>
+<hr>
+<h3 id="4-scaling-becomes-hard">4. Scaling Becomes Hard</h3>
+<p>Services should scale independently.</p>
+<p>Shared query patterns create:</p>
+<ul>
+<li>operational dependencies</li>
+<li>more complex performance tuning</li>
+</ul>
+<hr>
+<h3 id="5-security-and-access-issues">5. Security and Access Issues</h3>
+<p>Giving one service direct DB access to another service:</p>
+<ul>
+<li>increases attack surface</li>
+<li>violates encapsulation</li>
+</ul>
+<hr>
+<h2 id="6-real-world-example">6. Real-World Example</h2>
+<hr>
+<p>Suppose:</p>
+<ul>
+<li>Order Service stores <code>customerId</code></li>
+<li>Customer Service stores customer details</li>
+</ul>
+<p>If UI wants:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order ID + Customer Name
+</span></span></code></pre></div><p>You should NOT do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service DB JOIN Customer Service DB
+</span></span></code></pre></div><hr>
+<p>Instead:</p>
+<ul>
+<li>Order Service calls Customer Service API</li>
+<li>or use pre-computed/read models</li>
+<li>or use event-driven duplication where needed</li>
+</ul>
+<hr>
+<h2 id="7-what-to-use-instead-of-joins">7. What to Use Instead of Joins</h2>
+<hr>
+<h3 id="1-api-composition">1. API Composition</h3>
+<p>One service calls multiple services and combines results.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>API Gateway / Aggregator
+</span></span><span style="display:flex;"><span>→ calls Order Service
+</span></span><span style="display:flex;"><span>→ calls Customer Service
+</span></span><span style="display:flex;"><span>→ merges response
+</span></span></code></pre></div><hr>
+<h3 id="2-event-driven-data-duplication">2. Event-Driven Data Duplication</h3>
+<p>A service keeps a local copy of required external data.</p>
+<p>Example:</p>
+<ul>
+<li>Customer Service publishes customer events</li>
+<li>Order Service stores needed customer snapshot</li>
+</ul>
+<hr>
+<h3 id="3-read-model--query-service">3. Read Model / Query Service</h3>
+<p>Build separate read-optimized data model for reporting/query use cases.</p>
+<hr>
+<h2 id="8-trade-offs-of-alternatives">8. Trade-Offs of Alternatives</h2>
+<hr>
+<h3 id="api-composition">API Composition</h3>
+<p>Pros:</p>
+<ul>
+<li>simple</li>
+<li>keeps ownership clear</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>more network calls</li>
+<li>can increase latency</li>
+</ul>
+<hr>
+<h3 id="data-duplication">Data Duplication</h3>
+<p>Pros:</p>
+<ul>
+<li>fast reads</li>
+<li>less runtime dependency</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>eventual consistency</li>
+<li>duplicated data management</li>
+</ul>
+<hr>
+<h2 id="9-important-design-insight">9. Important Design Insight</h2>
+<hr>
+<p>👉 In microservices, we optimize for:</p>
+<ul>
+<li>service autonomy</li>
+<li>independent deployment</li>
+<li>loose coupling</li>
+</ul>
+<hr>
+<p>👉 That means we give up some monolith conveniences like easy SQL joins.</p>
+<hr>
+<h2 id="10-common-mistakes">10. Common Mistakes</h2>
+<hr>
+<p>❌ Sharing the same database across services<br>
+❌ Writing cross-service SQL joins<br>
+❌ Treating microservices like distributed monoliths<br>
+❌ Ignoring data ownership boundaries</p>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<ul>
+<li>joins are easy in monolith because of shared DB</li>
+<li>in microservices, each service owns its own data</li>
+<li>cross-service joins create tight coupling</li>
+<li>alternatives include API composition, events, and read models</li>
+</ul>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>Why can’t we use joins across microservices?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>In microservices, each service is supposed to own its own database and internal data model. If we use joins across services, we create tight database-level coupling, break service independence, and make deployments and schema changes risky. Instead of joins, we usually use API composition, event-driven data duplication, or separate read models depending on the use case.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/microservices-distributed-systems/" class="btn nav-btn">
+        Microservices and Distributed Systems - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design a Payment API</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776678796">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Design a Payment API</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 20 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-what-are-we-designing">1. What Are We Designing?</h2>
+<hr>
+<p>In this problem, we are designing a <strong>Payment API</strong> — a backend system that allows applications to:</p>
+<ul>
+<li>create a payment request</li>
+<li>process or confirm a payment</li>
+<li>track the status of a payment over time</li>
+</ul>
+<blockquote>
+<p>In this design, our Payment API does not directly move money itself. Instead, it coordinates payment execution through an external payment gateway such as Stripe and manages the surrounding lifecycle safely.</p></blockquote>
+<p>At first glance, this may look like a simple API design problem, but in reality, it is a <strong>stateful and reliability-critical system</strong>.</p>
+<p>Unlike typical CRUD APIs, payment systems must handle <strong>real-world failures, retries, and external dependencies</strong> carefully.</p>
+<blockquote>
+<p>📝 <strong>Key Point:</strong><br>
+A Payment API is not just about processing requests — it is about <strong>ensuring correctness under uncertainty</strong>.</p></blockquote>
+<hr>
+<h2 id="2-where-is-this-used">2. Where Is This Used?</h2>
+<hr>
+<p>Payment APIs are used in many real-world systems:</p>
+<ul>
+<li>🛒 E-commerce platforms (order checkout)</li>
+<li>📦 Food delivery apps (placing orders)</li>
+<li>🎟 Ticket booking systems (movie, flights, events)</li>
+<li>🔁 Subscription systems (recurring payments)</li>
+<li>💳 Financial applications (wallets, transfers)</li>
+</ul>
+<p>In all these systems, the payment API plays a critical role:</p>
+<blockquote>
+<p>It ensures that money is <strong>charged correctly, tracked properly, and reflected consistently</strong>.</p></blockquote>
+<hr>
+<h2 id="3-key-actors-in-the-system">3. Key Actors in the System</h2>
+<hr>
+<p>A typical payment system involves multiple actors:</p>
+<h3 id="1-client-frontend--external-service">1. Client (Frontend / External Service)</h3>
+<ul>
+<li>Sends requests to create or process payments</li>
+<li>May retry requests due to failures</li>
+</ul>
+<h3 id="2-payment-api-our-system">2. Payment API (Our System)</h3>
+<ul>
+<li>Validates requests</li>
+<li>Maintains payment state</li>
+<li>Coordinates processing</li>
+</ul>
+<h3 id="3-payment-gateway-external-system">3. Payment Gateway (External System)</h3>
+<ul>
+<li>Actually processes the payment (e.g., card charge)</li>
+<li>Returns success or failure</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Important Insight:</strong><br>
+Our system does not directly process money — it <strong>coordinates with external providers</strong>.</p></blockquote>
+<hr>
+<h2 id="4-high-level-payment-flow">4. High-Level Payment Flow</h2>
+<hr>
+<p>At a high level, a payment goes through the following steps:</p>
+<ol>
+<li>Client creates a payment request</li>
+<li>Payment API stores the payment in an initial state</li>
+<li>Client confirms the payment</li>
+<li>Payment API sends request to external gateway</li>
+<li>Gateway processes the payment</li>
+<li>Payment API updates the final state</li>
+<li>Client receives the result</li>
+</ol>
+<p>This flow seems simple, but things get complicated when:</p>
+<ul>
+<li>the client retries the request</li>
+<li>the gateway responds slowly</li>
+<li>the response is lost due to network failure</li>
+</ul>
+<hr>
+<h2 id="5-why-this-problem-is-not-trivial">5. Why This Problem Is Not Trivial</h2>
+<hr>
+<p>Let’s look at what can go wrong:</p>
+<ul>
+<li>A client retries a request → duplicate payment risk</li>
+<li>Gateway processes payment but response is lost → inconsistent state</li>
+<li>Two requests arrive simultaneously → race condition</li>
+<li>Payment is partially processed → unknown state</li>
+</ul>
+<p>These scenarios introduce <strong>real-world complexity</strong>.</p>
+<p>The system must be designed to:</p>
+<ul>
+<li>avoid duplicate processing</li>
+<li>maintain consistent state</li>
+<li>handle failures safely</li>
+<li>provide predictable responses</li>
+</ul>
+<hr>
+<h2 id="6-key-questions-to-think-about">6. Key Questions to Think About</h2>
+<hr>
+<p>Before designing anything, we should ask:</p>
+<ul>
+<li>How do we represent a payment internally?</li>
+<li>How do we ensure a payment is processed only once?</li>
+<li>What happens if the client retries?</li>
+<li>What if the gateway fails or times out?</li>
+<li>How do we track the current state of a payment?</li>
+</ul>
+<p>These questions will guide the design in the upcoming phases.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Understanding the problem context is the most important step in system design.</p>
+<p>A Payment API may look simple at first, but it quickly introduces challenges around:</p>
+<ul>
+<li>correctness</li>
+<li>reliability</li>
+<li>external system interaction</li>
+<li>failure handling</li>
+</ul>
+<p>In the next step, we will define the <strong>functional requirements</strong> of the system.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/1_phase-1/1_2_functional-requirements/">Functional Requirements →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>A Payment API is a <strong>stateful system</strong>, not just a request-response API</li>
+<li>It operates in an <strong>unreliable environment</strong></li>
+<li>Correctness and reliability are the most critical design concerns</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-what-are-we-designing" data-toc-target="1-what-are-we-designing">1. What Are We Designing?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-where-is-this-used" data-toc-target="2-where-is-this-used">2. Where Is This Used?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-key-actors-in-the-system" data-toc-target="3-key-actors-in-the-system">3. Key Actors in the System</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-high-level-payment-flow" data-toc-target="4-high-level-payment-flow">4. High-Level Payment Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-why-this-problem-is-not-trivial" data-toc-target="5-why-this-problem-is-not-trivial">5. Why This Problem Is Not Trivial</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-key-questions-to-think-about" data-toc-target="6-key-questions-to-think-about">6. Key Questions to Think About</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/1_phase-1/1_2_functional-requirements/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

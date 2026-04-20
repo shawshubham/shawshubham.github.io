@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Fallback and Graceful Degradation in Microservices?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776603255">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Fallback and Graceful Degradation in Microservices?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem — Without Fallback</li>
+        
+        <li>4. What is Fallback?</li>
+        
+        <li>5. What is Graceful Degradation?</li>
+        
+        <li>6. Real-World Example</li>
+        
+        <li>7. Types of Fallback</li>
+        
+        <li>8. Benefits</li>
+        
+        <li>9. Common Mistakes</li>
+        
+        <li>10. Fallback &#43; Circuit Breaker</li>
+        
+        <li>11. Important Interview Points</li>
+        
+        <li>12. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 18 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Fallback is a mechanism to return an alternative response when a service fails, while graceful degradation means the system continues to function with reduced capabilities instead of completely failing.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>user experience during failures</li>
+<li>system resilience design</li>
+<li>how to keep systems functional under partial failure</li>
+<li>real-world production behavior</li>
+</ul>
+<p>👉 This is a key concept for building fault-tolerant systems.</p>
+<hr>
+<h2 id="3-problem--without-fallback">3. Problem — Without Fallback</h2>
+<hr>
+<p>Consider:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service
+</span></span></code></pre></div><p>If Payment Service fails:</p>
+<ul>
+<li>request fails completely</li>
+<li>user sees error</li>
+<li>system becomes unreliable</li>
+</ul>
+<hr>
+<h2 id="4-what-is-fallback">4. What is Fallback?</h2>
+<hr>
+<p>Fallback provides an alternative response when the main service fails.</p>
+<hr>
+<h3 id="examples">Examples:</h3>
+<ul>
+<li>return cached data</li>
+<li>return default response</li>
+<li>skip non-critical operation</li>
+<li>show &ldquo;service temporarily unavailable&rdquo;</li>
+</ul>
+<hr>
+<h2 id="5-what-is-graceful-degradation">5. What is Graceful Degradation?</h2>
+<hr>
+<p>Graceful degradation means:</p>
+<ul>
+<li>system continues working</li>
+<li>but with limited functionality</li>
+</ul>
+<hr>
+<h3 id="example">Example:</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>E-commerce App:
+</span></span><span style="display:flex;"><span>Payment fails → order placed but marked &#34;pending payment&#34;
+</span></span></code></pre></div><p>👉 System still works, but with reduced capability</p>
+<hr>
+<h2 id="6-real-world-example">6. Real-World Example</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service
+</span></span></code></pre></div><p>If Payment fails:</p>
+<h3 id="without-fallback">Without Fallback</h3>
+<ul>
+<li>order fails</li>
+</ul>
+<h3 id="with-fallback">With Fallback</h3>
+<ul>
+<li>order placed as &ldquo;pending&rdquo;</li>
+<li>user notified later</li>
+</ul>
+<hr>
+<p>👉 User experience is preserved</p>
+<hr>
+<h2 id="7-types-of-fallback">7. Types of Fallback</h2>
+<hr>
+<h3 id="1-default-response">1. Default Response</h3>
+<ul>
+<li>return predefined value</li>
+</ul>
+<hr>
+<h3 id="2-cached-response">2. Cached Response</h3>
+<ul>
+<li>return last known data</li>
+</ul>
+<hr>
+<h3 id="3-alternative-flow">3. Alternative Flow</h3>
+<ul>
+<li>skip failing service</li>
+</ul>
+<hr>
+<h3 id="4-queue-for-later-processing">4. Queue for Later Processing</h3>
+<ul>
+<li>process asynchronously later</li>
+</ul>
+<hr>
+<h2 id="8-benefits">8. Benefits</h2>
+<hr>
+<ul>
+<li>improves user experience</li>
+<li>increases system availability</li>
+<li>prevents complete failure</li>
+<li>enables business continuity</li>
+</ul>
+<hr>
+<h2 id="9-common-mistakes">9. Common Mistakes</h2>
+<hr>
+<p>❌ No fallback for critical flows<br>
+❌ Returning misleading data<br>
+❌ Hiding failures completely<br>
+❌ Overusing fallback for serious issues</p>
+<hr>
+<h2 id="10-fallback--circuit-breaker">10. Fallback + Circuit Breaker</h2>
+<hr>
+<p>👉 Flow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request → Timeout → Retry → Circuit Breaker opens
+</span></span><span style="display:flex;"><span>→ fallback response returned
+</span></span></code></pre></div><hr>
+<p>👉 Circuit breaker stops calls<br>
+👉 Fallback ensures response is returned</p>
+<hr>
+<h2 id="11-important-interview-points">11. Important Interview Points</h2>
+<hr>
+<ul>
+<li>fallback improves user experience during failure</li>
+<li>graceful degradation keeps system usable</li>
+<li>not all operations need fallback (critical vs non-critical)</li>
+<li>should be used carefully to avoid incorrect behavior</li>
+</ul>
+<hr>
+<h2 id="12-interview-summary-answer-best-answer">12. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is fallback in microservices?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Fallback is a mechanism to return an alternative response when a service fails, while graceful degradation ensures the system continues to function with reduced capabilities instead of completely failing. It improves user experience and system availability during partial failures.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/microservices-distributed-systems/" class="btn nav-btn">
+        Microservices and Distributed Systems - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

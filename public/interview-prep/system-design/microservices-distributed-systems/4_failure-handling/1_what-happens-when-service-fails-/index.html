@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Happens When a Service Fails in Microservices?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776529223">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What Happens When a Service Fails in Microservices?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Why Service Failure Is a Big Deal</li>
+        
+        <li>4. Basic Failure Flow</li>
+        
+        <li>5. Real-World Example</li>
+        
+        <li>6. Types of Service Failure</li>
+        
+        <li>7. What Happens Without Failure Handling?</li>
+        
+        <li>8. Cascading Failure (VERY IMPORTANT)</li>
+        
+        <li>9. How Real Systems Handle This</li>
+        
+        <li>10. Common Production Symptoms</li>
+        
+        <li>11. Common Mistakes</li>
+        
+        <li>12. Important Interview Points</li>
+        
+        <li>13. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 18 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>When a service fails in a microservices architecture, the impact depends on how tightly other services depend on it. Without proper failure handling, one failed or slow service can cause request failures, high latency, retries, and even cascading failures across the system.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>real-world distributed system behavior</li>
+<li>dependency failures in microservices</li>
+<li>resilience thinking</li>
+<li>production impact of downstream issues</li>
+</ul>
+<p>👉 This is one of the most important microservices interview questions because real systems fail at service boundaries.</p>
+<hr>
+<h2 id="3-why-service-failure-is-a-big-deal">3. Why Service Failure Is a Big Deal</h2>
+<hr>
+<p>In a monolith, a failure is usually inside one application process.</p>
+<p>In microservices:</p>
+<ul>
+<li>services call each other over network</li>
+<li>calls can fail due to timeout, crash, or network issue</li>
+<li>one service may depend on multiple downstream services</li>
+</ul>
+<p>👉 Failure in one place can affect many requests.</p>
+<hr>
+<h2 id="4-basic-failure-flow">4. Basic Failure Flow</h2>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service
+</span></span></code></pre></div><p>If <code>Payment Service</code> fails:</p>
+<ul>
+<li><code>Order Service</code> may not complete request</li>
+<li>client may receive error</li>
+<li>request may become slow if timeout is long</li>
+</ul>
+<hr>
+<h2 id="5-real-world-example">5. Real-World Example</h2>
+<hr>
+<p>Suppose user places an order:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service → Notification Service
+</span></span></code></pre></div><p>If <code>Payment Service</code> is down:</p>
+<ul>
+<li>order cannot be confirmed</li>
+<li>notification may never be triggered</li>
+<li>user may see failure or delayed response</li>
+</ul>
+<p>👉 One downstream failure affects the business flow.</p>
+<hr>
+<h2 id="6-types-of-service-failure">6. Types of Service Failure</h2>
+<hr>
+<h3 id="1-hard-failure">1. Hard Failure</h3>
+<p>Service is completely unavailable.</p>
+<p>Examples:</p>
+<ul>
+<li>service crashed</li>
+<li>pod/container stopped</li>
+<li>server unreachable</li>
+</ul>
+<hr>
+<h3 id="2-slow-failure">2. Slow Failure</h3>
+<p>Service is running but responding too slowly.</p>
+<p>Examples:</p>
+<ul>
+<li>high CPU</li>
+<li>DB slowness</li>
+<li>thread pool exhaustion</li>
+</ul>
+<p>👉 Slow failure is often more dangerous than complete failure because it causes request buildup.</p>
+<hr>
+<h3 id="3-partial-failure">3. Partial Failure</h3>
+<p>Some requests succeed, some fail.</p>
+<p>Examples:</p>
+<ul>
+<li>one node unhealthy</li>
+<li>intermittent network issue</li>
+<li>specific endpoint broken</li>
+</ul>
+<p>👉 This is very common in distributed systems.</p>
+<hr>
+<h2 id="7-what-happens-without-failure-handling">7. What Happens Without Failure Handling?</h2>
+<hr>
+<p>Without resilience mechanisms:</p>
+<ul>
+<li>request waits too long</li>
+<li>threads remain blocked</li>
+<li>retries overload downstream</li>
+<li>upstream services become slow</li>
+<li>users see errors</li>
+</ul>
+<p>👉 This can turn one failure into a system-wide problem.</p>
+<hr>
+<h2 id="8-cascading-failure-very-important">8. Cascading Failure (VERY IMPORTANT)</h2>
+<hr>
+<p>A cascading failure happens when failure in one service spreads to others.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service waits for Payment Service
+</span></span><span style="display:flex;"><span>Payment Service is slow
+</span></span><span style="display:flex;"><span>Order threads get blocked
+</span></span><span style="display:flex;"><span>Order Service becomes slow
+</span></span><span style="display:flex;"><span>Clients retry
+</span></span><span style="display:flex;"><span>Traffic increases further
+</span></span><span style="display:flex;"><span>System degrades more
+</span></span></code></pre></div><p>👉 One slow service causes many services to struggle.</p>
+<hr>
+<h2 id="9-how-real-systems-handle-this">9. How Real Systems Handle This</h2>
+<hr>
+<p>To reduce impact, systems use:</p>
+<ul>
+<li>timeout</li>
+<li>retry (carefully)</li>
+<li>circuit breaker</li>
+<li>fallback response</li>
+<li>queue-based async design where possible</li>
+</ul>
+<p>👉 These are the core resilience patterns in microservices.</p>
+<hr>
+<h2 id="10-common-production-symptoms">10. Common Production Symptoms</h2>
+<hr>
+<p>When a service fails, you may see:</p>
+<ul>
+<li>API latency spike</li>
+<li>increase in 5xx errors</li>
+<li>timeout exceptions</li>
+<li>connection pool exhaustion</li>
+<li>thread pool saturation</li>
+<li>message backlog</li>
+</ul>
+<hr>
+<h2 id="11-common-mistakes">11. Common Mistakes</h2>
+<hr>
+<p>❌ No timeout configured<br>
+❌ Blind retries on already overloaded service<br>
+❌ Tight synchronous dependency chain<br>
+❌ No graceful fallback<br>
+❌ Treating slow service as healthy service</p>
+<hr>
+<h2 id="12-important-interview-points">12. Important Interview Points</h2>
+<hr>
+<ul>
+<li>in microservices, failures are normal, not exceptional</li>
+<li>downstream failure can impact upstream services</li>
+<li>slow failures are often more dangerous than hard failures</li>
+<li>resilience patterns are required to avoid cascading failure</li>
+</ul>
+<hr>
+<h2 id="13-interview-summary-answer-best-answer">13. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What happens when a service fails in microservices?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>When a service fails in microservices, the impact depends on how other services depend on it. If the failed service is part of a synchronous request path, upstream services may become slow or fail as well. Without proper resilience mechanisms like timeouts, retries, circuit breakers, and fallbacks, one failure can lead to cascading failures across the system.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/microservices-distributed-systems/" class="btn nav-btn">
+        Microservices and Distributed Systems - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

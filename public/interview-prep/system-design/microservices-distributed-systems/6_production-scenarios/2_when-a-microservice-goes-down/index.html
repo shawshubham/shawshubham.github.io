@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Happens When One Microservice Goes Down?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776672379">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What Happens When One Microservice Goes Down?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Failure Impact Depends on Communication Style</li>
+        
+        <li>4. Typical Failure Scenarios</li>
+        
+        <li>5. What Happens Internally (VERY IMPORTANT)</li>
+        
+        <li>6. How Real Systems Handle It</li>
+        
+        <li>7. Real-World Example</li>
+        
+        <li>8. Observability Signals (What You’ll See)</li>
+        
+        <li>9. Common Mistakes</li>
+        
+        <li>10. Important Interview Points</li>
+        
+        <li>11. Interview Summary Answer (Best Answer)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 18 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>When one microservice goes down, the impact depends on how other services depend on it. In synchronous flows, requests may fail or become slow; in asynchronous systems, processing may be delayed. Proper resilience mechanisms like timeouts, retries, circuit breakers, and fallbacks help contain the impact.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>dependency impact in distributed systems</li>
+<li>difference between sync vs async behavior</li>
+<li>real production failure handling</li>
+<li>resilience design decisions</li>
+</ul>
+<p>👉 Very common in senior backend and system design interviews.</p>
+<hr>
+<h2 id="3-failure-impact-depends-on-communication-style">3. Failure Impact Depends on Communication Style</h2>
+<hr>
+<h3 id="synchronous-flow">Synchronous Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Order Service → Payment Service
+</span></span></code></pre></div><p>If <code>Payment Service</code> is down:</p>
+<ul>
+<li>Order Service waits (until timeout)</li>
+<li>request fails or becomes slow</li>
+<li>user sees error or delay</li>
+</ul>
+<p>👉 Direct and immediate impact</p>
+<hr>
+<h3 id="asynchronous-flow">Asynchronous Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service → publishes event → Payment Service
+</span></span></code></pre></div><p>If <code>Payment Service</code> is down:</p>
+<ul>
+<li>event remains in queue</li>
+<li>processing is delayed</li>
+<li>system continues working</li>
+</ul>
+<p>👉 Delayed impact, not immediate failure</p>
+<hr>
+<h2 id="4-typical-failure-scenarios">4. Typical Failure Scenarios</h2>
+<hr>
+<h3 id="1-hard-down-service-unavailable">1. Hard Down (Service Unavailable)</h3>
+<ul>
+<li>connection refused</li>
+<li>5xx errors</li>
+</ul>
+<hr>
+<h3 id="2-slow-service">2. Slow Service</h3>
+<ul>
+<li>high latency</li>
+<li>timeouts in upstream services</li>
+</ul>
+<hr>
+<h3 id="3-partial-failure">3. Partial Failure</h3>
+<ul>
+<li>some requests succeed, some fail</li>
+</ul>
+<hr>
+<h2 id="5-what-happens-internally-very-important">5. What Happens Internally (VERY IMPORTANT)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Service B goes down
+</span></span><span style="display:flex;"><span>→ Service A keeps calling B
+</span></span><span style="display:flex;"><span>→ threads get blocked (waiting)
+</span></span><span style="display:flex;"><span>→ thread pool exhaustion
+</span></span><span style="display:flex;"><span>→ Service A becomes slow
+</span></span><span style="display:flex;"><span>→ clients retry
+</span></span><span style="display:flex;"><span>→ load increases
+</span></span><span style="display:flex;"><span>→ cascading failure risk
+</span></span></code></pre></div><hr>
+<h2 id="6-how-real-systems-handle-it">6. How Real Systems Handle It</h2>
+<hr>
+<h3 id="1-timeout">1. Timeout</h3>
+<ul>
+<li>fail fast instead of waiting indefinitely</li>
+</ul>
+<hr>
+<h3 id="2-retry-with-limits">2. Retry (with limits)</h3>
+<ul>
+<li>handle transient issues</li>
+</ul>
+<hr>
+<h3 id="3-circuit-breaker">3. Circuit Breaker</h3>
+<ul>
+<li>stop calling failing service</li>
+</ul>
+<hr>
+<h3 id="4-fallback">4. Fallback</h3>
+<ul>
+<li>return alternative response</li>
+</ul>
+<hr>
+<h3 id="5-asynchronous-processing">5. Asynchronous Processing</h3>
+<ul>
+<li>decouple critical flows</li>
+</ul>
+<hr>
+<h2 id="7-real-world-example">7. Real-World Example</h2>
+<hr>
+<h3 id="e-commerce-flow">E-commerce Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User places order
+</span></span><span style="display:flex;"><span>→ Order Service → Payment Service
+</span></span></code></pre></div><p>If Payment is down:</p>
+<h3 id="without-resilience">Without resilience</h3>
+<ul>
+<li>order fails</li>
+</ul>
+<h3 id="with-resilience">With resilience</h3>
+<ul>
+<li>order marked as &ldquo;PENDING&rdquo;</li>
+<li>payment retried later</li>
+<li>user notified asynchronously</li>
+</ul>
+<p>👉 Business continues</p>
+<hr>
+<h2 id="8-observability-signals-what-youll-see">8. Observability Signals (What You’ll See)</h2>
+<hr>
+<ul>
+<li>spike in 5xx errors</li>
+<li>increased latency</li>
+<li>timeout exceptions</li>
+<li>retry counts increase</li>
+<li>circuit breaker opens</li>
+</ul>
+<hr>
+<h2 id="9-common-mistakes">9. Common Mistakes</h2>
+<hr>
+<p>❌ No timeout configured<br>
+❌ Unlimited retries<br>
+❌ No circuit breaker<br>
+❌ Tight synchronous dependency chains<br>
+❌ No fallback for critical flows</p>
+<hr>
+<h2 id="10-important-interview-points">10. Important Interview Points</h2>
+<hr>
+<ul>
+<li>impact depends on sync vs async design</li>
+<li>failures can propagate (cascading)</li>
+<li>resilience patterns are essential</li>
+<li>design should favor graceful degradation</li>
+</ul>
+<hr>
+<h2 id="11-interview-summary-answer-best-answer">11. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What happens when one microservice goes down?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>When a microservice goes down, the impact depends on how other services depend on it. In synchronous systems, requests may fail or become slow due to timeouts. In asynchronous systems, processing is delayed but the system continues functioning. To handle this, we use resilience patterns like timeouts, retries, circuit breakers, and fallbacks to prevent cascading failures and maintain system stability.</p></blockquote>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/system-design/microservices-distributed-systems/" class="btn nav-btn">
+        Microservices and Distributed Systems - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>
