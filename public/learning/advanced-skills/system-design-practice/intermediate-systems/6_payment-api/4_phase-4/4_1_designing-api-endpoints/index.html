@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Designing API Endpoints</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776773243">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Designing API Endpoints</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-api-design-matters">1. Why API Design Matters</h2>
+<hr>
+<p>APIs are the <strong>interface between clients and the Payment API service</strong>. A well-designed API should be:</p>
+<ul>
+<li>clear and predictable</li>
+<li>aligned with the payment lifecycle</li>
+<li>safe under retries</li>
+<li>explicit about success and failure</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Good APIs expose <strong>business intent</strong>, not internal implementation details.</p></blockquote>
+<hr>
+<h2 id="2-what-we-need-from-our-payment-api">2. What We Need from Our Payment API</h2>
+<hr>
+<p>From the earlier phases, we already know the system must support three core actions:</p>
+<ol>
+<li><strong>Create a payment</strong></li>
+<li><strong>Confirm a payment</strong></li>
+<li><strong>Fetch payment details</strong></li>
+</ol>
+<p>These actions map naturally to the payment lifecycle:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Create Payment → Confirm Payment → Track Status
+</span></span></code></pre></div><p>This is why our endpoint design should follow the same flow.</p>
+<hr>
+<h2 id="3-core-endpoints">3. Core Endpoints</h2>
+<hr>
+<p>For our intermediate design, we define the following endpoints:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Endpoint</th>
+          <th>Purpose</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>POST /payments</code></td>
+          <td>Create a new payment</td>
+      </tr>
+      <tr>
+          <td><code>POST /payments/{paymentId}/confirm</code></td>
+          <td>Confirm and initiate payment execution</td>
+      </tr>
+      <tr>
+          <td><code>GET /payments/{paymentId}</code></td>
+          <td>Retrieve payment details and status</td>
+      </tr>
+  </tbody>
+</table>
+<p>These three endpoints are enough to support the basic payment lifecycle while keeping the API focused and easy to understand.</p>
+<hr>
+<h2 id="4-endpoint-1--create-payment">4. Endpoint 1 — Create Payment</h2>
+<hr>
+<h3 id="endpoint">Endpoint</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
+</span></span></code></pre></div><hr>
+<h3 id="purpose">Purpose</h3>
+<p>This endpoint creates a new payment resource in the <strong>CREATED</strong> state.</p>
+<p>It does <strong>not</strong> execute the payment.</p>
+<h3 id="why-keep-creation-separate">Why keep creation separate?</h3>
+<p>Separating create from confirm gives us:</p>
+<ul>
+<li>better lifecycle control</li>
+<li>clearer state transitions</li>
+<li>safer retry handling</li>
+</ul>
+<h3 id="example-request">Example Request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;orderId&#34;</span>: <span style="color:#e6db74">&#34;ORD-123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;amount&#34;</span>: <span style="color:#ae81ff">2500</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;currency&#34;</span>: <span style="color:#e6db74">&#34;GBP&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentMethod&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;CARD&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;token&#34;</span>: <span style="color:#e6db74">&#34;tok_abc123&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="example-response">Example Response</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;CREATED&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;amount&#34;</span>: <span style="color:#ae81ff">2500</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;currency&#34;</span>: <span style="color:#e6db74">&#34;GBP&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;createdAt&#34;</span>: <span style="color:#e6db74">&#34;2026-04-20T10:00:00Z&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="key-behavior">Key Behavior</h3>
+<ul>
+<li>Validates input</li>
+<li>Stores payment in DB</li>
+<li>Does not call payment gateway</li>
+</ul>
+<hr>
+<h2 id="5-endpoint-2--confirm-payment">5. Endpoint 2 — Confirm Payment</h2>
+<hr>
+<h3 id="endpoint-1">Endpoint</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
+</span></span></code></pre></div><h3 id="purpose-1">Purpose</h3>
+<p>This endpoint confirms the payment and initiates execution through the external payment gateway.</p>
+<h3 id="what-happens-here">What happens here?</h3>
+<ul>
+<li>validate current payment state</li>
+<li>move payment to PROCESSING</li>
+<li>call external gateway</li>
+<li>update final state (SUCCEEDED or FAILED)</li>
+</ul>
+<blockquote>
+<p><strong>📝 Important:</strong><br>
+This endpoint coordinates payment execution — it does not directly process money itself.</p></blockquote>
+<h3 id="example-success-response">Example Success Response</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;SUCCEEDED&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;processedAt&#34;</span>: <span style="color:#e6db74">&#34;2026-04-20T10:01:10Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;gatewayReference&#34;</span>: <span style="color:#e6db74">&#34;txn_789&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="example-failure-response">Example Failure Response</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;FAILED&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;failureReason&#34;</span>: <span style="color:#e6db74">&#34;CARD_DECLINED&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="key-behavior-1">Key Behavior</h3>
+<ul>
+<li>should only work for valid states like CREATED or retryable FAILED</li>
+<li>must reject invalid transitions</li>
+<li>must be safe under retries</li>
+</ul>
+<hr>
+<h2 id="6-endpoint-3--get-payment-details">6. Endpoint 3 — Get Payment Details</h2>
+<hr>
+<h3 id="endpoint-2">Endpoint</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>GET <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}
+</span></span></code></pre></div><h3 id="purpose-2">Purpose</h3>
+<p>This endpoint returns the current payment details and lifecycle state.</p>
+<h3 id="example-response-1">Example Response</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;PROCESSING&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;amount&#34;</span>: <span style="color:#ae81ff">2500</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;currency&#34;</span>: <span style="color:#e6db74">&#34;GBP&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;createdAt&#34;</span>: <span style="color:#e6db74">&#34;2026-04-20T10:00:00Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;updatedAt&#34;</span>: <span style="color:#e6db74">&#34;2026-04-20T10:01:00Z&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="use-cases">Use Cases</h3>
+<ul>
+<li>frontend polling</li>
+<li>backend workflow checks</li>
+<li>debugging and reconciliation</li>
+</ul>
+<hr>
+<h2 id="7-why-these-endpoints-work-well">7. Why These Endpoints Work Well</h2>
+<hr>
+<p>This endpoint design is effective because it aligns with both:</p>
+<ul>
+<li>the <strong>payment lifecycle</strong></li>
+<li>the <strong>responsibilities of our service</strong></li>
+</ul>
+<h3 id="benefits">Benefits</h3>
+<ul>
+<li>clear separation of intent and execution</li>
+<li>easier retry handling</li>
+<li>better state control</li>
+<li>cleaner API surface</li>
+</ul>
+<hr>
+<h2 id="8-endpoint-design-principles-used-here">8. Endpoint Design Principles Used Here</h2>
+<hr>
+<h3 id="1-resource-oriented-design">1. Resource-Oriented Design</h3>
+<ul>
+<li><code>/payments</code> represents the payment collection</li>
+<li><code>/payments/{id}</code> represents a specific payment</li>
+</ul>
+<hr>
+<h3 id="2-explicit-business-action">2. Explicit Business Action</h3>
+<ul>
+<li><code>/confirm</code> clearly communicates intent</li>
+<li>better than overloading <code>POST /payments</code> to also execute payment</li>
+</ul>
+<hr>
+<h3 id="3-lifecycle-alignment">3. Lifecycle Alignment</h3>
+<p>Each endpoint matches a stage in the lifecycle:</p>
+<ul>
+<li>create</li>
+<li>confirm</li>
+<li>fetch</li>
+</ul>
+<hr>
+<h3 id="4-minimal-surface-area">4. Minimal Surface Area</h3>
+<p>We expose only what is needed for the core flow.</p>
+<hr>
+<h2 id="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-combining-create-and-confirm-into-one-endpoint">❌ Combining create and confirm into one endpoint</h3>
+<p>This makes:</p>
+<ul>
+<li>retries harder</li>
+<li>lifecycle less clear</li>
+<li>duplicate execution risk higher</li>
+</ul>
+<hr>
+<h3 id="-designing-endpoints-without-lifecycle-awareness">❌ Designing endpoints without lifecycle awareness</h3>
+<p>This can lead to:</p>
+<ul>
+<li>invalid transitions</li>
+<li>confusing client behavior</li>
+</ul>
+<hr>
+<h3 id="-exposing-gateway-details-directly-as-api-design-drivers">❌ Exposing gateway details directly as API design drivers</h3>
+<p>The API should reflect <strong>business workflow</strong>, not gateway internals.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Designing API endpoints is not just about naming URLs — it is about exposing the <strong>right business operations</strong> in a way that aligns with the system lifecycle.</p>
+<p>For our Payment API, the three key endpoints are enough to support the core flow:</p>
+<ul>
+<li>create payment</li>
+<li>confirm payment</li>
+<li>fetch payment state</li>
+</ul>
+<p>This gives us a clean and extensible API surface before we dive deeper into request and response modeling.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_2_request-models/">Request Models →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Design endpoints around <strong>business intent and lifecycle</strong></li>
+<li>Separate creation and execution for better control</li>
+<li>Keep the API small, clear, and predictable</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-api-design-matters" data-toc-target="1-why-api-design-matters">1. Why API Design Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-we-need-from-our-payment-api" data-toc-target="2-what-we-need-from-our-payment-api">2. What We Need from Our Payment API</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-core-endpoints" data-toc-target="3-core-endpoints">3. Core Endpoints</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-endpoint-1--create-payment" data-toc-target="4-endpoint-1--create-payment">4. Endpoint 1 — Create Payment</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-endpoint-2--confirm-payment" data-toc-target="5-endpoint-2--confirm-payment">5. Endpoint 2 — Confirm Payment</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-endpoint-3--get-payment-details" data-toc-target="6-endpoint-3--get-payment-details">6. Endpoint 3 — Get Payment Details</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-why-these-endpoints-work-well" data-toc-target="7-why-these-endpoints-work-well">7. Why These Endpoints Work Well</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-endpoint-design-principles-used-here" data-toc-target="8-endpoint-design-principles-used-here">8. Endpoint Design Principles Used Here</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-common-mistakes-to-avoid" data-toc-target="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_2_request-models/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

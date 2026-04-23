@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handling Partial Failures</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776929049">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Handling Partial Failures</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-partial-failures-matter">1. Why Partial Failures Matter</h2>
+<hr>
+<p>In real systems, failures are not clean.</p>
+<p>You don’t just get:</p>
+<ul>
+<li>success ❌</li>
+<li>failure ❌</li>
+</ul>
+<p>You often get <strong>partial success</strong>, where some parts of the system succeed while others fail.</p>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+A payment system must be designed to <strong>recover from inconsistent intermediate states</strong>, not just handle clean failures.</p></blockquote>
+<hr>
+<h2 id="2-what-is-a-partial-failure">2. What is a Partial Failure?</h2>
+<hr>
+<p>A partial failure occurs when:</p>
+<ul>
+<li>one system succeeds</li>
+<li>another system fails</li>
+</ul>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Gateway: SUCCESS
+</span></span><span style="display:flex;"><span>Database: FAILED
+</span></span></code></pre></div><p>👉 This is the most dangerous scenario.</p>
+<hr>
+<h2 id="3-common-partial-failure-scenarios">3. Common Partial Failure Scenarios</h2>
+<hr>
+<h3 id="1-gateway-success-db-update-fails">1. Gateway Success, DB Update Fails</h3>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment executed successfully
+</span></span><span style="display:flex;"><span>BUT
+</span></span><span style="display:flex;"><span>System failed to update DB
+</span></span></code></pre></div><hr>
+<h3 id="2-gateway-timeout-unknown-state">2. Gateway Timeout (Unknown State)</h3>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request sent
+</span></span><span style="display:flex;"><span>No response received
+</span></span></code></pre></div><hr>
+<h3 id="3-api-crash-after-gateway-call">3. API Crash After Gateway Call</h3>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Gateway executed
+</span></span><span style="display:flex;"><span>API crashed before response saved
+</span></span></code></pre></div><hr>
+<h3 id="4-duplicate-retry-during-processing">4. Duplicate Retry During Processing</h3>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client retries while original request still running
+</span></span></code></pre></div><hr>
+<h2 id="4-key-strategies-to-handle-partial-failures">4. Key Strategies to Handle Partial Failures</h2>
+<hr>
+<h3 id="1-idempotency-first-line-of-defense">1. Idempotency (First Line of Defense)</h3>
+<ul>
+<li>ensures retries do not duplicate execution</li>
+<li>returns consistent response</li>
+</ul>
+<hr>
+<h3 id="2-persist-intermediate-states">2. Persist Intermediate States</h3>
+<ul>
+<li>use <code>PROCESSING</code> state</li>
+<li>store attempts before gateway call</li>
+</ul>
+<hr>
+<h3 id="3-retry-mechanism">3. Retry Mechanism</h3>
+<ul>
+<li>retry failed operations safely</li>
+<li>rely on idempotency</li>
+</ul>
+<hr>
+<h3 id="4-reconciliation-critical">4. Reconciliation (Critical)</h3>
+<ul>
+<li>compare system state with gateway state</li>
+<li>fix inconsistencies</li>
+</ul>
+<hr>
+<h2 id="5-handling-gateway-success--db-failure">5. Handling Gateway Success + DB Failure</h2>
+<hr>
+<h3 id="problem">Problem</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment completed externally
+</span></span><span style="display:flex;"><span>System does not know it
+</span></span></code></pre></div><hr>
+<h3 id="solution">Solution</h3>
+<ol>
+<li>Store payment in <code>PROCESSING</code></li>
+<li>Retry DB update using:
+<ul>
+<li>idempotency</li>
+<li>retry job</li>
+</ul>
+</li>
+<li>Use reconciliation if needed</li>
+</ol>
+<hr>
+<h2 id="6-handling-gateway-timeout">6. Handling Gateway Timeout</h2>
+<hr>
+<h3 id="problem-1">Problem</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Did payment succeed or fail?
+</span></span><span style="display:flex;"><span>Unknown
+</span></span></code></pre></div><hr>
+<h3 id="solution-1">Solution</h3>
+<ol>
+<li>Keep payment in <code>PROCESSING</code></li>
+<li>Retry with same idempotency key</li>
+<li>Query gateway using:
+<ul>
+<li><code>gateway_reference</code> (if available)</li>
+</ul>
+</li>
+<li>Update final state</li>
+</ol>
+<hr>
+<h2 id="7-reconciliation-strategy">7. Reconciliation Strategy</h2>
+<hr>
+<p>Reconciliation is a background process.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li>Fetch payments stuck in <code>PROCESSING</code></li>
+<li>Query gateway for status</li>
+<li>Compare with DB state</li>
+<li>Update system accordingly</li>
+</ol>
+<hr>
+<h3 id="example-flow">Example Flow</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant Job as ReconciliationJob
+    participant DB
+    participant GW as Gateway
+
+    Job->>DB: Fetch PROCESSING payments
+    Job->>GW: Check status
+    GW-->>Job: Response
+    Job->>DB: Update final state
+</div>
+<hr>
+<h2 id="8-retry-strategy">8. Retry Strategy</h2>
+<hr>
+<h3 id="safe-retry">Safe Retry</h3>
+<ul>
+<li>use same idempotency key</li>
+</ul>
+<hr>
+<h3 id="retry-conditions">Retry Conditions</h3>
+<ul>
+<li>timeout</li>
+<li>transient errors</li>
+</ul>
+<hr>
+<h3 id="backoff-strategy">Backoff Strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry after: 1s → 2s → 5s → 10s
+</span></span></code></pre></div><hr>
+<h2 id="9-designing-for-unknown-state">9. Designing for Unknown State</h2>
+<hr>
+<p>The most important rule:</p>
+<blockquote>
+<p>❗ Never assume failure when state is unknown</p></blockquote>
+<p>Instead:</p>
+<ul>
+<li>treat as <code>PROCESSING</code></li>
+<li>verify before retrying execution</li>
+</ul>
+<hr>
+<h2 id="10-system-behavior-summary">10. System Behavior Summary</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Handling</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Gateway success + DB fail</td>
+          <td>Retry + reconciliation</td>
+      </tr>
+      <tr>
+          <td>Gateway timeout</td>
+          <td>Keep PROCESSING + retry</td>
+      </tr>
+      <tr>
+          <td>API crash</td>
+          <td>Idempotency replay</td>
+      </tr>
+      <tr>
+          <td>Duplicate request</td>
+          <td>Idempotency protection</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="11-common-mistakes-to-avoid">11. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-treating-timeout-as-failure">❌ Treating timeout as failure</h3>
+<ul>
+<li>may cause double charge</li>
+</ul>
+<hr>
+<h3 id="-no-reconciliation-process">❌ No reconciliation process</h3>
+<ul>
+<li>leaves system inconsistent</li>
+</ul>
+<hr>
+<h3 id="-not-storing-processing-state">❌ Not storing PROCESSING state</h3>
+<ul>
+<li>no way to track in-flight operations</li>
+</ul>
+<hr>
+<h3 id="-retrying-without-idempotency">❌ Retrying without idempotency</h3>
+<ul>
+<li>leads to duplicate execution</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Partial failures are unavoidable in distributed systems.</p>
+<p>A robust payment system must:</p>
+<ul>
+<li>detect them</li>
+<li>recover from them</li>
+<li>prevent inconsistencies</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_9_data-retention-and-cleanup">Data Retention &amp; Cleanup →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Partial failures are the hardest problems in system design</li>
+<li>Idempotency + retries + reconciliation are key tools</li>
+<li>Always design for unknown states, not just success/failure</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-partial-failures-matter" data-toc-target="1-why-partial-failures-matter">1. Why Partial Failures Matter</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-is-a-partial-failure" data-toc-target="2-what-is-a-partial-failure">2. What is a Partial Failure?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-common-partial-failure-scenarios" data-toc-target="3-common-partial-failure-scenarios">3. Common Partial Failure Scenarios</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-key-strategies-to-handle-partial-failures" data-toc-target="4-key-strategies-to-handle-partial-failures">4. Key Strategies to Handle Partial Failures</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-handling-gateway-success--db-failure" data-toc-target="5-handling-gateway-success--db-failure">5. Handling Gateway Success &#43; DB Failure</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-handling-gateway-timeout" data-toc-target="6-handling-gateway-timeout">6. Handling Gateway Timeout</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-reconciliation-strategy" data-toc-target="7-reconciliation-strategy">7. Reconciliation Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-retry-strategy" data-toc-target="8-retry-strategy">8. Retry Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-designing-for-unknown-state" data-toc-target="9-designing-for-unknown-state">9. Designing for Unknown State</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-system-behavior-summary" data-toc-target="10-system-behavior-summary">10. System Behavior Summary</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-common-mistakes-to-avoid" data-toc-target="11-common-mistakes-to-avoid">11. Common Mistakes to Avoid</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_7_consistency-and-transactions/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_9_data-retention-and-cleanup/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

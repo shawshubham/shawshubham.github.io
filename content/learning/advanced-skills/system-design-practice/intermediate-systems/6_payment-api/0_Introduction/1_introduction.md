@@ -135,37 +135,74 @@ These will be explored as advanced extensions later.
 
 ---
 
-This is not a single article — we will design the system **step by step**.
+This is not a single article — we will design the system **step by step**, moving from problem understanding → system-level design → detailed implementation.
 
 ### Phase 1 — Problem Framing & Requirements
 
 Understand the problem, constraints, and key challenges.
 
-### Phase 2 — Domain Model & Payment Lifecycle
+---
+
+### Phase 2 — High-Level Design (System Overview)
+
+Define the overall system architecture:
+
+- system boundaries
+- key components (API, DB, gateway)
+- interaction with external payment providers
+- request flow using block diagrams
+
+👉 This phase answers: _Where does the Payment API fit in the system?_
+
+---
+
+### Phase 3 — Domain Model & Payment Lifecycle
 
 Design entities and define how a payment moves through states.
 
-### Phase 3 — API Design
+👉 This phase answers: _How is the payment represented internally?_
+
+---
+
+### Phase 4 — API Design
 
 Define endpoints, request/response models, and interaction flow.
 
-### Phase 4 — Idempotency & Safe Retries
+👉 This phase answers: _How do clients interact with the system?_
+
+---
+
+### Phase 5 — Idempotency & Safe Retries
 
 Ensure the system safely handles duplicate requests.
 
-### Phase 5 — Processing Flow & Failures
+👉 This phase answers: _How do we prevent duplicate payments?_
+
+---
+
+### Phase 6 — Processing Flow & Failures
 
 Understand how payments are processed and how failures are handled.
 
-### Phase 6 — Persistence & Concurrency
+👉 This phase answers: _What happens when things go wrong?_
+
+---
+
+### Phase 7 — Persistence & Concurrency
 
 Design database schema and prevent double processing.
 
-### Phase 7 — Implementation
+👉 This phase answers: _How do we store and protect system state?_
+
+---
+
+### Phase 8 — Implementation
 
 Translate design into a clean backend service.
 
-### Phase 8 — Real-World Extensions
+---
+
+### Phase 9 — Real-World Extensions
 
 Evolve toward production-grade systems.
 
@@ -182,27 +219,33 @@ You can approach this problem in a structured way:
 - What operations are needed?
 - What constraints exist?
 
-### 2. Model the Payment Lifecycle
+### 2. Define High-Level Design
+
+- Identify major components (API, DB, gateway)
+- Define system boundaries
+- Understand request flow
+
+### 3. Model the Payment Lifecycle
 
 - Define states and transitions
 - Ensure state consistency
 
-### 3. Design API Contracts
+### 4. Design API Contracts
 
 - Define endpoints and payloads
 - Ensure predictable behavior
 
-### 4. Handle Idempotency
+### 5. Handle Idempotency
 
 - Prevent duplicate processing
 - Support safe retries
 
-### 5. Design Persistence
+### 6. Design Persistence
 
 - Store state reliably
 - Track attempts and responses
 
-### 6. Think About Failures
+### 7. Think About Failures
 
 - Gateway failures
 - Network issues

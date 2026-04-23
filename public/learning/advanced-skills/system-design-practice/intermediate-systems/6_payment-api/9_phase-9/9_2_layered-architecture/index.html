@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Layered Architecture in Detail</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776936123">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Layered Architecture in Detail</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-layered-architecture-matters">1. Why Layered Architecture Matters</h2>
+<hr>
+<p>In the previous article, we introduced the idea of a layered backend.</p>
+<p>Now we define it properly.</p>
+<blockquote>
+<p>🧠 <strong>Good system design fails without good code structure.</strong></p></blockquote>
+<p>A layered architecture ensures:</p>
+<ul>
+<li>separation of concerns</li>
+<li>maintainability</li>
+<li>testability</li>
+<li>scalability of codebase</li>
+</ul>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>system design flows</li>
+<li>idempotency concepts</li>
+<li>concurrency strategies</li>
+</ul>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>how to structure backend code</li>
+<li>how responsibilities are divided across layers</li>
+</ul>
+<hr>
+<h2 id="3-high-level-layered-structure">3. High-Level Layered Structure</h2>
+<hr>
+<div class="mermaid">
+flowchart TD
+    C[Controller Layer]
+    S[Service Layer]
+    R[Repository Layer]
+    D[(Database)]
+    G[External Gateway]
+
+    C --> S
+    S --> R
+    R --> D
+    S --> G
+</div>
+<hr>
+<h3 id="interpretation">Interpretation</h3>
+<ul>
+<li><strong>Controller</strong> receives HTTP requests and delegates work</li>
+<li><strong>Service</strong> contains the main business logic and orchestration</li>
+<li><strong>Repository</strong> handles persistence and database access</li>
+<li><strong>External Gateway</strong> is called by the <strong>Service layer</strong>, not by the Controller or Repository</li>
+</ul>
+<p>👉 This is important because the <strong>Service layer becomes the coordination point</strong> between internal persistence and external payment execution.</p>
+<hr>
+<h2 id="4-layer-responsibilities">4. Layer Responsibilities</h2>
+<hr>
+<h3 id="1-controller-layer">1. Controller Layer</h3>
+<hr>
+<p>Handles:</p>
+<ul>
+<li>HTTP requests/responses</li>
+<li>input validation (basic)</li>
+<li>mapping request → service calls</li>
+</ul>
+<hr>
+<h3 id="what-it-should-not-do">What it should NOT do</h3>
+<ul>
+<li>business logic</li>
+<li>DB access</li>
+<li>complex validations</li>
+</ul>
+<hr>
+<h3 id="example-spring-boot">Example (Spring Boot)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@RequestMapping</span>(<span style="color:#e6db74">&#34;/payments&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentController</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PaymentService paymentService;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PaymentController</span>(PaymentService paymentService) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">paymentService</span> <span style="color:#f92672">=</span> paymentService;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@PostMapping</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>CreatePaymentResponse<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createPayment</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@RequestBody</span> CreatePaymentRequest request,
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@RequestHeader</span>(<span style="color:#e6db74">&#34;Idempotency-Key&#34;</span>) String key) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ResponseEntity.<span style="color:#a6e22e">ok</span>(
+</span></span><span style="display:flex;"><span>                paymentService.<span style="color:#a6e22e">createPayment</span>(request, key)
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="5-service-layer-core-of-system">5. Service Layer (Core of System)</h2>
+<hr>
+<p>This is the <strong>most important layer</strong>.</p>
+<p>Handles:</p>
+<ul>
+<li>business logic</li>
+<li>idempotency handling</li>
+<li>concurrency control</li>
+<li>state transitions</li>
+<li>orchestration of flow</li>
+</ul>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentService</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PaymentRepository paymentRepository;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> IdempotencyService idempotencyService;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> CreatePaymentResponse <span style="color:#a6e22e">createPayment</span>(CreatePaymentRequest request, String key) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Optional<span style="color:#f92672">&lt;</span>IdempotencyRecord<span style="color:#f92672">&gt;</span> existing <span style="color:#f92672">=</span> idempotencyService.<span style="color:#a6e22e">find</span>(key);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (existing.<span style="color:#a6e22e">isPresent</span>()) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> existing.<span style="color:#a6e22e">get</span>().<span style="color:#a6e22e">getResponse</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        idempotencyService.<span style="color:#a6e22e">reserve</span>(key);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Payment payment <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Payment(...);
+</span></span><span style="display:flex;"><span>        paymentRepository.<span style="color:#a6e22e">save</span>(payment);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        idempotencyService.<span style="color:#a6e22e">complete</span>(key, payment.<span style="color:#a6e22e">getId</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CreatePaymentResponse(payment.<span style="color:#a6e22e">getId</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="what-service-should-not-do">What Service SHOULD NOT do</h3>
+<ul>
+<li>handle HTTP details</li>
+<li>directly construct SQL queries</li>
+</ul>
+<hr>
+<h2 id="6-repository-layer">6. Repository Layer</h2>
+<hr>
+<p>Handles:</p>
+<ul>
+<li>database interaction</li>
+<li>CRUD operations</li>
+<li>query execution</li>
+</ul>
+<hr>
+<h3 id="example-1">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Repository</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">PaymentRepository</span> <span style="color:#66d9ef">extends</span> JpaRepository<span style="color:#f92672">&lt;</span>Payment, UUID<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Optional<span style="color:#f92672">&lt;</span>Payment<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">findByOrderId</span>(String orderId);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="what-repository-should-not-do">What Repository SHOULD NOT do</h3>
+<ul>
+<li>business logic</li>
+<li>flow orchestration</li>
+</ul>
+<hr>
+<h2 id="7-gateway-layer-external-integration">7. Gateway Layer (External Integration)</h2>
+<hr>
+<p>Handles:</p>
+<ul>
+<li>interaction with external payment providers</li>
+</ul>
+<hr>
+<h3 id="example-2">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Component</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentGatewayClient</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> GatewayResponse <span style="color:#a6e22e">charge</span>(Payment payment) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// call external API</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> GatewayResponse(...);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="why-separate-this">Why separate this?</h3>
+<ul>
+<li>allows multiple providers (Stripe, Adyen, etc.)</li>
+<li>easier testing and mocking</li>
+</ul>
+<hr>
+<h2 id="8-dependency-flow">8. Dependency Flow</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository
+</span></span><span style="display:flex;"><span>                 ↓
+</span></span><span style="display:flex;"><span>           Gateway Client
+</span></span></code></pre></div><hr>
+<h3 id="important-rule">Important Rule</h3>
+<blockquote>
+<p>❗ <strong>Dependencies should flow downward only.</strong></p></blockquote>
+<hr>
+<h3 id="-bad-design">❌ Bad Design</h3>
+<ul>
+<li>Repository calling Service</li>
+<li>Controller calling Repository directly</li>
+</ul>
+<hr>
+<h3 id="-good-design">✅ Good Design</h3>
+<ul>
+<li>Controller → Service</li>
+<li>Service → Repository</li>
+</ul>
+<hr>
+<h2 id="9-suggested-package-structure-java">9. Suggested Package Structure (Java)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>com.payment
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>├── controller
+</span></span><span style="display:flex;"><span>│   └── PaymentController
+</span></span><span style="display:flex;"><span>│
+</span></span><span style="display:flex;"><span>├── service
+</span></span><span style="display:flex;"><span>│   └── PaymentService
+</span></span><span style="display:flex;"><span>│
+</span></span><span style="display:flex;"><span>├── repository
+</span></span><span style="display:flex;"><span>│   └── PaymentRepository
+</span></span><span style="display:flex;"><span>│
+</span></span><span style="display:flex;"><span>├── domain
+</span></span><span style="display:flex;"><span>│   └── Payment
+</span></span><span style="display:flex;"><span>│
+</span></span><span style="display:flex;"><span>├── dto
+</span></span><span style="display:flex;"><span>│   ├── request
+</span></span><span style="display:flex;"><span>│   └── response
+</span></span><span style="display:flex;"><span>│
+</span></span><span style="display:flex;"><span>├── gateway
+</span></span><span style="display:flex;"><span>│   └── PaymentGatewayClient
+</span></span><span style="display:flex;"><span>│
+</span></span><span style="display:flex;"><span>├── idempotency
+</span></span><span style="display:flex;"><span>│   └── IdempotencyService
+</span></span></code></pre></div><hr>
+<h2 id="10-why-this-architecture-works">10. Why This Architecture Works</h2>
+<hr>
+<h3 id="1-separation-of-concerns">1. Separation of Concerns</h3>
+<ul>
+<li>each layer has clear responsibility</li>
+</ul>
+<hr>
+<h3 id="2-testability">2. Testability</h3>
+<ul>
+<li>service can be tested independently</li>
+</ul>
+<hr>
+<h3 id="3-flexibility">3. Flexibility</h3>
+<ul>
+<li>change DB or gateway without breaking system</li>
+</ul>
+<hr>
+<h3 id="4-readability">4. Readability</h3>
+<ul>
+<li>easy to understand code flow</li>
+</ul>
+<hr>
+<h2 id="11-common-mistakes">11. Common Mistakes</h2>
+<hr>
+<h3 id="-fat-controllers">❌ Fat Controllers</h3>
+<ul>
+<li>business logic in controller</li>
+</ul>
+<hr>
+<h3 id="-fat-repositories">❌ Fat Repositories</h3>
+<ul>
+<li>business logic inside queries</li>
+</ul>
+<hr>
+<h3 id="-god-service">❌ God Service</h3>
+<ul>
+<li>everything dumped into one class</li>
+</ul>
+<hr>
+<h3 id="-tight-coupling">❌ Tight Coupling</h3>
+<ul>
+<li>hard-coded dependencies</li>
+</ul>
+<hr>
+<h2 id="12-design-principle">12. Design Principle</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Structure determines maintainability.</strong></p></blockquote>
+<hr>
+<p>Clean architecture ensures that:</p>
+<ul>
+<li>changes are localized</li>
+<li>system remains understandable</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Layered architecture provides:</p>
+<ul>
+<li>clarity in design</li>
+<li>maintainability</li>
+<li>scalability of codebase</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_3_create-payment-implementation">Create Payment Implementation →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Controller handles HTTP</li>
+<li>Service handles logic</li>
+<li>Repository handles DB</li>
+<li>Gateway handles external calls</li>
+<li>Clean separation is critical for real systems</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-layered-architecture-matters" data-toc-target="1-why-layered-architecture-matters">1. Why Layered Architecture Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-high-level-layered-structure" data-toc-target="3-high-level-layered-structure">3. High-Level Layered Structure</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-layer-responsibilities" data-toc-target="4-layer-responsibilities">4. Layer Responsibilities</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-service-layer-core-of-system" data-toc-target="5-service-layer-core-of-system">5. Service Layer (Core of System)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-repository-layer" data-toc-target="6-repository-layer">6. Repository Layer</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-gateway-layer-external-integration" data-toc-target="7-gateway-layer-external-integration">7. Gateway Layer (External Integration)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-dependency-flow" data-toc-target="8-dependency-flow">8. Dependency Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-suggested-package-structure-java" data-toc-target="9-suggested-package-structure-java">9. Suggested Package Structure (Java)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-why-this-architecture-works" data-toc-target="10-why-this-architecture-works">10. Why This Architecture Works</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-common-mistakes" data-toc-target="11-common-mistakes">11. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-design-principle" data-toc-target="12-design-principle">12. Design Principle</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_1_overview/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_3_create-payment-implementation/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

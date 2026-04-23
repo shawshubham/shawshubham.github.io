@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idempotency vs Exactly-Once Semantics</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776790994">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Idempotency vs Exactly-Once Semantics</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-topic-matters">1. Why This Topic Matters</h2>
+<hr>
+<p>In payment systems, one of the most common expectations is:</p>
+<blockquote>
+<p>❓ <em>&ldquo;The payment should happen exactly once.&rdquo;</em></p></blockquote>
+<p>This sounds simple, but in distributed systems, it is <strong>extremely hard to guarantee</strong>.</p>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Exactly-once execution is not truly achievable in most distributed systems — it is <strong>approximated using design techniques like idempotency</strong>.</p></blockquote>
+<hr>
+<h2 id="2-understanding-delivery-semantics">2. Understanding Delivery Semantics</h2>
+<hr>
+<p>Before comparing idempotency and exactly-once, we need to understand three key concepts.</p>
+<h3 id="1-at-most-once">1. At-Most-Once</h3>
+<ul>
+<li>operation happens <strong>zero or one time</strong></li>
+<li>no retries</li>
+</ul>
+<h4 id="problem">Problem</h4>
+<ul>
+<li>request may be lost</li>
+<li>payment may never happen</li>
+</ul>
+<hr>
+<h3 id="2-at-least-once">2. At-Least-Once</h3>
+<ul>
+<li>operation happens <strong>one or more times</strong></li>
+<li>retries are allowed</li>
+</ul>
+<h4 id="problem-1">Problem</h4>
+<ul>
+<li>duplicates may occur</li>
+<li>multiple charges possible</li>
+</ul>
+<hr>
+<h3 id="3-exactly-once-ideal">3. Exactly-Once (Ideal)</h3>
+<ul>
+<li>operation happens <strong>exactly once</strong></li>
+</ul>
+<h4 id="problem-2">Problem</h4>
+<ul>
+<li>extremely difficult to guarantee in distributed systems</li>
+</ul>
+<hr>
+<h2 id="3-why-exactly-once-is-hard">3. Why Exactly-Once is Hard</h2>
+<hr>
+<p>Consider this scenario:</p>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant PaymentAPI
+    participant Gateway
+
+    Client->>PaymentAPI: Confirm Payment
+    PaymentAPI->>Gateway: Execute Payment
+    Gateway-->>PaymentAPI: Success
+    Note over PaymentAPI: Crash before response
+</div>
+<p>Now the system is in an <strong>uncertain state</strong>:</p>
+<ul>
+<li>Did the payment succeed? ✅ Possibly</li>
+<li>Did the client receive response? ❌ No</li>
+</ul>
+<p>Client retries:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry → Confirm Payment again
+</span></span></code></pre></div><p>👉 Without safeguards, this may lead to <strong>duplicate execution</strong>.</p>
+<hr>
+<h2 id="4-so-what-do-real-systems-do">4. So What Do Real Systems Do?</h2>
+<hr>
+<p>Instead of true exactly-once, systems implement:</p>
+<blockquote>
+<p>👉 <strong>At-least-once execution + idempotency = effectively-once behavior</strong></p></blockquote>
+<hr>
+<h2 id="5-what-is-idempotency-revisited">5. What is Idempotency (Revisited)</h2>
+<hr>
+<p>Idempotency ensures:</p>
+<blockquote>
+<p>Repeating the same request does not create additional side effects.</p></blockquote>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → Payment executed
+</span></span><span style="display:flex;"><span>Request 2 → Same response returned, no new execution
+</span></span></code></pre></div><hr>
+<h2 id="6-how-idempotency-approximates-exactly-once">6. How Idempotency Approximates Exactly-Once</h2>
+<hr>
+<div class="mermaid">
+flowchart TD
+    A[Client Request] --> B{Retry Occurs?}
+
+    B -- No --> C[Execute Once]
+    B -- Yes --> D[Detect Duplicate via Idempotency]
+    D --> E[Return Same Result]
+</div>
+<hr>
+<h3 id="result">Result</h3>
+<ul>
+<li>duplicate requests do not cause duplicate side effects</li>
+<li>system behaves <em>as if</em> it executed once</li>
+</ul>
+<p>👉 This is called <strong>effectively-once behavior</strong>.</p>
+<hr>
+<h2 id="7-key-differences">7. Key Differences</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Idempotency</th>
+          <th>Exactly-Once</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Guarantee</td>
+          <td>Same result on retries</td>
+          <td>Operation happens once</td>
+      </tr>
+      <tr>
+          <td>Feasibility</td>
+          <td>Practical</td>
+          <td>Very hard / theoretical</td>
+      </tr>
+      <tr>
+          <td>Implementation</td>
+          <td>Keys + storage + validation</td>
+          <td>Requires global coordination</td>
+      </tr>
+      <tr>
+          <td>Used in</td>
+          <td>Real-world systems</td>
+          <td>Rare / limited cases</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="8-where-idempotency-is-applied-in-our-design">8. Where Idempotency is Applied in Our Design</h2>
+<hr>
+<p>We used idempotency in:</p>
+<ul>
+<li><code>POST /payments</code> → prevent duplicate records</li>
+<li><code>POST /payments/{id}/confirm</code> → prevent duplicate execution</li>
+</ul>
+<p>Combined with:</p>
+<ul>
+<li>state validation</li>
+<li>concurrency control</li>
+<li>retry strategy</li>
+</ul>
+<p>👉 This gives us <strong>effectively-once behavior</strong>.</p>
+<hr>
+<h2 id="9-limitations-of-idempotency">9. Limitations of Idempotency</h2>
+<hr>
+<p>Idempotency is powerful, but not perfect.</p>
+<h3 id="limitations">Limitations</h3>
+<ul>
+<li>depends on key reuse</li>
+<li>limited by TTL</li>
+<li>does not solve unknown states completely</li>
+</ul>
+<hr>
+<h3 id="example">Example</h3>
+<ul>
+<li>gateway success + API crash</li>
+<li>idempotency helps on retry</li>
+<li>but reconciliation may still be needed</li>
+</ul>
+<hr>
+<h2 id="10-role-of-reconciliation">10. Role of Reconciliation</h2>
+<hr>
+<p>When the system cannot determine outcome reliably:</p>
+<p>👉 reconciliation becomes necessary</p>
+<h3 id="example-1">Example</h3>
+<ul>
+<li>query payment gateway later</li>
+<li>update system state accordingly</li>
+</ul>
+<hr>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Idempotency prevents duplicates, but reconciliation resolves uncertainty.</p></blockquote>
+<hr>
+<h2 id="11-real-world-thinking">11. Real-World Thinking</h2>
+<hr>
+<p>Instead of asking:</p>
+<blockquote>
+<p>“How do we guarantee exactly-once?”</p></blockquote>
+<p>Good engineers ask:</p>
+<ul>
+<li>how do we prevent duplicate side effects?</li>
+<li>how do we handle retries safely?</li>
+<li>how do we recover from unknown states?</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Exactly-once execution is an ideal goal, but not a practical guarantee in distributed systems.</p>
+<p>Real-world systems achieve similar behavior by combining:</p>
+<ul>
+<li>idempotency</li>
+<li>retry control</li>
+<li>state validation</li>
+<li>reconciliation</li>
+</ul>
+<p>This creates <strong>effectively-once behavior</strong>, which is sufficient for most payment systems.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_9_design-tradeoffs-and-limitations/">Design Trade-offs &amp; Limitations →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Exactly-once is extremely hard to guarantee</li>
+<li>Idempotency enables effectively-once behavior</li>
+<li>Real systems rely on multiple safeguards, not a single guarantee</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-topic-matters" data-toc-target="1-why-this-topic-matters">1. Why This Topic Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-understanding-delivery-semantics" data-toc-target="2-understanding-delivery-semantics">2. Understanding Delivery Semantics</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-why-exactly-once-is-hard" data-toc-target="3-why-exactly-once-is-hard">3. Why Exactly-Once is Hard</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-so-what-do-real-systems-do" data-toc-target="4-so-what-do-real-systems-do">4. So What Do Real Systems Do?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-what-is-idempotency-revisited" data-toc-target="5-what-is-idempotency-revisited">5. What is Idempotency (Revisited)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-how-idempotency-approximates-exactly-once" data-toc-target="6-how-idempotency-approximates-exactly-once">6. How Idempotency Approximates Exactly-Once</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-key-differences" data-toc-target="7-key-differences">7. Key Differences</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-where-idempotency-is-applied-in-our-design" data-toc-target="8-where-idempotency-is-applied-in-our-design">8. Where Idempotency is Applied in Our Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-limitations-of-idempotency" data-toc-target="9-limitations-of-idempotency">9. Limitations of Idempotency</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-role-of-reconciliation" data-toc-target="10-role-of-reconciliation">10. Role of Reconciliation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-real-world-thinking" data-toc-target="11-real-world-thinking">11. Real-World Thinking</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_7_retry-strategy-and-behaviour/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_9_design-tradeoffs-and-limitations/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

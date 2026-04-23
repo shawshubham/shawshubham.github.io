@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consistency vs Availability</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776931262">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Consistency vs Availability</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 22 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-topic-matters">1. Why This Topic Matters</h2>
+<hr>
+<p>So far, we ensured:</p>
+<ul>
+<li>no duplicate execution</li>
+<li>safe concurrency handling</li>
+<li>valid state transitions</li>
+</ul>
+<p>But now we face a harder problem:</p>
+<blockquote>
+<p>❗ <em>What do we do when we don’t know what happened?</em></p></blockquote>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>idempotency</li>
+<li>locking</li>
+<li>flows</li>
+</ul>
+<p>👉 This article focuses on <strong>decision-making under uncertainty</strong>.</p>
+<hr>
+<h2 id="3-the-core-problem-timeout">3. The Core Problem: Timeout</h2>
+<hr>
+<h3 id="scenario">Scenario</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>API → Gateway call
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>No response received
+</span></span></code></pre></div><hr>
+<h3 id="possible-realities">Possible realities</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Payment succeeded
+</span></span><span style="display:flex;"><span>2. Payment failed
+</span></span><span style="display:flex;"><span>3. Request never reached gateway
+</span></span></code></pre></div><p>👉 System does NOT know which one is true.</p>
+<hr>
+<h2 id="4-the-trade-off">4. The Trade-off</h2>
+<hr>
+<p>At this point, system must choose between:</p>
+<h3 id="option-1--strong-consistency">Option 1 — Strong Consistency</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Wait until we know exact result
+</span></span></code></pre></div><hr>
+<h3 id="option-2--high-availability">Option 2 — High Availability</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return response immediately (e.g., PROCESSING)
+</span></span></code></pre></div><hr>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+In payment systems, we often prefer <strong>correctness over immediacy</strong>.</p></blockquote>
+<hr>
+<h2 id="5-what-we-should-not-do">5. What We Should NOT Do</h2>
+<hr>
+<h3 id="-treat-timeout-as-failure">❌ Treat timeout as failure</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Mark payment as FAILED immediately
+</span></span></code></pre></div><hr>
+<h3 id="why">Why?</h3>
+<ul>
+<li>payment might have actually succeeded</li>
+<li>retry may cause <strong>double execution</strong></li>
+</ul>
+<hr>
+<h2 id="6-recommended-approach">6. Recommended Approach</h2>
+<hr>
+<h3 id="step-1-move-to-processing">Step 1: Move to PROCESSING</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>payment.status = PROCESSING
+</span></span></code></pre></div><hr>
+<h3 id="step-2-return-safe-response">Step 2: Return Safe Response</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return: &#34;Payment is being processed&#34;
+</span></span></code></pre></div><hr>
+<h3 id="step-3-resolve-later">Step 3: Resolve Later</h3>
+<p>Using:</p>
+<ul>
+<li>retry with idempotency</li>
+<li>reconciliation job</li>
+</ul>
+<hr>
+<h2 id="7-system-behavior-model">7. System Behavior Model</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant API
+    participant GW as Gateway
+
+    Client->>API: Confirm Payment
+    API->>GW: Execute
+
+    GW--x API: Timeout
+
+    API-->>Client: Status = PROCESSING
+</div>
+<hr>
+<p>👉 System avoids incorrect assumption.</p>
+<hr>
+<h2 id="8-eventual-consistency">8. Eventual Consistency</h2>
+<hr>
+<p>At this stage, system is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Temporarily inconsistent
+</span></span></code></pre></div><hr>
+<p>But later:</p>
+<ul>
+<li>reconciliation fixes state</li>
+<li>retry confirms result</li>
+</ul>
+<hr>
+<p>👉 This is <strong>eventual consistency</strong>.</p>
+<hr>
+<h2 id="9-why-this-works-for-payments">9. Why This Works for Payments</h2>
+<hr>
+<p>Payment systems prioritize:</p>
+<h3 id="1-correctness">1. Correctness</h3>
+<ul>
+<li>no double charge</li>
+</ul>
+<hr>
+<h3 id="2-safety">2. Safety</h3>
+<ul>
+<li>no wrong state</li>
+</ul>
+<hr>
+<h3 id="3-recoverability">3. Recoverability</h3>
+<ul>
+<li>system can fix itself later</li>
+</ul>
+<hr>
+<p>👉 Availability is secondary in this context.</p>
+<hr>
+<h2 id="10-real-world-design-pattern">10. Real-World Design Pattern</h2>
+<hr>
+<h3 id="pattern-accept-uncertainty">Pattern: Accept Uncertainty</h3>
+<p>Instead of forcing an answer:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return PROCESSING
+</span></span></code></pre></div><hr>
+<h3 id="pattern-resolve-asynchronously">Pattern: Resolve Asynchronously</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry / Reconcile / Query Gateway
+</span></span></code></pre></div><hr>
+<h2 id="11-common-mistakes">11. Common Mistakes</h2>
+<hr>
+<h3 id="-immediate-failure-on-timeout">❌ Immediate failure on timeout</h3>
+<ul>
+<li>leads to duplicate execution</li>
+</ul>
+<hr>
+<h3 id="-blocking-api-for-long-time">❌ Blocking API for long time</h3>
+<ul>
+<li>hurts user experience</li>
+</ul>
+<hr>
+<h3 id="-ignoring-unknown-state">❌ Ignoring unknown state</h3>
+<ul>
+<li>leads to inconsistent system</li>
+</ul>
+<hr>
+<h3 id="-no-reconciliation-mechanism">❌ No reconciliation mechanism</h3>
+<ul>
+<li>system never recovers</li>
+</ul>
+<hr>
+<h2 id="12-design-principle">12. Design Principle</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>When you are unsure, choose a safe intermediate state instead of a wrong final state.</strong></p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Consistency vs availability is not theoretical here.</p>
+<p>It directly affects:</p>
+<ul>
+<li>correctness</li>
+<li>customer trust</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_7_unknown-state-and-recovery">Unknown State &amp; Recovery →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Never assume outcome on timeout</li>
+<li>Use PROCESSING as safe state</li>
+<li>Resolve uncertainty asynchronously</li>
+<li>Prioritize correctness over immediacy</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-topic-matters" data-toc-target="1-why-this-topic-matters">1. Why This Topic Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-the-core-problem-timeout" data-toc-target="3-the-core-problem-timeout">3. The Core Problem: Timeout</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-the-trade-off" data-toc-target="4-the-trade-off">4. The Trade-off</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-what-we-should-not-do" data-toc-target="5-what-we-should-not-do">5. What We Should NOT Do</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-recommended-approach" data-toc-target="6-recommended-approach">6. Recommended Approach</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-system-behavior-model" data-toc-target="7-system-behavior-model">7. System Behavior Model</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-eventual-consistency" data-toc-target="8-eventual-consistency">8. Eventual Consistency</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-why-this-works-for-payments" data-toc-target="9-why-this-works-for-payments">9. Why This Works for Payments</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-real-world-design-pattern" data-toc-target="10-real-world-design-pattern">10. Real-World Design Pattern</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-common-mistakes" data-toc-target="11-common-mistakes">11. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-design-principle" data-toc-target="12-design-principle">12. Design Principle</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_5_double-execution-protection/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_7_unknown-state-and-recovery/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

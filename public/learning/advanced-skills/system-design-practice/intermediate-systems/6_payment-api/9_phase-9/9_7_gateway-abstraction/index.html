@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gateway Abstraction</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776936425">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Gateway Abstraction</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-article">1. Why This Article</h2>
+<hr>
+<p>In the confirm flow, we introduced an external call:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment → External Gateway (Stripe / Adyen / etc.)
+</span></span></code></pre></div><p>This introduces a major design concern:</p>
+<blockquote>
+<p>❗ <strong>External systems are unreliable, variable, and change over time.</strong></p></blockquote>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>confirm flow</li>
+<li>concurrency</li>
+</ul>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>how to design a clean abstraction for external gateways</li>
+<li>how to support multiple providers</li>
+<li>how to keep service layer clean</li>
+</ul>
+<hr>
+<h2 id="3-problem-without-abstraction">3. Problem Without Abstraction</h2>
+<hr>
+<h3 id="-bad-design">❌ Bad Design</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (provider.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;STRIPE&#34;</span>)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Stripe API call</span>
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (provider.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;ADYEN&#34;</span>)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Adyen API call</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="problems">Problems</h3>
+<ul>
+<li>tightly coupled logic</li>
+<li>hard to extend</li>
+<li>difficult to test</li>
+</ul>
+<hr>
+<h2 id="4-goal-of-gateway-abstraction">4. Goal of Gateway Abstraction</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Decouple business logic from external integrations.</strong></p></blockquote>
+<hr>
+<p>We want:</p>
+<ul>
+<li>pluggable gateway implementations</li>
+<li>clean service layer</li>
+<li>easy testing (mocking)</li>
+</ul>
+<hr>
+<h2 id="5-core-design-strategy-pattern">5. Core Design (Strategy Pattern)</h2>
+<hr>
+<p>We use a <strong>strategy pattern</strong>.</p>
+<div class="mermaid">
+classDiagram
+    class PaymentService
+    class PaymentGateway
+    class StripeGateway
+    class AdyenGateway
+
+    PaymentService --> PaymentGateway
+    PaymentGateway <|-- StripeGateway
+    PaymentGateway <|-- AdyenGateway
+</div>
+<hr>
+<h2 id="6-gateway-interface">6. Gateway Interface</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">PaymentGateway</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    GatewayResponse <span style="color:#a6e22e">charge</span>(Payment payment);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Defines a common contract.</p>
+<hr>
+<h2 id="7-concrete-implementations">7. Concrete Implementations</h2>
+<hr>
+<h3 id="stripe">Stripe</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Component</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StripeGateway</span> <span style="color:#66d9ef">implements</span> PaymentGateway {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> GatewayResponse <span style="color:#a6e22e">charge</span>(Payment payment) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// call Stripe API</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> GatewayResponse(<span style="color:#66d9ef">true</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="adyen">Adyen</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Component</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AdyenGateway</span> <span style="color:#66d9ef">implements</span> PaymentGateway {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> GatewayResponse <span style="color:#a6e22e">charge</span>(Payment payment) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// call Adyen API</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> GatewayResponse(<span style="color:#66d9ef">true</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="8-gateway-resolver-factory">8. Gateway Resolver (Factory)</h2>
+<hr>
+<p>We need a way to select the correct gateway.</p>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Component</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GatewayResolver</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, PaymentGateway<span style="color:#f92672">&gt;</span> gateways;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">GatewayResolver</span>(List<span style="color:#f92672">&lt;</span>PaymentGateway<span style="color:#f92672">&gt;</span> gatewayList) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">gateways</span> <span style="color:#f92672">=</span> gatewayList.<span style="color:#a6e22e">stream</span>()
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">collect</span>(Collectors.<span style="color:#a6e22e">toMap</span>(
+</span></span><span style="display:flex;"><span>                        g <span style="color:#f92672">-&gt;</span> g.<span style="color:#a6e22e">getClass</span>().<span style="color:#a6e22e">getSimpleName</span>(),
+</span></span><span style="display:flex;"><span>                        g <span style="color:#f92672">-&gt;</span> g
+</span></span><span style="display:flex;"><span>                ));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> PaymentGateway <span style="color:#a6e22e">resolve</span>(String provider) {
+</span></span><span style="display:flex;"><span>        PaymentGateway gateway <span style="color:#f92672">=</span> gateways.<span style="color:#a6e22e">get</span>(provider);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (gateway <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unsupported provider&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> gateway;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Spring injects all implementations automatically.</p>
+<hr>
+<h2 id="9-using-in-service-layer">9. Using in Service Layer</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentService</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> GatewayResolver gatewayResolver;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> GatewayResponse <span style="color:#a6e22e">callGateway</span>(Payment payment) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        PaymentGateway gateway <span style="color:#f92672">=</span> gatewayResolver.<span style="color:#a6e22e">resolve</span>(payment.<span style="color:#a6e22e">getProvider</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> gateway.<span style="color:#a6e22e">charge</span>(payment);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Service is now clean and provider-agnostic.</p>
+<hr>
+<h2 id="10-benefits-of-this-design">10. Benefits of This Design</h2>
+<hr>
+<h3 id="1-extensibility">1. Extensibility</h3>
+<p>Add new provider:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaypalGateway</span> <span style="color:#66d9ef">implements</span> PaymentGateway
+</span></span></code></pre></div><p>👉 No change in service layer.</p>
+<hr>
+<h3 id="2-testability">2. Testability</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Mock</span> PaymentGateway gateway;
+</span></span></code></pre></div><p>👉 Easy unit testing.</p>
+<hr>
+<h3 id="3-maintainability">3. Maintainability</h3>
+<ul>
+<li>changes isolated to implementation</li>
+</ul>
+<hr>
+<h3 id="4-clean-code">4. Clean Code</h3>
+<ul>
+<li>no if-else logic</li>
+</ul>
+<hr>
+<h2 id="11-advanced-considerations">11. Advanced Considerations</h2>
+<hr>
+<h3 id="1-timeouts--retries">1. Timeouts &amp; Retries</h3>
+<ul>
+<li>wrap gateway calls with retry logic</li>
+</ul>
+<hr>
+<h3 id="2-circuit-breaker">2. Circuit Breaker</h3>
+<ul>
+<li>prevent cascading failures</li>
+</ul>
+<hr>
+<h3 id="3-logging--metrics">3. Logging &amp; Metrics</h3>
+<ul>
+<li>track success/failure rates</li>
+</ul>
+<hr>
+<h3 id="4-idempotency-at-gateway-level">4. Idempotency at Gateway Level</h3>
+<ul>
+<li>some providers support idempotency keys</li>
+</ul>
+<hr>
+<h2 id="12-common-mistakes">12. Common Mistakes</h2>
+<hr>
+<h3 id="-hardcoding-providers-in-service">❌ Hardcoding providers in service</h3>
+<hr>
+<h3 id="-mixing-business-logic-with-api-calls">❌ Mixing business logic with API calls</h3>
+<hr>
+<h3 id="-no-abstraction-layer">❌ No abstraction layer</h3>
+<hr>
+<h3 id="-not-handling-failures">❌ Not handling failures</h3>
+<hr>
+<h2 id="13-design-insight">13. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>External systems should always be behind an abstraction boundary.</strong></p></blockquote>
+<hr>
+<p>This ensures:</p>
+<ul>
+<li>flexibility</li>
+<li>resilience</li>
+<li>maintainability</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Gateway abstraction allows you to:</p>
+<ul>
+<li>integrate multiple providers cleanly</li>
+<li>isolate external dependencies</li>
+<li>keep business logic simple</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_1_overview">Phase 10: Security, Access Control &amp; Compliance →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Use strategy pattern for gateway abstraction</li>
+<li>Keep service layer provider-agnostic</li>
+<li>Add new gateways without modifying core logic</li>
+<li>External systems must be isolated behind clean interfaces</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-article" data-toc-target="1-why-this-article">1. Why This Article</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-problem-without-abstraction" data-toc-target="3-problem-without-abstraction">3. Problem Without Abstraction</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-goal-of-gateway-abstraction" data-toc-target="4-goal-of-gateway-abstraction">4. Goal of Gateway Abstraction</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-core-design-strategy-pattern" data-toc-target="5-core-design-strategy-pattern">5. Core Design (Strategy Pattern)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-gateway-interface" data-toc-target="6-gateway-interface">6. Gateway Interface</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-concrete-implementations" data-toc-target="7-concrete-implementations">7. Concrete Implementations</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-gateway-resolver-factory" data-toc-target="8-gateway-resolver-factory">8. Gateway Resolver (Factory)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-using-in-service-layer" data-toc-target="9-using-in-service-layer">9. Using in Service Layer</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-benefits-of-this-design" data-toc-target="10-benefits-of-this-design">10. Benefits of This Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-advanced-considerations" data-toc-target="11-advanced-considerations">11. Advanced Considerations</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-common-mistakes" data-toc-target="12-common-mistakes">12. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-design-insight" data-toc-target="13-design-insight">13. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_6_exception-handling/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

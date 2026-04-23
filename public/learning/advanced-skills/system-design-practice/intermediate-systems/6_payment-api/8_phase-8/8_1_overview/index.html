@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concurrency, Consistency &amp; State Protection — Overview</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776932075">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Concurrency, Consistency &amp; State Protection — Overview</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 22 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+<hr>
+<p>In previous phases, we designed:</p>
+<ul>
+<li>APIs and flows</li>
+<li>Idempotency handling</li>
+<li>Persistence and transactions</li>
+</ul>
+<p>Those designs work well under <strong>ideal conditions</strong>.</p>
+<p>Now we focus on a harder question:</p>
+<blockquote>
+<p>❗ <em>What happens when multiple things happen at the same time?</em></p></blockquote>
+<hr>
+<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
+<hr>
+<p>⚠️ Important clarification:</p>
+<p>This phase does <strong>NOT</strong> re-explain:</p>
+<ul>
+<li>idempotency basics</li>
+<li>payment lifecycle</li>
+<li>API design</li>
+</ul>
+<p>👉 These were already covered in earlier phases.</p>
+<p>Instead, this phase focuses on:</p>
+<ul>
+<li>how those concepts behave under <strong>concurrency and race conditions</strong></li>
+</ul>
+<hr>
+<h2 id="3-real-problems-we-are-solving">3. Real Problems We Are Solving</h2>
+<hr>
+<h3 id="1-concurrent-confirm-requests">1. Concurrent Confirm Requests</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Two requests try to confirm the same payment at the same time
+</span></span></code></pre></div><hr>
+<h3 id="2-retry-during-processing">2. Retry During Processing</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client retries while original request is still running
+</span></span></code></pre></div><hr>
+<h3 id="3-double-state-transition">3. Double State Transition</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Two threads try to move payment from CREATED → PROCESSING
+</span></span></code></pre></div><hr>
+<h3 id="4-unknown-state--retry">4. Unknown State + Retry</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Gateway timeout + retry + concurrent execution
+</span></span></code></pre></div><hr>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+The system must guarantee that <strong>only one valid execution path succeeds</strong>, regardless of how many requests arrive.</p></blockquote>
+<hr>
+<h2 id="4-layers-of-protection-recap-not-repetition">4. Layers of Protection (Recap, Not Repetition)</h2>
+<hr>
+<p>We already introduced these mechanisms earlier. Here we see how they work <strong>together under stress</strong>.</p>
+<h3 id="1-idempotency">1. Idempotency</h3>
+<ul>
+<li>protects against duplicate requests</li>
+</ul>
+<hr>
+<h3 id="2-locking">2. Locking</h3>
+<ul>
+<li>prevents concurrent execution on same payment</li>
+</ul>
+<hr>
+<h3 id="3-state-validation">3. State Validation</h3>
+<ul>
+<li>ensures only valid transitions happen</li>
+</ul>
+<hr>
+<h3 id="4-transactions">4. Transactions</h3>
+<ul>
+<li>ensure atomic updates</li>
+</ul>
+<hr>
+<p>👉 This phase focuses on <strong>how these interact</strong>, not what they are.</p>
+<hr>
+<h2 id="5-mental-model-for-this-phase">5. Mental Model for This Phase</h2>
+<hr>
+<p>Think of this phase as answering:</p>
+<blockquote>
+<p>“How do we make the system correct under pressure?”</p></blockquote>
+<hr>
+<h3 id="system-under-pressure-means">System Under Pressure Means</h3>
+<ul>
+<li>high traffic</li>
+<li>retries</li>
+<li>concurrent requests</li>
+<li>partial failures</li>
+</ul>
+<hr>
+<h2 id="6-what-we-will-cover-next">6. What We Will Cover Next</h2>
+<hr>
+<h3 id="82-concurrent-confirm-requests">8.2 Concurrent Confirm Requests</h3>
+<ul>
+<li>same key vs different key behavior</li>
+</ul>
+<hr>
+<h3 id="83-locking-strategies">8.3 Locking Strategies</h3>
+<ul>
+<li>pessimistic vs optimistic locking</li>
+</ul>
+<hr>
+<h3 id="84-atomic-state-transitions">8.4 Atomic State Transitions</h3>
+<ul>
+<li>preventing invalid updates</li>
+</ul>
+<hr>
+<h3 id="85-double-execution-protection">8.5 Double Execution Protection</h3>
+<ul>
+<li>layered safeguards</li>
+</ul>
+<hr>
+<h3 id="86-consistency-vs-availability">8.6 Consistency vs Availability</h3>
+<ul>
+<li>handling timeouts and ambiguity</li>
+</ul>
+<hr>
+<h3 id="87-unknown-state-handling">8.7 Unknown State Handling</h3>
+<ul>
+<li>recovery and reconciliation thinking</li>
+</ul>
+<hr>
+<h3 id="88-common-race-conditions">8.8 Common Race Conditions</h3>
+<ul>
+<li>real-world anti-patterns</li>
+</ul>
+<hr>
+<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
+<hr>
+<p>To avoid redundancy, this phase will NOT:</p>
+<ul>
+<li>repeat full create/confirm flows</li>
+<li>redefine idempotency concepts</li>
+<li>restate database schemas</li>
+</ul>
+<p>👉 Instead, it will <strong>build on them</strong>.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>This phase focuses on making the system:</p>
+<ul>
+<li>correct under concurrency</li>
+<li>safe under retries</li>
+<li>reliable under race conditions</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_2_concurrent-confirm-requests">Concurrent Confirm Requests →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Concurrency introduces the hardest problems in system design</li>
+<li>Multiple safeguards must work together</li>
+<li>This phase focuses on behavior under real-world pressure</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-real-problems-we-are-solving" data-toc-target="3-real-problems-we-are-solving">3. Real Problems We Are Solving</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-layers-of-protection-recap-not-repetition" data-toc-target="4-layers-of-protection-recap-not-repetition">4. Layers of Protection (Recap, Not Repetition)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-mental-model-for-this-phase" data-toc-target="5-mental-model-for-this-phase">5. Mental Model for This Phase</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-what-we-will-cover-next" data-toc-target="6-what-we-will-cover-next">6. What We Will Cover Next</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_2_concurrent-confirm-requests/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Trade-offs &amp; Limitations</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776790994">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Design Trade-offs &amp; Limitations</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-trade-offs-matter">1. Why Trade-offs Matter</h2>
+<hr>
+<p>There is no perfect design in distributed systems—only informed compromises.</p>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Building reliable payment systems requires balancing <strong>correctness, performance, cost, and complexity</strong>.</p></blockquote>
+<p>This article highlights the practical trade-offs behind the mechanisms we introduced in Phase 5.</p>
+<hr>
+<h2 id="2-idempotency-storage-db-vs-cache">2. Idempotency Storage: DB vs Cache</h2>
+<hr>
+<h3 id="database-source-of-truth">Database (Source of Truth)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>durable and consistent</li>
+<li>supports recovery and reconciliation</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>higher latency</li>
+<li>increased write load</li>
+</ul>
+<hr>
+<h3 id="cache-eg-redis">Cache (e.g., Redis)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>low latency lookups</li>
+<li>natural TTL support</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>eviction/data loss risk</li>
+<li>not suitable as sole source of truth</li>
+</ul>
+<hr>
+<h3 id="practical-choice">Practical Choice</h3>
+<ul>
+<li>Use <strong>DB for correctness</strong></li>
+<li>Add <strong>cache for performance (read-through/write-through)</strong></li>
+</ul>
+<hr>
+<h2 id="3-idempotency-ttl-time-to-live">3. Idempotency TTL (Time-to-Live)</h2>
+<hr>
+<h3 id="longer-ttl">Longer TTL</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>safer retries over longer windows</li>
+<li>protects against delayed clients</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>higher storage cost</li>
+<li>larger lookup tables</li>
+</ul>
+<hr>
+<h3 id="shorter-ttl">Shorter TTL</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>lower storage and faster cleanup</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>late retries may be treated as new requests</li>
+<li>potential duplicate effects after expiry</li>
+</ul>
+<hr>
+<h3 id="practical-choice-1">Practical Choice</h3>
+<ul>
+<li>Align TTL with <strong>expected retry window</strong> (commonly 24–48 hours)</li>
+<li>Use <strong>background cleanup/archival</strong></li>
+</ul>
+<hr>
+<h2 id="4-strict-vs-flexible-business-constraints">4. Strict vs Flexible Business Constraints</h2>
+<hr>
+<h3 id="strict-one-active-payment-per-order">Strict (One Active Payment per Order)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>avoids conflicting payments</li>
+<li>simpler reasoning</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>may block legitimate retries/flows</li>
+</ul>
+<hr>
+<h3 id="flexible-multiple-payments-allowed">Flexible (Multiple Payments Allowed)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>supports retries and alternate payment methods</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>requires stronger reconciliation and UI clarity</li>
+</ul>
+<hr>
+<h3 id="practical-choice-2">Practical Choice</h3>
+<ul>
+<li>Allow <strong>multiple historical payments</strong></li>
+<li>Restrict to <strong>one active payment at a time</strong></li>
+</ul>
+<hr>
+<h2 id="5-concurrency-control-locking-vs-throughput">5. Concurrency Control: Locking vs Throughput</h2>
+<hr>
+<h3 id="pessimistic-locking-eg-select--for-update">Pessimistic Locking (e.g., <code>SELECT ... FOR UPDATE</code>)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>strong correctness</li>
+<li>prevents race conditions</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>reduced throughput</li>
+<li>potential contention</li>
+</ul>
+<hr>
+<h3 id="optimistic-locking-versioning">Optimistic Locking (versioning)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>better throughput</li>
+<li>fewer locks</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>requires retries on conflict</li>
+<li>more complex logic</li>
+</ul>
+<hr>
+<h3 id="practical-choice-3">Practical Choice</h3>
+<ul>
+<li>Use <strong>pessimistic locking for critical paths</strong> (confirm)</li>
+<li>Consider <strong>optimistic locking</strong> for less critical updates</li>
+</ul>
+<hr>
+<h2 id="6-consistency-vs-availability">6. Consistency vs Availability</h2>
+<hr>
+<p>In failures (e.g., gateway timeout), you must choose behavior.</p>
+<h3 id="strong-consistency">Strong Consistency</h3>
+<ul>
+<li>wait for definitive outcome</li>
+<li>fewer ambiguous states</li>
+</ul>
+<p><strong>Trade-off</strong>: slower responses, potential timeouts</p>
+<hr>
+<h3 id="higher-availability">Higher Availability</h3>
+<ul>
+<li>respond quickly with <code>PROCESSING</code></li>
+<li>resolve later via retries/reconciliation</li>
+</ul>
+<p><strong>Trade-off</strong>: temporary ambiguity</p>
+<hr>
+<h3 id="practical-choice-4">Practical Choice</h3>
+<ul>
+<li>Prefer <strong>availability with controlled ambiguity</strong></li>
+<li>Use <strong>reconciliation</strong> to reach final consistency</li>
+</ul>
+<hr>
+<h2 id="7-gateway-coupling-vs-abstraction">7. Gateway Coupling vs Abstraction</h2>
+<hr>
+<h3 id="tight-coupling-expose-gateway-details">Tight Coupling (Expose Gateway Details)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>faster initial integration</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>hard to switch providers</li>
+<li>leaks external complexity</li>
+</ul>
+<hr>
+<h3 id="abstraction-layer-recommended">Abstraction Layer (Recommended)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>stable API contract</li>
+<li>easier provider switching</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>additional translation layer</li>
+</ul>
+<hr>
+<h2 id="8-idempotency-scope-design">8. Idempotency Scope Design</h2>
+<hr>
+<h3 id="global-keys">Global Keys</h3>
+<p><strong>Cons</strong></p>
+<ul>
+<li>operational complexity</li>
+</ul>
+<hr>
+<h3 id="per-endpoint-keys-recommended">Per-Endpoint Keys (Recommended)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>simpler reasoning</li>
+<li>avoids cross-operation collisions</li>
+</ul>
+<hr>
+<h2 id="9-response-storage-size-vs-replay-accuracy">9. Response Storage Size vs Replay Accuracy</h2>
+<hr>
+<h3 id="store-full-response">Store Full Response</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>exact replay</li>
+<li>consistent client experience</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>higher storage usage</li>
+</ul>
+<hr>
+<h3 id="store-minimal-data-ids--status">Store Minimal Data (IDs + status)</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>smaller footprint</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>requires reconstruction</li>
+<li>risk of drift</li>
+</ul>
+<hr>
+<h3 id="practical-choice-5">Practical Choice</h3>
+<ul>
+<li>Store <strong>essential fields + response snapshot</strong> for critical endpoints</li>
+</ul>
+<hr>
+<h2 id="10-operational-complexity-vs-safety">10. Operational Complexity vs Safety</h2>
+<hr>
+<p>Adding reliability features increases complexity:</p>
+<ul>
+<li>idempotency tables</li>
+<li>reconciliation jobs</li>
+<li>retry logic</li>
+<li>monitoring and alerts</li>
+</ul>
+<p><strong>Trade-off</strong></p>
+<ul>
+<li>higher engineering effort vs lower financial risk</li>
+</ul>
+<hr>
+<h2 id="11-what-this-means-in-practice">11. What This Means in Practice</h2>
+<hr>
+<p>A production-grade payment system typically:</p>
+<ul>
+<li>uses DB-backed idempotency with TTL</li>
+<li>enforces state transitions strictly</li>
+<li>applies locking on confirm</li>
+<li>prefers availability with reconciliation</li>
+<li>abstracts gateway interactions</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Every reliability mechanism comes with trade-offs:</p>
+<ul>
+<li>correctness vs performance</li>
+<li>storage vs safety</li>
+<li>simplicity vs flexibility</li>
+</ul>
+<p>There is no perfect solution—only well-chosen compromises aligned with business needs.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/6_phase-6/6_1_processing-flow-overview/">Phase 6: Processing Flow &amp; Implementation →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Payment systems require deliberate trade-offs</li>
+<li>Idempotency improves safety but adds complexity</li>
+<li>Design choices should align with risk tolerance and scale</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-trade-offs-matter" data-toc-target="1-why-trade-offs-matter">1. Why Trade-offs Matter</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-idempotency-storage-db-vs-cache" data-toc-target="2-idempotency-storage-db-vs-cache">2. Idempotency Storage: DB vs Cache</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-idempotency-ttl-time-to-live" data-toc-target="3-idempotency-ttl-time-to-live">3. Idempotency TTL (Time-to-Live)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-strict-vs-flexible-business-constraints" data-toc-target="4-strict-vs-flexible-business-constraints">4. Strict vs Flexible Business Constraints</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-concurrency-control-locking-vs-throughput" data-toc-target="5-concurrency-control-locking-vs-throughput">5. Concurrency Control: Locking vs Throughput</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-consistency-vs-availability" data-toc-target="6-consistency-vs-availability">6. Consistency vs Availability</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-gateway-coupling-vs-abstraction" data-toc-target="7-gateway-coupling-vs-abstraction">7. Gateway Coupling vs Abstraction</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-idempotency-scope-design" data-toc-target="8-idempotency-scope-design">8. Idempotency Scope Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-response-storage-size-vs-replay-accuracy" data-toc-target="9-response-storage-size-vs-replay-accuracy">9. Response Storage Size vs Replay Accuracy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-operational-complexity-vs-safety" data-toc-target="10-operational-complexity-vs-safety">10. Operational Complexity vs Safety</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-what-this-means-in-practice" data-toc-target="11-what-this-means-in-practice">11. What This Means in Practice</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_8_idempotency-vs-exactly-once/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

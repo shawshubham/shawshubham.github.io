@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Payment — Clean Implementation</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776936123">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Create Payment — Clean Implementation</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-article">1. Why This Article</h2>
+<hr>
+<p>We already designed the <strong>create payment API</strong> and discussed idempotency.</p>
+<p>Now we implement it cleanly in code using:</p>
+<ul>
+<li>Controller → Service → Repository</li>
+<li>Idempotency as a first-class concern</li>
+</ul>
+<blockquote>
+<p>🧠 Goal: <strong>Translate the create flow into safe, readable, and production-ready code.</strong></p></blockquote>
+<hr>
+<h2 id="2-what-this-article-does-not-repeat">2. What This Article Does NOT Repeat</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>full API design</li>
+<li>domain model</li>
+<li>idempotency theory</li>
+</ul>
+<p>👉 We focus on <strong>how to implement the flow correctly</strong>.</p>
+<hr>
+<h2 id="3-create-payment-flow-implementation-view">3. Create Payment Flow (Implementation View)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Receive request + idempotency key
+</span></span><span style="display:flex;"><span>2. Check existing idempotency record
+</span></span><span style="display:flex;"><span>3. Reserve idempotency (IN_PROGRESS)
+</span></span><span style="display:flex;"><span>4. Validate request (input + business)
+</span></span><span style="display:flex;"><span>5. Create Payment entity
+</span></span><span style="display:flex;"><span>6. Persist payment
+</span></span><span style="display:flex;"><span>7. Complete idempotency (store response + paymentId)
+</span></span><span style="display:flex;"><span>8. Return response
+</span></span></code></pre></div><hr>
+<h2 id="4-controller-layer">4. Controller Layer</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@RequestMapping</span>(<span style="color:#e6db74">&#34;/payments&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentController</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PaymentService paymentService;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PaymentController</span>(PaymentService paymentService) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">paymentService</span> <span style="color:#f92672">=</span> paymentService;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@PostMapping</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>CreatePaymentResponse<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createPayment</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@RequestBody</span> CreatePaymentRequest request,
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">@RequestHeader</span>(<span style="color:#e6db74">&#34;Idempotency-Key&#34;</span>) String key) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ResponseEntity.<span style="color:#a6e22e">ok</span>(paymentService.<span style="color:#a6e22e">createPayment</span>(request, key));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 Controller only delegates — no business logic.</p>
+<hr>
+<h2 id="5-service-layer-core-logic">5. Service Layer (Core Logic)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentService</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PaymentRepository paymentRepository;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> IdempotencyService idempotencyService;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PaymentMapper paymentMapper;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Transactional</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> CreatePaymentResponse <span style="color:#a6e22e">createPayment</span>(CreatePaymentRequest request, String key) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 1. Check existing idempotency</span>
+</span></span><span style="display:flex;"><span>        Optional<span style="color:#f92672">&lt;</span>IdempotencyRecord<span style="color:#f92672">&gt;</span> existing <span style="color:#f92672">=</span> idempotencyService.<span style="color:#a6e22e">find</span>(key, Operation.<span style="color:#a6e22e">CREATE</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (existing.<span style="color:#a6e22e">isPresent</span>()) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> existing.<span style="color:#a6e22e">get</span>().<span style="color:#a6e22e">getResponse</span>(CreatePaymentResponse.<span style="color:#a6e22e">class</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 2. Reserve idempotency EARLY</span>
+</span></span><span style="display:flex;"><span>        idempotencyService.<span style="color:#a6e22e">reserve</span>(key, Operation.<span style="color:#a6e22e">CREATE</span>, request);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 3. Validate request</span>
+</span></span><span style="display:flex;"><span>        validate(request);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 4. Map DTO → Entity</span>
+</span></span><span style="display:flex;"><span>        Payment payment <span style="color:#f92672">=</span> paymentMapper.<span style="color:#a6e22e">toEntity</span>(request);
+</span></span><span style="display:flex;"><span>        payment.<span style="color:#a6e22e">setId</span>(UUID.<span style="color:#a6e22e">randomUUID</span>());
+</span></span><span style="display:flex;"><span>        payment.<span style="color:#a6e22e">setStatus</span>(PaymentStatus.<span style="color:#a6e22e">CREATED</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 5. Persist</span>
+</span></span><span style="display:flex;"><span>        paymentRepository.<span style="color:#a6e22e">save</span>(payment);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 6. Build response</span>
+</span></span><span style="display:flex;"><span>        CreatePaymentResponse response <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CreatePaymentResponse(payment.<span style="color:#a6e22e">getId</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 7. Complete idempotency</span>
+</span></span><span style="display:flex;"><span>        idempotencyService.<span style="color:#a6e22e">complete</span>(key, Operation.<span style="color:#a6e22e">CREATE</span>, payment.<span style="color:#a6e22e">getId</span>(), response);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> response;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">validate</span>(CreatePaymentRequest request) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (request.<span style="color:#a6e22e">getAmount</span>() <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> request.<span style="color:#a6e22e">getAmount</span>().<span style="color:#a6e22e">signum</span>() <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Amount must be &gt; 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (request.<span style="color:#a6e22e">getCurrency</span>() <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Currency is required&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (request.<span style="color:#a6e22e">getOrderId</span>() <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> request.<span style="color:#a6e22e">getOrderId</span>().<span style="color:#a6e22e">isBlank</span>()) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;orderId is required&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="6-why-idempotency-is-reserved-early">6. Why Idempotency is Reserved Early</h2>
+<hr>
+<blockquote>
+<p>❗ <strong>Critical rule:</strong> Reserve idempotency BEFORE side effects</p></blockquote>
+<hr>
+<h3 id="-wrong">❌ Wrong</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>validate → create payment → store idempotency
+</span></span></code></pre></div><p>👉 Race condition possible</p>
+<hr>
+<h3 id="-correct">✅ Correct</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>reserve idempotency → validate → create payment
+</span></span></code></pre></div><p>👉 Ensures only one request proceeds</p>
+<hr>
+<h2 id="7-idempotency-service-simplified">7. Idempotency Service (Simplified)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IdempotencyService</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> IdempotencyRepository repository;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Optional<span style="color:#f92672">&lt;</span>IdempotencyRecord<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">find</span>(String key, Operation op) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> repository.<span style="color:#a6e22e">findByKeyAndOperation</span>(key, op);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">reserve</span>(String key, Operation op, Object request) {
+</span></span><span style="display:flex;"><span>        IdempotencyRecord record <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> IdempotencyRecord(key, op, Status.<span style="color:#a6e22e">IN_PROGRESS</span>);
+</span></span><span style="display:flex;"><span>        repository.<span style="color:#a6e22e">save</span>(record); <span style="color:#75715e">// unique constraint protects duplicates</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">complete</span>(String key, Operation op, UUID resourceId, Object response) {
+</span></span><span style="display:flex;"><span>        IdempotencyRecord record <span style="color:#f92672">=</span> repository.<span style="color:#a6e22e">findByKeyAndOperation</span>(key, op)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">orElseThrow</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">complete</span>(resourceId, response);
+</span></span><span style="display:flex;"><span>        repository.<span style="color:#a6e22e">save</span>(record);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="8-repository-layer">8. Repository Layer</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Repository</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">PaymentRepository</span> <span style="color:#66d9ef">extends</span> JpaRepository<span style="color:#f92672">&lt;</span>Payment, UUID<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Optional<span style="color:#f92672">&lt;</span>Payment<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">findByOrderId</span>(String orderId);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 Used only for persistence — no business logic.</p>
+<hr>
+<h2 id="9-mapping-with-mapstruct">9. Mapping with MapStruct</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Mapper</span>(componentModel <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;spring&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">PaymentMapper</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Payment <span style="color:#a6e22e">toEntity</span>(CreatePaymentRequest request);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="10-transaction-boundary">10. Transaction Boundary</h2>
+<hr>
+<ul>
+<li>Entire create flow runs in a <strong>single transaction</strong></li>
+<li>If anything fails → rollback</li>
+<li>Idempotency + payment stay consistent</li>
+</ul>
+<hr>
+<h2 id="11-common-mistakes">11. Common Mistakes</h2>
+<hr>
+<h3 id="-late-idempotency-reservation">❌ Late idempotency reservation</h3>
+<ul>
+<li>causes duplicate creation</li>
+</ul>
+<hr>
+<h3 id="-business-logic-in-controller">❌ Business logic in controller</h3>
+<ul>
+<li>breaks layering</li>
+</ul>
+<hr>
+<h3 id="-manual-mapping-everywhere">❌ Manual mapping everywhere</h3>
+<ul>
+<li>leads to boilerplate</li>
+</ul>
+<hr>
+<h3 id="-skipping-validation">❌ Skipping validation</h3>
+<ul>
+<li>invalid data enters system</li>
+</ul>
+<hr>
+<h2 id="12-design-insight">12. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Create API is simpler than confirm, but still requires strict ordering of operations.</strong></p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>A clean create payment implementation:</p>
+<ul>
+<li>reserves idempotency early</li>
+<li>validates input</li>
+<li>persists safely</li>
+<li>returns consistent responses</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_4_confirm-payment-implementation">Confirm Payment Implementation →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Idempotency must be handled before side effects</li>
+<li>Service layer controls the flow</li>
+<li>Clean layering ensures maintainability</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-article" data-toc-target="1-why-this-article">1. Why This Article</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-does-not-repeat" data-toc-target="2-what-this-article-does-not-repeat">2. What This Article Does NOT Repeat</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-create-payment-flow-implementation-view" data-toc-target="3-create-payment-flow-implementation-view">3. Create Payment Flow (Implementation View)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-controller-layer" data-toc-target="4-controller-layer">4. Controller Layer</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-service-layer-core-logic" data-toc-target="5-service-layer-core-logic">5. Service Layer (Core Logic)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-why-idempotency-is-reserved-early" data-toc-target="6-why-idempotency-is-reserved-early">6. Why Idempotency is Reserved Early</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-idempotency-service-simplified" data-toc-target="7-idempotency-service-simplified">7. Idempotency Service (Simplified)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-repository-layer" data-toc-target="8-repository-layer">8. Repository Layer</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-mapping-with-mapstruct" data-toc-target="9-mapping-with-mapstruct">9. Mapping with MapStruct</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-transaction-boundary" data-toc-target="10-transaction-boundary">10. Transaction Boundary</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-common-mistakes" data-toc-target="11-common-mistakes">11. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-design-insight" data-toc-target="12-design-insight">12. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_4_confirm-payment-implementation/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

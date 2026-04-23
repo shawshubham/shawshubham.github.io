@@ -219,7 +219,7 @@ The goal of system design is to **anticipate these problems and design safeguard
 
 ### 🔗 What’s Next?
 
-👉 **[Phase 2: Domain Model & Payment Lifecycle →](/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/2_phase-2/2_1_core-entities)**
+👉 **[Phase 2: High-Level Design of Payment API System →](/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/2_phase-2/2_1_system-overview-and-components/)**
 
 ---
 

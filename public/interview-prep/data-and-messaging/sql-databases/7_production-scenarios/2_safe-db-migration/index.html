@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Do You Perform a Database Migration Safely in Production?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776932077">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">How Do You Perform a Database Migration Safely in Production?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. What is a Database Migration?</li>
+        
+        <li>4. Why Database Migration is Risky</li>
+        
+        <li>5. Safe Migration Principles (VERY IMPORTANT)</li>
+        
+        <li>6. Step-by-Step Safe Migration Approach</li>
+        
+        <li>7. Expand-and-Contract Pattern (MOST IMPORTANT)</li>
+        
+        <li>8. Real-World Example</li>
+        
+        <li>9. Data Migration Best Practices</li>
+        
+        <li>10. Rollback vs Roll-Forward</li>
+        
+        <li>11. Common Production Mistakes</li>
+        
+        <li>12. Important Interview Points</li>
+        
+        <li>13. Interview Summary Answer (Best Answer)</li>
+        
+        <li>14. Learn More (Related Topics)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 23 Apr, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>A safe database migration in production is done in a controlled, backward-compatible way by planning the change, validating impact, applying schema changes carefully, migrating data in stages, monitoring closely, and keeping a rollback or fallback strategy ready.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>production safety during schema or data changes</li>
+<li>backward compatibility between application and database</li>
+<li>rollback and recovery thinking</li>
+<li>risk reduction in real systems</li>
+</ul>
+<p>👉 This is a very common production support and backend interview question.</p>
+<hr>
+<h2 id="3-what-is-a-database-migration">3. What is a Database Migration?</h2>
+<hr>
+<p>A database migration is any change to the database such as:</p>
+<ul>
+<li>adding or removing columns</li>
+<li>changing data types</li>
+<li>moving data from one table to another</li>
+<li>introducing new indexes</li>
+<li>migrating from one database version or engine to another</li>
+</ul>
+<hr>
+<p>👉 In interviews, the question usually focuses on <strong>schema and data changes in production</strong>.</p>
+<hr>
+<h2 id="4-why-database-migration-is-risky">4. Why Database Migration is Risky</h2>
+<hr>
+<p>A bad migration can cause:</p>
+<ul>
+<li>application downtime</li>
+<li>failed deployments</li>
+<li>data loss</li>
+<li>slow queries or lock contention</li>
+<li>inconsistent reads/writes</li>
+</ul>
+<hr>
+<p>👉 Database changes are high-risk because application code and database schema must remain compatible.</p>
+<hr>
+<h2 id="5-safe-migration-principles-very-important">5. Safe Migration Principles (VERY IMPORTANT)</h2>
+<hr>
+<h3 id="1-make-changes-backward-compatible">1. Make Changes Backward Compatible</h3>
+<p>Application old version and new version should both work during deployment.</p>
+<p>Example:</p>
+<ul>
+<li>first add new column</li>
+<li>then deploy code using it</li>
+<li>later remove old column</li>
+</ul>
+<hr>
+<h3 id="2-avoid-big-bang-changes">2. Avoid Big-Bang Changes</h3>
+<p>Do migrations in small controlled steps.</p>
+<hr>
+<h3 id="3-separate-schema-change-from-data-migration">3. Separate Schema Change from Data Migration</h3>
+<ul>
+<li>schema change → add structure</li>
+<li>data migration → move/update existing data</li>
+</ul>
+<hr>
+<h3 id="4-always-have-rollback-or-fallback-plan">4. Always Have Rollback or Fallback Plan</h3>
+<p>If something fails, you should know how to recover safely.</p>
+<hr>
+<h2 id="6-step-by-step-safe-migration-approach">6. Step-by-Step Safe Migration Approach</h2>
+<hr>
+<h3 id="step-1--understand-the-change">Step 1 — Understand the Change</h3>
+<p>Ask:</p>
+<ul>
+<li>schema change or data change?</li>
+<li>how large is the table?</li>
+<li>what queries will be affected?</li>
+<li>does application code depend on old structure?</li>
+</ul>
+<hr>
+<h3 id="step-2--assess-risk">Step 2 — Assess Risk</h3>
+<p>Check:</p>
+<ul>
+<li>table size</li>
+<li>index impact</li>
+<li>lock duration</li>
+<li>read/write traffic pattern</li>
+<li>peak traffic windows</li>
+</ul>
+<hr>
+<h3 id="step-3--test-in-lower-environments">Step 3 — Test in Lower Environments</h3>
+<p>Run migration in:</p>
+<ul>
+<li>local</li>
+<li>QA / staging</li>
+<li>production-like dataset if possible</li>
+</ul>
+<hr>
+<h3 id="step-4--make-the-change-backward-compatible">Step 4 — Make the Change Backward Compatible</h3>
+<p>Example safe pattern:</p>
+<ol>
+<li>add nullable column</li>
+<li>deploy code that writes to both old and new fields</li>
+<li>backfill old data into new column</li>
+<li>switch reads to new column</li>
+<li>remove old column later</li>
+</ol>
+<hr>
+<h3 id="step-5--run-migration-in-controlled-window">Step 5 — Run Migration in Controlled Window</h3>
+<ul>
+<li>prefer low-traffic period</li>
+<li>inform stakeholders if needed</li>
+<li>monitor closely during execution</li>
+</ul>
+<hr>
+<h3 id="step-6--validate-after-migration">Step 6 — Validate After Migration</h3>
+<p>Check:</p>
+<ul>
+<li>row counts</li>
+<li>application logs</li>
+<li>query performance</li>
+<li>error rates</li>
+<li>data correctness</li>
+</ul>
+<hr>
+<h2 id="7-expand-and-contract-pattern-most-important">7. Expand-and-Contract Pattern (MOST IMPORTANT)</h2>
+<hr>
+<p>This is one of the safest migration strategies.</p>
+<h3 id="expand-phase">Expand Phase</h3>
+<ul>
+<li>add new schema objects</li>
+<li>keep old schema working</li>
+<li>application supports both versions</li>
+</ul>
+<h3 id="contract-phase">Contract Phase</h3>
+<ul>
+<li>after validation, remove old schema or data paths</li>
+</ul>
+<hr>
+<h3 id="example">Example</h3>
+<p>Old schema:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>customer_name
+</span></span></code></pre></div><p>New schema:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>first_name, last_name
+</span></span></code></pre></div><p>Safe migration:</p>
+<ol>
+<li>add <code>first_name</code>, <code>last_name</code></li>
+<li>keep <code>customer_name</code></li>
+<li>update code to write both</li>
+<li>backfill existing records</li>
+<li>switch reads to new columns</li>
+<li>remove old column later</li>
+</ol>
+<hr>
+<h2 id="8-real-world-example">8. Real-World Example</h2>
+<hr>
+<p>Suppose you need to move from storing order status in one table to a new normalized structure.</p>
+<p>Safe flow:</p>
+<ul>
+<li>create new table</li>
+<li>deploy code that writes to both old and new structure</li>
+<li>backfill historical data in batches</li>
+<li>validate counts and correctness</li>
+<li>switch reads to new table</li>
+<li>stop writes to old table</li>
+<li>retire old table later</li>
+</ul>
+<hr>
+<p>👉 This avoids downtime and reduces risk.</p>
+<hr>
+<h2 id="9-data-migration-best-practices">9. Data Migration Best Practices</h2>
+<hr>
+<h3 id="1-use-batches">1. Use Batches</h3>
+<p>Avoid updating millions of rows in one transaction.</p>
+<hr>
+<h3 id="2-avoid-long-locks">2. Avoid Long Locks</h3>
+<p>Large schema changes or updates can block application traffic.</p>
+<hr>
+<h3 id="3-monitor-performance-during-migration">3. Monitor Performance During Migration</h3>
+<ul>
+<li>DB CPU</li>
+<li>lock waits</li>
+<li>replication lag</li>
+<li>slow queries</li>
+</ul>
+<hr>
+<h3 id="4-validate-counts-and-samples">4. Validate Counts and Samples</h3>
+<p>Check both:</p>
+<ul>
+<li>total migrated records</li>
+<li>sampled data correctness</li>
+</ul>
+<hr>
+<h2 id="10-rollback-vs-roll-forward">10. Rollback vs Roll-Forward</h2>
+<hr>
+<h3 id="rollback">Rollback</h3>
+<p>Revert to previous state if safe to do so.</p>
+<hr>
+<h3 id="roll-forward">Roll-Forward</h3>
+<p>Sometimes rollback is risky, especially after data change.</p>
+<p>Then safer approach is:</p>
+<ul>
+<li>stop bad code path</li>
+<li>fix migration issue</li>
+<li>continue forward safely</li>
+</ul>
+<hr>
+<p>👉 In database migrations, <strong>roll-forward is often safer than hard rollback</strong> after data has changed.</p>
+<hr>
+<h2 id="11-common-production-mistakes">11. Common Production Mistakes</h2>
+<hr>
+<p>❌ Changing schema in a non-backward-compatible way<br>
+❌ Running huge updates in one shot<br>
+❌ Migrating during peak traffic<br>
+❌ No validation after migration<br>
+❌ No rollback / fallback plan<br>
+❌ Removing old columns too early</p>
+<hr>
+<h2 id="12-important-interview-points">12. Important Interview Points</h2>
+<hr>
+<ul>
+<li>always prefer backward-compatible schema evolution</li>
+<li>use expand-and-contract for safety</li>
+<li>separate schema change from data migration</li>
+<li>validate after migration and monitor closely</li>
+<li>batch large data changes to reduce risk</li>
+</ul>
+<hr>
+<h2 id="13-interview-summary-answer-best-answer">13. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>How do you perform a database migration safely in production?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>I perform database migration safely by first understanding the impact, testing in lower environments, and making the schema change backward compatible. I avoid big-bang changes and prefer an expand-and-contract approach, where the old and new schema can coexist temporarily. For data migration, I run updates in batches, monitor performance closely, validate the migrated data, and keep a rollback or fallback strategy ready. The main goal is to avoid downtime, data loss, and compatibility issues between application and database.</p></blockquote>
+<hr>
+<h2 id="14-learn-more-related-topics">14. Learn More (Related Topics)</h2>
+<hr>
+<p>👉 Related:</p>
+<ul>
+<li>How Do You Debug a Slow Database?</li>
+<li>What is Deadlock in SQL?</li>
+<li>What is Connection Pooling and Why Is It Important?</li>
+</ul>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/data-and-messaging/sql-databases/" class="btn nav-btn">
+        SQL and Databases - Interview Questions : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

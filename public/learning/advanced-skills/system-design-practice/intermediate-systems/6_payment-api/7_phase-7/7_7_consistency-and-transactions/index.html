@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consistency &amp; Transactions</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776929049">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Consistency &amp; Transactions</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-transactions-matter">1. Why Transactions Matter</h2>
+<hr>
+<p>In a payment system, correctness is non-negotiable.</p>
+<p>Consider failures:</p>
+<ul>
+<li>payment created but idempotency not updated</li>
+<li>gateway called but DB not updated</li>
+<li>partial updates due to crash</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Transactions ensure that operations are <strong>all-or-nothing</strong>, preventing inconsistent system states.</p></blockquote>
+<hr>
+<h2 id="2-what-is-a-transaction">2. What is a Transaction?</h2>
+<hr>
+<p>A transaction is a group of operations that execute as a single unit.</p>
+<h3 id="acid-properties-practical-view">ACID Properties (Practical View)</h3>
+<ul>
+<li><strong>Atomicity</strong> → all operations succeed or none</li>
+<li><strong>Consistency</strong> → system remains valid</li>
+<li><strong>Isolation</strong> → concurrent operations don’t interfere</li>
+<li><strong>Durability</strong> → committed data is not lost</li>
+</ul>
+<p>👉 In payment systems, <strong>Atomicity and Consistency are most critical</strong>.</p>
+<hr>
+<h2 id="3-where-do-we-need-transactions">3. Where Do We Need Transactions?</h2>
+<hr>
+<h3 id="1-create-payment-flow">1. Create Payment Flow</h3>
+<p>We must ensure:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency record + Payment creation → atomic
+</span></span></code></pre></div><hr>
+<h3 id="2-confirm-payment-flow">2. Confirm Payment Flow</h3>
+<p>We must ensure:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Lock payment + Update status + Create attempt → atomic
+</span></span></code></pre></div><hr>
+<h3 id="3-finalization-step">3. Finalization Step</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Update payment + Update idempotency → atomic
+</span></span></code></pre></div><hr>
+<h2 id="4-create-payment-transaction-flow">4. Create Payment Transaction Flow</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Service
+    participant DB
+
+    Service->>DB: BEGIN TRANSACTION
+    Service->>DB: Insert Idempotency (IN_PROGRESS)
+    Service->>DB: Create Payment (CREATED)
+    Service->>DB: Update Idempotency (COMPLETED)
+    Service->>DB: COMMIT
+</div>
+<hr>
+<h3 id="why">Why?</h3>
+<p>If any step fails:</p>
+<ul>
+<li>no partial payment is created</li>
+<li>idempotency stays consistent</li>
+</ul>
+<hr>
+<h2 id="5-confirm-payment-transaction-boundaries">5. Confirm Payment Transaction Boundaries</h2>
+<hr>
+<p>⚠️ Important: We <strong>cannot include external gateway calls inside a DB transaction</strong>.</p>
+<hr>
+<h3 id="correct-approach">Correct Approach</h3>
+<p>Split into phases:</p>
+<h3 id="phase-1-pre-processing-transaction">Phase 1: Pre-processing (Transaction)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Reserve idempotency
+</span></span><span style="display:flex;"><span>- Lock payment
+</span></span><span style="display:flex;"><span>- Validate state
+</span></span><span style="display:flex;"><span>- Mark PROCESSING
+</span></span><span style="display:flex;"><span>- Create attempt
+</span></span></code></pre></div><hr>
+<h3 id="phase-2-external-call-no-transaction">Phase 2: External Call (No Transaction)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Call payment gateway
+</span></span></code></pre></div><hr>
+<h3 id="phase-3-finalization-transaction">Phase 3: Finalization (Transaction)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Update payment status
+</span></span><span style="display:flex;"><span>- Update attempt
+</span></span><span style="display:flex;"><span>- Complete idempotency
+</span></span></code></pre></div><hr>
+<h2 id="6-why-not-keep-transaction-open">6. Why Not Keep Transaction Open?</h2>
+<hr>
+<p>If you keep DB transaction open during gateway call:</p>
+<ul>
+<li>locks held for long time</li>
+<li>reduces throughput</li>
+<li>increases deadlock risk</li>
+</ul>
+<p>👉 Always keep transactions <strong>short and bounded</strong>.</p>
+<hr>
+<h2 id="7-handling-partial-failures">7. Handling Partial Failures</h2>
+<hr>
+<h3 id="scenario-1-gateway-success-db-failure">Scenario 1: Gateway Success, DB Failure</h3>
+<ul>
+<li>payment may be successful externally</li>
+<li>system state not updated</li>
+</ul>
+<p>👉 Solution:</p>
+<ul>
+<li>retry using idempotency</li>
+<li>reconciliation process later</li>
+</ul>
+<hr>
+<h3 id="scenario-2-api-crash-after-gateway-call">Scenario 2: API Crash After Gateway Call</h3>
+<ul>
+<li>idempotency record helps detect retry</li>
+</ul>
+<hr>
+<h3 id="scenario-3-transaction-failure">Scenario 3: Transaction Failure</h3>
+<ul>
+<li>rollback ensures no partial state</li>
+</ul>
+<hr>
+<h2 id="8-isolation--concurrency">8. Isolation &amp; Concurrency</h2>
+<hr>
+<h3 id="pessimistic-locking">Pessimistic Locking</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> payments <span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
+</span></span></code></pre></div><ul>
+<li>blocks concurrent updates</li>
+</ul>
+<hr>
+<h3 id="why-needed">Why Needed?</h3>
+<p>Without locking:</p>
+<ul>
+<li>two confirms may execute simultaneously</li>
+<li>leads to duplicate processing</li>
+</ul>
+<hr>
+<h2 id="9-eventual-consistency-real-world">9. Eventual Consistency (Real World)</h2>
+<hr>
+<p>Even with transactions, some parts are <strong>eventually consistent</strong>:</p>
+<ul>
+<li>gateway response vs DB state</li>
+<li>async retries</li>
+</ul>
+<p>👉 Payment systems often combine:</p>
+<ul>
+<li>strong consistency (DB)</li>
+<li>eventual consistency (external systems)</li>
+</ul>
+<hr>
+<h2 id="10-best-practices">10. Best Practices</h2>
+<hr>
+<h3 id="1-keep-transactions-short">1. Keep Transactions Short</h3>
+<ul>
+<li>only DB operations</li>
+</ul>
+<hr>
+<h3 id="2-never-include-external-calls-in-transactions">2. Never Include External Calls in Transactions</h3>
+<ul>
+<li>avoids long locks</li>
+</ul>
+<hr>
+<h3 id="3-use-idempotency--transactions-together">3. Use Idempotency + Transactions Together</h3>
+<ul>
+<li>idempotency → duplicate protection</li>
+<li>transactions → atomicity</li>
+</ul>
+<hr>
+<h3 id="4-design-for-failure">4. Design for Failure</h3>
+<ul>
+<li>assume partial failures will happen</li>
+</ul>
+<hr>
+<h2 id="11-common-mistakes-to-avoid">11. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-long-running-transactions">❌ Long-running transactions</h3>
+<ul>
+<li>leads to performance issues</li>
+</ul>
+<hr>
+<h3 id="-ignoring-transaction-boundaries">❌ Ignoring transaction boundaries</h3>
+<ul>
+<li>causes inconsistent state</li>
+</ul>
+<hr>
+<h3 id="-mixing-external-calls-inside-transactions">❌ Mixing external calls inside transactions</h3>
+<ul>
+<li>high risk of system slowdown</li>
+</ul>
+<hr>
+<h3 id="-relying-only-on-transactions">❌ Relying only on transactions</h3>
+<ul>
+<li>idempotency is also required</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Transactions ensure:</p>
+<ul>
+<li>atomic updates</li>
+<li>consistent state</li>
+<li>safe recovery under failure</li>
+</ul>
+<p>They are essential for maintaining correctness in a payment system.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_8_handling-partial-failures">Handling Partial Failures →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Transactions provide atomicity and consistency</li>
+<li>Keep transactions short and focused</li>
+<li>Combine with idempotency for full safety</li>
+<li>Always design for failure scenarios</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-transactions-matter" data-toc-target="1-why-transactions-matter">1. Why Transactions Matter</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-is-a-transaction" data-toc-target="2-what-is-a-transaction">2. What is a Transaction?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-where-do-we-need-transactions" data-toc-target="3-where-do-we-need-transactions">3. Where Do We Need Transactions?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-create-payment-transaction-flow" data-toc-target="4-create-payment-transaction-flow">4. Create Payment Transaction Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-confirm-payment-transaction-boundaries" data-toc-target="5-confirm-payment-transaction-boundaries">5. Confirm Payment Transaction Boundaries</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-why-not-keep-transaction-open" data-toc-target="6-why-not-keep-transaction-open">6. Why Not Keep Transaction Open?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-handling-partial-failures" data-toc-target="7-handling-partial-failures">7. Handling Partial Failures</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-isolation--concurrency" data-toc-target="8-isolation--concurrency">8. Isolation &amp;amp; Concurrency</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-eventual-consistency-real-world" data-toc-target="9-eventual-consistency-real-world">9. Eventual Consistency (Real World)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-best-practices" data-toc-target="10-best-practices">10. Best Practices</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-common-mistakes-to-avoid" data-toc-target="11-common-mistakes-to-avoid">11. Common Mistakes to Avoid</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_6_indexing-strategy/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_8_handling-partial-failures/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

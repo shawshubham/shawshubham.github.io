@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payments Table Design</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776929049">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Payments Table Design</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-purpose-of-payments-table">1. Purpose of Payments Table</h2>
+<hr>
+<p>The <strong>Payments</strong> table represents the core business entity of the system.</p>
+<p>It answers:</p>
+<blockquote>
+<p>❓ <em>What is the current state of a payment?</em></p></blockquote>
+<p>It must support:</p>
+<ul>
+<li>lifecycle tracking</li>
+<li>idempotent operations</li>
+<li>concurrency-safe updates</li>
+<li>reliable reads for clients</li>
+</ul>
+<hr>
+<h2 id="2-core-schema-recommended">2. Core Schema (Recommended)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>PAYMENTS
+</span></span><span style="display:flex;"><span>- id (UUID, PK)
+</span></span><span style="display:flex;"><span>- order_id (string)
+</span></span><span style="display:flex;"><span>- amount (decimal)
+</span></span><span style="display:flex;"><span>- currency (string)
+</span></span><span style="display:flex;"><span>- status (string)
+</span></span><span style="display:flex;"><span>- created_at (timestamp)
+</span></span><span style="display:flex;"><span>- updated_at (timestamp)
+</span></span><span style="display:flex;"><span>- version (int)            -- for optimistic locking (optional)
+</span></span></code></pre></div><hr>
+<h2 id="3-field-by-field-explanation">3. Field-by-Field Explanation</h2>
+<hr>
+<h3 id="1-id-primary-key">1. <code>id</code> (Primary Key)</h3>
+<ul>
+<li>unique identifier for the payment</li>
+<li>typically UUID</li>
+</ul>
+<p>👉 Used across all APIs (<code>/payments/{id}</code>)</p>
+<hr>
+<h3 id="2-order_id">2. <code>order_id</code></h3>
+<ul>
+<li>links payment to business entity (order/cart)</li>
+</ul>
+<p>👉 Used to prevent <strong>logical duplicates</strong> (same order paid twice unintentionally)</p>
+<hr>
+<h3 id="3-amount">3. <code>amount</code></h3>
+<ul>
+<li>payment amount</li>
+</ul>
+<p>👉 Must be immutable after creation in most designs</p>
+<hr>
+<h3 id="4-currency">4. <code>currency</code></h3>
+<ul>
+<li>ISO currency code (e.g., GBP, USD)</li>
+</ul>
+<hr>
+<h3 id="5-status">5. <code>status</code></h3>
+<ul>
+<li>represents lifecycle state</li>
+</ul>
+<p>Typical values:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED
+</span></span><span style="display:flex;"><span>PROCESSING
+</span></span><span style="display:flex;"><span>SUCCEEDED
+</span></span><span style="display:flex;"><span>FAILED
+</span></span></code></pre></div><p>👉 Drives all business logic and validations</p>
+<hr>
+<h3 id="6-created_at">6. <code>created_at</code></h3>
+<ul>
+<li>timestamp when payment is created</li>
+</ul>
+<hr>
+<h3 id="7-updated_at">7. <code>updated_at</code></h3>
+<ul>
+<li>last state update timestamp</li>
+</ul>
+<hr>
+<h3 id="8-version-optional-but-recommended">8. <code>version</code> (Optional but Recommended)</h3>
+<ul>
+<li>used for <strong>optimistic locking</strong></li>
+</ul>
+<p>👉 Useful if you choose version-based concurrency instead of strict DB locks</p>
+<hr>
+<h2 id="4-payment-lifecycle-in-db">4. Payment Lifecycle in DB</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING → SUCCEEDED / FAILED
+</span></span></code></pre></div><hr>
+<h3 id="important-rules">Important Rules</h3>
+<ul>
+<li><code>CREATED</code> → only initial state</li>
+<li><code>PROCESSING</code> → set before gateway call</li>
+<li><code>SUCCEEDED</code> → terminal state</li>
+<li><code>FAILED</code> → may be retryable</li>
+</ul>
+<p>👉 Invalid transitions must be rejected at service layer</p>
+<hr>
+<h2 id="5-uniqueness--business-constraints">5. Uniqueness &amp; Business Constraints</h2>
+<hr>
+<h3 id="problem-duplicate-payments-for-same-order">Problem: Duplicate Payments for Same Order</h3>
+<p>Two scenarios:</p>
+<ul>
+<li>same idempotency key → handled by idempotency table</li>
+<li>different idempotency keys → must be handled here</li>
+</ul>
+<hr>
+<h3 id="options">Options</h3>
+<h4 id="option-1-unique-constraint-on-order_id">Option 1: Unique Constraint on <code>order_id</code></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>UNIQUE(order_id)
+</span></span></code></pre></div><p><strong>Pros</strong></p>
+<ul>
+<li>prevents duplicates strictly</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>does not allow retries/new attempts</li>
+</ul>
+<hr>
+<h4 id="option-2-partial--logical-constraint-recommended">Option 2: Partial / Logical Constraint (Recommended)</h4>
+<p>Allow multiple rows but restrict active ones.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>One ACTIVE payment per order
+</span></span><span style="display:flex;"><span>(status IN CREATED, PROCESSING)
+</span></span></code></pre></div><p><strong>Pros</strong></p>
+<ul>
+<li>supports retries</li>
+<li>more flexible</li>
+</ul>
+<hr>
+<p>👉 Enforced via application logic or partial index (if DB supports it)</p>
+<hr>
+<h2 id="6-indexing-strategy">6. Indexing Strategy</h2>
+<hr>
+<p>Indexes are critical for performance.</p>
+<h3 id="required-indexes">Required Indexes</h3>
+<ul>
+<li>Primary key on <code>id</code></li>
+</ul>
+<hr>
+<h3 id="recommended-indexes">Recommended Indexes</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>INDEX(order_id)
+</span></span><span style="display:flex;"><span>INDEX(status)
+</span></span></code></pre></div><hr>
+<h3 id="why">Why?</h3>
+<ul>
+<li><code>order_id</code> → lookup payments for a business entity</li>
+<li><code>status</code> → filtering active/processing payments</li>
+</ul>
+<hr>
+<h2 id="7-concurrency-considerations">7. Concurrency Considerations</h2>
+<hr>
+<h3 id="pessimistic-locking-current-design">Pessimistic Locking (Current Design)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> payments <span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
+</span></span></code></pre></div><p><strong>Used in confirm flow</strong></p>
+<p>👉 Prevents multiple threads from processing same payment</p>
+<hr>
+<h3 id="optimistic-locking-optional">Optimistic Locking (Optional)</h3>
+<p>Using <code>version</code> column:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>UPDATE payments
+</span></span><span style="display:flex;"><span>SET status = PROCESSING, version = version + 1
+</span></span><span style="display:flex;"><span>WHERE id = ? AND version = ?;
+</span></span></code></pre></div><p>👉 Fails if another update already happened</p>
+<hr>
+<h2 id="8-what-this-table-does-not-store">8. What This Table Does NOT Store</h2>
+<hr>
+<p>The payments table should <strong>not</strong> store:</p>
+<ul>
+<li>gateway raw responses</li>
+<li>retry history</li>
+<li>idempotency data</li>
+</ul>
+<p>👉 These belong to:</p>
+<ul>
+<li>payment_attempts table</li>
+<li>idempotency table</li>
+</ul>
+<hr>
+<h2 id="9-example-record">9. Example Record</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;order_id&#34;</span>: <span style="color:#e6db74">&#34;ORD-123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;amount&#34;</span>: <span style="color:#ae81ff">100.0</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;currency&#34;</span>: <span style="color:#e6db74">&#34;GBP&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;SUCCEEDED&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;created_at&#34;</span>: <span style="color:#e6db74">&#34;2026-01-01T10:00:00Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;updated_at&#34;</span>: <span style="color:#e6db74">&#34;2026-01-01T10:00:10Z&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The Payments table is the <strong>source of truth for payment state</strong>.</p>
+<p>It must:</p>
+<ul>
+<li>track lifecycle accurately</li>
+<li>prevent logical duplication</li>
+<li>support concurrency control</li>
+<li>enable reliable reads and updates</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_3_payment-attempt-table/">Payment Attempts Table →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Payments table stores the current state of the system</li>
+<li>Business constraints are critical to avoid duplicate payments</li>
+<li>Proper indexing and locking ensure performance and correctness</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-purpose-of-payments-table" data-toc-target="1-purpose-of-payments-table">1. Purpose of Payments Table</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-core-schema-recommended" data-toc-target="2-core-schema-recommended">2. Core Schema (Recommended)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-field-by-field-explanation" data-toc-target="3-field-by-field-explanation">3. Field-by-Field Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-payment-lifecycle-in-db" data-toc-target="4-payment-lifecycle-in-db">4. Payment Lifecycle in DB</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-uniqueness--business-constraints" data-toc-target="5-uniqueness--business-constraints">5. Uniqueness &amp;amp; Business Constraints</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-indexing-strategy" data-toc-target="6-indexing-strategy">6. Indexing Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-concurrency-considerations" data-toc-target="7-concurrency-considerations">7. Concurrency Considerations</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-what-this-table-does-not-store" data-toc-target="8-what-this-table-does-not-store">8. What This Table Does NOT Store</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-example-record" data-toc-target="9-example-record">9. Example Record</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_1_persistence-overview/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_3_payment-attempt-table/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

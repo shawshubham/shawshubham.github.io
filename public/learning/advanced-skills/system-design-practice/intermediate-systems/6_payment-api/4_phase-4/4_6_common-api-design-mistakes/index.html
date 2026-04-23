@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Common API Design Mistakes in Payment Systems</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776778815">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Common API Design Mistakes in Payment Systems</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-matters">1. Why This Matters</h2>
+<hr>
+<p>Understanding mistakes is just as important as understanding best practices.</p>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Many production failures happen not because of missing features, but because of <strong>poor API design decisions</strong>.</p></blockquote>
+<hr>
+<h2 id="2-combining-create-and-execute">2. Combining Create and Execute</h2>
+<hr>
+<h3 id="-bad-design">❌ Bad Design</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>POST /payments → creates and executes payment
+</span></span></code></pre></div><h3 id="why-this-is-a-problem">Why This is a Problem</h3>
+<ul>
+<li>no control over lifecycle</li>
+<li>hard to retry safely</li>
+<li>high risk of duplicate execution</li>
+</ul>
+<h3 id="-correct-approach">✅ Correct Approach</h3>
+<ul>
+<li><code>POST /payments</code> → create</li>
+<li><code>POST /payments/{id}/confirm</code> → execute</li>
+</ul>
+<hr>
+<h2 id="3-ignoring-idempotency">3. Ignoring Idempotency</h2>
+<hr>
+<h3 id="-bad-design-1">❌ Bad Design</h3>
+<ul>
+<li>no idempotency key support</li>
+</ul>
+<h3 id="why-this-is-a-problem-1">Why This is a Problem</h3>
+<ul>
+<li>duplicate payments on retry</li>
+<li>inconsistent system state</li>
+</ul>
+<h3 id="-correct-approach-1">✅ Correct Approach</h3>
+<ul>
+<li>require <code>Idempotency-Key</code></li>
+<li>return same response for repeated requests</li>
+</ul>
+<hr>
+<h2 id="4-designing-action-based-apis">4. Designing Action-Based APIs</h2>
+<hr>
+<h3 id="-bad-design-2">❌ Bad Design</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>/createPayment
+</span></span><span style="display:flex;"><span>/confirmPayment
+</span></span><span style="display:flex;"><span>/getPaymentStatus
+</span></span></code></pre></div><h3 id="why-this-is-a-problem-2">Why This is a Problem</h3>
+<ul>
+<li>inconsistent naming</li>
+<li>not scalable</li>
+<li>harder to understand</li>
+</ul>
+<h3 id="-correct-approach-2">✅ Correct Approach</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>POST /payments
+</span></span><span style="display:flex;"><span>POST /payments/{id}/confirm
+</span></span><span style="display:flex;"><span>GET  /payments/{id}
+</span></span></code></pre></div><hr>
+<h2 id="5-not-validating-payment-state">5. Not Validating Payment State</h2>
+<hr>
+<h3 id="-bad-design-3">❌ Bad Design</h3>
+<ul>
+<li>allowing confirm on any state</li>
+</ul>
+<h3 id="why-this-is-a-problem-3">Why This is a Problem</h3>
+<ul>
+<li>invalid state transitions</li>
+<li>inconsistent behavior</li>
+</ul>
+<h3 id="-correct-approach-3">✅ Correct Approach</h3>
+<ul>
+<li>enforce state machine</li>
+<li>allow only valid transitions</li>
+</ul>
+<hr>
+<h2 id="6-exposing-internal-details">6. Exposing Internal Details</h2>
+<hr>
+<h3 id="-bad-design-4">❌ Bad Design</h3>
+<ul>
+<li>returning raw gateway responses</li>
+<li>exposing DB fields</li>
+</ul>
+<h3 id="why-this-is-a-problem-4">Why This is a Problem</h3>
+<ul>
+<li>security risk</li>
+<li>tight coupling with internal systems</li>
+</ul>
+<h3 id="-correct-approach-4">✅ Correct Approach</h3>
+<ul>
+<li>return clean, abstracted response models</li>
+</ul>
+<hr>
+<h2 id="7-weak-error-handling">7. Weak Error Handling</h2>
+<hr>
+<h3 id="-bad-design-5">❌ Bad Design</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;Something went wrong&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="why-this-is-a-problem-5">Why This is a Problem</h3>
+<ul>
+<li>not actionable</li>
+<li>difficult for clients to handle</li>
+</ul>
+<h3 id="-correct-approach-5">✅ Correct Approach</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="8-using-incorrect-http-status-codes">8. Using Incorrect HTTP Status Codes</h2>
+<hr>
+<h3 id="-bad-design-6">❌ Bad Design</h3>
+<ul>
+<li>always returning <code>200 OK</code></li>
+</ul>
+<h3 id="why-this-is-a-problem-6">Why This is a Problem</h3>
+<ul>
+<li>hides errors</li>
+<li>breaks retry logic</li>
+</ul>
+<h3 id="-correct-approach-6">✅ Correct Approach</h3>
+<ul>
+<li>use 4xx for client errors</li>
+<li>use 5xx for server errors</li>
+</ul>
+<hr>
+<h2 id="9-not-designing-for-retries">9. Not Designing for Retries</h2>
+<hr>
+<h3 id="-bad-design-7">❌ Bad Design</h3>
+<ul>
+<li>system breaks on repeated requests</li>
+</ul>
+<h3 id="why-this-is-a-problem-7">Why This is a Problem</h3>
+<ul>
+<li>unreliable under real-world conditions</li>
+</ul>
+<h3 id="-correct-approach-7">✅ Correct Approach</h3>
+<ul>
+<li>design idempotent endpoints</li>
+<li>ensure safe retry behavior</li>
+</ul>
+<hr>
+<h2 id="10-overloading-api-responses">10. Overloading API Responses</h2>
+<hr>
+<h3 id="-bad-design-8">❌ Bad Design</h3>
+<ul>
+<li>returning too many fields</li>
+</ul>
+<h3 id="why-this-is-a-problem-8">Why This is a Problem</h3>
+<ul>
+<li>increases complexity</li>
+<li>unnecessary data transfer</li>
+</ul>
+<h3 id="-correct-approach-8">✅ Correct Approach</h3>
+<ul>
+<li>return only essential data</li>
+</ul>
+<hr>
+<h2 id="11-ignoring-business-constraints">11. Ignoring Business Constraints</h2>
+<hr>
+<h3 id="-bad-design-9">❌ Bad Design</h3>
+<ul>
+<li>allowing multiple active payments for same order without control</li>
+</ul>
+<h3 id="why-this-is-a-problem-9">Why This is a Problem</h3>
+<ul>
+<li>duplicate or conflicting payments</li>
+</ul>
+<h3 id="-correct-approach-9">✅ Correct Approach</h3>
+<ul>
+<li>enforce business rules (e.g., one active payment per order)</li>
+</ul>
+<hr>
+<h2 id="12-tight-coupling-with-external-gateway">12. Tight Coupling with External Gateway</h2>
+<hr>
+<h3 id="-bad-design-10">❌ Bad Design</h3>
+<ul>
+<li>API design directly mirrors gateway API</li>
+</ul>
+<h3 id="why-this-is-a-problem-10">Why This is a Problem</h3>
+<ul>
+<li>hard to switch providers</li>
+<li>leaks external complexity</li>
+</ul>
+<h3 id="-correct-approach-10">✅ Correct Approach</h3>
+<ul>
+<li>keep gateway integration internal</li>
+<li>expose stable API contract</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Avoiding these mistakes ensures your Payment API is:</p>
+<ul>
+<li>reliable</li>
+<li>maintainable</li>
+<li>scalable</li>
+</ul>
+<p>These are the qualities expected in real-world systems.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_1_introduction-idempotency-and-retires/">Phase 5: Idempotency &amp; Safe Retries →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Avoid combining responsibilities in APIs</li>
+<li>Always design for retries and failures</li>
+<li>Keep APIs clean, consistent, and business-driven</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-matters" data-toc-target="1-why-this-matters">1. Why This Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-combining-create-and-execute" data-toc-target="2-combining-create-and-execute">2. Combining Create and Execute</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-ignoring-idempotency" data-toc-target="3-ignoring-idempotency">3. Ignoring Idempotency</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-designing-action-based-apis" data-toc-target="4-designing-action-based-apis">4. Designing Action-Based APIs</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-not-validating-payment-state" data-toc-target="5-not-validating-payment-state">5. Not Validating Payment State</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-exposing-internal-details" data-toc-target="6-exposing-internal-details">6. Exposing Internal Details</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-weak-error-handling" data-toc-target="7-weak-error-handling">7. Weak Error Handling</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-using-incorrect-http-status-codes" data-toc-target="8-using-incorrect-http-status-codes">8. Using Incorrect HTTP Status Codes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-not-designing-for-retries" data-toc-target="9-not-designing-for-retries">9. Not Designing for Retries</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-overloading-api-responses" data-toc-target="10-overloading-api-responses">10. Overloading API Responses</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-ignoring-business-constraints" data-toc-target="11-ignoring-business-constraints">11. Ignoring Business Constraints</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-tight-coupling-with-external-gateway" data-toc-target="12-tight-coupling-with-external-gateway">12. Tight Coupling with External Gateway</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

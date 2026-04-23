@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atomic State Transitions</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776932075">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Atomic State Transitions</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 22 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-atomic-state-transitions-matter">1. Why Atomic State Transitions Matter</h2>
+<hr>
+<p>In the previous article, we discussed locking.</p>
+<p>Locking helps ensure that only one request can enter a critical section at a time.</p>
+<p>But locking alone is not enough.</p>
+<blockquote>
+<p>❗ Even with locking, the system must still guarantee that a payment moves only through <strong>valid and atomic state transitions</strong>.</p></blockquote>
+<p>If state changes are not protected properly, the system can still end up in:</p>
+<ul>
+<li>invalid lifecycle states</li>
+<li>duplicate execution paths</li>
+<li>inconsistent business behavior</li>
+</ul>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>This article does <strong>not</strong> re-explain:</p>
+<ul>
+<li>the payment lifecycle itself</li>
+<li>the full confirm flow</li>
+<li>idempotency basics</li>
+</ul>
+<p>Those were already covered earlier.</p>
+<p>👉 Here we focus only on:</p>
+<ul>
+<li>how state transitions must be applied <strong>safely</strong></li>
+<li>how to prevent invalid or duplicate transitions</li>
+</ul>
+<hr>
+<h2 id="3-what-makes-a-transition-atomic">3. What Makes a Transition Atomic?</h2>
+<hr>
+<p>An atomic state transition means:</p>
+<blockquote>
+<p>The system checks the current state and updates it as <strong>one protected operation</strong>, so no other request can interfere in between.</p></blockquote>
+<hr>
+<h3 id="example-goal">Example Goal</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING
+</span></span></code></pre></div><p>The system must ensure:</p>
+<ul>
+<li>payment is still <code>CREATED</code> when transition happens</li>
+<li>no other request changed it in between</li>
+</ul>
+<hr>
+<h2 id="4-why-simple-check-then-update-is-dangerous">4. Why Simple Check-Then-Update is Dangerous</h2>
+<hr>
+<h3 id="unsafe-pattern">Unsafe Pattern</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read payment status = CREATED
+</span></span><span style="display:flex;"><span>2. Decide to process
+</span></span><span style="display:flex;"><span>3. Update status = PROCESSING
+</span></span></code></pre></div><hr>
+<h3 id="what-can-go-wrong">What can go wrong?</h3>
+<p>Two threads can both do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A reads CREATED
+</span></span><span style="display:flex;"><span>B reads CREATED
+</span></span><span style="display:flex;"><span>A updates to PROCESSING
+</span></span><span style="display:flex;"><span>B also updates to PROCESSING
+</span></span></code></pre></div><p>👉 Now both may continue execution.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Reading and updating state separately creates a race window.</p></blockquote>
+<hr>
+<h2 id="5-safe-transition-model">5. Safe Transition Model</h2>
+<hr>
+<p>A correct design uses one or both of these protections:</p>
+<h3 id="1-lock--validate--update">1. Lock + Validate + Update</h3>
+<ul>
+<li>lock payment row</li>
+<li>validate current state</li>
+<li>update state</li>
+</ul>
+<hr>
+<h3 id="2-compare-and-update">2. Compare-and-Update</h3>
+<p>Update only if state still matches expected value.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payments
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;CREATED&#39;</span>;
+</span></span></code></pre></div><p>If rows affected = 1:</p>
+<ul>
+<li>transition succeeded</li>
+</ul>
+<p>If rows affected = 0:</p>
+<ul>
+<li>state was already changed</li>
+</ul>
+<hr>
+<h2 id="6-valid-state-transition-rules">6. Valid State Transition Rules</h2>
+<hr>
+<p>For our payment lifecycle:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING → SUCCEEDED / FAILED
+</span></span></code></pre></div><hr>
+<h3 id="allowed-examples">Allowed Examples</h3>
+<ul>
+<li><code>CREATED → PROCESSING</code></li>
+<li><code>PROCESSING → SUCCEEDED</code></li>
+<li><code>PROCESSING → FAILED</code></li>
+</ul>
+<hr>
+<h3 id="rejected-examples">Rejected Examples</h3>
+<ul>
+<li><code>SUCCEEDED → PROCESSING</code></li>
+<li><code>FAILED → SUCCEEDED</code> without explicit retry flow</li>
+<li><code>PROCESSING → CREATED</code></li>
+</ul>
+<hr>
+<p>👉 State validation must happen before each transition.</p>
+<hr>
+<h2 id="7-transition-example-in-confirm-flow">7. Transition Example in Confirm Flow</h2>
+<hr>
+<h3 id="goal">Goal</h3>
+<p>Move payment from:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING
+</span></span></code></pre></div><hr>
+<h3 id="safe-execution">Safe Execution</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant API
+    participant DB
+
+    API->>DB: Lock payment row
+    API->>DB: Read current state
+    DB-->>API: CREATED
+    API->>DB: Update state -> PROCESSING
+    API->>DB: Commit transaction
+</div>
+<hr>
+<h3 id="why-this-works">Why this works</h3>
+<ul>
+<li>no other request can modify state during lock</li>
+<li>transition is validated before update</li>
+</ul>
+<hr>
+<h2 id="8-terminal-states-must-be-protected">8. Terminal States Must Be Protected</h2>
+<hr>
+<p>Some states should behave as <strong>terminal states</strong>.</p>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>SUCCEEDED
+</span></span></code></pre></div><p>Once payment is <code>SUCCEEDED</code>:</p>
+<ul>
+<li>no confirm request should re-execute payment</li>
+<li>no transition back to <code>PROCESSING</code> should be allowed</li>
+</ul>
+<hr>
+<p>👉 Terminal states are critical for preventing double execution.</p>
+<hr>
+<h2 id="9-atomicity--business-meaning">9. Atomicity + Business Meaning</h2>
+<hr>
+<p>Atomicity is not just technical correctness.</p>
+<p>It also protects business meaning.</p>
+<h3 id="example-1">Example</h3>
+<p>If a payment is already <code>SUCCEEDED</code>, then:</p>
+<ul>
+<li>business operation is already complete</li>
+<li>any further processing attempt is invalid</li>
+</ul>
+<p>So atomic transitions protect both:</p>
+<ul>
+<li>system correctness</li>
+<li>business correctness</li>
+</ul>
+<hr>
+<h2 id="10-locking-vs-atomic-transition">10. Locking vs Atomic Transition</h2>
+<hr>
+<p>These are related, but not identical.</p>
+<h3 id="locking">Locking</h3>
+<ul>
+<li>prevents concurrent interference</li>
+</ul>
+<h3 id="atomic-state-transition">Atomic State Transition</h3>
+<ul>
+<li>ensures the <strong>right state change</strong> happens safely</li>
+</ul>
+<hr>
+<p>👉 Good systems use both.</p>
+<hr>
+<h2 id="11-common-mistakes-to-avoid">11. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-read-then-update-without-protection">❌ Read-then-update without protection</h3>
+<ul>
+<li>race window</li>
+</ul>
+<hr>
+<h3 id="-allowing-invalid-transitions">❌ Allowing invalid transitions</h3>
+<ul>
+<li>breaks lifecycle rules</li>
+</ul>
+<hr>
+<h3 id="-treating-all-states-as-mutable">❌ Treating all states as mutable</h3>
+<ul>
+<li>can re-open completed payments</li>
+</ul>
+<hr>
+<h3 id="-ignoring-rows-affected-result-in-compare-and-update">❌ Ignoring rows-affected result in compare-and-update</h3>
+<ul>
+<li>hides failed transitions</li>
+</ul>
+<hr>
+<h2 id="12-best-practices">12. Best Practices</h2>
+<hr>
+<h3 id="1-define-allowed-transitions-explicitly">1. Define allowed transitions explicitly</h3>
+<ul>
+<li>do not rely on implicit behavior</li>
+</ul>
+<hr>
+<h3 id="2-validate-state-before-every-critical-update">2. Validate state before every critical update</h3>
+<ul>
+<li>especially before execution</li>
+</ul>
+<hr>
+<h3 id="3-protect-terminal-states">3. Protect terminal states</h3>
+<ul>
+<li><code>SUCCEEDED</code> must not be reprocessed</li>
+</ul>
+<hr>
+<h3 id="4-use-locking-or-compare-and-update-consistently">4. Use locking or compare-and-update consistently</h3>
+<ul>
+<li>avoid mixed unsafe patterns</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Atomic state transitions ensure that:</p>
+<ul>
+<li>payments move only through valid states</li>
+<li>concurrent requests cannot corrupt lifecycle</li>
+<li>completed payments are protected from re-execution</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_5_double-execution-protection">Protecting Against Double Execution →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Locking prevents interference</li>
+<li>Atomic transitions prevent invalid state changes</li>
+<li>Both are required for a safe payment lifecycle</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-atomic-state-transitions-matter" data-toc-target="1-why-atomic-state-transitions-matter">1. Why Atomic State Transitions Matter</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-what-makes-a-transition-atomic" data-toc-target="3-what-makes-a-transition-atomic">3. What Makes a Transition Atomic?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-why-simple-check-then-update-is-dangerous" data-toc-target="4-why-simple-check-then-update-is-dangerous">4. Why Simple Check-Then-Update is Dangerous</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-safe-transition-model" data-toc-target="5-safe-transition-model">5. Safe Transition Model</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-valid-state-transition-rules" data-toc-target="6-valid-state-transition-rules">6. Valid State Transition Rules</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-transition-example-in-confirm-flow" data-toc-target="7-transition-example-in-confirm-flow">7. Transition Example in Confirm Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-terminal-states-must-be-protected" data-toc-target="8-terminal-states-must-be-protected">8. Terminal States Must Be Protected</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-atomicity--business-meaning" data-toc-target="9-atomicity--business-meaning">9. Atomicity &#43; Business Meaning</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-locking-vs-atomic-transition" data-toc-target="10-locking-vs-atomic-transition">10. Locking vs Atomic Transition</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-common-mistakes-to-avoid" data-toc-target="11-common-mistakes-to-avoid">11. Common Mistakes to Avoid</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-best-practices" data-toc-target="12-best-practices">12. Best Practices</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_3_locking-strategies/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/8_phase-8/8_5_double-execution-protection/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

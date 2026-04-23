@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idempotency Table Design</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776929049">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Idempotency Table Design</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-idempotency-needs-persistence">1. Why Idempotency Needs Persistence</h2>
+<hr>
+<p>In Phase 5, we discussed <strong>idempotency as a concept</strong>.</p>
+<p>Now we make it concrete.</p>
+<blockquote>
+<p>❗ Idempotency only works if it is <strong>persisted reliably</strong>.</p></blockquote>
+<p>Without a database-backed idempotency store:</p>
+<ul>
+<li>duplicate requests cannot be detected</li>
+<li>retries can cause duplicate execution</li>
+<li>system becomes unsafe under failure</li>
+</ul>
+<hr>
+<h2 id="2-purpose-of-idempotency-table">2. Purpose of Idempotency Table</h2>
+<hr>
+<p>The idempotency table answers:</p>
+<blockquote>
+<p>❓ <em>Have we already processed this exact request?</em></p></blockquote>
+<p>It enables:</p>
+<ul>
+<li>safe retries</li>
+<li>duplicate prevention</li>
+<li>consistent responses</li>
+</ul>
+<hr>
+<h2 id="3-core-schema-recommended">3. Core Schema (Recommended)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IDEMPOTENCY_RECORDS
+</span></span><span style="display:flex;"><span>- idempotency_key (string)
+</span></span><span style="display:flex;"><span>- operation_type (string)
+</span></span><span style="display:flex;"><span>- request_hash (string)
+</span></span><span style="display:flex;"><span>- status (string)
+</span></span><span style="display:flex;"><span>- response_payload (json/text)
+</span></span><span style="display:flex;"><span>- resource_id (string)        -- e.g., payment_id
+</span></span><span style="display:flex;"><span>- created_at (timestamp)
+</span></span><span style="display:flex;"><span>- expires_at (timestamp)
+</span></span></code></pre></div><hr>
+<h2 id="4-field-by-field-explanation">4. Field-by-Field Explanation</h2>
+<hr>
+<h3 id="1-idempotency_key">1. <code>idempotency_key</code></h3>
+<ul>
+<li>unique key provided by client</li>
+</ul>
+<hr>
+<h3 id="2-operation_type">2. <code>operation_type</code></h3>
+<ul>
+<li>identifies the API operation</li>
+</ul>
+<p>Examples:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATE_PAYMENT
+</span></span><span style="display:flex;"><span>CONFIRM_PAYMENT
+</span></span></code></pre></div><p>👉 Prevents cross-operation conflicts</p>
+<hr>
+<h3 id="3-request_hash">3. <code>request_hash</code></h3>
+<ul>
+<li>hash of request payload</li>
+</ul>
+<p>👉 Used to detect incorrect key reuse</p>
+<hr>
+<h3 id="4-status">4. <code>status</code></h3>
+<p>Represents processing state of the request.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IN_PROGRESS
+</span></span><span style="display:flex;"><span>COMPLETED
+</span></span></code></pre></div><hr>
+<h3 id="5-response_payload">5. <code>response_payload</code></h3>
+<ul>
+<li>stored API response</li>
+</ul>
+<p>👉 Enables returning the same response for retries</p>
+<hr>
+<h3 id="6-resource_id">6. <code>resource_id</code></h3>
+<ul>
+<li>reference to business entity</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>payment_id
+</span></span></code></pre></div><hr>
+<h3 id="7-created_at">7. <code>created_at</code></h3>
+<ul>
+<li>when record was created</li>
+</ul>
+<hr>
+<h3 id="8-expires_at">8. <code>expires_at</code></h3>
+<ul>
+<li>TTL for cleanup</li>
+</ul>
+<hr>
+<h2 id="5-unique-constraint-critical">5. Unique Constraint (Critical)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>UNIQUE(operation_type, idempotency_key)
+</span></span></code></pre></div><hr>
+<h3 id="why">Why?</h3>
+<ul>
+<li>ensures only one request can reserve a key</li>
+<li>prevents race conditions</li>
+</ul>
+<hr>
+<h2 id="6-lifecycle-of-an-idempotency-record">6. Lifecycle of an Idempotency Record</h2>
+<hr>
+<h3 id="step-1-reservation">Step 1: Reservation</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = IN_PROGRESS
+</span></span></code></pre></div><ul>
+<li>inserted before side effects</li>
+</ul>
+<hr>
+<h3 id="step-2-processing">Step 2: Processing</h3>
+<ul>
+<li>business logic executes</li>
+</ul>
+<hr>
+<h3 id="step-3-completion">Step 3: Completion</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = COMPLETED
+</span></span><span style="display:flex;"><span>response_payload = &lt;response&gt;
+</span></span></code></pre></div><hr>
+<h2 id="7-flow-example">7. Flow Example</h2>
+<hr>
+<h3 id="first-request">First Request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Insert key → IN_PROGRESS
+</span></span><span style="display:flex;"><span>Process request
+</span></span><span style="display:flex;"><span>Update → COMPLETED
+</span></span></code></pre></div><hr>
+<h3 id="retry-request">Retry Request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Find key
+</span></span><span style="display:flex;"><span>If COMPLETED → return stored response
+</span></span><span style="display:flex;"><span>If IN_PROGRESS → return processing/409
+</span></span></code></pre></div><hr>
+<h2 id="8-handling-edge-cases">8. Handling Edge Cases</h2>
+<hr>
+<h3 id="case-1-same-key-same-request">Case 1: Same Key, Same Request</h3>
+<ul>
+<li>return stored response</li>
+</ul>
+<hr>
+<h3 id="case-2-same-key-different-request">Case 2: Same Key, Different Request</h3>
+<ul>
+<li>compare request hash</li>
+<li>reject if mismatch</li>
+</ul>
+<hr>
+<h3 id="case-3-concurrent-requests">Case 3: Concurrent Requests</h3>
+<ul>
+<li>only one insert succeeds</li>
+<li>others detect existing record</li>
+</ul>
+<hr>
+<h3 id="case-4-system-crash">Case 4: System Crash</h3>
+<ul>
+<li>record remains in DB</li>
+<li>allows safe recovery/retry</li>
+</ul>
+<hr>
+<h2 id="9-indexing-strategy">9. Indexing Strategy</h2>
+<hr>
+<h3 id="required">Required</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>INDEX(operation_type, idempotency_key)
+</span></span></code></pre></div><hr>
+<h3 id="optional">Optional</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>INDEX(resource_id)
+</span></span></code></pre></div><hr>
+<h3 id="why-1">Why?</h3>
+<ul>
+<li>fast idempotency lookup</li>
+<li>linking to payment</li>
+</ul>
+<hr>
+<h2 id="10-storage-considerations">10. Storage Considerations</h2>
+<hr>
+<h3 id="full-response-vs-partial-storage">Full Response vs Partial Storage</h3>
+<h4 id="option-1-store-full-response">Option 1: Store full response</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>exact replay</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>higher storage cost</li>
+</ul>
+<hr>
+<h4 id="option-2-store-minimal-data">Option 2: Store minimal data</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>lightweight</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>need to rebuild response</li>
+</ul>
+<hr>
+<p>👉 Recommended: store essential response fields</p>
+<hr>
+<h2 id="11-ttl--cleanup">11. TTL &amp; Cleanup</h2>
+<hr>
+<ul>
+<li>idempotency records are temporary</li>
+<li>use <code>expires_at</code> for cleanup</li>
+</ul>
+<p>Typical TTL:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>24–48 hours
+</span></span></code></pre></div><hr>
+<h2 id="12-how-this-supports-system-design">12. How This Supports System Design</h2>
+<hr>
+<h3 id="phase-5--idempotency">Phase 5 — Idempotency</h3>
+<ul>
+<li>core implementation layer</li>
+</ul>
+<hr>
+<h3 id="phase-6--processing-flow">Phase 6 — Processing Flow</h3>
+<ul>
+<li>first gate in request handling</li>
+</ul>
+<hr>
+<h3 id="phase-7--persistence">Phase 7 — Persistence</h3>
+<ul>
+<li>ensures durable retry protection</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The idempotency table is critical for:</p>
+<ul>
+<li>safe retries</li>
+<li>duplicate prevention</li>
+<li>consistent API behavior</li>
+</ul>
+<p>It acts as the <strong>first line of defense</strong> in request processing.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_5_relationships-between-tables">Relationships Between Tables →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Idempotency requires persistent storage</li>
+<li>Unique constraints prevent race conditions</li>
+<li>IN_PROGRESS → COMPLETED lifecycle ensures safe execution</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-idempotency-needs-persistence" data-toc-target="1-why-idempotency-needs-persistence">1. Why Idempotency Needs Persistence</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-purpose-of-idempotency-table" data-toc-target="2-purpose-of-idempotency-table">2. Purpose of Idempotency Table</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-core-schema-recommended" data-toc-target="3-core-schema-recommended">3. Core Schema (Recommended)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-field-by-field-explanation" data-toc-target="4-field-by-field-explanation">4. Field-by-Field Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-unique-constraint-critical" data-toc-target="5-unique-constraint-critical">5. Unique Constraint (Critical)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-lifecycle-of-an-idempotency-record" data-toc-target="6-lifecycle-of-an-idempotency-record">6. Lifecycle of an Idempotency Record</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-flow-example" data-toc-target="7-flow-example">7. Flow Example</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-handling-edge-cases" data-toc-target="8-handling-edge-cases">8. Handling Edge Cases</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-indexing-strategy" data-toc-target="9-indexing-strategy">9. Indexing Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-storage-considerations" data-toc-target="10-storage-considerations">10. Storage Considerations</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-ttl--cleanup" data-toc-target="11-ttl--cleanup">11. TTL &amp;amp; Cleanup</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-how-this-supports-system-design" data-toc-target="12-how-this-supports-system-design">12. How This Supports System Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_3_payment-attempt-table/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/7_phase-7/7_5_relationships-between-tables/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

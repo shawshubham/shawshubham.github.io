@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>State Transitions &amp; Rules</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776709283">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">State Transitions &amp; Rules</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 20 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-state-transitions-matter">1. Why State Transitions Matter</h2>
+<hr>
+<p>Defining states is only half the design. The real challenge is <strong>controlling how the system moves between those states</strong>.</p>
+<p>Without strict transition rules, the system can:</p>
+<ul>
+<li>process the same payment multiple times</li>
+<li>enter inconsistent states</li>
+<li>behave unpredictably under concurrent requests</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+A state machine is only as strong as its <strong>transition rules</strong>.</p></blockquote>
+<hr>
+<h2 id="2-valid-state-transitions">2. Valid State Transitions</h2>
+<hr>
+<p>Based on our defined states, the allowed transitions are:</p>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> CREATED
+
+    CREATED --> PROCESSING : confirm payment
+
+    PROCESSING --> SUCCEEDED : success
+    PROCESSING --> FAILED : failure
+
+    FAILED --> PROCESSING : retry (optional)
+</div>
+<h3 id="key-rules">Key Rules</h3>
+<ul>
+<li>A payment starts in <strong>CREATED</strong></li>
+<li>It can move to <strong>PROCESSING</strong> only once per attempt</li>
+<li><strong>PROCESSING</strong> leads to either <strong>SUCCEEDED</strong> or <strong>FAILED</strong></li>
+<li><strong>FAILED</strong> may allow retry depending on business logic</li>
+</ul>
+<hr>
+<h2 id="3-terminal-states">3. Terminal States</h2>
+<hr>
+<p>Some states are <strong>terminal</strong>, meaning no further transitions should happen.</p>
+<h3 id="terminal-states">Terminal States</h3>
+<ul>
+<li>SUCCEEDED</li>
+<li>FAILED (sometimes retryable, but treated carefully)</li>
+</ul>
+<h3 id="important-constraint">Important Constraint</h3>
+<blockquote>
+<p>❗ Once a payment is <strong>SUCCEEDED</strong>, it must never transition again</p></blockquote>
+<p>This prevents:</p>
+<ul>
+<li>duplicate charges</li>
+<li>inconsistent records</li>
+</ul>
+<hr>
+<h2 id="4-invalid-transitions-must-be-prevented">4. Invalid Transitions (Must Be Prevented)</h2>
+<hr>
+<p>Examples of invalid transitions:</p>
+<ul>
+<li>SUCCEEDED → PROCESSING ❌</li>
+<li>SUCCEEDED → FAILED ❌</li>
+<li>CREATED → SUCCEEDED (skipping processing) ❌</li>
+<li>FAILED → SUCCEEDED (without retry) ❌</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Point:</strong><br>
+Invalid transitions should be rejected at the service layer.</p></blockquote>
+<hr>
+<h2 id="5-enforcing-transitions-in-code">5. Enforcing Transitions in Code</h2>
+<hr>
+<p>State transitions must be enforced explicitly in your backend logic.</p>
+<h3 id="example-logic">Example Logic</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (payment.<span style="color:#a6e22e">getStatus</span>() <span style="color:#f92672">!=</span> CREATED <span style="color:#f92672">&amp;&amp;</span> payment.<span style="color:#a6e22e">getStatus</span>() <span style="color:#f92672">!=</span> FAILED) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidStateException(<span style="color:#e6db74">&#34;Payment cannot be processed again&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="principle">Principle</h3>
+<ul>
+<li>Always check <strong>current state before transitioning</strong></li>
+<li>Reject invalid transitions early</li>
+</ul>
+<hr>
+<h2 id="6-handling-concurrency-critical">6. Handling Concurrency (Critical)</h2>
+<hr>
+<p>One of the biggest risks is <strong>multiple requests modifying state simultaneously</strong>.</p>
+<h3 id="example-scenario">Example Scenario</h3>
+<ul>
+<li>Two confirm requests arrive at the same time</li>
+<li>Both see state = CREATED</li>
+<li>Both move to PROCESSING</li>
+</ul>
+<blockquote>
+<p>❗ Result: Duplicate processing</p></blockquote>
+<hr>
+<h2 id="7-solutions-for-concurrency-control">7. Solutions for Concurrency Control</h2>
+<hr>
+<h3 id="1-optimistic-locking-recommended">1. Optimistic Locking (Recommended)</h3>
+<ul>
+<li>Add a version field</li>
+<li>Update only if version matches</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payment
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>, <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> payment_id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#f92672">?</span>;
+</span></span></code></pre></div><p>👉 Only one request succeeds</p>
+<hr>
+<h3 id="2-atomic-state-update">2. Atomic State Update</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payment
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> payment_id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;CREATED&#39;</span>;
+</span></span></code></pre></div><p>👉 Ensures only valid transitions happen</p>
+<hr>
+<h3 id="3-database-transactions">3. Database Transactions</h3>
+<ul>
+<li>Wrap read + update in transaction</li>
+<li>Prevent partial updates</li>
+</ul>
+<hr>
+<h2 id="8-idempotency--state--strong-guarantee">8. Idempotency + State = Strong Guarantee</h2>
+<hr>
+<p>State checks alone are not enough.</p>
+<p>We combine:</p>
+<ul>
+<li><strong>State Machine</strong> → controls valid transitions</li>
+<li><strong>Idempotency</strong> → prevents duplicate execution</li>
+</ul>
+<p>Together they ensure:</p>
+<blockquote>
+<p>✔ Payment is processed <strong>exactly once</strong> (logically)</p></blockquote>
+<hr>
+<h2 id="9-design-principles">9. Design Principles</h2>
+<hr>
+<p>Follow these rules in your design:</p>
+<ul>
+<li>Never trust incoming requests blindly</li>
+<li>Always validate current state</li>
+<li>Treat terminal states as immutable</li>
+<li>Make transitions atomic</li>
+<li>Design for concurrent execution</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>State transitions define the <strong>correctness boundary</strong> of your system.</p>
+<p>Without strict transition rules, even a well-designed API can fail under real-world conditions.</p>
+<p>A robust system ensures:</p>
+<ul>
+<li>valid transitions only</li>
+<li>safe concurrency handling</li>
+<li>predictable outcomes</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/3_phase-3/3_1_api-endpoints">Phase 3: API Design →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>State transitions enforce <strong>system correctness</strong></li>
+<li>Invalid transitions must be strictly blocked</li>
+<li>Concurrency control is essential to prevent duplicate processing</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-state-transitions-matter" data-toc-target="1-why-state-transitions-matter">1. Why State Transitions Matter</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-valid-state-transitions" data-toc-target="2-valid-state-transitions">2. Valid State Transitions</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-terminal-states" data-toc-target="3-terminal-states">3. Terminal States</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-invalid-transitions-must-be-prevented" data-toc-target="4-invalid-transitions-must-be-prevented">4. Invalid Transitions (Must Be Prevented)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-enforcing-transitions-in-code" data-toc-target="5-enforcing-transitions-in-code">5. Enforcing Transitions in Code</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-handling-concurrency-critical" data-toc-target="6-handling-concurrency-critical">6. Handling Concurrency (Critical)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-solutions-for-concurrency-control" data-toc-target="7-solutions-for-concurrency-control">7. Solutions for Concurrency Control</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-idempotency--state--strong-guarantee" data-toc-target="8-idempotency--state--strong-guarantee">8. Idempotency &#43; State = Strong Guarantee</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-design-principles" data-toc-target="9-design-principles">9. Design Principles</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/2_phase-2/2_2_design-payment-states/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

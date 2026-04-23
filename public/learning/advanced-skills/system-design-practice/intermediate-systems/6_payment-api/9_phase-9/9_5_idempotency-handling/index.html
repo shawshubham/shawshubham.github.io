@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idempotency Handling in Code</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776936123">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Idempotency Handling in Code</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-article">1. Why This Article</h2>
+<hr>
+<p>In previous articles, we used idempotency in both:</p>
+<ul>
+<li>Create Payment</li>
+<li>Confirm Payment</li>
+</ul>
+<p>Now we formalize it as a <strong>reusable backend component</strong>.</p>
+<blockquote>
+<p>🧠 Goal: Design idempotency handling as a <strong>first-class system feature</strong>, not scattered logic.</p></blockquote>
+<hr>
+<h2 id="2-what-this-article-does-not-repeat">2. What This Article Does NOT Repeat</h2>
+<hr>
+<p>We already covered:</p>
+<ul>
+<li>why idempotency is needed</li>
+<li>where to use it</li>
+</ul>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>how to implement idempotency cleanly in code</li>
+<li>how to structure the idempotency service and model</li>
+</ul>
+<hr>
+<h2 id="3-core-responsibilities-of-idempotency-layer">3. Core Responsibilities of Idempotency Layer</h2>
+<hr>
+<p>An idempotency component must handle:</p>
+<ol>
+<li>request deduplication</li>
+<li>in-progress tracking</li>
+<li>response caching</li>
+<li>safe retries</li>
+</ol>
+<hr>
+<h2 id="4-idempotency-record-model">4. Idempotency Record Model</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Entity</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IdempotencyRecord</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Id</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String key;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String operation; <span style="color:#75715e">// CREATE / CONFIRM</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String requestHash;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Enumerated</span>(EnumType.<span style="color:#a6e22e">STRING</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Status status; <span style="color:#75715e">// IN_PROGRESS / COMPLETED</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> UUID resourceId; <span style="color:#75715e">// paymentId</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Lob</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String responsePayload;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Instant createdAt;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Instant updatedAt;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="5-status-lifecycle">5. Status Lifecycle</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IN_PROGRESS → COMPLETED
+</span></span></code></pre></div><hr>
+<h3 id="meaning">Meaning</h3>
+<ul>
+<li><strong>IN_PROGRESS</strong> → request is being processed</li>
+<li><strong>COMPLETED</strong> → final response is available</li>
+</ul>
+<hr>
+<h2 id="6-idempotency-flow">6. Idempotency Flow</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Request arrives with key
+</span></span><span style="display:flex;"><span>2. Lookup record
+</span></span><span style="display:flex;"><span>3. If exists:
+</span></span><span style="display:flex;"><span>   - COMPLETED → return stored response
+</span></span><span style="display:flex;"><span>   - IN_PROGRESS → return &#34;processing&#34;
+</span></span><span style="display:flex;"><span>4. If not exists:
+</span></span><span style="display:flex;"><span>   - insert IN_PROGRESS record
+</span></span><span style="display:flex;"><span>   - process request
+</span></span><span style="display:flex;"><span>   - store response
+</span></span></code></pre></div><hr>
+<h2 id="7-idempotency-service-detailed">7. Idempotency Service (Detailed)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IdempotencyService</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> IdempotencyRepository repository;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Optional<span style="color:#f92672">&lt;</span>IdempotencyRecord<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">find</span>(String key, Operation operation) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> repository.<span style="color:#a6e22e">findByKeyAndOperation</span>(key, operation);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">reserve</span>(String key, Operation operation, Object request) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        IdempotencyRecord record <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> IdempotencyRecord();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setKey</span>(key);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setOperation</span>(operation.<span style="color:#a6e22e">name</span>());
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setStatus</span>(Status.<span style="color:#a6e22e">IN_PROGRESS</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setRequestHash</span>(hash(request));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setCreatedAt</span>(Instant.<span style="color:#a6e22e">now</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            repository.<span style="color:#a6e22e">save</span>(record);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (DataIntegrityViolationException ex) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// another request already reserved</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> DuplicateRequestException();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">complete</span>(String key, Operation operation, UUID resourceId, Object response) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        IdempotencyRecord record <span style="color:#f92672">=</span> repository.<span style="color:#a6e22e">findByKeyAndOperation</span>(key, operation)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">orElseThrow</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setStatus</span>(Status.<span style="color:#a6e22e">COMPLETED</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setResourceId</span>(resourceId);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setResponsePayload</span>(serialize(response));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setUpdatedAt</span>(Instant.<span style="color:#a6e22e">now</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        repository.<span style="color:#a6e22e">save</span>(record);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String <span style="color:#a6e22e">hash</span>(Object request) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> request.<span style="color:#a6e22e">toString</span>(); <span style="color:#75715e">// simplified</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String <span style="color:#a6e22e">serialize</span>(Object response) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> response.<span style="color:#a6e22e">toString</span>(); <span style="color:#75715e">// simplified</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="8-handling-duplicate-requests">8. Handling Duplicate Requests</h2>
+<hr>
+<h3 id="case-1--completed">Case 1 — COMPLETED</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return stored response
+</span></span></code></pre></div><hr>
+<h3 id="case-2--in_progress">Case 2 — IN_PROGRESS</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return 409 or &#34;Processing&#34;
+</span></span></code></pre></div><hr>
+<p>👉 Prevents duplicate execution</p>
+<hr>
+<h2 id="9-request-hash-validation-important">9. Request Hash Validation (Important)</h2>
+<hr>
+<p>Same key should represent same request.</p>
+<hr>
+<h3 id="problem">Problem</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Same key, different payload
+</span></span></code></pre></div><hr>
+<h3 id="fix">Fix</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>existing.<span style="color:#a6e22e">getRequestHash</span>().<span style="color:#a6e22e">equals</span>(hash(request))) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;Request mismatch for same idempotency key&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="10-db-constraint-critical">10. DB Constraint (Critical)</h2>
+<hr>
+<p>Ensure uniqueness:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UNIQUE</span> (<span style="color:#66d9ef">key</span>, <span style="color:#66d9ef">operation</span>)
+</span></span></code></pre></div><hr>
+<p>👉 This guarantees only one reservation succeeds.</p>
+<hr>
+<h2 id="11-response-storage">11. Response Storage</h2>
+<hr>
+<p>Why store response?</p>
+<ul>
+<li>allows replay of exact response</li>
+<li>ensures consistency across retries</li>
+</ul>
+<hr>
+<h2 id="12-retry-safety">12. Retry Safety</h2>
+<hr>
+<p>Idempotency ensures:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry → same result → no duplicate execution
+</span></span></code></pre></div><hr>
+<h2 id="13-common-mistakes">13. Common Mistakes</h2>
+<hr>
+<h3 id="-no-request-hash-check">❌ No request hash check</h3>
+<ul>
+<li>allows misuse of key</li>
+</ul>
+<hr>
+<h3 id="-late-reservation">❌ Late reservation</h3>
+<ul>
+<li>race conditions</li>
+</ul>
+<hr>
+<h3 id="-not-storing-response">❌ Not storing response</h3>
+<ul>
+<li>inconsistent retries</li>
+</ul>
+<hr>
+<h3 id="-ignoring-in_progress">❌ Ignoring IN_PROGRESS</h3>
+<ul>
+<li>concurrent execution risk</li>
+</ul>
+<hr>
+<h2 id="14-design-insight">14. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Idempotency is not just a check — it is a state machine for request processing.</strong></p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>A robust idempotency implementation:</p>
+<ul>
+<li>prevents duplicate execution</li>
+<li>ensures safe retries</li>
+<li>maintains consistent responses</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_6_exception-handling">Exception Handling &amp; Error Design →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Idempotency must be centralized</li>
+<li>Use DB constraints for safety</li>
+<li>Track request state explicitly</li>
+<li>Store responses for consistent retries</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-article" data-toc-target="1-why-this-article">1. Why This Article</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-does-not-repeat" data-toc-target="2-what-this-article-does-not-repeat">2. What This Article Does NOT Repeat</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-core-responsibilities-of-idempotency-layer" data-toc-target="3-core-responsibilities-of-idempotency-layer">3. Core Responsibilities of Idempotency Layer</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-idempotency-record-model" data-toc-target="4-idempotency-record-model">4. Idempotency Record Model</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-status-lifecycle" data-toc-target="5-status-lifecycle">5. Status Lifecycle</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-idempotency-flow" data-toc-target="6-idempotency-flow">6. Idempotency Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-idempotency-service-detailed" data-toc-target="7-idempotency-service-detailed">7. Idempotency Service (Detailed)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-handling-duplicate-requests" data-toc-target="8-handling-duplicate-requests">8. Handling Duplicate Requests</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-request-hash-validation-important" data-toc-target="9-request-hash-validation-important">9. Request Hash Validation (Important)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-db-constraint-critical" data-toc-target="10-db-constraint-critical">10. DB Constraint (Critical)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-response-storage" data-toc-target="11-response-storage">11. Response Storage</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-retry-safety" data-toc-target="12-retry-safety">12. Retry Safety</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-common-mistakes" data-toc-target="13-common-mistakes">13. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-design-insight" data-toc-target="14-design-insight">14. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_4_confirm-payment-implementation/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_6_exception-handling/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

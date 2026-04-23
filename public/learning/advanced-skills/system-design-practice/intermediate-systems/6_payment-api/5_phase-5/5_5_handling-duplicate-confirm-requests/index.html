@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handling Duplicate Confirm Requests</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776785795">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Handling Duplicate Confirm Requests</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-duplicate-confirm-requests-are-dangerous">1. Why Duplicate Confirm Requests Are Dangerous</h2>
+<hr>
+<p>When a client calls:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
+</span></span></code></pre></div><p>there is a risk that the same request is sent multiple times due to:</p>
+<ul>
+<li>client retries after timeout</li>
+<li>network failures</li>
+<li>user clicking confirm multiple times</li>
+</ul>
+<p>👉 Unlike create requests, duplicate confirm requests can lead to <strong>multiple actual charges</strong>.</p>
+<blockquote>
+<p>❗ This is one of the most critical problems in payment system design.</p></blockquote>
+<hr>
+<h2 id="2-example-failure-scenario">2. Example Failure Scenario</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client sends confirm request
+</span></span><span style="display:flex;"><span>→ Gateway processes payment successfully
+</span></span><span style="display:flex;"><span>→ API crashes before responding
+</span></span><span style="display:flex;"><span>→ Client retries confirm
+</span></span></code></pre></div><p>Without protection:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → Charge executed
+</span></span><span style="display:flex;"><span>Request 2 → Charge executed again ❌
+</span></span></code></pre></div><p>👉 The user gets charged twice.</p>
+<hr>
+<h2 id="3-why-idempotency-alone-is-not-enough">3. Why Idempotency Alone is Not Enough</h2>
+<hr>
+<p>Idempotency helps detect duplicate requests.</p>
+<p>But confirm operations also involve:</p>
+<ul>
+<li>external gateway calls</li>
+<li>state transitions</li>
+<li>concurrency risks</li>
+</ul>
+<p>👉 So we need <strong>multiple layers of protection</strong>.</p>
+<hr>
+<h2 id="4-core-protection-mechanisms">4. Core Protection Mechanisms</h2>
+<hr>
+<p>To safely handle duplicate confirm requests, we must combine:</p>
+<h3 id="1-idempotency-key">1. Idempotency Key</h3>
+<ul>
+<li>detect repeated requests</li>
+</ul>
+<hr>
+<h3 id="2-payment-state-validation">2. Payment State Validation</h3>
+<ul>
+<li>ensure confirm is allowed only in valid states</li>
+</ul>
+<hr>
+<h3 id="3-concurrency-control">3. Concurrency Control</h3>
+<ul>
+<li>prevent parallel execution</li>
+</ul>
+<hr>
+<h3 id="4-gateway-idempotency-optional-but-strong">4. Gateway Idempotency (Optional but Strong)</h3>
+<ul>
+<li>some gateways also support idempotency keys</li>
+</ul>
+<hr>
+<h2 id="5-correct-handling-flow">5. Correct Handling Flow</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant PaymentAPI
+    participant DB
+    participant Gateway
+
+    Client->>PaymentAPI: Confirm + Idempotency-Key
+    PaymentAPI->>DB: Check idempotency record
+
+    alt Key exists
+        PaymentAPI-->>Client: Return stored response
+    else New request
+        PaymentAPI->>DB: Check payment state
+        alt Already SUCCEEDED
+            PaymentAPI-->>Client: Return success (no re-execution)
+        else Valid state
+            PaymentAPI->>DB: Mark IN_PROGRESS
+            PaymentAPI->>Gateway: Execute payment
+            Gateway-->>PaymentAPI: Response
+            PaymentAPI->>DB: Update payment + store response
+            PaymentAPI-->>Client: Return response
+        end
+    end
+</div>
+<hr>
+<h2 id="6-payment-state-protection">6. Payment State Protection</h2>
+<hr>
+<h3 id="rule">Rule</h3>
+<p>Confirm should only be allowed when:</p>
+<ul>
+<li><code>CREATED</code></li>
+<li>or retryable <code>FAILED</code></li>
+</ul>
+<hr>
+<h3 id="reject-cases">Reject Cases</h3>
+<ul>
+<li><code>SUCCEEDED</code> → already completed</li>
+<li><code>PROCESSING</code> → in progress</li>
+</ul>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="7-handling-concurrent-confirm-requests">7. Handling Concurrent Confirm Requests</h2>
+<hr>
+<h3 id="problem">Problem</h3>
+<p>Two confirm requests arrive at the same time:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → confirm
+</span></span><span style="display:flex;"><span>Thread B → confirm
+</span></span></code></pre></div><p>Without protection:</p>
+<ul>
+<li>both may call gateway</li>
+</ul>
+<hr>
+<h3 id="solution-options">Solution Options</h3>
+<h4 id="option-1-db-locking-recommended">Option 1: DB Locking (Recommended)</h4>
+<ul>
+<li>lock payment row (<code>SELECT ... FOR UPDATE</code>)</li>
+<li>ensure only one thread proceeds</li>
+</ul>
+<hr>
+<h4 id="option-2-optimistic-locking">Option 2: Optimistic Locking</h4>
+<ul>
+<li>version-based control</li>
+</ul>
+<hr>
+<h4 id="option-3-in-progress-flag">Option 3: In-Progress Flag</h4>
+<ul>
+<li>mark payment as <code>PROCESSING</code></li>
+<li>reject other requests</li>
+</ul>
+<hr>
+<h2 id="8-gateway-level-protection-advanced">8. Gateway-Level Protection (Advanced)</h2>
+<hr>
+<p>Some payment gateways (e.g., Stripe) support idempotency.</p>
+<p>👉 You can send the same idempotency key to the gateway.</p>
+<hr>
+<h3 id="benefit">Benefit</h3>
+<ul>
+<li>prevents duplicate charges even if API fails</li>
+</ul>
+<hr>
+<h3 id="best-practice">Best Practice</h3>
+<ul>
+<li>combine <strong>API-level + gateway-level idempotency</strong></li>
+</ul>
+<hr>
+<h2 id="9-handling-partial-failures">9. Handling Partial Failures</h2>
+<hr>
+<h3 id="scenario-1-gateway-success-api-crash">Scenario 1: Gateway success, API crash</h3>
+<ul>
+<li>retry arrives</li>
+</ul>
+<p>👉 Solution:</p>
+<ul>
+<li>use stored response</li>
+<li>return success without re-execution</li>
+</ul>
+<hr>
+<h3 id="scenario-2-gateway-timeout">Scenario 2: Gateway timeout</h3>
+<ul>
+<li>result unknown</li>
+</ul>
+<p>👉 Solution:</p>
+<ul>
+<li>mark as <code>PROCESSING</code></li>
+<li>retry or reconcile later</li>
+</ul>
+<hr>
+<h2 id="10-common-mistakes-to-avoid">10. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-no-idempotency-on-confirm">❌ No idempotency on confirm</h3>
+<ul>
+<li>leads to duplicate charges</li>
+</ul>
+<hr>
+<h3 id="-not-validating-payment-state">❌ Not validating payment state</h3>
+<ul>
+<li>allows invalid transitions</li>
+</ul>
+<hr>
+<h3 id="-no-concurrency-control">❌ No concurrency control</h3>
+<ul>
+<li>race conditions cause multiple executions</li>
+</ul>
+<hr>
+<h3 id="-trusting-gateway-blindly">❌ Trusting gateway blindly</h3>
+<ul>
+<li>system may become inconsistent</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Handling duplicate confirm requests is critical because it directly affects <strong>money movement</strong>.</p>
+<p>A correct design ensures:</p>
+<ul>
+<li>payment is executed at most once</li>
+<li>retries are safe</li>
+<li>system remains consistent under failure</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_6_failure-scenarios-and-edge-cases/">Failure Scenarios &amp; Edge Cases →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Duplicate confirm requests can cause duplicate charges</li>
+<li>Use idempotency + state checks + concurrency control</li>
+<li>Combine API-level and gateway-level protection for safety</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-duplicate-confirm-requests-are-dangerous" data-toc-target="1-why-duplicate-confirm-requests-are-dangerous">1. Why Duplicate Confirm Requests Are Dangerous</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-example-failure-scenario" data-toc-target="2-example-failure-scenario">2. Example Failure Scenario</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-why-idempotency-alone-is-not-enough" data-toc-target="3-why-idempotency-alone-is-not-enough">3. Why Idempotency Alone is Not Enough</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-core-protection-mechanisms" data-toc-target="4-core-protection-mechanisms">4. Core Protection Mechanisms</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-correct-handling-flow" data-toc-target="5-correct-handling-flow">5. Correct Handling Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-payment-state-protection" data-toc-target="6-payment-state-protection">6. Payment State Protection</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-handling-concurrent-confirm-requests" data-toc-target="7-handling-concurrent-confirm-requests">7. Handling Concurrent Confirm Requests</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-gateway-level-protection-advanced" data-toc-target="8-gateway-level-protection-advanced">8. Gateway-Level Protection (Advanced)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-handling-partial-failures" data-toc-target="9-handling-partial-failures">9. Handling Partial Failures</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-common-mistakes-to-avoid" data-toc-target="10-common-mistakes-to-avoid">10. Common Mistakes to Avoid</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_4_handling-duplicate-create-requests/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/5_phase-5/5_6_failure-scenarios-and-edge-cases/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

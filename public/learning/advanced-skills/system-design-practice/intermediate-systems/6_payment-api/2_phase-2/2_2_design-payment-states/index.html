@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Designing Payment States</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776709283">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Designing Payment States</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 20 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-do-we-need-payment-states">1. Why Do We Need Payment States?</h2>
+<hr>
+<p>A payment is not a one-time action — it is a <strong>process that evolves over time</strong>.</p>
+<p>If we treat it as a simple request-response operation, we will fail to handle:</p>
+<ul>
+<li>retries</li>
+<li>failures</li>
+<li>partial processing</li>
+<li>asynchronous responses</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Payments must be modeled as a <strong>state machine</strong>, not a single operation.</p></blockquote>
+<hr>
+<h2 id="2-core-payment-states">2. Core Payment States</h2>
+<hr>
+<p>For our intermediate design, we will use the following states:</p>
+<h3 id="21-created">2.1 CREATED</h3>
+<ul>
+<li>Payment is created but not yet processed</li>
+<li>No interaction with gateway has happened</li>
+</ul>
+<p>👉 Entry point for every payment</p>
+<hr>
+<h3 id="22-processing">2.2 PROCESSING</h3>
+<ul>
+<li>Payment request has been sent to the gateway</li>
+<li>System is waiting for response</li>
+</ul>
+<p>👉 Represents in-progress execution</p>
+<hr>
+<h3 id="23-succeeded">2.3 SUCCEEDED</h3>
+<ul>
+<li>Payment has been successfully processed by gateway</li>
+<li>Final successful state</li>
+</ul>
+<p>👉 No further processing should happen</p>
+<hr>
+<h3 id="24-failed">2.4 FAILED</h3>
+<ul>
+<li>Payment attempt failed</li>
+<li>Could be due to gateway rejection, timeout, or error</li>
+</ul>
+<p>👉 May allow retry depending on design</p>
+<blockquote>
+<p>🎯 These states represent the <strong>minimum viable lifecycle</strong> for a payment system.</p></blockquote>
+<hr>
+<h2 id="3-optional-states-advanced">3. Optional States (Advanced)</h2>
+<hr>
+<p>In real systems, additional states may exist:</p>
+<ul>
+<li>CANCELLED</li>
+<li>PENDING_REVIEW</li>
+<li>REQUIRES_ACTION (e.g., 3D Secure)</li>
+<li>REFUNDED</li>
+</ul>
+<p>For now, we keep the model simple and focused.</p>
+<hr>
+<h2 id="4-state-transition-diagram">4. State Transition Diagram</h2>
+<hr>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> CREATED
+
+    CREATED --> PROCESSING : confirm payment
+
+    PROCESSING --> SUCCEEDED : success response
+    PROCESSING --> FAILED : failure / timeout
+
+    FAILED --> PROCESSING : retry (optional)
+</div>
+<hr>
+<h2 id="5-valid-vs-invalid-transitions">5. Valid vs Invalid Transitions</h2>
+<hr>
+<h3 id="valid-transitions">Valid Transitions</h3>
+<ul>
+<li>CREATED → PROCESSING</li>
+<li>PROCESSING → SUCCEEDED</li>
+<li>PROCESSING → FAILED</li>
+<li>FAILED → PROCESSING (retry)</li>
+</ul>
+<hr>
+<h3 id="invalid-transitions">Invalid Transitions</h3>
+<ul>
+<li>SUCCEEDED → PROCESSING ❌</li>
+<li>SUCCEEDED → FAILED ❌</li>
+<li>FAILED → SUCCEEDED (without retry) ❌</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Point:</strong><br>
+Once a payment reaches a terminal state (<strong>SUCCEEDED or FAILED</strong>), transitions must be controlled carefully.</p></blockquote>
+<hr>
+<h2 id="6-why-state-modeling-matters">6. Why State Modeling Matters</h2>
+<hr>
+<p>State modeling solves multiple problems:</p>
+<h3 id="1-prevents-duplicate-processing">1. Prevents Duplicate Processing</h3>
+<ul>
+<li>Only allow processing when state = CREATED or FAILED</li>
+</ul>
+<h3 id="2-enables-retry-logic">2. Enables Retry Logic</h3>
+<ul>
+<li>FAILED → PROCESSING allows controlled retries</li>
+</ul>
+<h3 id="3-ensures-data-consistency">3. Ensures Data Consistency</h3>
+<ul>
+<li>System always knows the current state</li>
+</ul>
+<h3 id="4-simplifies-debugging">4. Simplifies Debugging</h3>
+<ul>
+<li>Clear lifecycle makes issues easier to trace</li>
+</ul>
+<hr>
+<h2 id="7-mapping-states-to-real-problems">7. Mapping States to Real Problems</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Problem</th>
+          <th>State Solution</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Unknown progress</td>
+          <td>PROCESSING</td>
+      </tr>
+      <tr>
+          <td>Duplicate execution</td>
+          <td>State checks</td>
+      </tr>
+      <tr>
+          <td>Retry handling</td>
+          <td>FAILED → PROCESSING</td>
+      </tr>
+      <tr>
+          <td>Final outcome tracking</td>
+          <td>SUCCEEDED / FAILED</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Designing payment states transforms the system from a simple API into a <strong>reliable, stateful system</strong>.</p>
+<p>A well-defined state machine ensures:</p>
+<ul>
+<li>correct processing flow</li>
+<li>safe retries</li>
+<li>predictable behavior</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/2_phase-2/2_3_state-transitions-and-rules/">State Transitions &amp; Rules →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Payments are <strong>stateful processes</strong>, not one-time actions</li>
+<li>State machines help enforce <strong>correct and predictable behavior</strong></li>
+<li>Proper state design is key to handling failures and retries safely</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-do-we-need-payment-states" data-toc-target="1-why-do-we-need-payment-states">1. Why Do We Need Payment States?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-core-payment-states" data-toc-target="2-core-payment-states">2. Core Payment States</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-optional-states-advanced" data-toc-target="3-optional-states-advanced">3. Optional States (Advanced)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-state-transition-diagram" data-toc-target="4-state-transition-diagram">4. State Transition Diagram</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-valid-vs-invalid-transitions" data-toc-target="5-valid-vs-invalid-transitions">5. Valid vs Invalid Transitions</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-why-state-modeling-matters" data-toc-target="6-why-state-modeling-matters">6. Why State Modeling Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-mapping-states-to-real-problems" data-toc-target="7-mapping-states-to-real-problems">7. Mapping States to Real Problems</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/2_phase-2/2_1_identifying-core-entities/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/2_phase-2/2_3_state-transitions-and-rules/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

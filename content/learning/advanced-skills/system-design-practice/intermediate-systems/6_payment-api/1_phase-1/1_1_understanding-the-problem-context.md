@@ -1,5 +1,5 @@
 ---
-title: "Design a Payment API"
+title: "Understanding the Problem Context"
 description: "Step-by-step guide to designing a reliable Payment API covering requirements, payment lifecycle, idempotency, failure handling, and backend implementation for system design interviews."
 keywords:
   - payment api design

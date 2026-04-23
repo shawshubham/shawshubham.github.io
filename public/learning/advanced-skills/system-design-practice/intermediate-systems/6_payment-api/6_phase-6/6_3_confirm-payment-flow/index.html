@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirm Payment Flow (Step-by-Step)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776892831">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Confirm Payment Flow (Step-by-Step)</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-confirm-flow-is-critical">1. Why Confirm Flow is Critical</h2>
+<hr>
+<p>The <strong>Confirm Payment</strong> API is where actual money movement happens.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
+</span></span></code></pre></div><blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+This is the most sensitive part of the system — mistakes here can lead to <strong>duplicate charges or financial loss</strong>.</p></blockquote>
+<hr>
+<h2 id="2-what-this-flow-must-guarantee">2. What This Flow Must Guarantee</h2>
+<hr>
+<p>The confirm flow must ensure:</p>
+<ul>
+<li>payment is executed <strong>at most once</strong></li>
+<li>duplicate requests do not trigger duplicate charges</li>
+<li>state transitions are valid and atomic</li>
+<li>concurrency is controlled</li>
+<li>failures are handled safely</li>
+</ul>
+<hr>
+<h2 id="3-high-level-flow">3. High-Level Flow</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant PaymentAPI
+    participant DB
+    participant Gateway
+
+    Client->>PaymentAPI: POST /payments/{id}/confirm + Idempotency-Key
+    PaymentAPI->>PaymentAPI: Basic Validation + Compute Request Hash
+    PaymentAPI->>DB: Try Insert Idempotency (IN_PROGRESS)
+
+    alt Key exists
+        PaymentAPI->>DB: Fetch existing record
+        alt COMPLETED
+            PaymentAPI-->>Client: Return stored response
+        else IN_PROGRESS
+            PaymentAPI-->>Client: Return 409/PROCESSING
+        end
+    else Reserved successfully
+        PaymentAPI->>DB: Fetch + Lock Payment
+        PaymentAPI->>DB: Validate State
+        PaymentAPI->>DB: Mark PROCESSING
+        PaymentAPI->>Gateway: Execute Payment
+        Gateway-->>PaymentAPI: Success / Failure / Timeout
+        PaymentAPI->>DB: Update Payment State
+        PaymentAPI->>DB: Update Idempotency (COMPLETED + response)
+        PaymentAPI-->>Client: Return response
+    end
+</div>
+<hr>
+<h2 id="4-step-by-step-execution">4. Step-by-Step Execution</h2>
+<hr>
+<h3 id="step-1-receive-request">Step 1: Receive Request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
+</span></span><span style="display:flex;"><span>Idempotency<span style="color:#f92672">-</span>Key: <span style="color:#f92672">&lt;</span>confirm<span style="color:#f92672">-</span>operation<span style="color:#f92672">-</span>key<span style="color:#f92672">&gt;</span>
+</span></span></code></pre></div><blockquote>
+<p>📝 Use a <strong>different idempotency key</strong> for confirm than the one used for create.</p>
+<ul>
+<li><code>POST /payments</code> → one idempotency key</li>
+<li><code>POST /payments/{paymentId}/confirm</code> → another idempotency key</li>
+</ul>
+<p>Idempotency keys should be scoped <strong>per operation / endpoint</strong>, not reused across different business actions.</p></blockquote>
+<hr>
+<h3 id="step-2-basic-validation">Step 2: Basic Validation</h3>
+<hr>
+<p>Validate obvious request issues first:</p>
+<ul>
+<li><code>paymentId</code> is present and well-formed</li>
+<li>required headers exist</li>
+<li>idempotency key is present</li>
+</ul>
+<p>👉 Reject malformed requests before touching idempotency or business state.</p>
+<hr>
+<h3 id="step-3-compute-request-hash">Step 3: Compute Request Hash</h3>
+<hr>
+<ul>
+<li>compute a hash of the confirm request payload / logical input</li>
+</ul>
+<p>👉 Used to detect incorrect idempotency key reuse.</p>
+<hr>
+<h3 id="step-4-reserve-idempotency-key-critical-step">Step 4: Reserve Idempotency Key (Critical Step)</h3>
+<hr>
+<p>Try to <strong>atomically insert</strong> idempotency record:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>idempotencyKey = &lt;confirm-operation-key&gt;
+</span></span><span style="display:flex;"><span>requestHash = &lt;hash&gt;
+</span></span><span style="display:flex;"><span>status = IN_PROGRESS
+</span></span><span style="display:flex;"><span>operation = CONFIRM_PAYMENT
+</span></span></code></pre></div><h4 id="if-insert-fails-key-already-exists">If insert fails (key already exists)</h4>
+<p>Fetch existing record:</p>
+<ul>
+<li>If <code>COMPLETED</code> → return stored response</li>
+<li>If <code>IN_PROGRESS</code> → return <code>409 Conflict</code> or processing response</li>
+<li>If request hash mismatch → reject request</li>
+</ul>
+<p>👉 This step prevents concurrent requests with the same key from triggering multiple gateway executions.</p>
+<hr>
+<h3 id="step-5-fetch-and-lock-payment">Step 5: Fetch and Lock Payment</h3>
+<hr>
+<ul>
+<li>fetch payment from DB</li>
+<li>apply <strong>pessimistic lock</strong> (<code>SELECT ... FOR UPDATE</code>)</li>
+</ul>
+<p>👉 Ensures only one request can process the payment at a time.</p>
+<hr>
+<h3 id="step-6-state-validation">Step 6: State Validation</h3>
+<hr>
+<p>Allowed states:</p>
+<ul>
+<li><code>CREATED</code></li>
+<li>retryable <code>FAILED</code></li>
+</ul>
+<p>Reject if:</p>
+<ul>
+<li><code>SUCCEEDED</code> → already processed</li>
+<li><code>PROCESSING</code> → already in progress</li>
+</ul>
+<hr>
+<h3 id="step-7-mark-as-processing">Step 7: Mark as PROCESSING</h3>
+<hr>
+<p>Update payment:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = PROCESSING
+</span></span></code></pre></div><p>👉 Prevents other concurrent executions.</p>
+<hr>
+<h3 id="step-8-call-payment-gateway">Step 8: Call Payment Gateway</h3>
+<hr>
+<p>Send request to gateway:</p>
+<ul>
+<li>payment amount</li>
+<li>currency</li>
+<li>payment method token</li>
+<li>(optional but recommended) <strong>gateway-level idempotency key</strong></li>
+</ul>
+<p>👉 A strong design can forward a gateway-scoped idempotency key as an additional safety layer.</p>
+<hr>
+<h3 id="step-9-handle-gateway-response">Step 9: Handle Gateway Response</h3>
+<hr>
+<h4 id="case-1-success">Case 1: Success</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = SUCCEEDED
+</span></span></code></pre></div><h4 id="case-2-failure">Case 2: Failure</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = FAILED
+</span></span><span style="display:flex;"><span>failureReason = &lt;reason&gt;
+</span></span></code></pre></div><h4 id="case-3-timeout--unknown">Case 3: Timeout / Unknown</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = PROCESSING
+</span></span></code></pre></div><p>👉 Requires retry or reconciliation.</p>
+<hr>
+<h3 id="step-10-persist-result">Step 10: Persist Result</h3>
+<hr>
+<p>Update DB with:</p>
+<ul>
+<li>new status</li>
+<li>gateway reference</li>
+<li>failure reason (if any)</li>
+</ul>
+<hr>
+<h3 id="step-11-complete-idempotency-record">Step 11: Complete Idempotency Record</h3>
+<hr>
+<p>Update idempotency record with:</p>
+<ul>
+<li>requestHash</li>
+<li>responsePayload</li>
+<li>status = COMPLETED</li>
+</ul>
+<hr>
+<h3 id="step-12-return-response">Step 12: Return Response</h3>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;SUCCEEDED&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;gatewayReference&#34;</span>: <span style="color:#e6db74">&#34;txn_123&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="5-handling-edge-cases">5. Handling Edge Cases</h2>
+<hr>
+<h3 id="case-1-duplicate-confirm-same-key">Case 1: Duplicate Confirm (Same Key)</h3>
+<ul>
+<li>return stored response</li>
+<li>no new execution</li>
+<li>if request is still <code>IN_PROGRESS</code>, return processing/409 instead of executing again</li>
+</ul>
+<hr>
+<h3 id="case-2-duplicate-confirm-different-key">Case 2: Duplicate Confirm (Different Key)</h3>
+<ul>
+<li>state validation and locking prevent re-execution, even if a different confirm key is used</li>
+</ul>
+<hr>
+<h3 id="case-3-concurrent-requests">Case 3: Concurrent Requests</h3>
+<ul>
+<li>locking ensures only one proceeds</li>
+</ul>
+<hr>
+<h3 id="case-4-gateway-timeout">Case 4: Gateway Timeout</h3>
+<ul>
+<li>keep status as <code>PROCESSING</code></li>
+<li>retry or reconcile later</li>
+</ul>
+<hr>
+<h3 id="case-5-api-crash-after-gateway-success">Case 5: API Crash After Gateway Success</h3>
+<ul>
+<li>idempotency ensures correct replay</li>
+</ul>
+<hr>
+<h2 id="6-key-design-decisions">6. Key Design Decisions</h2>
+<hr>
+<h3 id="1-idempotency-at-confirm-level">1. Idempotency at Confirm Level</h3>
+<ul>
+<li>prevents duplicate gateway calls and protects against race conditions via early reservation (<code>IN_PROGRESS</code>)</li>
+</ul>
+<hr>
+<h3 id="2-state-validation-before-execution">2. State Validation Before Execution</h3>
+<ul>
+<li>prevents invalid transitions</li>
+</ul>
+<hr>
+<h3 id="3-locking-for-concurrency-control">3. Locking for Concurrency Control</h3>
+<ul>
+<li>prevents race conditions across concurrent confirm requests, including those with different idempotency keys</li>
+</ul>
+<hr>
+<h3 id="4-processing-state">4. PROCESSING State</h3>
+<ul>
+<li>handles long-running or unknown states</li>
+</ul>
+<hr>
+<h2 id="7-what-makes-this-flow-complex">7. What Makes This Flow Complex</h2>
+<hr>
+<p>Compared to create flow, confirm flow must handle:</p>
+<ul>
+<li>external system interaction</li>
+<li>partial failures</li>
+<li>concurrency</li>
+<li>retries and idempotency</li>
+</ul>
+<p>👉 This is why it is the core of payment system design.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The confirm payment flow ensures that:</p>
+<ul>
+<li>payments are executed safely</li>
+<li>duplicate charges are prevented</li>
+<li>system remains consistent under failures</li>
+</ul>
+<p>It combines multiple mechanisms:</p>
+<ul>
+<li>idempotency</li>
+<li>state validation</li>
+<li>locking</li>
+<li>failure handling</li>
+</ul>
+<p>Also, confirm idempotency keys should be <strong>different from create-payment keys</strong> because they protect different operations in the payment lifecycle. In practice, idempotency is usually scoped per endpoint or per business action, not reused across unrelated operations.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/6_phase-6/6_4_end-to-end-sequence">End-to-End Sequence Diagrams →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Confirm flow is the most critical part of payment systems</li>
+<li>Must prevent duplicate execution under all conditions</li>
+<li>Requires combining multiple safeguards for correctness</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-confirm-flow-is-critical" data-toc-target="1-why-confirm-flow-is-critical">1. Why Confirm Flow is Critical</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-flow-must-guarantee" data-toc-target="2-what-this-flow-must-guarantee">2. What This Flow Must Guarantee</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-high-level-flow" data-toc-target="3-high-level-flow">3. High-Level Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-step-by-step-execution" data-toc-target="4-step-by-step-execution">4. Step-by-Step Execution</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-handling-edge-cases" data-toc-target="5-handling-edge-cases">5. Handling Edge Cases</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-key-design-decisions" data-toc-target="6-key-design-decisions">6. Key Design Decisions</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-what-makes-this-flow-complex" data-toc-target="7-what-makes-this-flow-complex">7. What Makes This Flow Complex</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/6_phase-6/6_2_create-payment-flow/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/6_phase-6/6_4_end-to-end-sequence/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exception Handling &amp; Error Design</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776936425">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Exception Handling &amp; Error Design</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-article">1. Why This Article</h2>
+<hr>
+<p>So far, we implemented:</p>
+<ul>
+<li>Create Payment</li>
+<li>Confirm Payment</li>
+<li>Idempotency handling</li>
+</ul>
+<p>But one critical aspect is still missing:</p>
+<blockquote>
+<p>❗ <strong>How does the system behave when something goes wrong?</strong></p></blockquote>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>business logic</li>
+<li>flows</li>
+</ul>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>designing clean error responses</li>
+<li>structuring exception handling</li>
+<li>mapping exceptions to HTTP responses</li>
+</ul>
+<hr>
+<h2 id="3-goals-of-good-error-design">3. Goals of Good Error Design</h2>
+<hr>
+<p>A good error handling system should:</p>
+<ul>
+<li>be consistent</li>
+<li>be predictable</li>
+<li>expose useful information (without leaking internals)</li>
+<li>help debugging and observability</li>
+</ul>
+<hr>
+<h2 id="4-standard-error-response-format">4. Standard Error Response Format</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;timestamp&#34;</span>: <span style="color:#e6db74">&#34;2026-04-23T10:00:00Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">400</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;Bad Request&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_INPUT&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Amount must be greater than 0&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/payments&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="fields-explained">Fields Explained</h3>
+<ul>
+<li><code>status</code> → HTTP status code</li>
+<li><code>code</code> → internal error code</li>
+<li><code>message</code> → human-readable message</li>
+<li><code>path</code> → API endpoint</li>
+</ul>
+<hr>
+<h2 id="5-exception-types-in-our-system">5. Exception Types in Our System</h2>
+<hr>
+<p>We classify errors into categories:</p>
+<hr>
+<h3 id="1-validation-errors">1. Validation Errors</h3>
+<ul>
+<li>invalid input</li>
+<li>missing fields</li>
+</ul>
+<hr>
+<h3 id="2-business-errors">2. Business Errors</h3>
+<ul>
+<li>invalid state transition</li>
+<li>duplicate orderId</li>
+</ul>
+<hr>
+<h3 id="3-idempotency-errors">3. Idempotency Errors</h3>
+<ul>
+<li>duplicate request with different payload</li>
+<li>request already in progress</li>
+</ul>
+<hr>
+<h3 id="4-system-errors">4. System Errors</h3>
+<ul>
+<li>database failure</li>
+<li>network issues</li>
+</ul>
+<hr>
+<h2 id="6-custom-exceptions">6. Custom Exceptions</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ValidationException</span> <span style="color:#66d9ef">extends</span> RuntimeException {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ValidationException</span>(String message) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(message);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BusinessException</span> <span style="color:#66d9ef">extends</span> RuntimeException {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">BusinessException</span>(String message) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(message);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IdempotencyException</span> <span style="color:#66d9ef">extends</span> RuntimeException {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">IdempotencyException</span>(String message) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(message);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="7-global-exception-handler-spring-boot">7. Global Exception Handler (Spring Boot)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestControllerAdvice</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GlobalExceptionHandler</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@ExceptionHandler</span>(ValidationException.<span style="color:#a6e22e">class</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>ErrorResponse<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">handleValidation</span>(ValidationException ex, HttpServletRequest req) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> buildResponse(HttpStatus.<span style="color:#a6e22e">BAD_REQUEST</span>, <span style="color:#e6db74">&#34;INVALID_INPUT&#34;</span>, ex.<span style="color:#a6e22e">getMessage</span>(), req);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@ExceptionHandler</span>(BusinessException.<span style="color:#a6e22e">class</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>ErrorResponse<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">handleBusiness</span>(BusinessException ex, HttpServletRequest req) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> buildResponse(HttpStatus.<span style="color:#a6e22e">CONFLICT</span>, <span style="color:#e6db74">&#34;BUSINESS_ERROR&#34;</span>, ex.<span style="color:#a6e22e">getMessage</span>(), req);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@ExceptionHandler</span>(IdempotencyException.<span style="color:#a6e22e">class</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>ErrorResponse<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">handleIdempotency</span>(IdempotencyException ex, HttpServletRequest req) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> buildResponse(HttpStatus.<span style="color:#a6e22e">CONFLICT</span>, <span style="color:#e6db74">&#34;IDEMPOTENCY_ERROR&#34;</span>, ex.<span style="color:#a6e22e">getMessage</span>(), req);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@ExceptionHandler</span>(Exception.<span style="color:#a6e22e">class</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ResponseEntity<span style="color:#f92672">&lt;</span>ErrorResponse<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">handleGeneric</span>(Exception ex, HttpServletRequest req) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> buildResponse(HttpStatus.<span style="color:#a6e22e">INTERNAL_SERVER_ERROR</span>, <span style="color:#e6db74">&#34;INTERNAL_ERROR&#34;</span>, <span style="color:#e6db74">&#34;Something went wrong&#34;</span>, req);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> ResponseEntity<span style="color:#f92672">&lt;</span>ErrorResponse<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">buildResponse</span>(HttpStatus status, String code, String message, HttpServletRequest req) {
+</span></span><span style="display:flex;"><span>        ErrorResponse response <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ErrorResponse(
+</span></span><span style="display:flex;"><span>                Instant.<span style="color:#a6e22e">now</span>(),
+</span></span><span style="display:flex;"><span>                status.<span style="color:#a6e22e">value</span>(),
+</span></span><span style="display:flex;"><span>                status.<span style="color:#a6e22e">getReasonPhrase</span>(),
+</span></span><span style="display:flex;"><span>                code,
+</span></span><span style="display:flex;"><span>                message,
+</span></span><span style="display:flex;"><span>                req.<span style="color:#a6e22e">getRequestURI</span>()
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ResponseEntity<span style="color:#f92672">&lt;&gt;</span>(response, status);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="8-errorresponse-model">8. ErrorResponse Model</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ErrorResponse</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Instant timestamp;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> status;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String error;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String code;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String message;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String path;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// constructor, getters</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="9-mapping-exceptions-to-http-status">9. Mapping Exceptions to HTTP Status</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Exception Type</th>
+          <th>HTTP Status</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>ValidationException</td>
+          <td>400 Bad Request</td>
+      </tr>
+      <tr>
+          <td>BusinessException</td>
+          <td>409 Conflict</td>
+      </tr>
+      <tr>
+          <td>IdempotencyException</td>
+          <td>409 Conflict</td>
+      </tr>
+      <tr>
+          <td>System Exception</td>
+          <td>500 Internal Server Error</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="10-handling-idempotency-errors-properly">10. Handling Idempotency Errors Properly</h2>
+<hr>
+<h3 id="case-same-key-different-payload">Case: Same key, different payload</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Throw → IdempotencyException
+</span></span><span style="display:flex;"><span>Return → 409 Conflict
+</span></span></code></pre></div><hr>
+<h3 id="case-request-in-progress">Case: Request in progress</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return → 409 or 202 (Processing)
+</span></span></code></pre></div><hr>
+<p>👉 Avoid duplicate execution</p>
+<hr>
+<h2 id="11-what-not-to-expose">11. What NOT to Expose</h2>
+<hr>
+<h3 id="-stack-traces">❌ Stack traces</h3>
+<ul>
+<li>security risk</li>
+</ul>
+<hr>
+<h3 id="-internal-db-errors">❌ Internal DB errors</h3>
+<ul>
+<li>leaks implementation details</li>
+</ul>
+<hr>
+<h3 id="-sensitive-data">❌ Sensitive data</h3>
+<ul>
+<li>violates compliance</li>
+</ul>
+<hr>
+<h2 id="12-logging-strategy">12. Logging Strategy</h2>
+<hr>
+<p>Errors should be logged with:</p>
+<ul>
+<li>request ID / idempotency key</li>
+<li>payment ID</li>
+<li>stack trace (internally)</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>log.<span style="color:#a6e22e">error</span>(<span style="color:#e6db74">&#34;Error processing payment {} with key {}&#34;</span>, paymentId, key, ex);
+</span></span></code></pre></div><hr>
+<h2 id="13-design-insight">13. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Error handling is part of API design, not an afterthought.</strong></p></blockquote>
+<hr>
+<p>Clients depend on:</p>
+<ul>
+<li>consistent error codes</li>
+<li>predictable responses</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>A robust error handling system:</p>
+<ul>
+<li>standardizes responses</li>
+<li>separates error types clearly</li>
+<li>protects internal details</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_7_gateway-abstraction">Gateway Abstraction →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Use global exception handling</li>
+<li>Keep error responses consistent</li>
+<li>Never leak internal details</li>
+<li>Map exceptions to proper HTTP status codes</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-article" data-toc-target="1-why-this-article">1. Why This Article</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-goals-of-good-error-design" data-toc-target="3-goals-of-good-error-design">3. Goals of Good Error Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-standard-error-response-format" data-toc-target="4-standard-error-response-format">4. Standard Error Response Format</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-exception-types-in-our-system" data-toc-target="5-exception-types-in-our-system">5. Exception Types in Our System</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-custom-exceptions" data-toc-target="6-custom-exceptions">6. Custom Exceptions</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-global-exception-handler-spring-boot" data-toc-target="7-global-exception-handler-spring-boot">7. Global Exception Handler (Spring Boot)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-errorresponse-model" data-toc-target="8-errorresponse-model">8. ErrorResponse Model</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-mapping-exceptions-to-http-status" data-toc-target="9-mapping-exceptions-to-http-status">9. Mapping Exceptions to HTTP Status</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-handling-idempotency-errors-properly" data-toc-target="10-handling-idempotency-errors-properly">10. Handling Idempotency Errors Properly</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-what-not-to-expose" data-toc-target="11-what-not-to-expose">11. What NOT to Expose</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-logging-strategy" data-toc-target="12-logging-strategy">12. Logging Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-design-insight" data-toc-target="13-design-insight">13. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_5_idempotency-handling/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_7_gateway-abstraction/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

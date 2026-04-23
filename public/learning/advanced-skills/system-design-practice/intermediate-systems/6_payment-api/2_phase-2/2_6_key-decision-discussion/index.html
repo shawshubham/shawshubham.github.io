@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Key Design Decisions &amp; Trade-offs</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776765117">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Key Design Decisions &amp; Trade-offs</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-design-decisions-matter">1. Why Design Decisions Matter</h2>
+<hr>
+<p>System design is not just about components and diagrams. It is about making <strong>intentional decisions with clear trade-offs</strong>.</p>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Good design is a set of <strong>well-justified decisions</strong>, not just implementation details.</p></blockquote>
+<hr>
+<h2 id="2-decision-1--separate-create-and-confirm">2. Decision 1 — Separate Create and Confirm</h2>
+<hr>
+<h3 id="what-we-did">What we did</h3>
+<ul>
+<li><code>POST /payments</code> → create payment (CREATED)</li>
+<li><code>POST /payments/{id}/confirm</code> → execute payment</li>
+</ul>
+<h3 id="why">Why?</h3>
+<ul>
+<li>clean lifecycle control</li>
+<li>easier retry handling</li>
+<li>avoids duplicate execution</li>
+</ul>
+<h3 id="trade-off">Trade-off</h3>
+<ul>
+<li>slightly more API complexity</li>
+<li>two-step flow for clients</li>
+</ul>
+<p>👉 <strong>Decision Outcome:</strong><br>
+Prefer separation for <strong>correctness and control</strong></p>
+<hr>
+<h2 id="3-decision-2--use-external-payment-gateway">3. Decision 2 — Use External Payment Gateway</h2>
+<hr>
+<h3 id="what-we-did-1">What we did</h3>
+<ul>
+<li>delegated payment execution to providers like Stripe</li>
+</ul>
+<h3 id="why-1">Why?</h3>
+<ul>
+<li>avoids complex financial compliance</li>
+<li>leverages proven infrastructure</li>
+<li>reduces engineering overhead</li>
+</ul>
+<h3 id="trade-off-1">Trade-off</h3>
+<ul>
+<li>dependency on external system</li>
+<li>added latency</li>
+<li>less control over execution</li>
+</ul>
+<p>👉 <strong>Decision Outcome:</strong><br>
+Use gateway to focus on <strong>orchestration, not processing</strong></p>
+<hr>
+<h2 id="4-decision-3--introduce-idempotency">4. Decision 3 — Introduce Idempotency</h2>
+<hr>
+<h3 id="what-we-did-2">What we did</h3>
+<ul>
+<li>require <code>Idempotency-Key</code> for critical operations</li>
+</ul>
+<h3 id="why-2">Why?</h3>
+<ul>
+<li>prevents duplicate payments</li>
+<li>handles retries safely</li>
+</ul>
+<h3 id="trade-off-2">Trade-off</h3>
+<ul>
+<li>additional storage and logic</li>
+<li>complexity in request handling</li>
+</ul>
+<p>👉 <strong>Decision Outcome:</strong><br>
+Mandatory for <strong>reliable payment systems</strong></p>
+<hr>
+<h2 id="5-decision-4--stateful-payment-model">5. Decision 4 — Stateful Payment Model</h2>
+<hr>
+<h3 id="what-we-did-3">What we did</h3>
+<ul>
+<li>model payment as a state machine</li>
+</ul>
+<h3 id="why-3">Why?</h3>
+<ul>
+<li>tracks lifecycle clearly</li>
+<li>supports retries and failures</li>
+</ul>
+<h3 id="trade-off-3">Trade-off</h3>
+<ul>
+<li>more complexity vs stateless APIs</li>
+</ul>
+<p>👉 <strong>Decision Outcome:</strong><br>
+Stateful design is required for <strong>real-world correctness</strong></p>
+<hr>
+<h2 id="6-decision-5--start-with-synchronous-flow">6. Decision 5 — Start with Synchronous Flow</h2>
+<hr>
+<h3 id="what-we-did-4">What we did</h3>
+<ul>
+<li>API waits for gateway response</li>
+</ul>
+<h3 id="why-4">Why?</h3>
+<ul>
+<li>simpler to implement</li>
+<li>easier to reason about</li>
+</ul>
+<h3 id="trade-off-4">Trade-off</h3>
+<ul>
+<li>higher latency</li>
+<li>risk of timeouts</li>
+</ul>
+<p>👉 <strong>Decision Outcome:</strong><br>
+Start simple → evolve to async when needed</p>
+<hr>
+<h2 id="7-decision-6--database-as-source-of-truth">7. Decision 6 — Database as Source of Truth</h2>
+<hr>
+<h3 id="what-we-did-5">What we did</h3>
+<ul>
+<li>all payment state stored in DB</li>
+</ul>
+<h3 id="why-5">Why?</h3>
+<ul>
+<li>ensures consistency</li>
+<li>supports recovery and debugging</li>
+</ul>
+<h3 id="trade-off-5">Trade-off</h3>
+<ul>
+<li>requires careful concurrency control</li>
+</ul>
+<p>👉 <strong>Decision Outcome:</strong><br>
+Single source of truth for <strong>system reliability</strong></p>
+<hr>
+<h2 id="8-summary-of-decisions">8. Summary of Decisions</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Decision</th>
+          <th>Why</th>
+          <th>Trade-off</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Separate create/confirm</td>
+          <td>control lifecycle</td>
+          <td>extra API step</td>
+      </tr>
+      <tr>
+          <td>External gateway</td>
+          <td>reduce complexity</td>
+          <td>dependency</td>
+      </tr>
+      <tr>
+          <td>Idempotency</td>
+          <td>prevent duplicates</td>
+          <td>added logic</td>
+      </tr>
+      <tr>
+          <td>Stateful model</td>
+          <td>correctness</td>
+          <td>complexity</td>
+      </tr>
+      <tr>
+          <td>Sync processing</td>
+          <td>simplicity</td>
+          <td>latency</td>
+      </tr>
+      <tr>
+          <td>DB as source</td>
+          <td>consistency</td>
+          <td>concurrency handling</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>These decisions define the <strong>foundation of our system design</strong>.</p>
+<p>Each choice:</p>
+<ul>
+<li>solves a real problem</li>
+<li>introduces a trade-off</li>
+</ul>
+<p>Understanding these trade-offs is what makes a design <strong>robust and scalable</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/3_phase-3/3_1_identifying-core-entities/">Phase 3: Domain Model &amp; Payment Lifecycle →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Every design decision has a trade-off</li>
+<li>Focus on <strong>correctness and reliability first</strong></li>
+<li>Start simple, then evolve the system over time</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-design-decisions-matter" data-toc-target="1-why-design-decisions-matter">1. Why Design Decisions Matter</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-decision-1--separate-create-and-confirm" data-toc-target="2-decision-1--separate-create-and-confirm">2. Decision 1 — Separate Create and Confirm</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-decision-2--use-external-payment-gateway" data-toc-target="3-decision-2--use-external-payment-gateway">3. Decision 2 — Use External Payment Gateway</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-decision-3--introduce-idempotency" data-toc-target="4-decision-3--introduce-idempotency">4. Decision 3 — Introduce Idempotency</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-decision-4--stateful-payment-model" data-toc-target="5-decision-4--stateful-payment-model">5. Decision 4 — Stateful Payment Model</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-decision-5--start-with-synchronous-flow" data-toc-target="6-decision-5--start-with-synchronous-flow">6. Decision 5 — Start with Synchronous Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-decision-6--database-as-source-of-truth" data-toc-target="7-decision-6--database-as-source-of-truth">7. Decision 6 — Database as Source of Truth</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-summary-of-decisions" data-toc-target="8-summary-of-decisions">8. Summary of Decisions</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/2_phase-2/2_5_system-boundries-and-responsibilities/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

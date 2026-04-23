@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Layer Design</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776892831">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Service Layer Design</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 21 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-service-layer-design-matters">1. Why Service Layer Design Matters</h2>
+<hr>
+<p>So far, we have designed:</p>
+<ul>
+<li>APIs (Phase 4)</li>
+<li>Idempotency &amp; retries (Phase 5)</li>
+<li>Execution flows (Phase 6)</li>
+</ul>
+<p>Now we translate this into <strong>real backend structure</strong>.</p>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+Good system design is incomplete without a <strong>clean separation of responsibilities</strong> in code.</p></blockquote>
+<hr>
+<h2 id="2-high-level-layers">2. High-Level Layers</h2>
+<hr>
+<p>A typical backend for our payment API will have the following layers:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
+</span></span><span style="display:flex;"><span>                    ↓
+</span></span><span style="display:flex;"><span>               External Gateway
+</span></span></code></pre></div><hr>
+<h3 id="responsibilities">Responsibilities</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Layer</th>
+          <th>Responsibility</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Controller</td>
+          <td>Handle HTTP requests/responses</td>
+      </tr>
+      <tr>
+          <td>Service</td>
+          <td>Business logic and orchestration</td>
+      </tr>
+      <tr>
+          <td>Repository</td>
+          <td>Database interaction</td>
+      </tr>
+      <tr>
+          <td>Gateway Client</td>
+          <td>External payment execution</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="3-component-breakdown">3. Component Breakdown</h2>
+<hr>
+<h3 id="1-paymentcontroller">1. PaymentController</h3>
+<p>Handles incoming API requests.</p>
+<h4 id="responsibilities-1">Responsibilities</h4>
+<ul>
+<li>parse request</li>
+<li>validate basic input</li>
+<li>extract idempotency key</li>
+<li>call service layer</li>
+<li>return response</li>
+</ul>
+<hr>
+<h3 id="2-paymentservice">2. PaymentService</h3>
+<p>Core orchestrator of payment logic.</p>
+<h4 id="responsibilities-2">Responsibilities</h4>
+<ul>
+<li>coordinate idempotency handling</li>
+<li>apply business validation</li>
+<li>manage state transitions</li>
+<li>call gateway</li>
+<li>handle failures</li>
+</ul>
+<p>👉 This is where most logic lives.</p>
+<hr>
+<h3 id="3-idempotencyservice">3. IdempotencyService</h3>
+<p>Dedicated component for idempotency logic.</p>
+<h4 id="responsibilities-3">Responsibilities</h4>
+<ul>
+<li>reserve idempotency key (<code>IN_PROGRESS</code>)</li>
+<li>validate request hash</li>
+<li>return stored response if exists</li>
+<li>mark request as <code>COMPLETED</code></li>
+</ul>
+<p>👉 Keeps idempotency logic separate from business logic.</p>
+<hr>
+<h3 id="4-paymentrepository">4. PaymentRepository</h3>
+<p>Handles database operations.</p>
+<h4 id="responsibilities-4">Responsibilities</h4>
+<ul>
+<li>fetch payment by ID</li>
+<li>create payment</li>
+<li>update payment status</li>
+<li>apply locking (<code>SELECT ... FOR UPDATE</code>)</li>
+</ul>
+<hr>
+<h3 id="5-idempotencyrepository">5. IdempotencyRepository</h3>
+<p>Handles idempotency persistence.</p>
+<h4 id="responsibilities-5">Responsibilities</h4>
+<ul>
+<li>insert idempotency record (atomic)</li>
+<li>fetch existing record</li>
+<li>update status and response</li>
+</ul>
+<hr>
+<h3 id="6-gatewayclient">6. GatewayClient</h3>
+<p>Encapsulates external payment gateway interaction.</p>
+<h4 id="responsibilities-6">Responsibilities</h4>
+<ul>
+<li>send payment request</li>
+<li>handle response parsing</li>
+<li>abstract provider-specific logic</li>
+</ul>
+<hr>
+<h2 id="4-interaction-flow-confirm-payment">4. Interaction Flow (Confirm Payment)</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Controller
+    participant Service
+    participant Idem as IdempotencyService
+    participant Repo as PaymentRepository
+    participant GW as GatewayClient
+
+    Controller->>Service: confirmPayment()
+    Service->>Idem: reserveKey()
+
+    alt Duplicate
+        Idem-->>Service: existing response / IN_PROGRESS
+        Service-->>Controller: return early
+    else New
+        Service->>Repo: fetch + lock payment
+        Service->>Repo: validate state
+        Service->>Repo: update PROCESSING
+        Service->>GW: execute payment
+        GW-->>Service: response
+        Service->>Repo: update final state
+        Service->>Idem: mark COMPLETED
+        Service-->>Controller: response
+    end
+</div>
+<hr>
+<h2 id="5-example-method-structure">5. Example Method Structure</h2>
+<hr>
+<h3 id="confirm-payment-pseudo-code">Confirm Payment (Pseudo-code)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> PaymentResponse <span style="color:#a6e22e">confirmPayment</span>(String paymentId, String idemKey, Request request) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Step 1: Reserve idempotency key</span>
+</span></span><span style="display:flex;"><span>    IdempotencyResult idem <span style="color:#f92672">=</span> idempotencyService.<span style="color:#a6e22e">reserve</span>(idemKey, request);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (idem.<span style="color:#a6e22e">isCompleted</span>()) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> idem.<span style="color:#a6e22e">getStoredResponse</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (idem.<span style="color:#a6e22e">isInProgress</span>()) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ConflictException(<span style="color:#e6db74">&#34;Request already in progress&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Step 2: Fetch and lock payment</span>
+</span></span><span style="display:flex;"><span>    Payment payment <span style="color:#f92672">=</span> paymentRepository.<span style="color:#a6e22e">findAndLock</span>(paymentId);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Step 3: Validate state</span>
+</span></span><span style="display:flex;"><span>    validateState(payment);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Step 4: Mark processing</span>
+</span></span><span style="display:flex;"><span>    payment.<span style="color:#a6e22e">markProcessing</span>();
+</span></span><span style="display:flex;"><span>    paymentRepository.<span style="color:#a6e22e">save</span>(payment);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Step 5: Call gateway</span>
+</span></span><span style="display:flex;"><span>    GatewayResponse response <span style="color:#f92672">=</span> gatewayClient.<span style="color:#a6e22e">execute</span>(payment);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Step 6: Update final state</span>
+</span></span><span style="display:flex;"><span>    payment.<span style="color:#a6e22e">applyResponse</span>(response);
+</span></span><span style="display:flex;"><span>    paymentRepository.<span style="color:#a6e22e">save</span>(payment);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Step 7: Complete idempotency</span>
+</span></span><span style="display:flex;"><span>    idempotencyService.<span style="color:#a6e22e">complete</span>(idemKey, response);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> buildResponse(payment);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="6-key-design-principles">6. Key Design Principles</h2>
+<hr>
+<h3 id="1-separation-of-concerns">1. Separation of Concerns</h3>
+<ul>
+<li>Controller → HTTP layer</li>
+<li>Service → business logic</li>
+<li>Repository → persistence</li>
+<li>Gateway → external integration</li>
+</ul>
+<hr>
+<h3 id="2-idempotency-as-a-first-class-component">2. Idempotency as a First-Class Component</h3>
+<ul>
+<li>not embedded in business logic</li>
+<li>reusable across endpoints</li>
+</ul>
+<hr>
+<h3 id="3-service-as-orchestrator">3. Service as Orchestrator</h3>
+<ul>
+<li>controls flow</li>
+<li>enforces correctness</li>
+</ul>
+<hr>
+<h3 id="4-external-isolation">4. External Isolation</h3>
+<ul>
+<li>gateway logic isolated</li>
+<li>easier to switch providers</li>
+</ul>
+<hr>
+<h2 id="7-common-mistakes-to-avoid">7. Common Mistakes to Avoid</h2>
+<hr>
+<h3 id="-mixing-idempotency-inside-business-logic">❌ Mixing idempotency inside business logic</h3>
+<ul>
+<li>makes code complex</li>
+</ul>
+<hr>
+<h3 id="-fat-controllers">❌ Fat controllers</h3>
+<ul>
+<li>logic should not live in controller</li>
+</ul>
+<hr>
+<h3 id="-direct-db-access-from-controller">❌ Direct DB access from controller</h3>
+<ul>
+<li>breaks layering</li>
+</ul>
+<hr>
+<h3 id="-tight-coupling-with-gateway">❌ Tight coupling with gateway</h3>
+<ul>
+<li>hard to change provider later</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>A clean service layer design ensures that:</p>
+<ul>
+<li>logic is modular</li>
+<li>code is maintainable</li>
+<li>system is extensible</li>
+</ul>
+<p>It translates system design into <strong>real, production-ready backend structure</strong>.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/6_phase-6/6_6_putting-it-all-together">Putting It All Together →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Service layer is the backbone of backend systems</li>
+<li>Clear separation improves maintainability and scalability</li>
+<li>Idempotency and gateway integration should be cleanly abstracted</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-service-layer-design-matters" data-toc-target="1-why-service-layer-design-matters">1. Why Service Layer Design Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-high-level-layers" data-toc-target="2-high-level-layers">2. High-Level Layers</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-component-breakdown" data-toc-target="3-component-breakdown">3. Component Breakdown</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-interaction-flow-confirm-payment" data-toc-target="4-interaction-flow-confirm-payment">4. Interaction Flow (Confirm Payment)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-example-method-structure" data-toc-target="5-example-method-structure">5. Example Method Structure</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-key-design-principles" data-toc-target="6-key-design-principles">6. Key Design Principles</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-common-mistakes-to-avoid" data-toc-target="7-common-mistakes-to-avoid">7. Common Mistakes to Avoid</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/6_phase-6/6_4_end-to-end-sequence/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/6_phase-6/6_6_putting-it-all-together/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>
