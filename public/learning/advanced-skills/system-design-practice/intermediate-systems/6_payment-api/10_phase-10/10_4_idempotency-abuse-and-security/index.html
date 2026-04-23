@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idempotency Abuse &amp; Security</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776955220">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Idempotency Abuse &amp; Security</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-topic-matters">1. Why This Topic Matters</h2>
+<hr>
+<p>Idempotency prevents duplicate execution — but if not designed carefully, it can be <strong>abused</strong>.</p>
+<blockquote>
+<p>❗ <strong>An idempotency key is a control surface exposed to clients. It must be protected.</strong></p></blockquote>
+<p>Common risks:</p>
+<ul>
+<li>replay attacks (reusing the same key intentionally)</li>
+<li>key reuse with different payloads</li>
+<li>brute-force / enumeration of keys</li>
+</ul>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining idempotency basics.</p>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>abuse scenarios</li>
+<li>safeguards in design and code</li>
+<li>how to bind idempotency to identity and request</li>
+</ul>
+<hr>
+<h2 id="3-threat-model">3. Threat Model</h2>
+<hr>
+<h3 id="1-replay-attack">1. Replay Attack</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Attacker replays a valid request with same key
+</span></span></code></pre></div><p>Impact:</p>
+<ul>
+<li>can probe system behavior</li>
+<li>may obtain previous responses repeatedly</li>
+</ul>
+<hr>
+<h3 id="2-key-reuse-with-different-payload">2. Key Reuse with Different Payload</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Same key + different request body
+</span></span></code></pre></div><p>Impact:</p>
+<ul>
+<li>breaks correctness assumptions</li>
+<li>may cause inconsistent behavior</li>
+</ul>
+<hr>
+<h3 id="3-brute-force--enumeration">3. Brute-force / Enumeration</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Guessing idempotency keys
+</span></span></code></pre></div><p>Impact:</p>
+<ul>
+<li>access to cached responses</li>
+<li>information leakage</li>
+</ul>
+<hr>
+<h3 id="4-cross-user-reuse">4. Cross-User Reuse</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Key from user A reused by user B
+</span></span></code></pre></div><p>Impact:</p>
+<ul>
+<li>cross-tenant data exposure</li>
+</ul>
+<hr>
+<h2 id="4-core-principle">4. Core Principle</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Idempotency keys must be bound to (identity + operation + request).</strong></p></blockquote>
+<hr>
+<h2 id="5-bind-key-to-identity-critical">5. Bind Key to Identity (Critical)</h2>
+<hr>
+<h3 id="store-alongside-key">Store alongside key:</h3>
+<ul>
+<li><code>userId</code> or <code>clientId</code></li>
+<li><code>merchantId</code> (for multi-tenant)</li>
+</ul>
+<hr>
+<h3 id="validation">Validation</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>record.<span style="color:#a6e22e">getMerchantId</span>().<span style="color:#a6e22e">equals</span>(auth.<span style="color:#a6e22e">getMerchantId</span>())) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IdempotencyException(<span style="color:#e6db74">&#34;Key does not belong to caller&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Prevents cross-tenant misuse.</p>
+<hr>
+<h2 id="6-request-hash-validation">6. Request Hash Validation</h2>
+<hr>
+<h3 id="store-a-hash-of-the-original-request">Store a hash of the original request</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">record</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">setRequestHash</span>(hash(request));
+</span></span></code></pre></div><hr>
+<h3 id="validate-on-reuse">Validate on reuse</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>record.<span style="color:#a6e22e">getRequestHash</span>().<span style="color:#a6e22e">equals</span>(hash(request))) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IdempotencyException(<span style="color:#e6db74">&#34;Request mismatch for same key&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Ensures same key = same intent.</p>
+<hr>
+<h2 id="7-enforce-operation-scope">7. Enforce Operation Scope</h2>
+<hr>
+<p>Keys must be scoped to operation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>(CREATE, CONFIRM, REFUND)
+</span></span></code></pre></div><hr>
+<h3 id="db-constraint">DB Constraint</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UNIQUE</span> (<span style="color:#66d9ef">key</span>, <span style="color:#66d9ef">operation</span>)
+</span></span></code></pre></div><hr>
+<p>👉 Prevents accidental cross-operation reuse.</p>
+<hr>
+<h2 id="8-use-high-entropy-keys">8. Use High-Entropy Keys</h2>
+<hr>
+<p>Clients should generate keys that are:</p>
+<ul>
+<li>random</li>
+<li>long (UUID v4 or higher entropy)</li>
+</ul>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>f47ac10b-58cc-4372-a567-0e02b2c3d479
+</span></span></code></pre></div><hr>
+<p>👉 Prevents guessing attacks.</p>
+<hr>
+<h2 id="9-ttl-time-to-live-for-keys">9. TTL (Time-To-Live) for Keys</h2>
+<hr>
+<p>Idempotency records should not live forever.</p>
+<hr>
+<h3 id="why">Why?</h3>
+<ul>
+<li>limits replay window</li>
+<li>reduces storage</li>
+</ul>
+<hr>
+<h3 id="strategy">Strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Expire keys after 24h (or business-defined window)
+</span></span></code></pre></div><hr>
+<h3 id="implementation">Implementation</h3>
+<ul>
+<li><code>expiresAt</code> column OR</li>
+<li>background cleanup job</li>
+</ul>
+<hr>
+<h2 id="10-rate-limiting-defense-in-depth">10. Rate Limiting (Defense-in-Depth)</h2>
+<hr>
+<p>Limit requests per:</p>
+<ul>
+<li>API key / clientId</li>
+<li>IP address</li>
+</ul>
+<hr>
+<p>👉 Prevents brute-force and flooding.</p>
+<hr>
+<h2 id="11-response-sensitivity">11. Response Sensitivity</h2>
+<hr>
+<p>Be careful what you cache and return:</p>
+<ul>
+<li>avoid sensitive data in response payload</li>
+<li>mask fields where needed</li>
+</ul>
+<hr>
+<p>👉 Cached responses can be replayed.</p>
+<hr>
+<h2 id="12-idempotency-status-handling">12. Idempotency Status Handling</h2>
+<hr>
+<h3 id="completed">COMPLETED</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return stored response
+</span></span></code></pre></div><hr>
+<h3 id="in_progress">IN_PROGRESS</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return 409 Conflict OR 202 Accepted (processing)
+</span></span></code></pre></div><hr>
+<p>👉 Avoid double execution.</p>
+<hr>
+<h2 id="13-logging--monitoring">13. Logging &amp; Monitoring</h2>
+<hr>
+<p>Track suspicious patterns:</p>
+<ul>
+<li>repeated key reuse</li>
+<li>mismatched request hashes</li>
+<li>high-frequency retries</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>log.<span style="color:#a6e22e">warn</span>(<span style="color:#e6db74">&#34;Idempotency misuse detected for key {}&#34;</span>, key);
+</span></span></code></pre></div><hr>
+<h2 id="14-common-mistakes">14. Common Mistakes</h2>
+<hr>
+<h3 id="-not-binding-key-to-usertenant">❌ Not binding key to user/tenant</h3>
+<ul>
+<li>cross-user leakage risk</li>
+</ul>
+<hr>
+<h3 id="-no-request-hash-validation">❌ No request hash validation</h3>
+<ul>
+<li>same key used for different actions</li>
+</ul>
+<hr>
+<h3 id="-infinite-key-lifetime">❌ Infinite key lifetime</h3>
+<ul>
+<li>replay attacks remain possible forever</li>
+</ul>
+<hr>
+<h3 id="-low-entropy-keys">❌ Low-entropy keys</h3>
+<ul>
+<li>easy to guess</li>
+</ul>
+<hr>
+<h2 id="15-design-insight">15. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Idempotency improves reliability — but without safeguards, it can weaken security.</strong></p></blockquote>
+<hr>
+<p>A secure system:</p>
+<ul>
+<li>binds keys to identity</li>
+<li>validates request intent</li>
+<li>limits key lifetime</li>
+<li>monitors misuse</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>A secure idempotency design:</p>
+<ul>
+<li>prevents duplicate execution</li>
+<li>resists replay attacks</li>
+<li>protects against misuse</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_5_sensitive-data-handling">Sensitive Data Handling →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Bind idempotency keys to identity and operation</li>
+<li>Validate request hashes strictly</li>
+<li>Use high-entropy keys and TTLs</li>
+<li>Monitor and rate-limit to prevent abuse</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-topic-matters" data-toc-target="1-why-this-topic-matters">1. Why This Topic Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-threat-model" data-toc-target="3-threat-model">3. Threat Model</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-core-principle" data-toc-target="4-core-principle">4. Core Principle</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-bind-key-to-identity-critical" data-toc-target="5-bind-key-to-identity-critical">5. Bind Key to Identity (Critical)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-request-hash-validation" data-toc-target="6-request-hash-validation">6. Request Hash Validation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-enforce-operation-scope" data-toc-target="7-enforce-operation-scope">7. Enforce Operation Scope</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-use-high-entropy-keys" data-toc-target="8-use-high-entropy-keys">8. Use High-Entropy Keys</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-ttl-time-to-live-for-keys" data-toc-target="9-ttl-time-to-live-for-keys">9. TTL (Time-To-Live) for Keys</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-rate-limiting-defense-in-depth" data-toc-target="10-rate-limiting-defense-in-depth">10. Rate Limiting (Defense-in-Depth)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-response-sensitivity" data-toc-target="11-response-sensitivity">11. Response Sensitivity</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-idempotency-status-handling" data-toc-target="12-idempotency-status-handling">12. Idempotency Status Handling</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-logging--monitoring" data-toc-target="13-logging--monitoring">13. Logging &amp;amp; Monitoring</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-common-mistakes" data-toc-target="14-common-mistakes">14. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#15-design-insight" data-toc-target="15-design-insight">15. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_3_authorization-and-ownership-checks/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_5_sensitive-data-handling/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

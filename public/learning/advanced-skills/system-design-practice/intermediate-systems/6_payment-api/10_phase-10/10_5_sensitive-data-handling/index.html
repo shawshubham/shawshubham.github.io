@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensitive Data Handling</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776956324">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Sensitive Data Handling</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-sensitive-data-handling-matters">1. Why Sensitive Data Handling Matters</h2>
+<hr>
+<p>Payment systems do not only process money.</p>
+<p>They also deal with data that can be highly sensitive:</p>
+<ul>
+<li>payment method details</li>
+<li>personally identifiable information (PII)</li>
+<li>merchant and user data</li>
+</ul>
+<blockquote>
+<p>❗ <strong>A system can be functionally correct and still be unsafe if it mishandles sensitive data.</strong></p></blockquote>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT doing a deep compliance tutorial.</p>
+<p>👉 This article focuses on practical backend design decisions for:</p>
+<ul>
+<li>what data should not be stored</li>
+<li>how sensitive values should be represented</li>
+<li>how to avoid leaking them in logs, APIs, and storage</li>
+</ul>
+<hr>
+<h2 id="3-what-counts-as-sensitive-data">3. What Counts as Sensitive Data?</h2>
+<hr>
+<p>In our payment system, sensitive data may include:</p>
+<h3 id="1-payment-method-data">1. Payment Method Data</h3>
+<ul>
+<li>raw card number</li>
+<li>CVV</li>
+<li>expiry details</li>
+</ul>
+<hr>
+<h3 id="2-user-data">2. User Data</h3>
+<ul>
+<li>full name</li>
+<li>email address</li>
+<li>phone number</li>
+<li>billing address</li>
+</ul>
+<hr>
+<h3 id="3-internal-security-data">3. Internal Security Data</h3>
+<ul>
+<li>API keys</li>
+<li>gateway credentials</li>
+<li>signing secrets</li>
+</ul>
+<hr>
+<p>👉 Not all payment-related data is equally sensitive, but anything that can expose identity, financial information, or access must be treated carefully.</p>
+<hr>
+<h2 id="4-core-principle-minimize-what-you-store">4. Core Principle: Minimize What You Store</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>The safest sensitive data is the data you never store.</strong></p></blockquote>
+<hr>
+<p>This means:</p>
+<ul>
+<li>do not store raw card data</li>
+<li>do not store secrets in business tables</li>
+<li>do not keep unnecessary personal data</li>
+</ul>
+<hr>
+<h2 id="5-never-store-raw-card-details">5. Never Store Raw Card Details</h2>
+<hr>
+<h3 id="-bad-design">❌ Bad Design</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;cardNumber&#34;</span>: <span style="color:#e6db74">&#34;4111111111111111&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;cvv&#34;</span>: <span style="color:#e6db74">&#34;123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;expiry&#34;</span>: <span style="color:#e6db74">&#34;12/27&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>stored directly in your backend database.</p>
+<hr>
+<h3 id="why-this-is-dangerous">Why this is dangerous</h3>
+<ul>
+<li>massive security risk</li>
+<li>compliance burden becomes much higher</li>
+<li>log leaks become catastrophic</li>
+</ul>
+<hr>
+<h3 id="-better-design">✅ Better Design</h3>
+<p>Use a <strong>gateway-issued token</strong> or payment method reference instead.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentMethodToken&#34;</span>: <span style="color:#e6db74">&#34;pm_tok_abc123&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Your backend should process tokenized payment references, not raw card values.</p>
+<hr>
+<h2 id="6-tokenization">6. Tokenization</h2>
+<hr>
+<p>Tokenization means replacing sensitive payment details with a safe reference token.</p>
+<hr>
+<h3 id="flow">Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Card details → Payment provider / secure collection layer → Token → Our backend
+</span></span></code></pre></div><hr>
+<h3 id="example">Example</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Gateway as Payment Gateway
+    participant API as Payment API
+
+    Client->>Gateway: Submit card details securely
+    Gateway-->>Client: Payment method token
+    Client->>API: Create payment with token
+</div>
+<hr>
+<h3 id="why-this-is-better">Why this is better</h3>
+<ul>
+<li>backend never sees raw card number</li>
+<li>blast radius is reduced</li>
+<li>easier to reason about security boundaries</li>
+</ul>
+<hr>
+<h2 id="7-masking-sensitive-values">7. Masking Sensitive Values</h2>
+<hr>
+<p>Even when some data must be shown, it should be masked.</p>
+<h3 id="example-1">Example</h3>
+<p>Instead of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>4111111111111111
+</span></span></code></pre></div><p>show:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>**** **** **** 1111
+</span></span></code></pre></div><hr>
+<h3 id="where-masking-matters">Where masking matters</h3>
+<ul>
+<li>API responses</li>
+<li>admin dashboards</li>
+<li>logs</li>
+<li>support tooling</li>
+</ul>
+<hr>
+<h2 id="8-safe-logging-practices">8. Safe Logging Practices</h2>
+<hr>
+<p>Logs are one of the most common places where sensitive data leaks.</p>
+<h3 id="-bad">❌ Bad</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>log.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Create payment request: {}&#34;</span>, request);
+</span></span></code></pre></div><p>If <code>request.toString()</code> contains sensitive fields, they may be written into logs.</p>
+<hr>
+<h3 id="-better">✅ Better</h3>
+<p>Log only non-sensitive context:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>log.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Create payment request received. orderId={}, merchantId={}&#34;</span>, orderId, merchantId);
+</span></span></code></pre></div><hr>
+<h3 id="good-logging-rule">Good logging rule</h3>
+<blockquote>
+<p>Log identifiers and operational context, not secrets or sensitive payloads.</p></blockquote>
+<hr>
+<h2 id="9-protecting-secrets">9. Protecting Secrets</h2>
+<hr>
+<p>Sensitive operational secrets include:</p>
+<ul>
+<li>gateway API keys</li>
+<li>JWT signing keys</li>
+<li>encryption secrets</li>
+</ul>
+<hr>
+<h3 id="-bad-1">❌ Bad</h3>
+<ul>
+<li>hardcoding secrets in code</li>
+<li>committing secrets to Git</li>
+</ul>
+<hr>
+<h3 id="-better-1">✅ Better</h3>
+<ul>
+<li>use environment variables</li>
+<li>use secret managers / vaults</li>
+<li>rotate secrets regularly</li>
+</ul>
+<hr>
+<h2 id="10-data-in-api-responses">10. Data in API Responses</h2>
+<hr>
+<p>Be careful what your API returns.</p>
+<h3 id="example-2">Example</h3>
+<p>A payment response should include:</p>
+<ul>
+<li>paymentId</li>
+<li>status</li>
+<li>amount</li>
+<li>currency</li>
+</ul>
+<p>It should NOT include:</p>
+<ul>
+<li>full card details</li>
+<li>internal gateway secrets</li>
+<li>raw provider error payloads</li>
+</ul>
+<hr>
+<h2 id="11-data-in-the-database">11. Data in the Database</h2>
+<hr>
+<p>Our payment tables should store only what is necessary.</p>
+<h3 id="safe-examples">Safe examples</h3>
+<ul>
+<li><code>paymentMethodToken</code></li>
+<li>masked last four digits (if needed)</li>
+<li>gateway reference</li>
+</ul>
+<hr>
+<h3 id="unsafe-examples">Unsafe examples</h3>
+<ul>
+<li>raw CVV</li>
+<li>full PAN</li>
+<li>raw authentication secrets</li>
+</ul>
+<hr>
+<h2 id="12-data-retention-awareness">12. Data Retention Awareness</h2>
+<hr>
+<p>Even valid data should not necessarily be kept forever.</p>
+<p>Examples:</p>
+<ul>
+<li>temporary tokens should expire</li>
+<li>logs should have retention policies</li>
+<li>old sensitive operational data should be cleaned up</li>
+</ul>
+<hr>
+<p>👉 Security is not only about storage, but also about <strong>lifetime</strong>.</p>
+<hr>
+<h2 id="13-common-mistakes">13. Common Mistakes</h2>
+<hr>
+<h3 id="-logging-full-requestresponse-payloads">❌ Logging full request/response payloads</h3>
+<ul>
+<li>leaks sensitive values</li>
+</ul>
+<hr>
+<h3 id="-storing-raw-card-details-directly">❌ Storing raw card details directly</h3>
+<ul>
+<li>dangerous and unnecessary</li>
+</ul>
+<hr>
+<h3 id="-returning-too-much-data-in-apis">❌ Returning too much data in APIs</h3>
+<ul>
+<li>exposes internals</li>
+</ul>
+<hr>
+<h3 id="-hardcoding-credentials">❌ Hardcoding credentials</h3>
+<ul>
+<li>secret management failure</li>
+</ul>
+<hr>
+<h2 id="14-design-insight">14. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Sensitive data should be minimized, tokenized, masked, and tightly controlled.</strong></p></blockquote>
+<hr>
+<p>A secure payment backend should assume:</p>
+<ul>
+<li>logs can leak</li>
+<li>dashboards can be misused</li>
+<li>storage can be inspected</li>
+</ul>
+<p>So the design must reduce exposure everywhere.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>A robust sensitive-data strategy:</p>
+<ul>
+<li>minimizes what is stored</li>
+<li>tokenizes payment inputs</li>
+<li>masks values when displayed</li>
+<li>keeps secrets out of code and logs</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_6_transport-security-and-https">Transport Security &amp; HTTPS →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Never store raw card details in the payment backend</li>
+<li>Prefer tokenization over direct sensitive-data handling</li>
+<li>Mask values in logs and APIs</li>
+<li>Minimize, protect, and expire sensitive data wherever possible</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-sensitive-data-handling-matters" data-toc-target="1-why-sensitive-data-handling-matters">1. Why Sensitive Data Handling Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-what-counts-as-sensitive-data" data-toc-target="3-what-counts-as-sensitive-data">3. What Counts as Sensitive Data?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-core-principle-minimize-what-you-store" data-toc-target="4-core-principle-minimize-what-you-store">4. Core Principle: Minimize What You Store</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-never-store-raw-card-details" data-toc-target="5-never-store-raw-card-details">5. Never Store Raw Card Details</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-tokenization" data-toc-target="6-tokenization">6. Tokenization</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-masking-sensitive-values" data-toc-target="7-masking-sensitive-values">7. Masking Sensitive Values</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-safe-logging-practices" data-toc-target="8-safe-logging-practices">8. Safe Logging Practices</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-protecting-secrets" data-toc-target="9-protecting-secrets">9. Protecting Secrets</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-data-in-api-responses" data-toc-target="10-data-in-api-responses">10. Data in API Responses</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-data-in-the-database" data-toc-target="11-data-in-the-database">11. Data in the Database</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-data-retention-awareness" data-toc-target="12-data-retention-awareness">12. Data Retention Awareness</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-common-mistakes" data-toc-target="13-common-mistakes">13. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-design-insight" data-toc-target="14-design-insight">14. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_4_idempotency-abuse-and-security/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_6_transport-security/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

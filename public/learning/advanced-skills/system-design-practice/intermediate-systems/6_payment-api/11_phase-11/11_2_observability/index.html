@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Backend Implementation — Overview</title>
+<title>Observability (Logs, Metrics, Tracing)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1776950113">
+<link rel="stylesheet" href="/css/main.css?v=1776958514">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Clean Backend Implementation — Overview</h1>
+    <h1 class="main-heading">Observability (Logs, Metrics, Tracing)</h1>
     <h3>
   </div>
 </section>
@@ -162,163 +162,266 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+          <h2 id="1-why-observability-matters">1. Why Observability Matters</h2>
 <hr>
-<p>So far, we have designed a payment system from a <strong>system design perspective</strong>:</p>
-<ul>
-<li>APIs and contracts</li>
-<li>idempotency and retries</li>
-<li>concurrency and state protection</li>
-<li>persistence and transactions</li>
-</ul>
+<p>In production, failures are inevitable.</p>
 <blockquote>
-<p>❗ Now we answer a different question:</p>
-<p><strong>How does this design translate into clean, maintainable backend code?</strong></p></blockquote>
-<hr>
-<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
-<hr>
-<p>⚠️ Important clarification:</p>
-<p>This phase does <strong>NOT</strong> redesign the system.</p>
-<p>We already have:</p>
+<p>❗ <strong>If you cannot see what your system is doing, you cannot debug or operate it.</strong></p></blockquote>
+<p>Observability gives you the ability to:</p>
 <ul>
-<li>correct flows</li>
-<li>safe execution model</li>
-<li>reliable data design</li>
-</ul>
-<p>👉 This phase focuses on:</p>
-<ul>
-<li>structuring code correctly</li>
-<li>assigning responsibilities to layers</li>
-<li>implementing flows cleanly</li>
+<li>detect issues quickly</li>
+<li>understand system behavior</li>
+<li>debug incidents efficiently</li>
+<li>make data-driven improvements</li>
 </ul>
 <hr>
-<h2 id="3-core-goal">3. Core Goal</h2>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining logging basics.</p>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>what to observe in a payment system</li>
+<li>how logs, metrics, and tracing work together</li>
+<li>practical signals to monitor</li>
+</ul>
+<hr>
+<h2 id="3-the-three-pillars">3. The Three Pillars</h2>
+<hr>
+<p>Observability is built on three pillars:</p>
+<h3 id="1-logs">1. Logs</h3>
+<ul>
+<li>detailed, event-level records</li>
+</ul>
+<h3 id="2-metrics">2. Metrics</h3>
+<ul>
+<li>numerical aggregates over time</li>
+</ul>
+<h3 id="3-tracing">3. Tracing</h3>
+<ul>
+<li>end-to-end request flow across services</li>
+</ul>
+<hr>
+<p>👉 You need all three together.</p>
+<hr>
+<h2 id="4-logs--what-to-capture">4. Logs — What to Capture</h2>
+<hr>
+<p>Logs answer:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>What happened?
+</span></span></code></pre></div><hr>
+<h3 id="use-structured-logging">Use Structured Logging</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;level&#34;</span>: <span style="color:#e6db74">&#34;INFO&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment confirmed&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;merchantId&#34;</span>: <span style="color:#e6db74">&#34;M456&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;traceId&#34;</span>: <span style="color:#e6db74">&#34;trace-789&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="key-practices">Key Practices</h3>
+<ul>
+<li>include <code>traceId</code> / <code>correlationId</code></li>
+<li>include business identifiers (paymentId, merchantId)</li>
+<li>avoid sensitive data (no PAN/CVV/API keys)</li>
+</ul>
+<hr>
+<h2 id="5-metrics--what-to-measure">5. Metrics — What to Measure</h2>
+<hr>
+<p>Metrics answer:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>How is the system performing?
+</span></span></code></pre></div><hr>
+<h3 id="core-payment-metrics">Core Payment Metrics</h3>
+<h4 id="1-throughput">1. Throughput</h4>
+<ul>
+<li>requests per second (RPS)</li>
+</ul>
+<hr>
+<h4 id="2-success-rate">2. Success Rate</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>successful_payments / total_payments
+</span></span></code></pre></div><hr>
+<h4 id="3-failure-rate">3. Failure Rate</h4>
+<ul>
+<li>by error type (validation, gateway, system)</li>
+</ul>
+<hr>
+<h4 id="4-latency">4. Latency</h4>
+<ul>
+<li>p50 / p95 / p99 response times</li>
+</ul>
+<hr>
+<h4 id="5-gateway-metrics">5. Gateway Metrics</h4>
+<ul>
+<li>success vs failure</li>
+<li>timeout rate</li>
+<li>latency per provider</li>
+</ul>
+<hr>
+<h3 id="example-prometheus-style">Example (Prometheus style)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>payment_requests_total{status=&#34;success&#34;}
+</span></span><span style="display:flex;"><span>payment_latency_seconds_bucket
+</span></span><span style="display:flex;"><span>payment_gateway_failures_total
+</span></span></code></pre></div><hr>
+<h2 id="6-tracing--following-a-request">6. Tracing — Following a Request</h2>
+<hr>
+<p>Tracing answers:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Where did time go? Where did it fail?
+</span></span></code></pre></div><hr>
+<h3 id="flow">Flow</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant API
+    participant Service
+    participant DB
+    participant Gateway
+
+    Client->>API: Request (traceId)
+    API->>Service: Forward
+    Service->>DB: Query
+    Service->>Gateway: External call
+    Gateway-->>Service: Response
+    Service-->>API: Result
+    API-->>Client: Response
+</div>
+<hr>
+<p>👉 Each step is a <strong>span</strong> under a single trace.</p>
+<hr>
+<h2 id="7-correlating-logs-metrics-and-traces">7. Correlating Logs, Metrics, and Traces</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>traceId = common key
+</span></span></code></pre></div><hr>
+<ul>
+<li>Logs include traceId</li>
+<li>Traces group spans by traceId</li>
+<li>Metrics highlight anomalies that lead you to traces/logs</li>
+</ul>
+<hr>
+<p>👉 This enables <strong>fast root-cause analysis</strong>.</p>
+<hr>
+<h2 id="8-where-to-instrument">8. Where to Instrument</h2>
+<hr>
+<h3 id="1-api-layer">1. API Layer</h3>
+<ul>
+<li>request count</li>
+<li>latency</li>
+</ul>
+<hr>
+<h3 id="2-service-layer">2. Service Layer</h3>
+<ul>
+<li>business operations (create/confirm)</li>
+<li>idempotency outcomes</li>
+</ul>
+<hr>
+<h3 id="3-database">3. Database</h3>
+<ul>
+<li>query latency</li>
+<li>error rate</li>
+</ul>
+<hr>
+<h3 id="4-external-gateway">4. External Gateway</h3>
+<ul>
+<li>call latency</li>
+<li>success/failure</li>
+</ul>
+<hr>
+<h2 id="9-alerts-actionable-monitoring">9. Alerts (Actionable Monitoring)</h2>
+<hr>
+<p>Define alerts on key metrics:</p>
+<h3 id="examples">Examples</h3>
+<ul>
+<li>failure rate &gt; threshold</li>
+<li>latency p99 too high</li>
+<li>gateway timeout spike</li>
+</ul>
+<hr>
+<p>👉 Alerts should be:</p>
+<ul>
+<li>actionable</li>
+<li>low-noise</li>
+<li>tied to user impact</li>
+</ul>
+<hr>
+<h2 id="10-dashboards">10. Dashboards</h2>
+<hr>
+<p>Use dashboards (e.g., Grafana) to visualize:</p>
+<ul>
+<li>traffic</li>
+<li>success/failure trends</li>
+<li>latency distribution</li>
+<li>gateway health</li>
+</ul>
+<hr>
+<p>👉 Dashboards provide real-time system visibility.</p>
+<hr>
+<h2 id="11-payment-system-specific-signals">11. Payment-System-Specific Signals</h2>
+<hr>
+<h3 id="1-stuck-payments">1. Stuck Payments</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = PROCESSING for too long
+</span></span></code></pre></div><hr>
+<h3 id="2-retry-patterns">2. Retry Patterns</h3>
+<ul>
+<li>high retry counts</li>
+</ul>
+<hr>
+<h3 id="3-idempotency-conflicts">3. Idempotency Conflicts</h3>
+<ul>
+<li>repeated key reuse or mismatches</li>
+</ul>
+<hr>
+<p>👉 These signals often indicate deeper issues.</p>
+<hr>
+<h2 id="12-common-mistakes">12. Common Mistakes</h2>
+<hr>
+<h3 id="-only-logs-no-metrics">❌ Only logs, no metrics</h3>
+<ul>
+<li>cannot see trends</li>
+</ul>
+<hr>
+<h3 id="-only-metrics-no-logs">❌ Only metrics, no logs</h3>
+<ul>
+<li>cannot debug details</li>
+</ul>
+<hr>
+<h3 id="-no-tracing">❌ No tracing</h3>
+<ul>
+<li>hard to debug distributed flows</li>
+</ul>
+<hr>
+<h3 id="-logging-sensitive-data">❌ Logging sensitive data</h3>
+<ul>
+<li>security risk</li>
+</ul>
+<hr>
+<h2 id="13-design-insight">13. Design Insight</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Translate system design into clean, production-ready backend code.</strong></p></blockquote>
+<p>🧠 <strong>Observability is not a tool — it is a design decision.</strong></p></blockquote>
 <hr>
-<p>This includes:</p>
+<p>Good systems are built with:</p>
 <ul>
-<li>clear separation of concerns</li>
-<li>maintainable structure</li>
-<li>testable components</li>
-<li>extensibility for future changes</li>
-</ul>
-<hr>
-<h2 id="4-high-level-architecture">4. High-Level Architecture</h2>
-<hr>
-<p>We will follow a layered architecture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
-</span></span><span style="display:flex;"><span>                    ↓
-</span></span><span style="display:flex;"><span>                External Gateway
-</span></span></code></pre></div><hr>
-<h3 id="responsibilities">Responsibilities</h3>
-<ul>
-<li><strong>Controller</strong> → handles HTTP layer</li>
-<li><strong>Service</strong> → contains business logic</li>
-<li><strong>Repository</strong> → handles persistence</li>
-<li><strong>Gateway Client</strong> → external system interaction</li>
-</ul>
-<hr>
-<h2 id="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</h2>
-<hr>
-<h3 id="92-layered-architecture-in-detail">9.2 Layered Architecture in Detail</h3>
-<ul>
-<li>structure packages and classes</li>
-</ul>
-<hr>
-<h3 id="93-create-payment-implementation">9.3 Create Payment Implementation</h3>
-<ul>
-<li>how create flow maps to code</li>
-</ul>
-<hr>
-<h3 id="94-confirm-payment-implementation">9.4 Confirm Payment Implementation</h3>
-<ul>
-<li>concurrency-safe execution in code</li>
-</ul>
-<hr>
-<h3 id="95-idempotency-handling-in-code">9.5 Idempotency Handling in Code</h3>
-<ul>
-<li>how idempotency table is used programmatically</li>
-</ul>
-<hr>
-<h3 id="96-exception-handling--error-design">9.6 Exception Handling &amp; Error Design</h3>
-<ul>
-<li>clean error responses</li>
-</ul>
-<hr>
-<h3 id="97-gateway-abstraction">9.7 Gateway Abstraction</h3>
-<ul>
-<li>decouple external providers</li>
-</ul>
-<hr>
-<h2 id="6-design-principles-we-will-follow">6. Design Principles We Will Follow</h2>
-<hr>
-<h3 id="1-single-responsibility-principle-srp">1. Single Responsibility Principle (SRP)</h3>
-<ul>
-<li>each class does one job</li>
-</ul>
-<hr>
-<h3 id="2-clear-layer-boundaries">2. Clear Layer Boundaries</h3>
-<ul>
-<li>no business logic in controllers</li>
-<li>no DB logic in services</li>
-</ul>
-<hr>
-<h3 id="3-dependency-injection">3. Dependency Injection</h3>
-<ul>
-<li>loose coupling between components</li>
-</ul>
-<hr>
-<h3 id="4-idempotency-as-first-class-concern">4. Idempotency as First-Class Concern</h3>
-<ul>
-<li>handled explicitly in service layer</li>
-</ul>
-<hr>
-<h3 id="5-fail-safe-design">5. Fail-Safe Design</h3>
-<ul>
-<li>assume failures at every step</li>
-</ul>
-<hr>
-<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
-<hr>
-<p>To avoid redundancy, we will NOT:</p>
-<ul>
-<li>re-explain system design concepts</li>
-<li>repeat flow diagrams in full</li>
-<li>redefine database schema</li>
-</ul>
-<p>👉 Instead, we will <strong>apply them in code</strong>.</p>
-<hr>
-<h2 id="8-mental-model">8. Mental Model</h2>
-<hr>
-<p>Think of this phase as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Design → Implementation → Clean Code
-</span></span></code></pre></div><hr>
-<p>We are converting:</p>
-<ul>
-<li>ideas → classes</li>
-<li>flows → methods</li>
-<li>rules → validations</li>
+<li>instrumentation from day one</li>
+<li>clear signals for debugging</li>
+<li>visibility into critical paths</li>
 </ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>This phase bridges the gap between:</p>
+<p>Observability enables you to:</p>
 <ul>
-<li>system design thinking</li>
-<li>real backend implementation</li>
+<li>monitor system health</li>
+<li>debug failures quickly</li>
+<li>improve performance over time</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture">Layered Architecture in Detail →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_3_retry-and-backoff">Retry &amp; Backoff Strategies →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Good design must translate into clean code</li>
-<li>Structure and responsibility separation are critical</li>
-<li>This phase focuses on implementation clarity, not redesign</li>
+<li>Use logs for detail, metrics for trends, tracing for flow</li>
+<li>Always include correlation IDs</li>
+<li>Monitor success rate, latency, and failures</li>
+<li>Build dashboards and alerts for real-time visibility</li>
 </ul></blockquote>
 
         </article>
@@ -347,49 +450,79 @@
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+        <a class="toc-link" href="#1-why-observability-matters" data-toc-target="1-why-observability-matters">1. Why Observability Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-core-goal" data-toc-target="3-core-goal">3. Core Goal</a>
+        <a class="toc-link" href="#3-the-three-pillars" data-toc-target="3-the-three-pillars">3. The Three Pillars</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-high-level-architecture" data-toc-target="4-high-level-architecture">4. High-Level Architecture</a>
+        <a class="toc-link" href="#4-logs--what-to-capture" data-toc-target="4-logs--what-to-capture">4. Logs — What to Capture</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-we-will-build-in-this-phase" data-toc-target="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</a>
+        <a class="toc-link" href="#5-metrics--what-to-measure" data-toc-target="5-metrics--what-to-measure">5. Metrics — What to Measure</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-design-principles-we-will-follow" data-toc-target="6-design-principles-we-will-follow">6. Design Principles We Will Follow</a>
+        <a class="toc-link" href="#6-tracing--following-a-request" data-toc-target="6-tracing--following-a-request">6. Tracing — Following a Request</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+        <a class="toc-link" href="#7-correlating-logs-metrics-and-traces" data-toc-target="7-correlating-logs-metrics-and-traces">7. Correlating Logs, Metrics, and Traces</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-mental-model" data-toc-target="8-mental-model">8. Mental Model</a>
+        <a class="toc-link" href="#8-where-to-instrument" data-toc-target="8-where-to-instrument">8. Where to Instrument</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-alerts-actionable-monitoring" data-toc-target="9-alerts-actionable-monitoring">9. Alerts (Actionable Monitoring)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-dashboards" data-toc-target="10-dashboards">10. Dashboards</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-payment-system-specific-signals" data-toc-target="11-payment-system-specific-signals">11. Payment-System-Specific Signals</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-common-mistakes" data-toc-target="12-common-mistakes">12. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-design-insight" data-toc-target="13-design-insight">13. Design Insight</a>
       </li>
     
       
@@ -410,6 +543,8 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_1_overview/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -441,7 +576,7 @@
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_3_retry-and-backoff-strategies/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -634,6 +769,17 @@
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

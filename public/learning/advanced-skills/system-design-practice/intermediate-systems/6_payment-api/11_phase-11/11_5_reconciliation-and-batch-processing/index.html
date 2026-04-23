@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconciliation &amp; Batch Recovery</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776958514">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Reconciliation &amp; Batch Recovery</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-reconciliation-matters">1. Why Reconciliation Matters</h2>
+<hr>
+<p>In real payment systems, not every flow ends cleanly.</p>
+<p>Examples:</p>
+<ul>
+<li>gateway call times out</li>
+<li>database update fails after external success</li>
+<li>service crashes mid-processing</li>
+</ul>
+<hr>
+<blockquote>
+<p>❗ <strong>When the system does not know the final truth immediately, it must recover that truth later.</strong></p></blockquote>
+<hr>
+<p>This is the role of <strong>reconciliation</strong>.</p>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>timeout handling basics</li>
+<li>idempotency basics</li>
+<li>retry theory</li>
+</ul>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>how background jobs recover inconsistent state</li>
+<li>how to process stuck payments safely</li>
+<li>how reconciliation restores eventual correctness</li>
+</ul>
+<hr>
+<h2 id="3-what-is-reconciliation">3. What is Reconciliation?</h2>
+<hr>
+<p>Reconciliation is the process of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Compare system state with source-of-truth state
+</span></span><span style="display:flex;"><span>→ detect mismatch
+</span></span><span style="display:flex;"><span>→ fix it safely
+</span></span></code></pre></div><hr>
+<p>In our payment system, the source of truth may be:</p>
+<ul>
+<li>external payment gateway</li>
+<li>internal ledger / settlement record (future evolution)</li>
+</ul>
+<hr>
+<h2 id="4-typical-reconciliation-scenarios">4. Typical Reconciliation Scenarios</h2>
+<hr>
+<h3 id="1-gateway-success-db-update-missing">1. Gateway Success, DB Update Missing</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Gateway = SUCCESS
+</span></span><span style="display:flex;"><span>Our DB = PROCESSING
+</span></span></code></pre></div><hr>
+<h3 id="2-gateway-failure-state-not-finalized">2. Gateway Failure, State Not Finalized</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Gateway = FAILED
+</span></span><span style="display:flex;"><span>Our DB = PROCESSING
+</span></span></code></pre></div><hr>
+<h3 id="3-service-crash-mid-flow">3. Service Crash Mid-Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request started
+</span></span><span style="display:flex;"><span>State partially updated
+</span></span><span style="display:flex;"><span>No final response stored
+</span></span></code></pre></div><hr>
+<p>👉 These are normal production realities.</p>
+<hr>
+<h2 id="5-payments-that-need-reconciliation">5. Payments That Need Reconciliation</h2>
+<hr>
+<p>Typically, reconciliation scans records such as:</p>
+<ul>
+<li>payments stuck in <code>PROCESSING</code> for too long</li>
+<li>attempts with missing final status</li>
+<li>inconsistent gateway reference states</li>
+</ul>
+<hr>
+<h3 id="example-rule">Example Rule</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If payment.status = PROCESSING for &gt; 5 minutes
+</span></span><span style="display:flex;"><span>→ eligible for reconciliation
+</span></span></code></pre></div><hr>
+<h2 id="6-high-level-reconciliation-flow">6. High-Level Reconciliation Flow</h2>
+<hr>
+<div class="mermaid">
+flowchart TD
+    A[Reconciliation Job Starts]
+    B[Fetch stuck payments]
+    C[Query external gateway]
+    D{What is final status?}
+    E[Update payment to SUCCEEDED]
+    F[Update payment to FAILED]
+    G[Leave in PROCESSING / retry later]
+
+    A --> B --> C --> D
+    D -->|Success| E
+    D -->|Failure| F
+    D -->|Unknown| G
+</div>
+<hr>
+<h2 id="7-batch-recovery-job-design">7. Batch Recovery Job Design</h2>
+<hr>
+<p>A reconciliation job should:</p>
+<ul>
+<li>run periodically</li>
+<li>process payments in batches</li>
+<li>avoid overwhelming gateway or DB</li>
+</ul>
+<hr>
+<h3 id="example-batch-strategy">Example Batch Strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Every 5 minutes
+</span></span><span style="display:flex;"><span>Pick 100 stuck payments
+</span></span><span style="display:flex;"><span>Process safely
+</span></span></code></pre></div><hr>
+<p>👉 This is why the article includes both <strong>reconciliation</strong> and <strong>batch recovery</strong>.</p>
+<hr>
+<h2 id="8-safe-recovery-principles">8. Safe Recovery Principles</h2>
+<hr>
+<h3 id="1-re-check-current-state-first">1. Re-check Current State First</h3>
+<p>Before updating, always re-read the latest DB state.</p>
+<p>Why?</p>
+<ul>
+<li>another process may already have fixed it</li>
+</ul>
+<hr>
+<h3 id="2-query-external-truth-carefully">2. Query External Truth Carefully</h3>
+<p>Use:</p>
+<ul>
+<li>gateway reference</li>
+<li>payment attempt metadata</li>
+</ul>
+<hr>
+<h3 id="3-apply-idempotent-updates">3. Apply Idempotent Updates</h3>
+<p>Reconciliation must not create duplicate side effects.</p>
+<hr>
+<h3 id="4-update-only-allowed-transitions">4. Update Only Allowed Transitions</h3>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>PROCESSING → SUCCEEDED
+</span></span><span style="display:flex;"><span>PROCESSING → FAILED
+</span></span></code></pre></div><hr>
+<h2 id="9-example-reconciliation-logic">9. Example Reconciliation Logic</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">reconcilePayment</span>(UUID paymentId) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Payment payment <span style="color:#f92672">=</span> paymentRepository.<span style="color:#a6e22e">findById</span>(paymentId)
+</span></span><span style="display:flex;"><span>            .<span style="color:#a6e22e">orElseThrow</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (payment.<span style="color:#a6e22e">getStatus</span>() <span style="color:#f92672">!=</span> PaymentStatus.<span style="color:#a6e22e">PROCESSING</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>; <span style="color:#75715e">// already resolved</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    GatewayStatus gatewayStatus <span style="color:#f92672">=</span> paymentGatewayClient.<span style="color:#a6e22e">checkStatus</span>(payment.<span style="color:#a6e22e">getGatewayReference</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (gatewayStatus <span style="color:#f92672">==</span> GatewayStatus.<span style="color:#a6e22e">SUCCESS</span>) {
+</span></span><span style="display:flex;"><span>        payment.<span style="color:#a6e22e">setStatus</span>(PaymentStatus.<span style="color:#a6e22e">SUCCEEDED</span>);
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (gatewayStatus <span style="color:#f92672">==</span> GatewayStatus.<span style="color:#a6e22e">FAILED</span>) {
+</span></span><span style="display:flex;"><span>        payment.<span style="color:#a6e22e">setStatus</span>(PaymentStatus.<span style="color:#a6e22e">FAILED</span>);
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>; <span style="color:#75715e">// still unknown, retry later</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    paymentRepository.<span style="color:#a6e22e">save</span>(payment);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 This is a recovery path, not the primary execution flow.</p>
+<hr>
+<h2 id="10-reconciliation-vs-retry">10. Reconciliation vs Retry</h2>
+<hr>
+<h3 id="retry">Retry</h3>
+<ul>
+<li>immediate or near-immediate attempt to recover</li>
+<li>often part of live request flow</li>
+</ul>
+<hr>
+<h3 id="reconciliation">Reconciliation</h3>
+<ul>
+<li>delayed background correction</li>
+<li>used when live flow cannot safely conclude</li>
+</ul>
+<hr>
+<p>👉 Both are necessary in production systems.</p>
+<hr>
+<h2 id="11-observability-for-reconciliation">11. Observability for Reconciliation</h2>
+<hr>
+<p>You should track:</p>
+<ul>
+<li>number of stuck payments</li>
+<li>reconciliation success count</li>
+<li>unresolved payments count</li>
+<li>reconciliation latency</li>
+</ul>
+<hr>
+<p>Example metrics:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>payments_reconciliation_processed_total
+</span></span><span style="display:flex;"><span>payments_reconciliation_resolved_total
+</span></span><span style="display:flex;"><span>payments_stuck_processing_total
+</span></span></code></pre></div><hr>
+<h2 id="12-operational-concerns">12. Operational Concerns</h2>
+<hr>
+<h3 id="1-avoid-large-full-scans">1. Avoid Large Full Scans</h3>
+<p>Use indexed queries such as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> payments
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">AND</span> updated_at <span style="color:#f92672">&lt;</span> now() <span style="color:#f92672">-</span> interval <span style="color:#e6db74">&#39;5 minutes&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">LIMIT</span> <span style="color:#ae81ff">100</span>;
+</span></span></code></pre></div><hr>
+<h3 id="2-prevent-duplicate-job-execution">2. Prevent Duplicate Job Execution</h3>
+<p>If multiple instances run:</p>
+<ul>
+<li>use distributed job lock OR</li>
+<li>partition the work safely</li>
+</ul>
+<hr>
+<h3 id="3-avoid-infinite-recovery-loops">3. Avoid Infinite Recovery Loops</h3>
+<p>Track:</p>
+<ul>
+<li>retry count</li>
+<li>last reconciliation attempt</li>
+</ul>
+<hr>
+<h2 id="13-common-mistakes">13. Common Mistakes</h2>
+<hr>
+<h3 id="-no-reconciliation-path">❌ No reconciliation path</h3>
+<ul>
+<li>stuck payments remain forever</li>
+</ul>
+<hr>
+<h3 id="-blindly-updating-without-re-checking-state">❌ Blindly updating without re-checking state</h3>
+<ul>
+<li>may overwrite correct data</li>
+</ul>
+<hr>
+<h3 id="-huge-batch-sizes">❌ Huge batch sizes</h3>
+<ul>
+<li>causes load spikes</li>
+</ul>
+<hr>
+<h3 id="-treating-reconciliation-as-primary-flow">❌ Treating reconciliation as primary flow</h3>
+<ul>
+<li>wrong design boundary</li>
+</ul>
+<hr>
+<h2 id="14-design-insight">14. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Production systems must be designed not only to execute correctly, but also to recover correctly.</strong></p></blockquote>
+<hr>
+<p>Reconciliation is how systems restore truth after uncertainty.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Reconciliation and batch recovery ensure that:</p>
+<ul>
+<li>temporary inconsistencies do not become permanent</li>
+<li>stuck payments are eventually resolved</li>
+<li>the system converges toward the correct final state</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_6_scaling-the-system">Scaling the System →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Reconciliation restores correctness after uncertain failures</li>
+<li>Process stuck records in controlled batches</li>
+<li>Always re-check current state before recovery</li>
+<li>Recovery logic must be safe, idempotent, and observable</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-reconciliation-matters" data-toc-target="1-why-reconciliation-matters">1. Why Reconciliation Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-what-is-reconciliation" data-toc-target="3-what-is-reconciliation">3. What is Reconciliation?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-typical-reconciliation-scenarios" data-toc-target="4-typical-reconciliation-scenarios">4. Typical Reconciliation Scenarios</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-payments-that-need-reconciliation" data-toc-target="5-payments-that-need-reconciliation">5. Payments That Need Reconciliation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-high-level-reconciliation-flow" data-toc-target="6-high-level-reconciliation-flow">6. High-Level Reconciliation Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-batch-recovery-job-design" data-toc-target="7-batch-recovery-job-design">7. Batch Recovery Job Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-safe-recovery-principles" data-toc-target="8-safe-recovery-principles">8. Safe Recovery Principles</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-example-reconciliation-logic" data-toc-target="9-example-reconciliation-logic">9. Example Reconciliation Logic</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-reconciliation-vs-retry" data-toc-target="10-reconciliation-vs-retry">10. Reconciliation vs Retry</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-observability-for-reconciliation" data-toc-target="11-observability-for-reconciliation">11. Observability for Reconciliation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-operational-concerns" data-toc-target="12-operational-concerns">12. Operational Concerns</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-common-mistakes" data-toc-target="13-common-mistakes">13. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-design-insight" data-toc-target="14-design-insight">14. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_4_circuit-breaker-and-resilience/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_6_scaling-the-system/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

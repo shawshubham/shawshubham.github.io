@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Backend Implementation — Overview</title>
+<title>Audit Logging &amp; Traceability</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1776950113">
+<link rel="stylesheet" href="/css/main.css?v=1776956603">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Clean Backend Implementation — Overview</h1>
+    <h1 class="main-heading">Audit Logging &amp; Traceability</h1>
     <h3>
   </div>
 </section>
@@ -162,163 +162,240 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+          <h2 id="1-why-audit-logging-matters">1. Why Audit Logging Matters</h2>
 <hr>
-<p>So far, we have designed a payment system from a <strong>system design perspective</strong>:</p>
-<ul>
-<li>APIs and contracts</li>
-<li>idempotency and retries</li>
-<li>concurrency and state protection</li>
-<li>persistence and transactions</li>
-</ul>
+<p>In a payment system, every action must be traceable.</p>
 <blockquote>
-<p>❗ Now we answer a different question:</p>
-<p><strong>How does this design translate into clean, maintainable backend code?</strong></p></blockquote>
+<p>❗ <strong>If something goes wrong, you must be able to answer: who did what, when, and how.</strong></p></blockquote>
 <hr>
-<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
-<hr>
-<p>⚠️ Important clarification:</p>
-<p>This phase does <strong>NOT</strong> redesign the system.</p>
-<p>We already have:</p>
+<p>This is important for:</p>
 <ul>
-<li>correct flows</li>
-<li>safe execution model</li>
-<li>reliable data design</li>
-</ul>
-<p>👉 This phase focuses on:</p>
-<ul>
-<li>structuring code correctly</li>
-<li>assigning responsibilities to layers</li>
-<li>implementing flows cleanly</li>
+<li>debugging production issues</li>
+<li>investigating failures</li>
+<li>fraud detection</li>
+<li>compliance and audits</li>
 </ul>
 <hr>
-<h2 id="3-core-goal">3. Core Goal</h2>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>business flows</li>
+<li>logging basics</li>
+</ul>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>what to log in a payment system</li>
+<li>how to design audit trails</li>
+<li>how to enable end-to-end traceability</li>
+</ul>
+<hr>
+<h2 id="3-what-is-audit-logging">3. What is Audit Logging?</h2>
+<hr>
+<p>Audit logging records <strong>important business events</strong>, not just technical logs.</p>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment CREATED
+</span></span><span style="display:flex;"><span>Payment CONFIRMED
+</span></span><span style="display:flex;"><span>Payment FAILED
+</span></span></code></pre></div><hr>
+<p>👉 These logs answer <strong>business-level questions</strong>, not just system-level ones.</p>
+<hr>
+<h2 id="4-audit-log-vs-application-log">4. Audit Log vs Application Log</h2>
+<hr>
+<h3 id="application-logs">Application Logs</h3>
+<ul>
+<li>debug info</li>
+<li>errors</li>
+<li>stack traces</li>
+</ul>
+<hr>
+<h3 id="audit-logs">Audit Logs</h3>
+<ul>
+<li>who performed action</li>
+<li>what action was performed</li>
+<li>when it happened</li>
+<li>on which resource</li>
+</ul>
+<hr>
+<p>👉 Audit logs must be <strong>structured and reliable</strong>.</p>
+<hr>
+<h2 id="5-key-audit-fields">5. Key Audit Fields</h2>
+<hr>
+<p>Each audit log should contain:</p>
+<ul>
+<li><code>timestamp</code></li>
+<li><code>userId</code> / <code>clientId</code></li>
+<li><code>merchantId</code></li>
+<li><code>operation</code> (CREATE, CONFIRM, etc.)</li>
+<li><code>resourceId</code> (paymentId)</li>
+<li><code>status</code> (SUCCESS / FAILURE)</li>
+<li><code>idempotencyKey</code> (if applicable)</li>
+<li><code>correlationId</code> / <code>traceId</code></li>
+</ul>
+<hr>
+<h2 id="6-example-audit-record">6. Example Audit Record</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;timestamp&#34;</span>: <span style="color:#e6db74">&#34;2026-04-23T12:00:00Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;operation&#34;</span>: <span style="color:#e6db74">&#34;CONFIRM_PAYMENT&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;merchantId&#34;</span>: <span style="color:#e6db74">&#34;M456&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;userId&#34;</span>: <span style="color:#e6db74">&#34;U123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;SUCCESS&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;idempotencyKey&#34;</span>: <span style="color:#e6db74">&#34;abc-xyz&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;traceId&#34;</span>: <span style="color:#e6db74">&#34;trace-789&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 This single record can reconstruct what happened.</p>
+<hr>
+<h2 id="7-correlation-id--trace-id">7. Correlation ID / Trace ID</h2>
+<hr>
+<h3 id="what-it-is">What it is</h3>
+<p>A unique ID attached to a request across the system.</p>
+<hr>
+<h3 id="flow">Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → API → Service → DB → Gateway → Response
+</span></span></code></pre></div><hr>
+<h3 id="same-traceid-flows-everywhere">Same traceId flows everywhere</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>trace-123 → all logs
+</span></span></code></pre></div><hr>
+<p>👉 Enables end-to-end debugging.</p>
+<hr>
+<h2 id="8-where-to-generate-trace-id">8. Where to Generate Trace ID</h2>
+<hr>
+<ul>
+<li>API Gateway (preferred)</li>
+<li>or Controller layer</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String traceId <span style="color:#f92672">=</span> UUID.<span style="color:#a6e22e">randomUUID</span>().<span style="color:#a6e22e">toString</span>();
+</span></span></code></pre></div><hr>
+<p>👉 Attach to:</p>
+<ul>
+<li>logs</li>
+<li>responses</li>
+<li>downstream calls</li>
+</ul>
+<hr>
+<h2 id="9-logging-in-payment-flow">9. Logging in Payment Flow</h2>
+<hr>
+<h3 id="create-payment">Create Payment</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request received → Audit log (CREATE initiated)
+</span></span><span style="display:flex;"><span>Payment created → Audit log (SUCCESS)
+</span></span></code></pre></div><hr>
+<h3 id="confirm-payment">Confirm Payment</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Confirm requested → Audit log
+</span></span><span style="display:flex;"><span>Processing started → Audit log
+</span></span><span style="display:flex;"><span>Gateway response → Audit log
+</span></span><span style="display:flex;"><span>Final status → Audit log
+</span></span></code></pre></div><hr>
+<p>👉 Each stage should be traceable.</p>
+<hr>
+<h2 id="10-storage-of-audit-logs">10. Storage of Audit Logs</h2>
+<hr>
+<p>Options:</p>
+<h3 id="1-database-table">1. Database Table</h3>
+<ul>
+<li>structured storage</li>
+<li>easy querying</li>
+</ul>
+<hr>
+<h3 id="2-log-aggregation-systems">2. Log Aggregation Systems</h3>
+<ul>
+<li>ELK (Elasticsearch, Logstash, Kibana)</li>
+<li>cloud logging tools</li>
+</ul>
+<hr>
+<p>👉 Often both are used.</p>
+<hr>
+<h2 id="11-immutability-important">11. Immutability (Important)</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Translate system design into clean, production-ready backend code.</strong></p></blockquote>
+<p>❗ Audit logs should not be modified after creation.</p></blockquote>
 <hr>
-<p>This includes:</p>
+<p>Why?</p>
 <ul>
-<li>clear separation of concerns</li>
-<li>maintainable structure</li>
-<li>testable components</li>
-<li>extensibility for future changes</li>
+<li>prevents tampering</li>
+<li>ensures trust in audit trail</li>
 </ul>
 <hr>
-<h2 id="4-high-level-architecture">4. High-Level Architecture</h2>
+<h2 id="12-avoid-sensitive-data-in-logs">12. Avoid Sensitive Data in Logs</h2>
 <hr>
-<p>We will follow a layered architecture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
-</span></span><span style="display:flex;"><span>                    ↓
-</span></span><span style="display:flex;"><span>                External Gateway
-</span></span></code></pre></div><hr>
-<h3 id="responsibilities">Responsibilities</h3>
+<p>Do NOT log:</p>
 <ul>
-<li><strong>Controller</strong> → handles HTTP layer</li>
-<li><strong>Service</strong> → contains business logic</li>
-<li><strong>Repository</strong> → handles persistence</li>
-<li><strong>Gateway Client</strong> → external system interaction</li>
+<li>card numbers</li>
+<li>CVV</li>
+<li>API keys</li>
+<li>full request payloads</li>
 </ul>
 <hr>
-<h2 id="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</h2>
+<p>👉 Logs must be safe to access internally.</p>
 <hr>
-<h3 id="92-layered-architecture-in-detail">9.2 Layered Architecture in Detail</h3>
+<h2 id="13-observability-integration">13. Observability Integration</h2>
+<hr>
+<p>Audit logs work with:</p>
 <ul>
-<li>structure packages and classes</li>
+<li>metrics (success/failure rates)</li>
+<li>tracing systems</li>
 </ul>
 <hr>
-<h3 id="93-create-payment-implementation">9.3 Create Payment Implementation</h3>
+<p>👉 Together they provide full visibility.</p>
+<hr>
+<h2 id="14-common-mistakes">14. Common Mistakes</h2>
+<hr>
+<h3 id="-only-logging-errors">❌ Only logging errors</h3>
 <ul>
-<li>how create flow maps to code</li>
+<li>misses normal flow visibility</li>
 </ul>
 <hr>
-<h3 id="94-confirm-payment-implementation">9.4 Confirm Payment Implementation</h3>
+<h3 id="-no-trace-id">❌ No trace ID</h3>
 <ul>
-<li>concurrency-safe execution in code</li>
+<li>hard to debug distributed systems</li>
 </ul>
 <hr>
-<h3 id="95-idempotency-handling-in-code">9.5 Idempotency Handling in Code</h3>
+<h3 id="-logging-sensitive-data">❌ Logging sensitive data</h3>
 <ul>
-<li>how idempotency table is used programmatically</li>
+<li>security risk</li>
 </ul>
 <hr>
-<h3 id="96-exception-handling--error-design">9.6 Exception Handling &amp; Error Design</h3>
+<h3 id="-mutable-audit-logs">❌ Mutable audit logs</h3>
 <ul>
-<li>clean error responses</li>
+<li>breaks trust</li>
 </ul>
 <hr>
-<h3 id="97-gateway-abstraction">9.7 Gateway Abstraction</h3>
+<h2 id="15-design-insight">15. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>If you cannot trace an action, you do not control your system.</strong></p></blockquote>
+<hr>
+<p>A production-grade system must always be able to:</p>
 <ul>
-<li>decouple external providers</li>
-</ul>
-<hr>
-<h2 id="6-design-principles-we-will-follow">6. Design Principles We Will Follow</h2>
-<hr>
-<h3 id="1-single-responsibility-principle-srp">1. Single Responsibility Principle (SRP)</h3>
-<ul>
-<li>each class does one job</li>
-</ul>
-<hr>
-<h3 id="2-clear-layer-boundaries">2. Clear Layer Boundaries</h3>
-<ul>
-<li>no business logic in controllers</li>
-<li>no DB logic in services</li>
-</ul>
-<hr>
-<h3 id="3-dependency-injection">3. Dependency Injection</h3>
-<ul>
-<li>loose coupling between components</li>
-</ul>
-<hr>
-<h3 id="4-idempotency-as-first-class-concern">4. Idempotency as First-Class Concern</h3>
-<ul>
-<li>handled explicitly in service layer</li>
-</ul>
-<hr>
-<h3 id="5-fail-safe-design">5. Fail-Safe Design</h3>
-<ul>
-<li>assume failures at every step</li>
-</ul>
-<hr>
-<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
-<hr>
-<p>To avoid redundancy, we will NOT:</p>
-<ul>
-<li>re-explain system design concepts</li>
-<li>repeat flow diagrams in full</li>
-<li>redefine database schema</li>
-</ul>
-<p>👉 Instead, we will <strong>apply them in code</strong>.</p>
-<hr>
-<h2 id="8-mental-model">8. Mental Model</h2>
-<hr>
-<p>Think of this phase as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Design → Implementation → Clean Code
-</span></span></code></pre></div><hr>
-<p>We are converting:</p>
-<ul>
-<li>ideas → classes</li>
-<li>flows → methods</li>
-<li>rules → validations</li>
+<li>reconstruct events</li>
+<li>debug failures</li>
+<li>prove correctness</li>
 </ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>This phase bridges the gap between:</p>
+<p>Audit logging ensures:</p>
 <ul>
-<li>system design thinking</li>
-<li>real backend implementation</li>
+<li>full traceability of actions</li>
+<li>easier debugging and monitoring</li>
+<li>support for compliance and investigation</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture">Layered Architecture in Detail →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_1_overview">Phase 11: Production Extensions &amp; Real-World Evolution →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Good design must translate into clean code</li>
-<li>Structure and responsibility separation are critical</li>
-<li>This phase focuses on implementation clarity, not redesign</li>
+<li>Log business events, not just errors</li>
+<li>Include identity, resource, and trace information</li>
+<li>Use correlation IDs for end-to-end tracing</li>
+<li>Keep audit logs immutable and safe</li>
 </ul></blockquote>
 
         </article>
@@ -347,49 +424,91 @@
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+        <a class="toc-link" href="#1-why-audit-logging-matters" data-toc-target="1-why-audit-logging-matters">1. Why Audit Logging Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-core-goal" data-toc-target="3-core-goal">3. Core Goal</a>
+        <a class="toc-link" href="#3-what-is-audit-logging" data-toc-target="3-what-is-audit-logging">3. What is Audit Logging?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-high-level-architecture" data-toc-target="4-high-level-architecture">4. High-Level Architecture</a>
+        <a class="toc-link" href="#4-audit-log-vs-application-log" data-toc-target="4-audit-log-vs-application-log">4. Audit Log vs Application Log</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-we-will-build-in-this-phase" data-toc-target="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</a>
+        <a class="toc-link" href="#5-key-audit-fields" data-toc-target="5-key-audit-fields">5. Key Audit Fields</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-design-principles-we-will-follow" data-toc-target="6-design-principles-we-will-follow">6. Design Principles We Will Follow</a>
+        <a class="toc-link" href="#6-example-audit-record" data-toc-target="6-example-audit-record">6. Example Audit Record</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+        <a class="toc-link" href="#7-correlation-id--trace-id" data-toc-target="7-correlation-id--trace-id">7. Correlation ID / Trace ID</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-mental-model" data-toc-target="8-mental-model">8. Mental Model</a>
+        <a class="toc-link" href="#8-where-to-generate-trace-id" data-toc-target="8-where-to-generate-trace-id">8. Where to Generate Trace ID</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-logging-in-payment-flow" data-toc-target="9-logging-in-payment-flow">9. Logging in Payment Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-storage-of-audit-logs" data-toc-target="10-storage-of-audit-logs">10. Storage of Audit Logs</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-immutability-important" data-toc-target="11-immutability-important">11. Immutability (Important)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-avoid-sensitive-data-in-logs" data-toc-target="12-avoid-sensitive-data-in-logs">12. Avoid Sensitive Data in Logs</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-observability-integration" data-toc-target="13-observability-integration">13. Observability Integration</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-common-mistakes" data-toc-target="14-common-mistakes">14. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#15-design-insight" data-toc-target="15-design-insight">15. Design Insight</a>
       </li>
     
       
@@ -410,6 +529,8 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_7_rate-limiting/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -440,8 +561,6 @@
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

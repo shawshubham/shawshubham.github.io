@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Backend Implementation — Overview</title>
+<title>Retry &amp; Backoff Strategies</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1776950113">
+<link rel="stylesheet" href="/css/main.css?v=1776958514">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Clean Backend Implementation — Overview</h1>
+    <h1 class="main-heading">Retry &amp; Backoff Strategies</h1>
     <h3>
   </div>
 </section>
@@ -162,163 +162,236 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+          <h2 id="1-why-retry-matters">1. Why Retry Matters</h2>
 <hr>
-<p>So far, we have designed a payment system from a <strong>system design perspective</strong>:</p>
-<ul>
-<li>APIs and contracts</li>
-<li>idempotency and retries</li>
-<li>concurrency and state protection</li>
-<li>persistence and transactions</li>
-</ul>
+<p>In distributed systems, failures are common and often temporary.</p>
 <blockquote>
-<p>❗ Now we answer a different question:</p>
-<p><strong>How does this design translate into clean, maintainable backend code?</strong></p></blockquote>
-<hr>
-<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
-<hr>
-<p>⚠️ Important clarification:</p>
-<p>This phase does <strong>NOT</strong> redesign the system.</p>
-<p>We already have:</p>
+<p>❗ <strong>A failed request does not always mean a permanent failure.</strong></p></blockquote>
+<p>Examples:</p>
 <ul>
-<li>correct flows</li>
-<li>safe execution model</li>
-<li>reliable data design</li>
-</ul>
-<p>👉 This phase focuses on:</p>
-<ul>
-<li>structuring code correctly</li>
-<li>assigning responsibilities to layers</li>
-<li>implementing flows cleanly</li>
+<li>network timeout</li>
+<li>temporary DB issue</li>
+<li>payment gateway latency spike</li>
 </ul>
 <hr>
-<h2 id="3-core-goal">3. Core Goal</h2>
+<p>👉 Retrying can turn failures into success.</p>
+<hr>
+<h2 id="2-the-problem-with-naive-retries">2. The Problem with Naive Retries</h2>
+<hr>
+<h3 id="-bad-approach">❌ Bad approach</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry immediately and infinitely
+</span></span></code></pre></div><hr>
+<h3 id="problems">Problems</h3>
+<ul>
+<li>overloads system</li>
+<li>amplifies failures</li>
+<li>causes retry storms</li>
+</ul>
+<hr>
+<p>👉 Retrying without control makes things worse.</p>
+<hr>
+<h2 id="3-what-this-article-focuses-on">3. What This Article Focuses On</h2>
+<hr>
+<p>We focus on:</p>
+<ul>
+<li>when to retry</li>
+<li>how to retry safely</li>
+<li>how retries interact with idempotency</li>
+</ul>
+<hr>
+<h2 id="4-when-should-you-retry">4. When Should You Retry?</h2>
+<hr>
+<h3 id="-retry-for-transient-failures">✅ Retry for transient failures</h3>
+<ul>
+<li>network timeout</li>
+<li>temporary service unavailable</li>
+<li>gateway timeout</li>
+</ul>
+<hr>
+<h3 id="-do-not-retry-for">❌ Do NOT retry for</h3>
+<ul>
+<li>validation errors</li>
+<li>authorization failures</li>
+<li>business rule violations</li>
+</ul>
+<hr>
+<p>👉 Retrying permanent failures wastes resources.</p>
+<hr>
+<h2 id="5-retry-strategy-basics">5. Retry Strategy Basics</h2>
+<hr>
+<p>A good retry strategy must define:</p>
+<ul>
+<li>max retry attempts</li>
+<li>delay between retries</li>
+<li>backoff strategy</li>
+</ul>
+<hr>
+<h2 id="6-exponential-backoff">6. Exponential Backoff</h2>
+<hr>
+<p>Instead of retrying immediately, increase delay gradually.</p>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Attempt 1 → wait 1s
+</span></span><span style="display:flex;"><span>Attempt 2 → wait 2s
+</span></span><span style="display:flex;"><span>Attempt 3 → wait 4s
+</span></span><span style="display:flex;"><span>Attempt 4 → wait 8s
+</span></span></code></pre></div><hr>
+<p>👉 Reduces pressure on failing systems.</p>
+<hr>
+<h2 id="7-add-jitter-very-important">7. Add Jitter (Very Important)</h2>
+<hr>
+<h3 id="problem">Problem</h3>
+<p>If many clients retry at same time:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All retry together → spike
+</span></span></code></pre></div><hr>
+<h3 id="solution">Solution</h3>
+<p>Add randomness:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>wait = baseDelay + random jitter
+</span></span></code></pre></div><hr>
+<p>👉 Prevents synchronized retry spikes.</p>
+<hr>
+<h2 id="8-retry-flow-example">8. Retry Flow Example</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Service
+    participant Gateway
+
+    Service->>Gateway: Request
+    Gateway-->>Service: Timeout
+
+    Service->>Service: Wait (backoff)
+    Service->>Gateway: Retry
+    Gateway-->>Service: Success
+</div>
+<hr>
+<h2 id="9-retry--idempotency-critical-combination">9. Retry + Idempotency (Critical Combination)</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Translate system design into clean, production-ready backend code.</strong></p></blockquote>
+<p>🧠 <strong>Retries must always be idempotent.</strong></p></blockquote>
 <hr>
-<p>This includes:</p>
+<p>Why?</p>
 <ul>
-<li>clear separation of concerns</li>
-<li>maintainable structure</li>
-<li>testable components</li>
-<li>extensibility for future changes</li>
+<li>retries may execute the same request multiple times</li>
 </ul>
 <hr>
-<h2 id="4-high-level-architecture">4. High-Level Architecture</h2>
-<hr>
-<p>We will follow a layered architecture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
-</span></span><span style="display:flex;"><span>                    ↓
-</span></span><span style="display:flex;"><span>                External Gateway
+<h3 id="safe-flow">Safe Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry → same idempotency key → same result
 </span></span></code></pre></div><hr>
-<h3 id="responsibilities">Responsibilities</h3>
+<p>👉 Prevents duplicate payments.</p>
+<hr>
+<h2 id="10-where-to-implement-retries">10. Where to Implement Retries</h2>
+<hr>
+<h3 id="1-client-side">1. Client Side</h3>
 <ul>
-<li><strong>Controller</strong> → handles HTTP layer</li>
-<li><strong>Service</strong> → contains business logic</li>
-<li><strong>Repository</strong> → handles persistence</li>
-<li><strong>Gateway Client</strong> → external system interaction</li>
+<li>retry API calls</li>
 </ul>
 <hr>
-<h2 id="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</h2>
-<hr>
-<h3 id="92-layered-architecture-in-detail">9.2 Layered Architecture in Detail</h3>
+<h3 id="2-service-layer">2. Service Layer</h3>
 <ul>
-<li>structure packages and classes</li>
+<li>retry external calls (gateway)</li>
 </ul>
 <hr>
-<h3 id="93-create-payment-implementation">9.3 Create Payment Implementation</h3>
+<h3 id="3-infrastructure-layer">3. Infrastructure Layer</h3>
 <ul>
-<li>how create flow maps to code</li>
+<li>retry at load balancer or proxy</li>
 </ul>
 <hr>
-<h3 id="94-confirm-payment-implementation">9.4 Confirm Payment Implementation</h3>
-<ul>
-<li>concurrency-safe execution in code</li>
-</ul>
+<p>👉 Prefer retries close to failure source.</p>
 <hr>
-<h3 id="95-idempotency-handling-in-code">9.5 Idempotency Handling in Code</h3>
-<ul>
-<li>how idempotency table is used programmatically</li>
-</ul>
+<h2 id="11-retry-limits">11. Retry Limits</h2>
 <hr>
-<h3 id="96-exception-handling--error-design">9.6 Exception Handling &amp; Error Design</h3>
-<ul>
-<li>clean error responses</li>
-</ul>
-<hr>
-<h3 id="97-gateway-abstraction">9.7 Gateway Abstraction</h3>
-<ul>
-<li>decouple external providers</li>
-</ul>
-<hr>
-<h2 id="6-design-principles-we-will-follow">6. Design Principles We Will Follow</h2>
-<hr>
-<h3 id="1-single-responsibility-principle-srp">1. Single Responsibility Principle (SRP)</h3>
-<ul>
-<li>each class does one job</li>
-</ul>
-<hr>
-<h3 id="2-clear-layer-boundaries">2. Clear Layer Boundaries</h3>
-<ul>
-<li>no business logic in controllers</li>
-<li>no DB logic in services</li>
-</ul>
-<hr>
-<h3 id="3-dependency-injection">3. Dependency Injection</h3>
-<ul>
-<li>loose coupling between components</li>
-</ul>
-<hr>
-<h3 id="4-idempotency-as-first-class-concern">4. Idempotency as First-Class Concern</h3>
-<ul>
-<li>handled explicitly in service layer</li>
-</ul>
-<hr>
-<h3 id="5-fail-safe-design">5. Fail-Safe Design</h3>
-<ul>
-<li>assume failures at every step</li>
-</ul>
-<hr>
-<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
-<hr>
-<p>To avoid redundancy, we will NOT:</p>
-<ul>
-<li>re-explain system design concepts</li>
-<li>repeat flow diagrams in full</li>
-<li>redefine database schema</li>
-</ul>
-<p>👉 Instead, we will <strong>apply them in code</strong>.</p>
-<hr>
-<h2 id="8-mental-model">8. Mental Model</h2>
-<hr>
-<p>Think of this phase as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Design → Implementation → Clean Code
+<p>Always define limits:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>maxAttempts = 3–5
 </span></span></code></pre></div><hr>
-<p>We are converting:</p>
+<p>👉 Prevents infinite loops.</p>
+<hr>
+<h2 id="12-payment-specific-considerations">12. Payment-Specific Considerations</h2>
+<hr>
+<h3 id="1-gateway-calls">1. Gateway Calls</h3>
 <ul>
-<li>ideas → classes</li>
-<li>flows → methods</li>
-<li>rules → validations</li>
+<li>safe to retry with idempotency</li>
+</ul>
+<hr>
+<h3 id="2-confirm-payment">2. Confirm Payment</h3>
+<ul>
+<li>must not execute twice without idempotency</li>
+</ul>
+<hr>
+<h3 id="3-async-recovery">3. Async Recovery</h3>
+<ul>
+<li>use reconciliation instead of infinite retries</li>
+</ul>
+<hr>
+<h2 id="13-retry-vs-reconciliation">13. Retry vs Reconciliation</h2>
+<hr>
+<h3 id="retry">Retry</h3>
+<ul>
+<li>immediate recovery</li>
+</ul>
+<hr>
+<h3 id="reconciliation">Reconciliation</h3>
+<ul>
+<li>delayed recovery</li>
+<li>background job</li>
+</ul>
+<hr>
+<p>👉 Both are needed.</p>
+<hr>
+<h2 id="14-common-mistakes">14. Common Mistakes</h2>
+<hr>
+<h3 id="-infinite-retries">❌ Infinite retries</h3>
+<ul>
+<li>system overload</li>
+</ul>
+<hr>
+<h3 id="-no-backoff">❌ No backoff</h3>
+<ul>
+<li>retry storm</li>
+</ul>
+<hr>
+<h3 id="-retrying-business-errors">❌ Retrying business errors</h3>
+<ul>
+<li>useless work</li>
+</ul>
+<hr>
+<h3 id="-no-idempotency">❌ No idempotency</h3>
+<ul>
+<li>duplicate execution risk</li>
+</ul>
+<hr>
+<h2 id="15-design-insight">15. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Retries should reduce failure impact, not amplify it.</strong></p></blockquote>
+<hr>
+<p>A good retry system:</p>
+<ul>
+<li>retries only when useful</li>
+<li>uses backoff and jitter</li>
+<li>works with idempotency</li>
+<li>has strict limits</li>
 </ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>This phase bridges the gap between:</p>
+<p>Retry strategies ensure:</p>
 <ul>
-<li>system design thinking</li>
-<li>real backend implementation</li>
+<li>higher success rate</li>
+<li>better resilience under failure</li>
+<li>controlled system behavior</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture">Layered Architecture in Detail →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_4_circuit-breaker-and-resilience">Circuit Breaker &amp; Resilience →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Good design must translate into clean code</li>
-<li>Structure and responsibility separation are critical</li>
-<li>This phase focuses on implementation clarity, not redesign</li>
+<li>Retry only transient failures</li>
+<li>Use exponential backoff + jitter</li>
+<li>Combine retries with idempotency</li>
+<li>Limit retries and use reconciliation for recovery</li>
 </ul></blockquote>
 
         </article>
@@ -347,49 +420,91 @@
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+        <a class="toc-link" href="#1-why-retry-matters" data-toc-target="1-why-retry-matters">1. Why Retry Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+        <a class="toc-link" href="#2-the-problem-with-naive-retries" data-toc-target="2-the-problem-with-naive-retries">2. The Problem with Naive Retries</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-core-goal" data-toc-target="3-core-goal">3. Core Goal</a>
+        <a class="toc-link" href="#3-what-this-article-focuses-on" data-toc-target="3-what-this-article-focuses-on">3. What This Article Focuses On</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-high-level-architecture" data-toc-target="4-high-level-architecture">4. High-Level Architecture</a>
+        <a class="toc-link" href="#4-when-should-you-retry" data-toc-target="4-when-should-you-retry">4. When Should You Retry?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-we-will-build-in-this-phase" data-toc-target="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</a>
+        <a class="toc-link" href="#5-retry-strategy-basics" data-toc-target="5-retry-strategy-basics">5. Retry Strategy Basics</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-design-principles-we-will-follow" data-toc-target="6-design-principles-we-will-follow">6. Design Principles We Will Follow</a>
+        <a class="toc-link" href="#6-exponential-backoff" data-toc-target="6-exponential-backoff">6. Exponential Backoff</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+        <a class="toc-link" href="#7-add-jitter-very-important" data-toc-target="7-add-jitter-very-important">7. Add Jitter (Very Important)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-mental-model" data-toc-target="8-mental-model">8. Mental Model</a>
+        <a class="toc-link" href="#8-retry-flow-example" data-toc-target="8-retry-flow-example">8. Retry Flow Example</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-retry--idempotency-critical-combination" data-toc-target="9-retry--idempotency-critical-combination">9. Retry &#43; Idempotency (Critical Combination)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-where-to-implement-retries" data-toc-target="10-where-to-implement-retries">10. Where to Implement Retries</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-retry-limits" data-toc-target="11-retry-limits">11. Retry Limits</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-payment-specific-considerations" data-toc-target="12-payment-specific-considerations">12. Payment-Specific Considerations</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-retry-vs-reconciliation" data-toc-target="13-retry-vs-reconciliation">13. Retry vs Reconciliation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-common-mistakes" data-toc-target="14-common-mistakes">14. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#15-design-insight" data-toc-target="15-design-insight">15. Design Insight</a>
       </li>
     
       
@@ -410,6 +525,8 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_2_observability/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -441,7 +558,7 @@
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_4_circuit-breaker-and-resilience/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -634,6 +751,17 @@
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

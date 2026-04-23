@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Backend Implementation — Overview</title>
+<title>Transport Security &amp; HTTPS</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1776950113">
+<link rel="stylesheet" href="/css/main.css?v=1776956474">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Clean Backend Implementation — Overview</h1>
+    <h1 class="main-heading">Transport Security &amp; HTTPS</h1>
     <h3>
   </div>
 </section>
@@ -162,163 +162,223 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+          <h2 id="1-why-transport-security-matters">1. Why Transport Security Matters</h2>
 <hr>
-<p>So far, we have designed a payment system from a <strong>system design perspective</strong>:</p>
-<ul>
-<li>APIs and contracts</li>
-<li>idempotency and retries</li>
-<li>concurrency and state protection</li>
-<li>persistence and transactions</li>
-</ul>
+<p>Even if your backend is perfectly designed, data still travels over the network.</p>
 <blockquote>
-<p>❗ Now we answer a different question:</p>
-<p><strong>How does this design translate into clean, maintainable backend code?</strong></p></blockquote>
-<hr>
-<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
-<hr>
-<p>⚠️ Important clarification:</p>
-<p>This phase does <strong>NOT</strong> redesign the system.</p>
-<p>We already have:</p>
+<p>❗ <strong>If data in transit is not protected, attackers can intercept or modify it.</strong></p></blockquote>
+<p>In a payment system, this can expose:</p>
 <ul>
-<li>correct flows</li>
-<li>safe execution model</li>
-<li>reliable data design</li>
-</ul>
-<p>👉 This phase focuses on:</p>
-<ul>
-<li>structuring code correctly</li>
-<li>assigning responsibilities to layers</li>
-<li>implementing flows cleanly</li>
+<li>authentication tokens (JWT, API keys)</li>
+<li>idempotency keys</li>
+<li>payment details</li>
+<li>user data</li>
 </ul>
 <hr>
-<h2 id="3-core-goal">3. Core Goal</h2>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT diving deep into cryptography.</p>
+<p>👉 This article focuses on practical backend concerns:</p>
+<ul>
+<li>why HTTPS is mandatory</li>
+<li>how TLS protects communication</li>
+<li>how to configure and validate transport security</li>
+</ul>
+<hr>
+<h2 id="3-http-vs-https">3. HTTP vs HTTPS</h2>
+<hr>
+<h3 id="-http-insecure">❌ HTTP (Insecure)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → API (plaintext)
+</span></span></code></pre></div><ul>
+<li>data is readable in transit</li>
+<li>can be intercepted (MITM attack)</li>
+<li>can be modified</li>
+</ul>
+<hr>
+<h3 id="-https-secure">✅ HTTPS (Secure)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → API (encrypted via TLS)
+</span></span></code></pre></div><ul>
+<li>data is encrypted</li>
+<li>integrity is protected</li>
+<li>server identity is verified</li>
+</ul>
+<hr>
+<p>👉 <strong>All payment APIs must use HTTPS only.</strong></p>
+<hr>
+<h2 id="4-what-tls-provides">4. What TLS Provides</h2>
+<hr>
+<p>TLS (Transport Layer Security) ensures:</p>
+<h3 id="1-encryption">1. Encryption</h3>
+<ul>
+<li>attackers cannot read data in transit</li>
+</ul>
+<hr>
+<h3 id="2-integrity">2. Integrity</h3>
+<ul>
+<li>data cannot be tampered without detection</li>
+</ul>
+<hr>
+<h3 id="3-authentication">3. Authentication</h3>
+<ul>
+<li>client verifies it is talking to the correct server</li>
+</ul>
+<hr>
+<h2 id="5-tls-handshake-high-level">5. TLS Handshake (High Level)</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client->>Server: Client Hello
+    Server-->>Client: Certificate + Server Hello
+    Client->>Server: Verify certificate
+    Client->>Server: Encrypted session key
+    Server-->>Client: Secure communication starts
+</div>
+<hr>
+<p>👉 After handshake, all communication is encrypted.</p>
+<hr>
+<h2 id="6-where-https-fits-in-our-system">6. Where HTTPS Fits in Our System</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client
+</span></span><span style="display:flex;"><span>  → HTTPS
+</span></span><span style="display:flex;"><span>  → API Gateway / Load Balancer
+</span></span><span style="display:flex;"><span>  → Internal Services
+</span></span></code></pre></div><hr>
+<p>👉 External communication must always be encrypted.</p>
+<hr>
+<h2 id="7-enforce-https-only">7. Enforce HTTPS Only</h2>
+<hr>
+<h3 id="-bad">❌ Bad</h3>
+<ul>
+<li>allowing both HTTP and HTTPS</li>
+</ul>
+<hr>
+<h3 id="-good">✅ Good</h3>
+<ul>
+<li>redirect HTTP → HTTPS</li>
+<li>or reject HTTP completely</li>
+</ul>
+<hr>
+<p>Example (conceptual):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>http://api.example.com → redirect → https://api.example.com
+</span></span></code></pre></div><hr>
+<h2 id="8-certificate-validation-critical">8. Certificate Validation (Critical)</h2>
+<hr>
+<p>Clients must verify server certificates.</p>
+<hr>
+<h3 id="what-to-validate">What to validate</h3>
+<ul>
+<li>certificate is signed by trusted authority</li>
+<li>hostname matches</li>
+<li>certificate is not expired</li>
+</ul>
+<hr>
+<h3 id="-bad-practice">❌ Bad Practice</h3>
+<ul>
+<li>disabling certificate validation (e.g., in dev code)</li>
+</ul>
+<hr>
+<p>👉 This defeats TLS security completely.</p>
+<hr>
+<h2 id="9-internal-service-communication">9. Internal Service Communication</h2>
+<hr>
+<p>In microservices, internal calls may also need protection.</p>
+<hr>
+<p>Options:</p>
+<ul>
+<li>HTTPS between services</li>
+<li>service mesh (mTLS)</li>
+</ul>
+<hr>
+<p>👉 Especially important in distributed systems.</p>
+<hr>
+<h2 id="10-protecting-sensitive-headers">10. Protecting Sensitive Headers</h2>
+<hr>
+<p>Headers like:</p>
+<ul>
+<li><code>Authorization: Bearer ...</code></li>
+<li><code>X-API-Key</code></li>
+</ul>
+<p>must always travel over HTTPS.</p>
+<hr>
+<p>👉 Otherwise, they can be stolen and reused.</p>
+<hr>
+<h2 id="11-secure-configuration-basics">11. Secure Configuration Basics</h2>
+<hr>
+<h3 id="use-modern-tls-versions">Use modern TLS versions</h3>
+<ul>
+<li>TLS 1.2 or TLS 1.3</li>
+</ul>
+<hr>
+<h3 id="disable-weak-protocols">Disable weak protocols</h3>
+<ul>
+<li>SSL</li>
+<li>TLS 1.0 / 1.1</li>
+</ul>
+<hr>
+<h3 id="use-strong-ciphers">Use strong ciphers</h3>
+<ul>
+<li>avoid outdated cipher suites</li>
+</ul>
+<hr>
+<p>👉 These are usually handled at load balancer / gateway level.</p>
+<hr>
+<h2 id="12-common-mistakes">12. Common Mistakes</h2>
+<hr>
+<h3 id="-allowing-http-endpoints">❌ Allowing HTTP endpoints</h3>
+<ul>
+<li>exposes sensitive data</li>
+</ul>
+<hr>
+<h3 id="-ignoring-certificate-validation">❌ Ignoring certificate validation</h3>
+<ul>
+<li>enables MITM attacks</li>
+</ul>
+<hr>
+<h3 id="-logging-full-headers">❌ Logging full headers</h3>
+<ul>
+<li>may leak tokens</li>
+</ul>
+<hr>
+<h3 id="-using-outdated-tls-versions">❌ Using outdated TLS versions</h3>
+<ul>
+<li>weak security</li>
+</ul>
+<hr>
+<h2 id="13-design-insight">13. Design Insight</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Translate system design into clean, production-ready backend code.</strong></p></blockquote>
+<p>🧠 <strong>Transport security protects data between systems — without it, everything above it is at risk.</strong></p></blockquote>
 <hr>
-<p>This includes:</p>
+<p>Even if:</p>
 <ul>
-<li>clear separation of concerns</li>
-<li>maintainable structure</li>
-<li>testable components</li>
-<li>extensibility for future changes</li>
+<li>authentication is correct</li>
+<li>authorization is enforced</li>
 </ul>
-<hr>
-<h2 id="4-high-level-architecture">4. High-Level Architecture</h2>
-<hr>
-<p>We will follow a layered architecture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
-</span></span><span style="display:flex;"><span>                    ↓
-</span></span><span style="display:flex;"><span>                External Gateway
-</span></span></code></pre></div><hr>
-<h3 id="responsibilities">Responsibilities</h3>
-<ul>
-<li><strong>Controller</strong> → handles HTTP layer</li>
-<li><strong>Service</strong> → contains business logic</li>
-<li><strong>Repository</strong> → handles persistence</li>
-<li><strong>Gateway Client</strong> → external system interaction</li>
-</ul>
-<hr>
-<h2 id="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</h2>
-<hr>
-<h3 id="92-layered-architecture-in-detail">9.2 Layered Architecture in Detail</h3>
-<ul>
-<li>structure packages and classes</li>
-</ul>
-<hr>
-<h3 id="93-create-payment-implementation">9.3 Create Payment Implementation</h3>
-<ul>
-<li>how create flow maps to code</li>
-</ul>
-<hr>
-<h3 id="94-confirm-payment-implementation">9.4 Confirm Payment Implementation</h3>
-<ul>
-<li>concurrency-safe execution in code</li>
-</ul>
-<hr>
-<h3 id="95-idempotency-handling-in-code">9.5 Idempotency Handling in Code</h3>
-<ul>
-<li>how idempotency table is used programmatically</li>
-</ul>
-<hr>
-<h3 id="96-exception-handling--error-design">9.6 Exception Handling &amp; Error Design</h3>
-<ul>
-<li>clean error responses</li>
-</ul>
-<hr>
-<h3 id="97-gateway-abstraction">9.7 Gateway Abstraction</h3>
-<ul>
-<li>decouple external providers</li>
-</ul>
-<hr>
-<h2 id="6-design-principles-we-will-follow">6. Design Principles We Will Follow</h2>
-<hr>
-<h3 id="1-single-responsibility-principle-srp">1. Single Responsibility Principle (SRP)</h3>
-<ul>
-<li>each class does one job</li>
-</ul>
-<hr>
-<h3 id="2-clear-layer-boundaries">2. Clear Layer Boundaries</h3>
-<ul>
-<li>no business logic in controllers</li>
-<li>no DB logic in services</li>
-</ul>
-<hr>
-<h3 id="3-dependency-injection">3. Dependency Injection</h3>
-<ul>
-<li>loose coupling between components</li>
-</ul>
-<hr>
-<h3 id="4-idempotency-as-first-class-concern">4. Idempotency as First-Class Concern</h3>
-<ul>
-<li>handled explicitly in service layer</li>
-</ul>
-<hr>
-<h3 id="5-fail-safe-design">5. Fail-Safe Design</h3>
-<ul>
-<li>assume failures at every step</li>
-</ul>
-<hr>
-<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
-<hr>
-<p>To avoid redundancy, we will NOT:</p>
-<ul>
-<li>re-explain system design concepts</li>
-<li>repeat flow diagrams in full</li>
-<li>redefine database schema</li>
-</ul>
-<p>👉 Instead, we will <strong>apply them in code</strong>.</p>
-<hr>
-<h2 id="8-mental-model">8. Mental Model</h2>
-<hr>
-<p>Think of this phase as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Design → Implementation → Clean Code
-</span></span></code></pre></div><hr>
-<p>We are converting:</p>
-<ul>
-<li>ideas → classes</li>
-<li>flows → methods</li>
-<li>rules → validations</li>
-</ul>
+<p>Without HTTPS:</p>
+<p>👉 attackers can still steal or modify requests.</p>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>This phase bridges the gap between:</p>
+<p>Transport security ensures that:</p>
 <ul>
-<li>system design thinking</li>
-<li>real backend implementation</li>
+<li>sensitive data is encrypted in transit</li>
+<li>communication cannot be tampered with</li>
+<li>clients can trust the server they connect to</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture">Layered Architecture in Detail →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_7_rate-limiting-and-abuse-protection">Rate Limiting &amp; Abuse Protection →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Good design must translate into clean code</li>
-<li>Structure and responsibility separation are critical</li>
-<li>This phase focuses on implementation clarity, not redesign</li>
+<li>Always enforce HTTPS for payment APIs</li>
+<li>Never disable certificate validation</li>
+<li>Protect tokens and headers in transit</li>
+<li>Keep TLS configuration up to date</li>
 </ul></blockquote>
 
         </article>
@@ -347,49 +407,79 @@
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+        <a class="toc-link" href="#1-why-transport-security-matters" data-toc-target="1-why-transport-security-matters">1. Why Transport Security Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-core-goal" data-toc-target="3-core-goal">3. Core Goal</a>
+        <a class="toc-link" href="#3-http-vs-https" data-toc-target="3-http-vs-https">3. HTTP vs HTTPS</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-high-level-architecture" data-toc-target="4-high-level-architecture">4. High-Level Architecture</a>
+        <a class="toc-link" href="#4-what-tls-provides" data-toc-target="4-what-tls-provides">4. What TLS Provides</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-we-will-build-in-this-phase" data-toc-target="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</a>
+        <a class="toc-link" href="#5-tls-handshake-high-level" data-toc-target="5-tls-handshake-high-level">5. TLS Handshake (High Level)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-design-principles-we-will-follow" data-toc-target="6-design-principles-we-will-follow">6. Design Principles We Will Follow</a>
+        <a class="toc-link" href="#6-where-https-fits-in-our-system" data-toc-target="6-where-https-fits-in-our-system">6. Where HTTPS Fits in Our System</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+        <a class="toc-link" href="#7-enforce-https-only" data-toc-target="7-enforce-https-only">7. Enforce HTTPS Only</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-mental-model" data-toc-target="8-mental-model">8. Mental Model</a>
+        <a class="toc-link" href="#8-certificate-validation-critical" data-toc-target="8-certificate-validation-critical">8. Certificate Validation (Critical)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-internal-service-communication" data-toc-target="9-internal-service-communication">9. Internal Service Communication</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-protecting-sensitive-headers" data-toc-target="10-protecting-sensitive-headers">10. Protecting Sensitive Headers</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-secure-configuration-basics" data-toc-target="11-secure-configuration-basics">11. Secure Configuration Basics</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-common-mistakes" data-toc-target="12-common-mistakes">12. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-design-insight" data-toc-target="13-design-insight">13. Design Insight</a>
       </li>
     
       
@@ -410,6 +500,8 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_5_sensitive-data-handling/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -441,7 +533,7 @@
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_7_rate-limiting/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -634,6 +726,17 @@
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

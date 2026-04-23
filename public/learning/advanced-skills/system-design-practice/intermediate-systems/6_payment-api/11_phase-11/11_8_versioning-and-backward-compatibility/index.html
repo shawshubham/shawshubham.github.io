@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Backend Implementation — Overview</title>
+<title>API Versioning &amp; Backward Compatibility</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1776950113">
+<link rel="stylesheet" href="/css/main.css?v=1776958581">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Clean Backend Implementation — Overview</h1>
+    <h1 class="main-heading">API Versioning &amp; Backward Compatibility</h1>
     <h3>
   </div>
 </section>
@@ -162,163 +162,238 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+          <h2 id="1-why-versioning-matters">1. Why Versioning Matters</h2>
 <hr>
-<p>So far, we have designed a payment system from a <strong>system design perspective</strong>:</p>
+<p>APIs evolve over time:</p>
 <ul>
-<li>APIs and contracts</li>
-<li>idempotency and retries</li>
-<li>concurrency and state protection</li>
-<li>persistence and transactions</li>
+<li>new fields are added</li>
+<li>business rules change</li>
+<li>response formats evolve</li>
 </ul>
 <blockquote>
-<p>❗ Now we answer a different question:</p>
-<p><strong>How does this design translate into clean, maintainable backend code?</strong></p></blockquote>
+<p>❗ <strong>If changes break existing clients, your system becomes unreliable in production.</strong></p></blockquote>
 <hr>
-<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
 <hr>
-<p>⚠️ Important clarification:</p>
-<p>This phase does <strong>NOT</strong> redesign the system.</p>
-<p>We already have:</p>
+<p>We focus on:</p>
 <ul>
-<li>correct flows</li>
-<li>safe execution model</li>
-<li>reliable data design</li>
-</ul>
-<p>👉 This phase focuses on:</p>
-<ul>
-<li>structuring code correctly</li>
-<li>assigning responsibilities to layers</li>
-<li>implementing flows cleanly</li>
+<li>how to evolve APIs safely</li>
+<li>how to avoid breaking existing clients</li>
+<li>practical versioning strategies</li>
 </ul>
 <hr>
-<h2 id="3-core-goal">3. Core Goal</h2>
+<h2 id="3-backward-compatibility--core-idea">3. Backward Compatibility — Core Idea</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Translate system design into clean, production-ready backend code.</strong></p></blockquote>
+<p>🧠 <strong>New changes must not break existing consumers.</strong></p></blockquote>
 <hr>
-<p>This includes:</p>
+<h3 id="safe-changes">Safe Changes</h3>
 <ul>
-<li>clear separation of concerns</li>
-<li>maintainable structure</li>
-<li>testable components</li>
-<li>extensibility for future changes</li>
+<li>adding new optional fields</li>
+<li>adding new endpoints</li>
 </ul>
 <hr>
-<h2 id="4-high-level-architecture">4. High-Level Architecture</h2>
+<h3 id="breaking-changes">Breaking Changes</h3>
+<ul>
+<li>removing fields</li>
+<li>changing field types</li>
+<li>changing response structure</li>
+</ul>
 <hr>
-<p>We will follow a layered architecture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
-</span></span><span style="display:flex;"><span>                    ↓
-</span></span><span style="display:flex;"><span>                External Gateway
+<p>👉 Avoid breaking changes whenever possible.</p>
+<hr>
+<h2 id="4-versioning-strategies">4. Versioning Strategies</h2>
+<hr>
+<h3 id="1-url-versioning">1. URL Versioning</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>/v1/payments
+</span></span><span style="display:flex;"><span>/v2/payments
 </span></span></code></pre></div><hr>
-<h3 id="responsibilities">Responsibilities</h3>
+<h3 id="pros">Pros</h3>
 <ul>
-<li><strong>Controller</strong> → handles HTTP layer</li>
-<li><strong>Service</strong> → contains business logic</li>
-<li><strong>Repository</strong> → handles persistence</li>
-<li><strong>Gateway Client</strong> → external system interaction</li>
+<li>simple and explicit</li>
 </ul>
 <hr>
-<h2 id="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</h2>
-<hr>
-<h3 id="92-layered-architecture-in-detail">9.2 Layered Architecture in Detail</h3>
+<h3 id="cons">Cons</h3>
 <ul>
-<li>structure packages and classes</li>
+<li>version spread across endpoints</li>
 </ul>
 <hr>
-<h3 id="93-create-payment-implementation">9.3 Create Payment Implementation</h3>
+<h3 id="2-header-versioning">2. Header Versioning</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">Accept: application/vnd.payment.v1+json
+</span></span></span></code></pre></div><hr>
+<h3 id="pros-1">Pros</h3>
 <ul>
-<li>how create flow maps to code</li>
+<li>cleaner URLs</li>
 </ul>
 <hr>
-<h3 id="94-confirm-payment-implementation">9.4 Confirm Payment Implementation</h3>
+<h3 id="cons-1">Cons</h3>
 <ul>
-<li>concurrency-safe execution in code</li>
+<li>harder to debug</li>
 </ul>
 <hr>
-<h3 id="95-idempotency-handling-in-code">9.5 Idempotency Handling in Code</h3>
-<ul>
-<li>how idempotency table is used programmatically</li>
-</ul>
-<hr>
-<h3 id="96-exception-handling--error-design">9.6 Exception Handling &amp; Error Design</h3>
-<ul>
-<li>clean error responses</li>
-</ul>
-<hr>
-<h3 id="97-gateway-abstraction">9.7 Gateway Abstraction</h3>
-<ul>
-<li>decouple external providers</li>
-</ul>
-<hr>
-<h2 id="6-design-principles-we-will-follow">6. Design Principles We Will Follow</h2>
-<hr>
-<h3 id="1-single-responsibility-principle-srp">1. Single Responsibility Principle (SRP)</h3>
-<ul>
-<li>each class does one job</li>
-</ul>
-<hr>
-<h3 id="2-clear-layer-boundaries">2. Clear Layer Boundaries</h3>
-<ul>
-<li>no business logic in controllers</li>
-<li>no DB logic in services</li>
-</ul>
-<hr>
-<h3 id="3-dependency-injection">3. Dependency Injection</h3>
-<ul>
-<li>loose coupling between components</li>
-</ul>
-<hr>
-<h3 id="4-idempotency-as-first-class-concern">4. Idempotency as First-Class Concern</h3>
-<ul>
-<li>handled explicitly in service layer</li>
-</ul>
-<hr>
-<h3 id="5-fail-safe-design">5. Fail-Safe Design</h3>
-<ul>
-<li>assume failures at every step</li>
-</ul>
-<hr>
-<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
-<hr>
-<p>To avoid redundancy, we will NOT:</p>
-<ul>
-<li>re-explain system design concepts</li>
-<li>repeat flow diagrams in full</li>
-<li>redefine database schema</li>
-</ul>
-<p>👉 Instead, we will <strong>apply them in code</strong>.</p>
-<hr>
-<h2 id="8-mental-model">8. Mental Model</h2>
-<hr>
-<p>Think of this phase as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Design → Implementation → Clean Code
+<h3 id="3-query-param-versioning">3. Query Param Versioning</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>/payments?version=1
 </span></span></code></pre></div><hr>
-<p>We are converting:</p>
+<p>👉 Less common in modern systems.</p>
+<hr>
+<h2 id="5-recommended-approach">5. Recommended Approach</h2>
+<hr>
+<p>For most backend APIs:</p>
+<p>👉 <strong>Use URL versioning</strong> for simplicity and clarity</p>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>/api/v1/payments
+</span></span><span style="display:flex;"><span>/api/v2/payments
+</span></span></code></pre></div><hr>
+<h2 id="6-schema-evolution-rules">6. Schema Evolution Rules</h2>
+<hr>
+<h3 id="adding-fields">Adding Fields</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;SUCCESS&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;newField&#34;</span>: <span style="color:#e6db74">&#34;optional&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<p>👉 Safe if optional</p>
+<hr>
+<h3 id="removing-fields">Removing Fields</h3>
+<p>❌ Breaking change</p>
+<hr>
+<h3 id="changing-field-type">Changing Field Type</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>amount: string → number
+</span></span></code></pre></div><p>❌ Breaking change</p>
+<hr>
+<h3 id="renaming-fields">Renaming Fields</h3>
+<p>❌ Breaking change</p>
+<hr>
+<h2 id="7-consumer-tolerance-principle">7. Consumer Tolerance Principle</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Clients should ignore fields they don’t understand.</strong></p></blockquote>
+<hr>
+<p>This allows:</p>
 <ul>
-<li>ideas → classes</li>
-<li>flows → methods</li>
-<li>rules → validations</li>
+<li>adding fields safely</li>
+</ul>
+<hr>
+<h2 id="8-versioning-in-our-payment-api">8. Versioning in Our Payment API</h2>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>v1 → basic payment response
+</span></span><span style="display:flex;"><span>v2 → includes additional metadata
+</span></span></code></pre></div><hr>
+<p>👉 Both versions can coexist.</p>
+<hr>
+<h2 id="9-deprecation-strategy">9. Deprecation Strategy</h2>
+<hr>
+<p>When introducing new versions:</p>
+<ul>
+<li>keep old version active for some time</li>
+<li>communicate deprecation timeline</li>
+<li>provide migration path</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>v1 deprecated → sunset in 6 months
+</span></span></code></pre></div><hr>
+<h2 id="10-versioning-internal-vs-external-apis">10. Versioning Internal vs External APIs</h2>
+<hr>
+<h3 id="external-apis">External APIs</h3>
+<ul>
+<li>must be stable</li>
+<li>require strict backward compatibility</li>
+</ul>
+<hr>
+<h3 id="internal-apis">Internal APIs</h3>
+<ul>
+<li>more flexibility</li>
+<li>can evolve faster</li>
+</ul>
+<hr>
+<p>👉 Still avoid breaking changes when possible.</p>
+<hr>
+<h2 id="11-database-schema-evolution">11. Database Schema Evolution</h2>
+<hr>
+<p>Backend changes must align with DB changes.</p>
+<hr>
+<h3 id="safe-db-changes">Safe DB Changes</h3>
+<ul>
+<li>adding nullable columns</li>
+</ul>
+<hr>
+<h3 id="risky-changes">Risky Changes</h3>
+<ul>
+<li>dropping columns</li>
+<li>changing column types</li>
+</ul>
+<hr>
+<p>👉 Use migration strategies carefully.</p>
+<hr>
+<h2 id="12-versioning--feature-flags">12. Versioning &amp; Feature Flags</h2>
+<hr>
+<p>Instead of versioning everything:</p>
+<ul>
+<li>use feature flags to control rollout</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>New logic enabled only for selected users
+</span></span></code></pre></div><hr>
+<p>👉 Reduces need for frequent versioning.</p>
+<hr>
+<h2 id="13-common-mistakes">13. Common Mistakes</h2>
+<hr>
+<h3 id="-breaking-changes-without-versioning">❌ Breaking changes without versioning</h3>
+<ul>
+<li>client failures</li>
+</ul>
+<hr>
+<h3 id="-removing-fields-abruptly">❌ Removing fields abruptly</h3>
+<ul>
+<li>backward incompatibility</li>
+</ul>
+<hr>
+<h3 id="-no-deprecation-plan">❌ No deprecation plan</h3>
+<ul>
+<li>chaos for clients</li>
+</ul>
+<hr>
+<h3 id="-over-versioning">❌ Over-versioning</h3>
+<ul>
+<li>unnecessary complexity</li>
+</ul>
+<hr>
+<h2 id="14-design-insight">14. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>APIs are contracts — once published, they must be honored.</strong></p></blockquote>
+<hr>
+<p>A good system:</p>
+<ul>
+<li>evolves safely</li>
+<li>communicates changes clearly</li>
+<li>avoids breaking clients</li>
 </ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>This phase bridges the gap between:</p>
+<p>API versioning ensures that:</p>
 <ul>
-<li>system design thinking</li>
-<li>real backend implementation</li>
+<li>systems evolve without breaking consumers</li>
+<li>new features can be introduced safely</li>
+<li>clients have time to migrate</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture">Layered Architecture in Detail →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_9_feature-flags-and-rollouts">Feature Flags &amp; Safe Rollouts →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Good design must translate into clean code</li>
-<li>Structure and responsibility separation are critical</li>
-<li>This phase focuses on implementation clarity, not redesign</li>
+<li>Avoid breaking changes whenever possible</li>
+<li>Use versioning only when necessary</li>
+<li>Prefer additive changes</li>
+<li>Treat APIs as long-term contracts</li>
 </ul></blockquote>
 
         </article>
@@ -347,49 +422,85 @@
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+        <a class="toc-link" href="#1-why-versioning-matters" data-toc-target="1-why-versioning-matters">1. Why Versioning Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-core-goal" data-toc-target="3-core-goal">3. Core Goal</a>
+        <a class="toc-link" href="#3-backward-compatibility--core-idea" data-toc-target="3-backward-compatibility--core-idea">3. Backward Compatibility — Core Idea</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-high-level-architecture" data-toc-target="4-high-level-architecture">4. High-Level Architecture</a>
+        <a class="toc-link" href="#4-versioning-strategies" data-toc-target="4-versioning-strategies">4. Versioning Strategies</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-we-will-build-in-this-phase" data-toc-target="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</a>
+        <a class="toc-link" href="#5-recommended-approach" data-toc-target="5-recommended-approach">5. Recommended Approach</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-design-principles-we-will-follow" data-toc-target="6-design-principles-we-will-follow">6. Design Principles We Will Follow</a>
+        <a class="toc-link" href="#6-schema-evolution-rules" data-toc-target="6-schema-evolution-rules">6. Schema Evolution Rules</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+        <a class="toc-link" href="#7-consumer-tolerance-principle" data-toc-target="7-consumer-tolerance-principle">7. Consumer Tolerance Principle</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-mental-model" data-toc-target="8-mental-model">8. Mental Model</a>
+        <a class="toc-link" href="#8-versioning-in-our-payment-api" data-toc-target="8-versioning-in-our-payment-api">8. Versioning in Our Payment API</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-deprecation-strategy" data-toc-target="9-deprecation-strategy">9. Deprecation Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-versioning-internal-vs-external-apis" data-toc-target="10-versioning-internal-vs-external-apis">10. Versioning Internal vs External APIs</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-database-schema-evolution" data-toc-target="11-database-schema-evolution">11. Database Schema Evolution</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-versioning--feature-flags" data-toc-target="12-versioning--feature-flags">12. Versioning &amp;amp; Feature Flags</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-common-mistakes" data-toc-target="13-common-mistakes">13. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-design-insight" data-toc-target="14-design-insight">14. Design Insight</a>
       </li>
     
       
@@ -410,6 +521,8 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_7_data-retention-and-cleanup/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -441,7 +554,7 @@
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_9_feature-flags/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

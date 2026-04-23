@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rate Limiting &amp; Abuse Protection</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1776956603">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Rate Limiting &amp; Abuse Protection</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 23 Apr, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-rate-limiting-matters">1. Why Rate Limiting Matters</h2>
+<hr>
+<p>Even a secure and correct system can be taken down by excessive or malicious traffic.</p>
+<blockquote>
+<p>❗ <strong>Rate limiting protects your system from abuse, overload, and unfair usage.</strong></p></blockquote>
+<p>In a payment system, this is critical because:</p>
+<ul>
+<li>attackers may flood APIs</li>
+<li>clients may retry aggressively</li>
+<li>bugs can generate traffic spikes</li>
+</ul>
+<hr>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
+<hr>
+<p>We are NOT re-explaining:</p>
+<ul>
+<li>authentication</li>
+<li>authorization</li>
+</ul>
+<p>👉 This article focuses on:</p>
+<ul>
+<li>how to control request rate</li>
+<li>where to apply limits</li>
+<li>practical strategies to prevent abuse</li>
+</ul>
+<hr>
+<h2 id="3-what-problems-rate-limiting-solves">3. What Problems Rate Limiting Solves</h2>
+<hr>
+<h3 id="1-abuse--spam">1. Abuse / Spam</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Same client sending thousands of requests
+</span></span></code></pre></div><hr>
+<h3 id="2-brute-force-attempts">2. Brute-force Attempts</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Repeated guessing of tokens or keys
+</span></span></code></pre></div><hr>
+<h3 id="3-retry-storms">3. Retry Storms</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Clients retrying too aggressively on failures
+</span></span></code></pre></div><hr>
+<h3 id="4-resource-protection">4. Resource Protection</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Prevent CPU/DB exhaustion
+</span></span></code></pre></div><hr>
+<h2 id="4-where-to-apply-rate-limiting">4. Where to Apply Rate Limiting</h2>
+<hr>
+<h3 id="1-api-gateway-preferred">1. API Gateway (Preferred)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Gateway (rate limit) → Backend
+</span></span></code></pre></div><hr>
+<p>👉 Advantages:</p>
+<ul>
+<li>blocks traffic early</li>
+<li>reduces load on backend</li>
+<li>centralized control</li>
+</ul>
+<hr>
+<h3 id="2-service-layer-optional">2. Service Layer (Optional)</h3>
+<p>Used for:</p>
+<ul>
+<li>critical endpoints</li>
+<li>additional fine-grained control</li>
+</ul>
+<hr>
+<p>👉 Often used as a second layer (defense-in-depth)</p>
+<hr>
+<h2 id="5-what-to-rate-limit-by">5. What to Rate Limit By</h2>
+<hr>
+<h3 id="1-api-key--client-id">1. API Key / Client ID</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit per client
+</span></span></code></pre></div><hr>
+<h3 id="2-user--merchant-id">2. User / Merchant ID</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit per tenant
+</span></span></code></pre></div><hr>
+<h3 id="3-ip-address">3. IP Address</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit anonymous traffic
+</span></span></code></pre></div><hr>
+<p>👉 Best practice: combine multiple dimensions.</p>
+<hr>
+<h2 id="6-common-rate-limiting-algorithms">6. Common Rate Limiting Algorithms</h2>
+<hr>
+<h3 id="1-fixed-window">1. Fixed Window</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>100 requests per minute
+</span></span></code></pre></div><hr>
+<h3 id="problem">Problem</h3>
+<ul>
+<li>burst at boundary</li>
+</ul>
+<hr>
+<h3 id="2-sliding-window">2. Sliding Window</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>More accurate over time window
+</span></span></code></pre></div><hr>
+<h3 id="3-token-bucket-most-practical">3. Token Bucket (Most Practical)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Tokens added over time, consumed per request
+</span></span></code></pre></div><hr>
+<h3 id="benefits">Benefits</h3>
+<ul>
+<li>allows bursts</li>
+<li>smooth rate control</li>
+</ul>
+<hr>
+<h3 id="4-leaky-bucket">4. Leaky Bucket</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Requests processed at constant rate
+</span></span></code></pre></div><hr>
+<p>👉 Good for smoothing traffic</p>
+<hr>
+<h2 id="7-token-bucket-simple-view">7. Token Bucket (Simple View)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Bucket capacity = 100 tokens
+</span></span><span style="display:flex;"><span>Refill rate = 10 tokens/sec
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Each request consumes 1 token
+</span></span></code></pre></div><hr>
+<h3 id="behavior">Behavior</h3>
+<ul>
+<li>burst allowed up to capacity</li>
+<li>sustained rate limited by refill rate</li>
+</ul>
+<hr>
+<h2 id="8-example-flow">8. Example Flow</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant API
+
+    Client->>Gateway: Request
+    Gateway->>Gateway: Check rate limit
+    alt Allowed
+        Gateway->>API: Forward request
+        API-->>Client: Response
+    else Blocked
+        Gateway-->>Client: 429 Too Many Requests
+    end
+</div>
+<hr>
+<h2 id="9-http-response-for-rate-limiting">9. HTTP Response for Rate Limiting</h2>
+<hr>
+<p>When limit exceeded:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">HTTP 429 Too Many Requests
+</span></span></span></code></pre></div><hr>
+<p>Optional headers:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry-After: 30
+</span></span><span style="display:flex;"><span>X-RateLimit-Limit: 100
+</span></span><span style="display:flex;"><span>X-RateLimit-Remaining: 0
+</span></span></code></pre></div><hr>
+<p>👉 Helps clients behave correctly.</p>
+<hr>
+<h2 id="10-payment-specific-considerations">10. Payment-Specific Considerations</h2>
+<hr>
+<h3 id="1-protect-critical-apis">1. Protect Critical APIs</h3>
+<ul>
+<li>create payment</li>
+<li>confirm payment</li>
+</ul>
+<hr>
+<h3 id="2-prevent-duplicate-storms">2. Prevent Duplicate Storms</h3>
+<ul>
+<li>combine rate limiting + idempotency</li>
+</ul>
+<hr>
+<h3 id="3-different-limits-per-operation">3. Different Limits per Operation</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Create → higher limit
+</span></span><span style="display:flex;"><span>Confirm → stricter limit
+</span></span></code></pre></div><hr>
+<h2 id="11-handling-legitimate-traffic-spikes">11. Handling Legitimate Traffic Spikes</h2>
+<hr>
+<p>Avoid being too strict.</p>
+<hr>
+<p>Strategies:</p>
+<ul>
+<li>allow burst (token bucket)</li>
+<li>use adaptive limits</li>
+<li>whitelist trusted clients</li>
+</ul>
+<hr>
+<h2 id="12-common-mistakes">12. Common Mistakes</h2>
+<hr>
+<h3 id="-no-rate-limiting">❌ No rate limiting</h3>
+<ul>
+<li>system easily abused</li>
+</ul>
+<hr>
+<h3 id="-too-strict-limits">❌ Too strict limits</h3>
+<ul>
+<li>breaks legitimate clients</li>
+</ul>
+<hr>
+<h3 id="-only-ip-based-limits">❌ Only IP-based limits</h3>
+<ul>
+<li>ineffective for authenticated systems</li>
+</ul>
+<hr>
+<h3 id="-no-feedback-to-client">❌ No feedback to client</h3>
+<ul>
+<li>clients retry blindly</li>
+</ul>
+<hr>
+<h2 id="13-design-insight">13. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Rate limiting is not just protection — it is traffic control.</strong></p></blockquote>
+<hr>
+<p>A good system:</p>
+<ul>
+<li>protects itself</li>
+<li>guides client behavior</li>
+<li>maintains fairness</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Rate limiting ensures:</p>
+<ul>
+<li>system stability under load</li>
+<li>protection from abuse</li>
+<li>fair usage across clients</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_8_audit-logging-and-traceability">Audit Logging &amp; Traceability →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Apply rate limiting at gateway level</li>
+<li>Use token bucket for flexibility</li>
+<li>Combine with idempotency for safety</li>
+<li>Return proper feedback (429) to clients</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-rate-limiting-matters" data-toc-target="1-why-rate-limiting-matters">1. Why Rate Limiting Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-what-problems-rate-limiting-solves" data-toc-target="3-what-problems-rate-limiting-solves">3. What Problems Rate Limiting Solves</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-where-to-apply-rate-limiting" data-toc-target="4-where-to-apply-rate-limiting">4. Where to Apply Rate Limiting</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-what-to-rate-limit-by" data-toc-target="5-what-to-rate-limit-by">5. What to Rate Limit By</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-common-rate-limiting-algorithms" data-toc-target="6-common-rate-limiting-algorithms">6. Common Rate Limiting Algorithms</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-token-bucket-simple-view" data-toc-target="7-token-bucket-simple-view">7. Token Bucket (Simple View)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-example-flow" data-toc-target="8-example-flow">8. Example Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-http-response-for-rate-limiting" data-toc-target="9-http-response-for-rate-limiting">9. HTTP Response for Rate Limiting</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-payment-specific-considerations" data-toc-target="10-payment-specific-considerations">10. Payment-Specific Considerations</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-handling-legitimate-traffic-spikes" data-toc-target="11-handling-legitimate-traffic-spikes">11. Handling Legitimate Traffic Spikes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-common-mistakes" data-toc-target="12-common-mistakes">12. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-design-insight" data-toc-target="13-design-insight">13. Design Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_6_transport-security/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/10_phase-10/10_8_audit-logging-and-tracibility/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Backend Implementation — Overview</title>
+<title>Circuit Breaker &amp; Resilience</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1776950113">
+<link rel="stylesheet" href="/css/main.css?v=1776958514">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Clean Backend Implementation — Overview</h1>
+    <h1 class="main-heading">Circuit Breaker &amp; Resilience</h1>
     <h3>
   </div>
 </section>
@@ -162,163 +162,214 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+          <h2 id="1-why-resilience-matters">1. Why Resilience Matters</h2>
 <hr>
-<p>So far, we have designed a payment system from a <strong>system design perspective</strong>:</p>
+<p>In production, dependencies fail:</p>
 <ul>
-<li>APIs and contracts</li>
-<li>idempotency and retries</li>
-<li>concurrency and state protection</li>
-<li>persistence and transactions</li>
+<li>payment gateways slow down or timeout</li>
+<li>databases become partially unavailable</li>
+<li>network calls degrade under load</li>
 </ul>
 <blockquote>
-<p>❗ Now we answer a different question:</p>
-<p><strong>How does this design translate into clean, maintainable backend code?</strong></p></blockquote>
+<p>❗ <strong>If one dependency fails, it must not bring down your entire system.</strong></p></blockquote>
 <hr>
-<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
 <hr>
-<p>⚠️ Important clarification:</p>
-<p>This phase does <strong>NOT</strong> redesign the system.</p>
-<p>We already have:</p>
+<p>We focus on practical resilience patterns:</p>
 <ul>
-<li>correct flows</li>
-<li>safe execution model</li>
-<li>reliable data design</li>
-</ul>
-<p>👉 This phase focuses on:</p>
-<ul>
-<li>structuring code correctly</li>
-<li>assigning responsibilities to layers</li>
-<li>implementing flows cleanly</li>
+<li>circuit breaker</li>
+<li>timeouts</li>
+<li>fallbacks</li>
+<li>bulkheads</li>
 </ul>
 <hr>
-<h2 id="3-core-goal">3. Core Goal</h2>
+<h2 id="3-cascading-failure-the-core-problem">3. Cascading Failure (The Core Problem)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Gateway slows → requests pile up → threads blocked → service slows → entire system degrades
+</span></span></code></pre></div><hr>
+<p>👉 Without protection, a single slow dependency can take down the system.</p>
+<hr>
+<h2 id="4-circuit-breaker--core-idea">4. Circuit Breaker — Core Idea</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Translate system design into clean, production-ready backend code.</strong></p></blockquote>
+<p>🧠 <strong>Stop calling a failing dependency temporarily.</strong></p></blockquote>
 <hr>
-<p>This includes:</p>
+<h3 id="states">States</h3>
 <ul>
-<li>clear separation of concerns</li>
-<li>maintainable structure</li>
-<li>testable components</li>
-<li>extensibility for future changes</li>
+<li><strong>CLOSED</strong> → normal operation</li>
+<li><strong>OPEN</strong> → calls blocked (fail fast)</li>
+<li><strong>HALF-OPEN</strong> → trial calls to check recovery</li>
 </ul>
 <hr>
-<h2 id="4-high-level-architecture">4. High-Level Architecture</h2>
+<h2 id="5-state-transitions">5. State Transitions</h2>
 <hr>
-<p>We will follow a layered architecture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> CLOSED
+    CLOSED --> OPEN : failure rate high
+    OPEN --> HALF_OPEN : timeout elapsed
+    HALF_OPEN --> CLOSED : success
+    HALF_OPEN --> OPEN : failure
+</div>
+<hr>
+<h2 id="6-how-it-works-in-payment-flow">6. How It Works in Payment Flow</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Confirm Payment → Call Gateway
 </span></span><span style="display:flex;"><span>                    ↓
-</span></span><span style="display:flex;"><span>                External Gateway
+</span></span><span style="display:flex;"><span>           Circuit Breaker
+</span></span><span style="display:flex;"><span>                    ↓
+</span></span><span style="display:flex;"><span>       (Fail fast if OPEN)
 </span></span></code></pre></div><hr>
-<h3 id="responsibilities">Responsibilities</h3>
+<p>👉 When OPEN, we <strong>avoid wasting time and threads</strong>.</p>
+<hr>
+<h2 id="7-configuration-knobs">7. Configuration Knobs</h2>
+<hr>
 <ul>
-<li><strong>Controller</strong> → handles HTTP layer</li>
-<li><strong>Service</strong> → contains business logic</li>
-<li><strong>Repository</strong> → handles persistence</li>
-<li><strong>Gateway Client</strong> → external system interaction</li>
+<li>failure rate threshold (e.g., 50%)</li>
+<li>minimum requests to evaluate</li>
+<li>open state duration (cool-down)</li>
+<li>half-open trial count</li>
 </ul>
 <hr>
-<h2 id="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</h2>
+<p>👉 Tune based on traffic and SLOs.</p>
 <hr>
-<h3 id="92-layered-architecture-in-detail">9.2 Layered Architecture in Detail</h3>
-<ul>
-<li>structure packages and classes</li>
-</ul>
+<h2 id="8-timeouts-mandatory-pair">8. Timeouts (Mandatory Pair)</h2>
 <hr>
-<h3 id="93-create-payment-implementation">9.3 Create Payment Implementation</h3>
-<ul>
-<li>how create flow maps to code</li>
-</ul>
+<blockquote>
+<p>❗ <strong>Never call a dependency without a timeout.</strong></p></blockquote>
 <hr>
-<h3 id="94-confirm-payment-implementation">9.4 Confirm Payment Implementation</h3>
-<ul>
-<li>concurrency-safe execution in code</li>
-</ul>
-<hr>
-<h3 id="95-idempotency-handling-in-code">9.5 Idempotency Handling in Code</h3>
-<ul>
-<li>how idempotency table is used programmatically</li>
-</ul>
-<hr>
-<h3 id="96-exception-handling--error-design">9.6 Exception Handling &amp; Error Design</h3>
-<ul>
-<li>clean error responses</li>
-</ul>
-<hr>
-<h3 id="97-gateway-abstraction">9.7 Gateway Abstraction</h3>
-<ul>
-<li>decouple external providers</li>
-</ul>
-<hr>
-<h2 id="6-design-principles-we-will-follow">6. Design Principles We Will Follow</h2>
-<hr>
-<h3 id="1-single-responsibility-principle-srp">1. Single Responsibility Principle (SRP)</h3>
-<ul>
-<li>each class does one job</li>
-</ul>
-<hr>
-<h3 id="2-clear-layer-boundaries">2. Clear Layer Boundaries</h3>
-<ul>
-<li>no business logic in controllers</li>
-<li>no DB logic in services</li>
-</ul>
-<hr>
-<h3 id="3-dependency-injection">3. Dependency Injection</h3>
-<ul>
-<li>loose coupling between components</li>
-</ul>
-<hr>
-<h3 id="4-idempotency-as-first-class-concern">4. Idempotency as First-Class Concern</h3>
-<ul>
-<li>handled explicitly in service layer</li>
-</ul>
-<hr>
-<h3 id="5-fail-safe-design">5. Fail-Safe Design</h3>
-<ul>
-<li>assume failures at every step</li>
-</ul>
-<hr>
-<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
-<hr>
-<p>To avoid redundancy, we will NOT:</p>
-<ul>
-<li>re-explain system design concepts</li>
-<li>repeat flow diagrams in full</li>
-<li>redefine database schema</li>
-</ul>
-<p>👉 Instead, we will <strong>apply them in code</strong>.</p>
-<hr>
-<h2 id="8-mental-model">8. Mental Model</h2>
-<hr>
-<p>Think of this phase as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Design → Implementation → Clean Code
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Gateway call timeout = 1–3s (example)
 </span></span></code></pre></div><hr>
-<p>We are converting:</p>
+<p>👉 Prevents threads from waiting indefinitely.</p>
+<hr>
+<h2 id="9-fallback-strategies">9. Fallback Strategies</h2>
+<hr>
+<p>When circuit is OPEN or call fails, define a fallback:</p>
+<h3 id="examples">Examples</h3>
 <ul>
-<li>ideas → classes</li>
-<li>flows → methods</li>
-<li>rules → validations</li>
+<li>return &ldquo;processing&rdquo; and defer via reconciliation</li>
+<li>mark payment as FAILED_RETRYABLE</li>
+<li>queue for async retry</li>
+</ul>
+<hr>
+<p>👉 Fallbacks keep the system responsive.</p>
+<hr>
+<h2 id="10-bulkhead-isolation">10. Bulkhead Isolation</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Isolate resources so one failure doesn’t exhaust everything.</strong></p></blockquote>
+<hr>
+<h3 id="example">Example</h3>
+<ul>
+<li>separate thread pools for:
+<ul>
+<li>gateway calls</li>
+<li>DB operations</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>👉 Prevents one dependency from consuming all threads.</p>
+<hr>
+<h2 id="11-putting-it-together">11. Putting It Together</h2>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Service] --> B[Timeout]
+    B --> C[Circuit Breaker]
+    C --> D[Gateway]
+    C --> E[Fallback]
+</div>
+<hr>
+<p>👉 Order matters:</p>
+<ol>
+<li>timeout</li>
+<li>circuit breaker</li>
+<li>fallback</li>
+</ol>
+<hr>
+<h2 id="12-interaction-with-retries">12. Interaction with Retries</h2>
+<hr>
+<ul>
+<li>retries should respect circuit state</li>
+<li>do not retry when circuit is OPEN</li>
+<li>combine with exponential backoff + jitter</li>
+</ul>
+<hr>
+<p>👉 Prevents retry storms against failing services.</p>
+<hr>
+<h2 id="13-payment-specific-guidance">13. Payment-Specific Guidance</h2>
+<hr>
+<h3 id="confirm-payment">Confirm Payment</h3>
+<ul>
+<li>if gateway unstable → fail fast + mark for reconciliation</li>
+</ul>
+<hr>
+<h3 id="create-payment">Create Payment</h3>
+<ul>
+<li>usually no external call → less impact</li>
+</ul>
+<hr>
+<h3 id="metrics-to-watch">Metrics to Watch</h3>
+<ul>
+<li>circuit open rate</li>
+<li>gateway failure rate</li>
+<li>fallback usage</li>
+</ul>
+<hr>
+<h2 id="14-common-mistakes">14. Common Mistakes</h2>
+<hr>
+<h3 id="-no-timeouts">❌ No timeouts</h3>
+<ul>
+<li>threads block indefinitely</li>
+</ul>
+<hr>
+<h3 id="-aggressive-retries-without-breaker">❌ Aggressive retries without breaker</h3>
+<ul>
+<li>amplifies failure</li>
+</ul>
+<hr>
+<h3 id="-no-fallback">❌ No fallback</h3>
+<ul>
+<li>user-facing errors spike</li>
+</ul>
+<hr>
+<h3 id="-single-shared-thread-pool">❌ Single shared thread pool</h3>
+<ul>
+<li>resource starvation</li>
+</ul>
+<hr>
+<h2 id="15-design-insight">15. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Resilience is about failing gracefully, not avoiding failure.</strong></p></blockquote>
+<hr>
+<p>A resilient system:</p>
+<ul>
+<li>limits blast radius</li>
+<li>sheds load when needed</li>
+<li>recovers automatically</li>
 </ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>This phase bridges the gap between:</p>
+<p>Circuit breakers and resilience patterns ensure:</p>
 <ul>
-<li>system design thinking</li>
-<li>real backend implementation</li>
+<li>system remains responsive under failure</li>
+<li>dependencies do not cascade failures</li>
+<li>recovery is controlled and observable</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture">Layered Architecture in Detail →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_5_reconciliation-and-batch-recovery">Reconciliation &amp; Batch Recovery →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Good design must translate into clean code</li>
-<li>Structure and responsibility separation are critical</li>
-<li>This phase focuses on implementation clarity, not redesign</li>
+<li>Use circuit breakers to stop calling failing dependencies</li>
+<li>Always set timeouts on external calls</li>
+<li>Combine with retries carefully</li>
+<li>Add fallbacks and bulkheads for full resilience</li>
 </ul></blockquote>
 
         </article>
@@ -347,49 +398,91 @@
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+        <a class="toc-link" href="#1-why-resilience-matters" data-toc-target="1-why-resilience-matters">1. Why Resilience Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-core-goal" data-toc-target="3-core-goal">3. Core Goal</a>
+        <a class="toc-link" href="#3-cascading-failure-the-core-problem" data-toc-target="3-cascading-failure-the-core-problem">3. Cascading Failure (The Core Problem)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-high-level-architecture" data-toc-target="4-high-level-architecture">4. High-Level Architecture</a>
+        <a class="toc-link" href="#4-circuit-breaker--core-idea" data-toc-target="4-circuit-breaker--core-idea">4. Circuit Breaker — Core Idea</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-we-will-build-in-this-phase" data-toc-target="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</a>
+        <a class="toc-link" href="#5-state-transitions" data-toc-target="5-state-transitions">5. State Transitions</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-design-principles-we-will-follow" data-toc-target="6-design-principles-we-will-follow">6. Design Principles We Will Follow</a>
+        <a class="toc-link" href="#6-how-it-works-in-payment-flow" data-toc-target="6-how-it-works-in-payment-flow">6. How It Works in Payment Flow</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+        <a class="toc-link" href="#7-configuration-knobs" data-toc-target="7-configuration-knobs">7. Configuration Knobs</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-mental-model" data-toc-target="8-mental-model">8. Mental Model</a>
+        <a class="toc-link" href="#8-timeouts-mandatory-pair" data-toc-target="8-timeouts-mandatory-pair">8. Timeouts (Mandatory Pair)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-fallback-strategies" data-toc-target="9-fallback-strategies">9. Fallback Strategies</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-bulkhead-isolation" data-toc-target="10-bulkhead-isolation">10. Bulkhead Isolation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-putting-it-together" data-toc-target="11-putting-it-together">11. Putting It Together</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-interaction-with-retries" data-toc-target="12-interaction-with-retries">12. Interaction with Retries</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-payment-specific-guidance" data-toc-target="13-payment-specific-guidance">13. Payment-Specific Guidance</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-common-mistakes" data-toc-target="14-common-mistakes">14. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#15-design-insight" data-toc-target="15-design-insight">15. Design Insight</a>
       </li>
     
       
@@ -410,6 +503,8 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_3_retry-and-backoff-strategies/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -441,7 +536,7 @@
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_5_reconciliation-and-batch-processing/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -634,6 +729,17 @@
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Backend Implementation — Overview</title>
+<title>Data Retention &amp; Cleanup</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1776950113">
+<link rel="stylesheet" href="/css/main.css?v=1776958581">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Clean Backend Implementation — Overview</h1>
+    <h1 class="main-heading">Data Retention &amp; Cleanup</h1>
     <h3>
   </div>
 </section>
@@ -162,163 +162,242 @@
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-this-phase-exists">1. Why This Phase Exists</h2>
+          <h2 id="1-why-data-retention-matters">1. Why Data Retention Matters</h2>
 <hr>
-<p>So far, we have designed a payment system from a <strong>system design perspective</strong>:</p>
+<p>Production systems generate data continuously:</p>
 <ul>
-<li>APIs and contracts</li>
-<li>idempotency and retries</li>
-<li>concurrency and state protection</li>
-<li>persistence and transactions</li>
+<li>payments</li>
+<li>idempotency records</li>
+<li>audit logs</li>
+<li>metrics and traces</li>
 </ul>
 <blockquote>
-<p>❗ Now we answer a different question:</p>
-<p><strong>How does this design translate into clean, maintainable backend code?</strong></p></blockquote>
+<p>❗ <strong>If data is never cleaned up, systems become slower, more expensive, and harder to operate.</strong></p></blockquote>
 <hr>
-<h2 id="2-what-changes-in-this-phase">2. What Changes in This Phase</h2>
+<h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
 <hr>
-<p>⚠️ Important clarification:</p>
-<p>This phase does <strong>NOT</strong> redesign the system.</p>
-<p>We already have:</p>
+<p>We focus on:</p>
 <ul>
-<li>correct flows</li>
-<li>safe execution model</li>
-<li>reliable data design</li>
-</ul>
-<p>👉 This phase focuses on:</p>
-<ul>
-<li>structuring code correctly</li>
-<li>assigning responsibilities to layers</li>
-<li>implementing flows cleanly</li>
+<li>defining retention policies</li>
+<li>cleaning up short-lived data</li>
+<li>archiving long-term data</li>
+<li>keeping the system performant and compliant</li>
 </ul>
 <hr>
-<h2 id="3-core-goal">3. Core Goal</h2>
+<h2 id="3-types-of-data-in-our-system">3. Types of Data in Our System</h2>
+<hr>
+<h3 id="1-core-transactional-data">1. Core Transactional Data</h3>
+<ul>
+<li>payments</li>
+<li>payment attempts</li>
+</ul>
+<p>👉 Usually retained long-term</p>
+<hr>
+<h3 id="2-operational-data">2. Operational Data</h3>
+<ul>
+<li>idempotency records</li>
+<li>temporary states</li>
+</ul>
+<p>👉 Short-lived</p>
+<hr>
+<h3 id="3-observability-data">3. Observability Data</h3>
+<ul>
+<li>logs</li>
+<li>metrics</li>
+<li>traces</li>
+</ul>
+<p>👉 Retention depends on debugging needs and cost</p>
+<hr>
+<h2 id="4-core-principle">4. Core Principle</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Translate system design into clean, production-ready backend code.</strong></p></blockquote>
+<p>🧠 <strong>Different data has different lifetimes — treat it accordingly.</strong></p></blockquote>
 <hr>
-<p>This includes:</p>
+<p>Do NOT apply a single retention rule to everything.</p>
+<hr>
+<h2 id="5-idempotency-data-cleanup">5. Idempotency Data Cleanup</h2>
+<hr>
+<p>Idempotency records are temporary by nature.</p>
+<hr>
+<h3 id="why-clean-them">Why clean them?</h3>
 <ul>
-<li>clear separation of concerns</li>
-<li>maintainable structure</li>
-<li>testable components</li>
-<li>extensibility for future changes</li>
+<li>prevent table bloat</li>
+<li>reduce lookup cost</li>
 </ul>
 <hr>
-<h2 id="4-high-level-architecture">4. High-Level Architecture</h2>
-<hr>
-<p>We will follow a layered architecture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller → Service → Repository → Database
-</span></span><span style="display:flex;"><span>                    ↓
-</span></span><span style="display:flex;"><span>                External Gateway
+<h3 id="strategy">Strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>TTL = 24–72 hours (example)
 </span></span></code></pre></div><hr>
-<h3 id="responsibilities">Responsibilities</h3>
+<h3 id="implementation">Implementation</h3>
 <ul>
-<li><strong>Controller</strong> → handles HTTP layer</li>
-<li><strong>Service</strong> → contains business logic</li>
-<li><strong>Repository</strong> → handles persistence</li>
-<li><strong>Gateway Client</strong> → external system interaction</li>
+<li><code>expiresAt</code> column</li>
+<li>periodic cleanup job</li>
 </ul>
 <hr>
-<h2 id="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</h2>
-<hr>
-<h3 id="92-layered-architecture-in-detail">9.2 Layered Architecture in Detail</h3>
-<ul>
-<li>structure packages and classes</li>
-</ul>
-<hr>
-<h3 id="93-create-payment-implementation">9.3 Create Payment Implementation</h3>
-<ul>
-<li>how create flow maps to code</li>
-</ul>
-<hr>
-<h3 id="94-confirm-payment-implementation">9.4 Confirm Payment Implementation</h3>
-<ul>
-<li>concurrency-safe execution in code</li>
-</ul>
-<hr>
-<h3 id="95-idempotency-handling-in-code">9.5 Idempotency Handling in Code</h3>
-<ul>
-<li>how idempotency table is used programmatically</li>
-</ul>
-<hr>
-<h3 id="96-exception-handling--error-design">9.6 Exception Handling &amp; Error Design</h3>
-<ul>
-<li>clean error responses</li>
-</ul>
-<hr>
-<h3 id="97-gateway-abstraction">9.7 Gateway Abstraction</h3>
-<ul>
-<li>decouple external providers</li>
-</ul>
-<hr>
-<h2 id="6-design-principles-we-will-follow">6. Design Principles We Will Follow</h2>
-<hr>
-<h3 id="1-single-responsibility-principle-srp">1. Single Responsibility Principle (SRP)</h3>
-<ul>
-<li>each class does one job</li>
-</ul>
-<hr>
-<h3 id="2-clear-layer-boundaries">2. Clear Layer Boundaries</h3>
-<ul>
-<li>no business logic in controllers</li>
-<li>no DB logic in services</li>
-</ul>
-<hr>
-<h3 id="3-dependency-injection">3. Dependency Injection</h3>
-<ul>
-<li>loose coupling between components</li>
-</ul>
-<hr>
-<h3 id="4-idempotency-as-first-class-concern">4. Idempotency as First-Class Concern</h3>
-<ul>
-<li>handled explicitly in service layer</li>
-</ul>
-<hr>
-<h3 id="5-fail-safe-design">5. Fail-Safe Design</h3>
-<ul>
-<li>assume failures at every step</li>
-</ul>
-<hr>
-<h2 id="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</h2>
-<hr>
-<p>To avoid redundancy, we will NOT:</p>
-<ul>
-<li>re-explain system design concepts</li>
-<li>repeat flow diagrams in full</li>
-<li>redefine database schema</li>
-</ul>
-<p>👉 Instead, we will <strong>apply them in code</strong>.</p>
-<hr>
-<h2 id="8-mental-model">8. Mental Model</h2>
-<hr>
-<p>Think of this phase as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Design → Implementation → Clean Code
+<h3 id="example-query">Example Query</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">DELETE</span> <span style="color:#66d9ef">FROM</span> idempotency_keys
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> expires_at <span style="color:#f92672">&lt;</span> now()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">LIMIT</span> <span style="color:#ae81ff">1000</span>;
 </span></span></code></pre></div><hr>
-<p>We are converting:</p>
+<p>👉 Use batch deletes to avoid load spikes.</p>
+<hr>
+<h2 id="6-logs-retention">6. Logs Retention</h2>
+<hr>
+<p>Logs grow extremely fast.</p>
+<hr>
+<h3 id="strategy-1">Strategy</h3>
 <ul>
-<li>ideas → classes</li>
-<li>flows → methods</li>
-<li>rules → validations</li>
+<li>keep recent logs (e.g., 7–30 days)</li>
+<li>archive older logs</li>
+<li>delete after retention window</li>
+</ul>
+<hr>
+<h3 id="trade-off">Trade-off</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>More logs → better debugging
+</span></span><span style="display:flex;"><span>Less logs → lower cost
+</span></span></code></pre></div><hr>
+<p>👉 Balance based on system needs.</p>
+<hr>
+<h2 id="7-metrics--traces-retention">7. Metrics &amp; Traces Retention</h2>
+<hr>
+<h3 id="metrics">Metrics</h3>
+<ul>
+<li>keep aggregates longer</li>
+</ul>
+<hr>
+<h3 id="traces">Traces</h3>
+<ul>
+<li>short retention (e.g., hours to days)</li>
+</ul>
+<hr>
+<p>👉 High-cardinality data should have shorter retention.</p>
+<hr>
+<h2 id="8-archival-strategy">8. Archival Strategy</h2>
+<hr>
+<p>Instead of deleting important data:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Hot Storage → Archive Storage
+</span></span></code></pre></div><hr>
+<h3 id="example">Example</h3>
+<ul>
+<li>move old payments to cold storage (S3, blob storage)</li>
+<li>compress and store</li>
+</ul>
+<hr>
+<p>👉 Keeps primary DB fast while preserving history.</p>
+<hr>
+<h2 id="9-soft-delete-vs-hard-delete">9. Soft Delete vs Hard Delete</h2>
+<hr>
+<h3 id="soft-delete">Soft Delete</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>deleted = true
+</span></span></code></pre></div><hr>
+<h3 id="hard-delete">Hard Delete</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>row removed permanently
+</span></span></code></pre></div><hr>
+<h3 id="recommendation">Recommendation</h3>
+<ul>
+<li>soft delete for critical data</li>
+<li>hard delete for temporary data</li>
+</ul>
+<hr>
+<h2 id="10-data-retention-policies">10. Data Retention Policies</h2>
+<hr>
+<p>Define clear policies per data type.</p>
+<hr>
+<h3 id="example-1">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency → 48 hours
+</span></span><span style="display:flex;"><span>Logs → 14 days
+</span></span><span style="display:flex;"><span>Traces → 3 days
+</span></span><span style="display:flex;"><span>Payments → long-term / archived
+</span></span></code></pre></div><hr>
+<p>👉 Make policies explicit and configurable.</p>
+<hr>
+<h2 id="11-cleanup-job-design">11. Cleanup Job Design</h2>
+<hr>
+<p>Cleanup jobs should:</p>
+<ul>
+<li>run periodically</li>
+<li>process in batches</li>
+<li>avoid locking large tables</li>
+</ul>
+<hr>
+<h3 id="example-2">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Run every 10 minutes
+</span></span><span style="display:flex;"><span>Delete 1000 expired records
+</span></span></code></pre></div><hr>
+<p>👉 Similar to reconciliation jobs.</p>
+<hr>
+<h2 id="12-indexing-for-cleanup">12. Indexing for Cleanup</h2>
+<hr>
+<p>Ensure queries are efficient:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">INDEX</span> idx_expiry
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">ON</span> idempotency_keys (expires_at);
+</span></span></code></pre></div><hr>
+<p>👉 Prevent full table scans.</p>
+<hr>
+<h2 id="13-compliance-considerations-high-level">13. Compliance Considerations (High-Level)</h2>
+<hr>
+<ul>
+<li>do not retain sensitive data longer than necessary</li>
+<li>ensure deletion policies exist</li>
+<li>support audit requirements where needed</li>
+</ul>
+<hr>
+<p>👉 Especially important for payment systems.</p>
+<hr>
+<h2 id="14-common-mistakes">14. Common Mistakes</h2>
+<hr>
+<h3 id="-no-cleanup-strategy">❌ No cleanup strategy</h3>
+<ul>
+<li>unbounded data growth</li>
+</ul>
+<hr>
+<h3 id="-deleting-everything-aggressively">❌ Deleting everything aggressively</h3>
+<ul>
+<li>loss of debugging/audit capability</li>
+</ul>
+<hr>
+<h3 id="-large-batch-deletes">❌ Large batch deletes</h3>
+<ul>
+<li>DB performance impact</li>
+</ul>
+<hr>
+<h3 id="-no-indexing-on-cleanup-fields">❌ No indexing on cleanup fields</h3>
+<ul>
+<li>slow queries</li>
+</ul>
+<hr>
+<h2 id="15-design-insight">15. Design Insight</h2>
+<hr>
+<blockquote>
+<p>🧠 <strong>Data lifecycle management is as important as data design.</strong></p></blockquote>
+<hr>
+<p>A production system must manage:</p>
+<ul>
+<li>creation</li>
+<li>usage</li>
+<li>archival</li>
+<li>deletion</li>
 </ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>This phase bridges the gap between:</p>
+<p>Data retention and cleanup ensure that the system:</p>
 <ul>
-<li>system design thinking</li>
-<li>real backend implementation</li>
+<li>remains performant over time</li>
+<li>controls storage costs</li>
+<li>complies with data policies</li>
 </ul>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture">Layered Architecture in Detail →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_8_api-versioning-and-backward-compatibility">API Versioning &amp; Backward Compatibility →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Good design must translate into clean code</li>
-<li>Structure and responsibility separation are critical</li>
-<li>This phase focuses on implementation clarity, not redesign</li>
+<li>Define retention policies per data type</li>
+<li>Use TTL and batch cleanup jobs</li>
+<li>Archive important data instead of deleting</li>
+<li>Keep cleanup efficient and safe</li>
 </ul></blockquote>
 
         </article>
@@ -347,49 +426,91 @@
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-this-phase-exists" data-toc-target="1-why-this-phase-exists">1. Why This Phase Exists</a>
+        <a class="toc-link" href="#1-why-data-retention-matters" data-toc-target="1-why-data-retention-matters">1. Why Data Retention Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-what-changes-in-this-phase" data-toc-target="2-what-changes-in-this-phase">2. What Changes in This Phase</a>
+        <a class="toc-link" href="#2-what-this-article-focuses-on" data-toc-target="2-what-this-article-focuses-on">2. What This Article Focuses On</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-core-goal" data-toc-target="3-core-goal">3. Core Goal</a>
+        <a class="toc-link" href="#3-types-of-data-in-our-system" data-toc-target="3-types-of-data-in-our-system">3. Types of Data in Our System</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-high-level-architecture" data-toc-target="4-high-level-architecture">4. High-Level Architecture</a>
+        <a class="toc-link" href="#4-core-principle" data-toc-target="4-core-principle">4. Core Principle</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-what-we-will-build-in-this-phase" data-toc-target="5-what-we-will-build-in-this-phase">5. What We Will Build in This Phase</a>
+        <a class="toc-link" href="#5-idempotency-data-cleanup" data-toc-target="5-idempotency-data-cleanup">5. Idempotency Data Cleanup</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-design-principles-we-will-follow" data-toc-target="6-design-principles-we-will-follow">6. Design Principles We Will Follow</a>
+        <a class="toc-link" href="#6-logs-retention" data-toc-target="6-logs-retention">6. Logs Retention</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-what-this-phase-will-not-do" data-toc-target="7-what-this-phase-will-not-do">7. What This Phase Will NOT Do</a>
+        <a class="toc-link" href="#7-metrics--traces-retention" data-toc-target="7-metrics--traces-retention">7. Metrics &amp;amp; Traces Retention</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-mental-model" data-toc-target="8-mental-model">8. Mental Model</a>
+        <a class="toc-link" href="#8-archival-strategy" data-toc-target="8-archival-strategy">8. Archival Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-soft-delete-vs-hard-delete" data-toc-target="9-soft-delete-vs-hard-delete">9. Soft Delete vs Hard Delete</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-data-retention-policies" data-toc-target="10-data-retention-policies">10. Data Retention Policies</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-cleanup-job-design" data-toc-target="11-cleanup-job-design">11. Cleanup Job Design</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-indexing-for-cleanup" data-toc-target="12-indexing-for-cleanup">12. Indexing for Cleanup</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-compliance-considerations-high-level" data-toc-target="13-compliance-considerations-high-level">13. Compliance Considerations (High-Level)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-common-mistakes" data-toc-target="14-common-mistakes">14. Common Mistakes</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#15-design-insight" data-toc-target="15-design-insight">15. Design Insight</a>
       </li>
     
       
@@ -410,6 +531,8 @@
 
 <section class="topic-nav">
   <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_6_scaling-the-system/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -441,7 +564,7 @@
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/9_phase-9/9_2_layered-architecture/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/11_phase-11/11_8_versioning-and-backward-compatibility/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
