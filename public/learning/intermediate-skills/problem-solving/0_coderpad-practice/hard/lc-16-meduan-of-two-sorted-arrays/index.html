@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Median of Two Sorted Arrays</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777460666">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Median of Two Sorted Arrays</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Problem Statement</li>
+        
+        <li>2. Clarifying Questions (Interview Thinking)</li>
+        
+        <li>3. Why the Naive Approach Is Not Enough</li>
+        
+        <li>4. Pattern Identification</li>
+        
+        <li>5. What Are We Actually Trying to Solve?</li>
+        
+        <li>6. Reframing the Problem</li>
+        
+        <li>7. What Makes a Split Valid?</li>
+        
+        <li>8. Example — Visualizing the Partition</li>
+        
+        <li>9. Why Binary Search Works</li>
+        
+        <li>10. Why We Always Binary Search the Smaller Array</li>
+        
+        <li>11. Handling Edge Boundaries</li>
+        
+        <li>12. Time &amp;amp; Space Complexity</li>
+        
+        <li>13. Final Code (Java)</li>
+        
+        <li>14. Interview-Style Explanation</li>
+        
+        <li>15. Common Mistakes</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 5 Mar, 2026
+          
+        </p>
+      </div>
+    </div>
+
+    
+    
+      <div class="solution-meta-card">
+        <div class="solution-meta-left">
+          <span class="solution-pill">Hard</span>
+          <span class="solution-pill">LeetCode</span>
+
+          
+          
+          
+              
+          
+
+          
+            <span class="solution-meta-label">Patterns:</span>
+            <span class="solution-meta-value">Specialized: Binary Search on Partition</span>
+          
+        </div>
+
+        <div class="solution-meta-right">
+          
+            <a class="btn nav-btn" href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank" rel="noopener">View Original Problem</a>
+          
+        </div>
+      </div>
+    
+    
+    <article class="topic-content">
+      <h1 id="median-of-two-sorted-arrays">Median of Two Sorted Arrays</h1>
+<h3 id="-important-context">⚠️ Important Context</h3>
+<p>This is an <strong>advanced and specialized interview problem</strong>.</p>
+<p>If this problem does not immediately map to any core pattern (Two Pointers, Sliding Window, Stack, etc.), that is <strong>expected</strong>.</p>
+<p>This problem belongs to:</p>
+<blockquote>
+<p><strong>Binary Search on Partition</strong></p></blockquote>
+<p>You are not searching for a value —<br>
+you are searching for a <strong>valid split</strong>.</p>
+<hr>
+<h2 id="1-problem-statement">1. Problem Statement</h2>
+<hr>
+<p>You are given two sorted arrays <code>nums1</code> and <code>nums2</code> of sizes <code>m</code> and <code>n</code>.</p>
+<p>Return the <strong>median</strong> of the two sorted arrays.</p>
+<p>The overall runtime complexity must be <strong>O(log (m + n))</strong>.</p>
+<hr>
+<h2 id="2-clarifying-questions-interview-thinking">2. Clarifying Questions (Interview Thinking)</h2>
+<hr>
+<p>Before coding, confirm:</p>
+<ul>
+<li>Are both arrays sorted? → <strong>Yes</strong></li>
+<li>Can arrays be empty? → <strong>Yes</strong></li>
+<li>Are duplicate values allowed? → <strong>Yes</strong></li>
+<li>Is merging allowed? → <strong>No (time constraint forbids it)</strong></li>
+<li>What defines median?
+<ul>
+<li>Odd length → middle element</li>
+<li>Even length → average of two middle elements</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-why-the-naive-approach-is-not-enough">3. Why the Naive Approach Is Not Enough</h2>
+<hr>
+<p>A natural first idea is to:</p>
+<ul>
+<li>combine both arrays,</li>
+<li>sort the combined array,</li>
+<li>compute the median.</li>
+</ul>
+<h3 id="31-baseline-solution--merge--sort">3.1 Baseline Solution — Merge + Sort</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">findMedianSortedArrays</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums1, <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums2) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> length <span style="color:#f92672">=</span> nums1.<span style="color:#a6e22e">length</span> <span style="color:#f92672">+</span> nums2.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> merged <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>length<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums1.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            merged<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> nums1<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums2.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            merged<span style="color:#f92672">[</span>i <span style="color:#f92672">+</span> nums1.<span style="color:#a6e22e">length</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> nums2<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Arrays.<span style="color:#a6e22e">sort</span>(merged);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> mid <span style="color:#f92672">=</span> merged.<span style="color:#a6e22e">length</span> <span style="color:#f92672">/</span> 2;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (merged.<span style="color:#a6e22e">length</span> <span style="color:#f92672">%</span> 2 <span style="color:#f92672">==</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> (merged<span style="color:#f92672">[</span>mid<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> merged<span style="color:#f92672">[</span>mid <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) <span style="color:#f92672">/</span> 2.<span style="color:#a6e22e">0</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> merged<span style="color:#f92672">[</span>mid<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="complexity">Complexity</h4>
+<ul>
+<li>Merging arrays: <strong>O(m + n)</strong></li>
+<li>Sorting merged array: <strong>O((m + n) log (m + n))</strong></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Overall Time Complexity: O((m + n) log (m + n))
+</span></span><span style="display:flex;"><span>Space Complexity: O(m + n)
+</span></span></code></pre></div><p>This solution is correct — but it does <strong>not</strong> meet the problem’s requirement.</p>
+<h3 id="32-improving-using-two-pointers-om--n">3.2 Improving Using Two Pointers (O(m + n))</h3>
+<p>Since both arrays are already sorted, we can avoid sorting entirely.</p>
+<p>Instead of combining and sorting, we can perform the <strong>merge step of merge sort</strong> using two pointers.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Improved solution: O(m + n) time, O(m + n) space</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">findMedianSortedArrays</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums1, <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums2) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> n <span style="color:#f92672">=</span> nums1.<span style="color:#a6e22e">length</span>, m <span style="color:#f92672">=</span> nums2.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> merged <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>n <span style="color:#f92672">+</span> m<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0, j <span style="color:#f92672">=</span> 0, k <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (i <span style="color:#f92672">&lt;</span> n <span style="color:#f92672">&amp;&amp;</span> j <span style="color:#f92672">&lt;</span> m) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (nums1<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;</span> nums2<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span>) merged<span style="color:#f92672">[</span>k<span style="color:#f92672">++]</span> <span style="color:#f92672">=</span> nums1<span style="color:#f92672">[</span>i<span style="color:#f92672">++]</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span> merged<span style="color:#f92672">[</span>k<span style="color:#f92672">++]</span> <span style="color:#f92672">=</span> nums2<span style="color:#f92672">[</span>j<span style="color:#f92672">++]</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (i <span style="color:#f92672">&lt;</span> n) merged<span style="color:#f92672">[</span>k<span style="color:#f92672">++]</span> <span style="color:#f92672">=</span> nums1<span style="color:#f92672">[</span>i<span style="color:#f92672">++]</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (j <span style="color:#f92672">&lt;</span> m) merged<span style="color:#f92672">[</span>k<span style="color:#f92672">++]</span> <span style="color:#f92672">=</span> nums2<span style="color:#f92672">[</span>j<span style="color:#f92672">++]</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> mid <span style="color:#f92672">=</span> (n <span style="color:#f92672">+</span> m) <span style="color:#f92672">/</span> 2;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ((n <span style="color:#f92672">+</span> m) <span style="color:#f92672">%</span> 2 <span style="color:#f92672">!=</span> 0) <span style="color:#66d9ef">return</span> merged<span style="color:#f92672">[</span>mid<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (merged<span style="color:#f92672">[</span>mid<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> merged<span style="color:#f92672">[</span>mid <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) <span style="color:#f92672">/</span> 2.<span style="color:#a6e22e">0</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="complexity-1">Complexity</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time Complexity: O(m + n)
+</span></span><span style="display:flex;"><span>Space Complexity: O(m + n)
+</span></span></code></pre></div><p>This is a clear improvement and correctly leverages the sorted property.</p>
+<p>However:</p>
+<blockquote>
+<p>The problem explicitly requires <strong>O(log (m + n))</strong> time.</p></blockquote>
+<p>That constraint makes even the linear-time solution insufficient.</p>
+<p>To satisfy the requirement, we must avoid merging altogether and instead find a way to compute the median in logarithmic time.</p>
+<p>This is where Binary Search on Partition becomes necessary.</p>
+<hr>
+<h2 id="4-pattern-identification">4. Pattern Identification</h2>
+<hr>
+<p>This problem is <strong>not</strong>:</p>
+<ul>
+<li>Two Pointers</li>
+<li>Sliding Window</li>
+<li>Stack</li>
+<li>BFS</li>
+<li>Greedy</li>
+</ul>
+<p>It is a classic example of:</p>
+<blockquote>
+<p><strong>Binary Search on Partition</strong></p></blockquote>
+<p>We are searching for a <strong>partition point</strong>, not a number.</p>
+<hr>
+<h2 id="5-what-are-we-actually-trying-to-solve">5. What Are We Actually Trying to Solve?</h2>
+<hr>
+<p>Before thinking about binary search, pause.</p>
+<p>If we merged both arrays into one sorted array:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[ … combined sorted elements … ]
+</span></span></code></pre></div><p>The median would simply be:</p>
+<ul>
+<li>the middle element (if total length is odd)</li>
+<li>the average of two middle elements (if even)</li>
+</ul>
+<p>So the median is:</p>
+<blockquote>
+<p>The element(s) that divide the combined sorted array into two equal halves.</p></blockquote>
+<p>This is the key shift.</p>
+<p>We are not trying to “find the median directly.”</p>
+<p>We are trying to:</p>
+<blockquote>
+<p>Construct a correct left half.</p></blockquote>
+<p>Once the left half is correct, the median is automatically determined.</p>
+<hr>
+<h2 id="6-reframing-the-problem">6. Reframing the Problem</h2>
+<hr>
+<p>Let total length = <code>m + n</code>.</p>
+<p>The left half must contain:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">(m + n + 1) / 2 elements
+</code></pre><p>Why <code>+1</code>?</p>
+<ul>
+<li>If total is odd → left half contains one extra element.</li>
+<li>If total is even → both halves are equal.</li>
+</ul>
+<p>Now the real problem becomes:</p>
+<blockquote>
+<p>How do we split the two arrays so that together they form a valid left half?</p></blockquote>
+<hr>
+<h2 id="7-what-makes-a-split-valid">7. What Makes a Split Valid?</h2>
+<hr>
+<p>Suppose we cut:</p>
+<ul>
+<li><code>nums1</code> at index <code>i</code></li>
+<li><code>nums2</code> at index <code>j</code></li>
+</ul>
+<p>Then:</p>
+<p>Left side:</p>
+<ul>
+<li><code>nums1[0 ... i-1]</code></li>
+<li><code>nums2[0 ... j-1]</code></li>
+</ul>
+<p>Right side:</p>
+<ul>
+<li><code>nums1[i ...]</code></li>
+<li><code>nums2[j ...]</code></li>
+</ul>
+<p>Two conditions must hold.</p>
+<h3 id="71-size-condition">7.1 Size Condition</h3>
+<p>The total number of elements on the left must be correct:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>i + j = (m + n + 1) / 2
+</span></span></code></pre></div><p>This ensures we split at the correct position.</p>
+<hr>
+<h3 id="72-order-condition">7.2 Order Condition</h3>
+<p>All elements in the left half must be ≤ all elements in the right half.</p>
+<p>Which simplifies to checking only the boundaries:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>max(left1, left2) ≤ min(right1, right2)
+</span></span></code></pre></div><p>Because:</p>
+<ul>
+<li>Arrays are already sorted.</li>
+<li>Only boundary elements can violate order.</li>
+</ul>
+<p>If this condition holds → partition is valid.</p>
+<p>Once valid:</p>
+<ul>
+<li>If total length is odd → median = max(left1, left2)</li>
+<li>If total length is even → median = average of max(left) and min(right)</li>
+</ul>
+<p>We never explicitly “search for the median.”</p>
+<p>We search for a valid partition.</p>
+<hr>
+<h2 id="8-example--visualizing-the-partition">8. Example — Visualizing the Partition</h2>
+<hr>
+<h4 id="problem">Problem:</h4>
+<p>Consider the arrays:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>nums1 = [1, 3, 8]
+</span></span><span style="display:flex;"><span>nums2 = [7, 9, 10, 11]
+</span></span></code></pre></div><p>Total length = <strong>7</strong></p>
+<p>So the left side must contain:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>(7 + 1) / 2 = 4 elements
+</span></span></code></pre></div><h4 id="step-1">Step 1:</h4>
+<p>Suppose we partition like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>nums1: [1, 3 | 8]
+</span></span><span style="display:flex;"><span>nums2: [7, 9 | 10, 11]
+</span></span></code></pre></div><p>Left side:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[1, 3, 7, 9]
+</span></span></code></pre></div><p>Right side:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[8, 10, 11]
+</span></span></code></pre></div><h4 id="step-2">Step 2:</h4>
+<p>Now check the <strong>partition validity condition</strong>.</p>
+<p>Left max:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>max(3, 9) = 9
+</span></span></code></pre></div><p>Right min:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>min(8, 10) = 8
+</span></span></code></pre></div><p>Since:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>9 &gt; 8
+</span></span></code></pre></div><p>the partition is <strong>invalid</strong>.</p>
+<p>This means we took <strong>too many elements from nums2</strong> or <strong>too few from nums1</strong>.</p>
+<p>So we move the partition in <code>nums1</code> to the <strong>right</strong>.</p>
+<h4 id="repeat-step-1">Repeat Step 1:</h4>
+<p>Now try another partition:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>nums1: [1, 3, 8 | ]
+</span></span><span style="display:flex;"><span>nums2: [7 | 9, 10, 11]
+</span></span></code></pre></div><p>Left side:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[1, 3, 8, 7]
+</span></span></code></pre></div><p>Right side:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[9, 10, 11]
+</span></span></code></pre></div><h4 id="repeat-step-2">Repeat Step 2:</h4>
+<p>Now check the <strong>partition validity condition</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>max(left) = max(8,7) = 8
+</span></span><span style="display:flex;"><span>min(right) = min(∞,9) = 9
+</span></span></code></pre></div><p>Since:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>8 ≤ 9
+</span></span></code></pre></div><p>the partition is <strong>valid</strong>.</p>
+<p>So the median is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>max(left) = 8
+</span></span></code></pre></div><h3 id="81-visualizing-the-partition-search">8.1 Visualizing the Partition Search</h3>
+<p>The algorithm is essentially performing a binary search on the partition of the smaller array.</p>
+<div class="mermaid">
+flowchart TD
+
+A["Choose partition index i in nums1"] --> B["Compute<br>j = (m+n+1)/2 - i"]
+
+B --> C{Is partition valid?}
+
+C -->|"left1 ≤ right2<br>AND<br>left2 ≤ right1"| D[Correct partition found → Compute Median]
+
+C -->|left1 > right2| E[Move partition left in nums1]
+
+C -->|left2 > right1| F[Move partition right in nums1]
+
+E --> A
+F --> A
+</div>
+<hr>
+<h2 id="9-why-binary-search-works">9. Why Binary Search Works</h2>
+<hr>
+<p>We now have a target:</p>
+<p>Find <code>i</code> such that the partition is valid.</p>
+<p>If:</p>
+<ul>
+<li><code>left1 &gt; right2</code>
+→ we took too many elements from nums1<br>
+→ move <code>i</code> left</li>
+</ul>
+<p>If:</p>
+<ul>
+<li><code>left2 &gt; right1</code>
+→ we took too few elements from nums1<br>
+→ move <code>i</code> right</li>
+</ul>
+<p>Notice something important:</p>
+<p>The partition validity behaves <strong>monotonically</strong>.</p>
+<p>If we cut too far right, all further right cuts are invalid.
+If we cut too far left, all further left cuts are invalid.</p>
+<p>This monotonic behavior allows binary search.</p>
+<p>To simplify the logic:</p>
+<blockquote>
+<p>Always binary-search on the smaller array.</p></blockquote>
+<hr>
+<h2 id="10-why-we-always-binary-search-the-smaller-array">10. Why We Always Binary Search the Smaller Array</h2>
+<hr>
+<p>We are searching for the correct partition index <code>i</code> in one array.</p>
+<p>The corresponding partition in the second array is determined by the size condition:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">j = (m + n + 1) / 2 - i
+</code></pre><p>If we binary search on the <strong>larger array</strong>, the value of <code>i</code> could force <code>j</code> to fall <strong>outside the bounds</strong> of the second array.</p>
+<p>For example:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">nums1 length = 100
+nums2 length = 5
+</code></pre><p>If we search on <code>nums1</code>, the partition index <code>i</code> could become large, which would make:</p>
+<pre tabindex="0"><code class="language-code" data-lang="code">j = (m + n + 1) / 2 - i
+</code></pre><p>negative or greater than <code>nums2.length</code>.</p>
+<p>This introduces unnecessary boundary checks and complicates the logic.</p>
+<p>Instead, we enforce a simple rule:</p>
+<blockquote>
+<p>Always binary search on the <strong>smaller array</strong>.</p></blockquote>
+<p>This guarantees:</p>
+<ul>
+<li><code>i</code> stays within <code>[0, m]</code></li>
+<li><code>j</code> automatically stays within <code>[0, n]</code></li>
+<li>the partition logic remains clean</li>
+<li>edge cases are minimized</li>
+</ul>
+<p>That is why the algorithm begins with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (nums1.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> nums2.<span style="color:#a6e22e">length</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> findMedianSortedArrays(nums2, nums1);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This swap ensures the binary search always runs on the smaller array.</p>
+<hr>
+<h2 id="11-handling-edge-boundaries">11. Handling Edge Boundaries</h2>
+<hr>
+<p>When partition touches edges:</p>
+<ul>
+<li>If no elements exist on the left → treat as <code>-∞</code></li>
+<li>If no elements exist on the right → treat as <code>+∞</code></li>
+</ul>
+<p>This removes special-case logic and keeps comparisons clean.</p>
+<hr>
+<h2 id="12-time--space-complexity">12. Time &amp; Space Complexity</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time:  O(log(min(m, n)))
+</span></span><span style="display:flex;"><span>Space: O(1)
+</span></span></code></pre></div><p>This meets the problem’s strict requirement.</p>
+<hr>
+<h2 id="13-final-code-java">13. Final Code (Java)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Solution</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">findMedianSortedArrays</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums1, <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums2) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Ensure nums1 is the smaller array</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (nums1.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> nums2.<span style="color:#a6e22e">length</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> findMedianSortedArrays(nums2, nums1);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> m <span style="color:#f92672">=</span> nums1.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> n <span style="color:#f92672">=</span> nums2.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> low <span style="color:#f92672">=</span> 0, high <span style="color:#f92672">=</span> m;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (low <span style="color:#f92672">&lt;=</span> high) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> (low <span style="color:#f92672">+</span> high) <span style="color:#f92672">/</span> 2;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> (m <span style="color:#f92672">+</span> n <span style="color:#f92672">+</span> 1) <span style="color:#f92672">/</span> 2 <span style="color:#f92672">-</span> i;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> left1  <span style="color:#f92672">=</span> (i <span style="color:#f92672">==</span> 0) <span style="color:#f92672">?</span> Integer.<span style="color:#a6e22e">MIN_VALUE</span> : nums1<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> right1 <span style="color:#f92672">=</span> (i <span style="color:#f92672">==</span> m) <span style="color:#f92672">?</span> Integer.<span style="color:#a6e22e">MAX_VALUE</span> : nums1<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> left2  <span style="color:#f92672">=</span> (j <span style="color:#f92672">==</span> 0) <span style="color:#f92672">?</span> Integer.<span style="color:#a6e22e">MIN_VALUE</span> : nums2<span style="color:#f92672">[</span>j <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> right2 <span style="color:#f92672">=</span> (j <span style="color:#f92672">==</span> n) <span style="color:#f92672">?</span> Integer.<span style="color:#a6e22e">MAX_VALUE</span> : nums2<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Valid partition</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (left1 <span style="color:#f92672">&lt;=</span> right2 <span style="color:#f92672">&amp;&amp;</span> left2 <span style="color:#f92672">&lt;=</span> right1) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> ((m <span style="color:#f92672">+</span> n) <span style="color:#f92672">%</span> 2 <span style="color:#f92672">==</span> 0) {
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span> (Math.<span style="color:#a6e22e">max</span>(left1, left2) <span style="color:#f92672">+</span> Math.<span style="color:#a6e22e">min</span>(right1, right2)) <span style="color:#f92672">/</span> 2.<span style="color:#a6e22e">0</span>;
+</span></span><span style="display:flex;"><span>                } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span> Math.<span style="color:#a6e22e">max</span>(left1, left2);
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Too far right in nums1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (left1 <span style="color:#f92672">&gt;</span> right2) {
+</span></span><span style="display:flex;"><span>                high <span style="color:#f92672">=</span> i <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Too far left in nums1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                low <span style="color:#f92672">=</span> i <span style="color:#f92672">+</span> 1;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Should never reach here for valid input</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> 0.<span style="color:#a6e22e">0</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="14-interview-style-explanation">14. Interview-Style Explanation</h2>
+<blockquote>
+<p>“I binary-search the partition on the smaller array.<br>
+For each cut, I check whether the left side’s maximum is less than or equal to the right side’s minimum.<br>
+Once the invariant holds, the median can be derived directly.”</p></blockquote>
+<hr>
+<h2 id="15-common-mistakes">15. Common Mistakes</h2>
+<ul>
+<li>Trying to merge arrays</li>
+<li>Binary-searching values instead of partition index</li>
+<li>Forgetting edge cases when partition is at array boundaries</li>
+<li>Not enforcing search on the smaller array</li>
+</ul>
+<hr>
+<h3 id="key-takeaway">Key Takeaway</h3>
+<blockquote>
+<p><strong>This problem is about finding a valid split, not searching for a value.</strong></p></blockquote>
+<p>Recognizing that early is the real solution.</p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    
+        <a href="/learning/intermediate-skills/problem-solving/0_coderpad-practice/all-problems/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/intermediate-skills/problem-solving/" class="btn nav-btn">
+        Problem Solving : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

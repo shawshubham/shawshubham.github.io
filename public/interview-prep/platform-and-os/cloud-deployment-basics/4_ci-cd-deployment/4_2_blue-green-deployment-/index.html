@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Blue-Green Deployment and Why Is It Used?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777650165">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Blue-Green Deployment and Why Is It Used?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. The Core Idea (VERY IMPORTANT)</li>
+        
+        <li>4. How Blue-Green Deployment Works</li>
+        
+        <li>5. Traffic Switching (VERY IMPORTANT)</li>
+        
+        <li>6. Rollback Strategy (CRITICAL)</li>
+        
+        <li>7. Real-World Example</li>
+        
+        <li>8. Advantages</li>
+        
+        <li>9. Disadvantages</li>
+        
+        <li>10. Blue-Green vs Canary</li>
+        
+        <li>11. Common Mistakes</li>
+        
+        <li>12. Important Interview Points</li>
+        
+        <li>13. Interview Summary Answer (Best Answer)</li>
+        
+        <li>14. Learn More (Next Topic)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 1 May, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Blue-Green deployment is a release strategy where two identical environments are maintained: one active (Blue) and one idle (Green). The new version is deployed to the idle environment and traffic is switched only after validation, enabling zero-downtime deployment and instant rollback.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>safe production deployment strategies</li>
+<li>how to avoid downtime</li>
+<li>rollback mechanisms in real systems</li>
+</ul>
+<p>👉 Very common in DevOps, cloud, and system design interviews.</p>
+<hr>
+<h2 id="3-the-core-idea-very-important">3. The Core Idea (VERY IMPORTANT)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Blue → Current live system
+</span></span><span style="display:flex;"><span>Green → New version
+</span></span></code></pre></div><hr>
+<p>👉 Instead of replacing the live system:</p>
+<ul>
+<li>deploy new version separately</li>
+<li>validate it</li>
+<li>switch traffic when ready</li>
+</ul>
+<hr>
+<p>👉 Key benefit:</p>
+<blockquote>
+<p>No impact on users during deployment</p></blockquote>
+<hr>
+<h2 id="4-how-blue-green-deployment-works">4. How Blue-Green Deployment Works</h2>
+<hr>
+<h3 id="step-by-step-flow">Step-by-Step Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Step 1: Blue is serving traffic
+</span></span><span style="display:flex;"><span>Step 2: Deploy new version to Green
+</span></span><span style="display:flex;"><span>Step 3: Run tests on Green
+</span></span><span style="display:flex;"><span>Step 4: Switch traffic from Blue → Green
+</span></span><span style="display:flex;"><span>Step 5: Green becomes live
+</span></span></code></pre></div><hr>
+<p>👉 Old version (Blue) is kept as backup</p>
+<hr>
+<h2 id="5-traffic-switching-very-important">5. Traffic Switching (VERY IMPORTANT)</h2>
+<hr>
+<p>Traffic is switched using:</p>
+<ul>
+<li>load balancer</li>
+<li>API gateway</li>
+<li>DNS routing</li>
+</ul>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Before: All traffic → Blue
+</span></span><span style="display:flex;"><span>After:  All traffic → Green
+</span></span></code></pre></div><hr>
+<p>👉 Switching is usually instant</p>
+<hr>
+<h2 id="6-rollback-strategy-critical">6. Rollback Strategy (CRITICAL)</h2>
+<hr>
+<p>If something goes wrong:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Switch traffic back → Green → Blue
+</span></span></code></pre></div><hr>
+<p>👉 Rollback is:</p>
+<ul>
+<li>fast</li>
+<li>low risk</li>
+<li>no redeployment needed</li>
+</ul>
+<hr>
+<h2 id="7-real-world-example">7. Real-World Example</h2>
+<hr>
+<h3 id="deploying-a-payment-service">Deploying a Payment Service</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Blue → Current version (v1)
+</span></span><span style="display:flex;"><span>Green → New version (v2)
+</span></span></code></pre></div><p>Flow:</p>
+<ul>
+<li>deploy v2 to Green</li>
+<li>validate payment flow</li>
+<li>switch traffic to Green</li>
+</ul>
+<hr>
+<p>👉 If issue occurs → switch back to Blue instantly</p>
+<hr>
+<h2 id="8-advantages">8. Advantages</h2>
+<hr>
+<ul>
+<li>zero downtime deployment</li>
+<li>instant rollback</li>
+<li>safe validation before release</li>
+</ul>
+<hr>
+<h2 id="9-disadvantages">9. Disadvantages</h2>
+<hr>
+<ul>
+<li>requires double infrastructure (cost)</li>
+<li>complex data synchronization</li>
+<li>not ideal for stateful systems without planning</li>
+</ul>
+<hr>
+<h2 id="10-blue-green-vs-canary">10. Blue-Green vs Canary</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Feature</th>
+          <th>Blue-Green</th>
+          <th>Canary</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Traffic Shift</td>
+          <td>All at once</td>
+          <td>Gradual</td>
+      </tr>
+      <tr>
+          <td>Risk</td>
+          <td>Medium</td>
+          <td>Lower</td>
+      </tr>
+      <tr>
+          <td>Rollback</td>
+          <td>Instant</td>
+          <td>Controlled</td>
+      </tr>
+      <tr>
+          <td>Complexity</td>
+          <td>Moderate</td>
+          <td>Higher</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<p>👉 Use:</p>
+<ul>
+<li>Blue-Green → fast switch + simple rollback</li>
+<li>Canary → gradual risk reduction</li>
+</ul>
+<hr>
+<h2 id="11-common-mistakes">11. Common Mistakes</h2>
+<hr>
+<p>❌ Not testing Green environment properly<br>
+❌ Data incompatibility between versions<br>
+❌ Not planning rollback<br>
+❌ Ignoring database changes during switch</p>
+<hr>
+<h2 id="12-important-interview-points">12. Important Interview Points</h2>
+<hr>
+<ul>
+<li>Blue-Green ensures zero downtime</li>
+<li>traffic switching is key mechanism</li>
+<li>rollback is instant via traffic switch</li>
+<li>requires careful handling of database changes</li>
+</ul>
+<hr>
+<h2 id="13-interview-summary-answer-best-answer">13. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is Blue-Green deployment?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Blue-Green deployment is a strategy where two identical environments are maintained. The current version runs in the Blue environment, and the new version is deployed to Green. After validating the new version, traffic is switched to Green. This allows zero-downtime deployment and instant rollback by switching traffic back to Blue if needed.</p></blockquote>
+<hr>
+<h2 id="14-learn-more-next-topic">14. Learn More (Next Topic)</h2>
+<hr>
+<p>👉 Next: <strong>What is Canary Deployment and When Should You Use It?</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/platform-and-os/cloud-deployment-basics/" class="btn nav-btn">
+        Cloud and Deployment Basics : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

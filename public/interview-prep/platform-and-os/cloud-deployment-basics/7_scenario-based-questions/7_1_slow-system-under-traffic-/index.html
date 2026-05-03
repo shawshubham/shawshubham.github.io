@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System is Slow Under High Traffic — How Do You Debug and Handle It?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777657961">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">System is Slow Under High Traffic — How Do You Debug and Handle It?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. Problem Scenario</li>
+        
+        <li>4. Step-by-Step Debugging Approach (VERY IMPORTANT)</li>
+        
+        <li>5. Step 1 — Check Impact and Scope</li>
+        
+        <li>6. Step 2 — Check Metrics</li>
+        
+        <li>7. Step 3 — Check Application Logs</li>
+        
+        <li>8. Step 4 — Check Database Bottleneck</li>
+        
+        <li>9. Step 5 — Check Downstream Services</li>
+        
+        <li>10. Step 6 — Check Infrastructure and Scaling</li>
+        
+        <li>11. Step 7 — Short-Term Mitigation</li>
+        
+        <li>12. Step 8 — Long-Term Fix</li>
+        
+        <li>13. Real-World Example</li>
+        
+        <li>14. Common Mistakes</li>
+        
+        <li>15. Important Interview Points</li>
+        
+        <li>16. Interview Summary Answer (Best Answer)</li>
+        
+        <li>17. Learn More (Next Topic)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 1 May, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>If a system becomes slow under high traffic, I would first identify where the bottleneck is — application, database, downstream service, network, or infrastructure. Then I would check metrics, logs, and traces, scale the right layer, reduce load using caching or async processing, and protect the system using rate limiting or backpressure if needed.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>production debugging under pressure</li>
+<li>cloud scaling concepts</li>
+<li>performance bottleneck identification</li>
+<li>reliability under high traffic</li>
+</ul>
+<p>👉 This is one of the most common cloud/backend production scenario questions.</p>
+<hr>
+<h2 id="3-problem-scenario">3. Problem Scenario</h2>
+<hr>
+<p>Imagine this flow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Load Balancer → Application Service → Database / Downstream Service
+</span></span></code></pre></div><p>During high traffic:</p>
+<ul>
+<li>API latency increases</li>
+<li>requests start timing out</li>
+<li>users complain system is slow</li>
+<li>error rate may increase</li>
+</ul>
+<hr>
+<p>👉 The key question is:</p>
+<blockquote>
+<p>Is the problem caused by traffic volume, resource exhaustion, database slowness, or downstream dependency?</p></blockquote>
+<hr>
+<h2 id="4-step-by-step-debugging-approach-very-important">4. Step-by-Step Debugging Approach (VERY IMPORTANT)</h2>
+<hr>
+<p>Follow this flow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Check impact and scope
+</span></span><span style="display:flex;"><span>2. Check metrics
+</span></span><span style="display:flex;"><span>3. Check application logs
+</span></span><span style="display:flex;"><span>4. Check database
+</span></span><span style="display:flex;"><span>5. Check downstream services
+</span></span><span style="display:flex;"><span>6. Check infrastructure and scaling
+</span></span><span style="display:flex;"><span>7. Apply short-term mitigation
+</span></span><span style="display:flex;"><span>8. Identify long-term fix
+</span></span></code></pre></div><hr>
+<h2 id="5-step-1--check-impact-and-scope">5. Step 1 — Check Impact and Scope</h2>
+<hr>
+<p>First understand:</p>
+<ul>
+<li>is the whole system slow or only one API?</li>
+<li>is it affecting all users or specific clients?</li>
+<li>when did the issue start?</li>
+<li>did traffic suddenly increase?</li>
+</ul>
+<hr>
+<p>👉 This avoids jumping to conclusions.</p>
+<hr>
+<h2 id="6-step-2--check-metrics">6. Step 2 — Check Metrics</h2>
+<hr>
+<p>Check key metrics:</p>
+<ul>
+<li>request rate (RPS)</li>
+<li>latency (p95 / p99)</li>
+<li>error rate (4xx / 5xx)</li>
+<li>CPU and memory</li>
+<li>thread pool usage</li>
+<li>connection pool usage</li>
+</ul>
+<hr>
+<p>👉 Metrics help identify whether the system is overloaded or blocked somewhere.</p>
+<hr>
+<h2 id="7-step-3--check-application-logs">7. Step 3 — Check Application Logs</h2>
+<hr>
+<p>Look for:</p>
+<ul>
+<li>timeout exceptions</li>
+<li>connection pool errors</li>
+<li>slow method logs</li>
+<li>retry storms</li>
+<li>downstream failure logs</li>
+</ul>
+<hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Read timed out
+</span></span><span style="display:flex;"><span>Connection pool exhausted
+</span></span><span style="display:flex;"><span>Too many requests
+</span></span></code></pre></div><hr>
+<p>👉 Logs show what the application is experiencing.</p>
+<hr>
+<h2 id="8-step-4--check-database-bottleneck">8. Step 4 — Check Database Bottleneck</h2>
+<hr>
+<p>Database is often the first bottleneck.</p>
+<p>Check:</p>
+<ul>
+<li>slow queries</li>
+<li>missing indexes</li>
+<li>lock waits</li>
+<li>connection pool exhaustion</li>
+<li>high DB CPU / memory</li>
+</ul>
+<hr>
+<p>👉 If DB is slow, scaling application instances may not help.</p>
+<hr>
+<h2 id="9-step-5--check-downstream-services">9. Step 5 — Check Downstream Services</h2>
+<hr>
+<p>If the service depends on another service:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Application Service → Payment Service / External API
+</span></span></code></pre></div><p>Check:</p>
+<ul>
+<li>downstream latency</li>
+<li>timeout rate</li>
+<li>retry count</li>
+<li>circuit breaker status</li>
+</ul>
+<hr>
+<p>👉 Slow downstream services can make your service slow even if your service is healthy.</p>
+<hr>
+<h2 id="10-step-6--check-infrastructure-and-scaling">10. Step 6 — Check Infrastructure and Scaling</h2>
+<hr>
+<p>Check whether autoscaling worked properly:</p>
+<ul>
+<li>were new instances created?</li>
+<li>did scaling happen too late?</li>
+<li>are instances healthy?</li>
+<li>is load balancer routing traffic evenly?</li>
+</ul>
+<hr>
+<p>Also check:</p>
+<ul>
+<li>container/pod restarts</li>
+<li>node capacity</li>
+<li>memory pressure</li>
+<li>network latency</li>
+</ul>
+<hr>
+<h2 id="11-step-7--short-term-mitigation">11. Step 7 — Short-Term Mitigation</h2>
+<hr>
+<p>To stabilize production quickly:</p>
+<h3 id="1-scale-application-layer">1. Scale Application Layer</h3>
+<ul>
+<li>increase instances / pods</li>
+<li>ensure load balancer distributes traffic</li>
+</ul>
+<hr>
+<h3 id="2-enable-or-increase-caching">2. Enable or Increase Caching</h3>
+<ul>
+<li>reduce DB or downstream calls</li>
+</ul>
+<hr>
+<h3 id="3-rate-limit-noisy-clients">3. Rate Limit Noisy Clients</h3>
+<ul>
+<li>protect system from abusive or excessive traffic</li>
+</ul>
+<hr>
+<h3 id="4-apply-backpressure--load-shedding">4. Apply Backpressure / Load Shedding</h3>
+<ul>
+<li>reject non-critical traffic</li>
+<li>protect core functionality</li>
+</ul>
+<hr>
+<h3 id="5-increase-timeout-carefully">5. Increase Timeout Carefully</h3>
+<p>Only if timeout is too aggressive.</p>
+<p>👉 Do not blindly increase timeout — it can make resource blocking worse.</p>
+<hr>
+<h2 id="12-step-8--long-term-fix">12. Step 8 — Long-Term Fix</h2>
+<hr>
+<p>After stabilization, fix the root cause:</p>
+<ul>
+<li>optimize slow queries</li>
+<li>add proper indexes</li>
+<li>tune connection pools</li>
+<li>improve caching strategy</li>
+<li>introduce async processing</li>
+<li>tune autoscaling thresholds</li>
+<li>split heavy workloads</li>
+</ul>
+<hr>
+<p>👉 Short-term mitigation keeps system alive; long-term fix prevents recurrence.</p>
+<hr>
+<h2 id="13-real-world-example">13. Real-World Example</h2>
+<hr>
+<h3 id="scenario">Scenario</h3>
+<p>During peak hours, Order API becomes slow.</p>
+<p>Investigation:</p>
+<ul>
+<li>application CPU is normal</li>
+<li>DB CPU is high</li>
+<li>slow query logs show full table scan</li>
+<li>connection pool is exhausted</li>
+</ul>
+<p>Fix:</p>
+<ul>
+<li>add index</li>
+<li>optimize query</li>
+<li>increase DB connection pool carefully</li>
+<li>add caching for read-heavy endpoint</li>
+</ul>
+<hr>
+<p>👉 Root cause was database bottleneck, not application scaling.</p>
+<hr>
+<h2 id="14-common-mistakes">14. Common Mistakes</h2>
+<hr>
+<p>❌ Scaling application without checking DB bottleneck<br>
+❌ Increasing timeout blindly<br>
+❌ Ignoring downstream service latency<br>
+❌ Not checking p95 / p99 latency<br>
+❌ No rate limiting for noisy clients</p>
+<hr>
+<h2 id="15-important-interview-points">15. Important Interview Points</h2>
+<hr>
+<ul>
+<li>identify bottleneck before fixing</li>
+<li>check metrics, logs, and traces</li>
+<li>scaling app layer does not fix DB bottleneck</li>
+<li>high traffic needs scaling + caching + protection</li>
+<li>stabilize first, then fix root cause</li>
+</ul>
+<hr>
+<h2 id="16-interview-summary-answer-best-answer">16. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>System is slow under high traffic. How do you debug and handle it?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>I would first check the scope and identify where latency is coming from using metrics, logs, and tracing. I would look at request rate, p95/p99 latency, CPU, memory, thread pools, DB connection pools, slow queries, and downstream service latency. If the application layer is overloaded, I would scale instances and verify load balancing. If the database or downstream service is the bottleneck, I would optimize queries, add caching, tune connection pools, or use circuit breakers. For immediate mitigation, I would use autoscaling, caching, rate limiting, or backpressure, and then apply a long-term fix after identifying the root cause.</p></blockquote>
+<hr>
+<h2 id="17-learn-more-next-topic">17. Learn More (Next Topic)</h2>
+<hr>
+<p>👉 Next: <strong>Sudden Traffic Spike — How Do You Handle It?</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/platform-and-os/cloud-deployment-basics/" class="btn nav-btn">
+        Cloud and Deployment Basics : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

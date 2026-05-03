@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Autoscaling and How Does It Work?</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777655046">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">What is Autoscaling and How Does It Work?</h1>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+    
+    <div class="progress-ring-floating">
+      <svg class="ring" width="60" height="60">
+        <circle class="bg" cx="30" cy="30" r="25"></circle>
+        <circle class="progress" cx="30" cy="30" r="25"></circle>
+      </svg>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <div class="topic-outline">
+      <h2>We will be covering:</h2>
+      <ul>
+        
+        
+        
+        <li>1. Short Answer (Interview Style)</li>
+        
+        <li>2. Why This Question Matters</li>
+        
+        <li>3. The Problem — Why Autoscaling Is Needed</li>
+        
+        <li>4. What is Autoscaling?</li>
+        
+        <li>5. Types of Scaling</li>
+        
+        <li>6. How Autoscaling Works</li>
+        
+        <li>7. Types of Autoscaling Strategies</li>
+        
+        <li>8. Real-World Example</li>
+        
+        <li>9. Key Benefits</li>
+        
+        <li>10. Key Challenges</li>
+        
+        <li>11. Common Mistakes</li>
+        
+        <li>12. Important Interview Points</li>
+        
+        <li>13. Interview Summary Answer (Best Answer)</li>
+        
+        <li>14. Learn More (Next Topic)</li>
+        
+      </ul>
+    </div>
+  
+    <div class="container">
+      <div class="topic-meta">
+        <p class="last-updated">
+          
+            Last updated on: 1 May, 2026
+          
+        </p>
+      </div>
+    </div>
+    
+    <article class="topic-content">
+      <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
+<hr>
+<blockquote>
+<p><strong>Autoscaling is the ability of a system to automatically increase or decrease resources (like instances or pods) based on load, ensuring performance under high traffic and cost efficiency during low usage.</strong></p></blockquote>
+<hr>
+<h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
+<hr>
+<p>This question tests whether you understand:</p>
+<ul>
+<li>how systems handle traffic spikes</li>
+<li>elasticity in cloud systems</li>
+<li>cost vs performance trade-offs</li>
+</ul>
+<p>👉 Very common in cloud, backend, and system design interviews.</p>
+<hr>
+<h2 id="3-the-problem--why-autoscaling-is-needed">3. The Problem — Why Autoscaling Is Needed</h2>
+<hr>
+<p>Traffic is not constant:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Low traffic → normal load
+</span></span><span style="display:flex;"><span>Peak traffic → sudden spike
+</span></span></code></pre></div><p>Without autoscaling:</p>
+<ul>
+<li>system becomes slow</li>
+<li>requests fail</li>
+<li>users experience downtime</li>
+</ul>
+<hr>
+<p>👉 Over-provisioning also wastes money</p>
+<hr>
+<h2 id="4-what-is-autoscaling">4. What is Autoscaling?</h2>
+<hr>
+<p>Autoscaling means:</p>
+<ul>
+<li>scale out → add more instances when load increases</li>
+<li>scale in → remove instances when load decreases</li>
+</ul>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>2 instances → 10 instances (peak)
+</span></span><span style="display:flex;"><span>10 instances → 2 instances (low traffic)
+</span></span></code></pre></div><hr>
+<p>👉 System adapts automatically to demand</p>
+<hr>
+<h2 id="5-types-of-scaling">5. Types of Scaling</h2>
+<hr>
+<h3 id="1-horizontal-scaling-scale-outin">1. Horizontal Scaling (Scale Out/In)</h3>
+<ul>
+<li>add/remove instances</li>
+</ul>
+<p>👉 Most common in cloud systems</p>
+<hr>
+<h3 id="2-vertical-scaling-scale-updown">2. Vertical Scaling (Scale Up/Down)</h3>
+<ul>
+<li>increase CPU/memory of existing instance</li>
+</ul>
+<p>👉 Limited and slower compared to horizontal scaling</p>
+<hr>
+<h2 id="6-how-autoscaling-works">6. How Autoscaling Works</h2>
+<hr>
+<p>Autoscaling is based on metrics:</p>
+<ul>
+<li>CPU usage</li>
+<li>memory usage</li>
+<li>request rate (RPS)</li>
+<li>queue length</li>
+</ul>
+<hr>
+<h3 id="example-flow">Example Flow</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CPU &gt; 70% → Add instance
+</span></span><span style="display:flex;"><span>CPU &lt; 30% → Remove instance
+</span></span></code></pre></div><hr>
+<p>👉 Decisions are automated based on thresholds</p>
+<hr>
+<h2 id="7-types-of-autoscaling-strategies">7. Types of Autoscaling Strategies</h2>
+<hr>
+<h3 id="1-reactive-scaling">1. Reactive Scaling</h3>
+<ul>
+<li>reacts after load increases</li>
+</ul>
+<hr>
+<h3 id="2-scheduled-scaling">2. Scheduled Scaling</h3>
+<ul>
+<li>scales based on known patterns</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li>scale up during business hours</li>
+</ul>
+<hr>
+<h3 id="3-predictive-scaling-advanced">3. Predictive Scaling (Advanced)</h3>
+<ul>
+<li>uses historical data to predict load</li>
+</ul>
+<hr>
+<h2 id="8-real-world-example">8. Real-World Example</h2>
+<hr>
+<h3 id="e-commerce-sale">E-commerce Sale</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Normal: 3 instances
+</span></span><span style="display:flex;"><span>Sale: traffic spike → scale to 15
+</span></span><span style="display:flex;"><span>After sale: scale back to 3
+</span></span></code></pre></div><hr>
+<p>👉 System remains stable without manual intervention</p>
+<hr>
+<h2 id="9-key-benefits">9. Key Benefits</h2>
+<hr>
+<ul>
+<li>handles traffic spikes</li>
+<li>improves availability</li>
+<li>reduces cost (no over-provisioning)</li>
+</ul>
+<hr>
+<h2 id="10-key-challenges">10. Key Challenges</h2>
+<hr>
+<ul>
+<li>scaling delay (new instances take time)</li>
+<li>wrong thresholds can cause instability</li>
+<li>does not solve database bottlenecks</li>
+</ul>
+<hr>
+<h2 id="11-common-mistakes">11. Common Mistakes</h2>
+<hr>
+<p>❌ Using only CPU for scaling decisions<br>
+❌ No cooldown period (rapid scaling up/down)<br>
+❌ Ignoring downstream systems (DB, cache)<br>
+❌ Not testing scaling behavior</p>
+<hr>
+<h2 id="12-important-interview-points">12. Important Interview Points</h2>
+<hr>
+<ul>
+<li>autoscaling provides elasticity</li>
+<li>horizontal scaling is preferred in cloud systems</li>
+<li>based on metrics like CPU, RPS, queue size</li>
+<li>must consider downstream dependencies</li>
+</ul>
+<hr>
+<h2 id="13-interview-summary-answer-best-answer">13. Interview Summary Answer (Best Answer)</h2>
+<hr>
+<p>If interviewer asks:</p>
+<blockquote>
+<p>What is autoscaling?</p></blockquote>
+<p>Answer like this:</p>
+<blockquote>
+<p>Autoscaling is the ability of a system to automatically adjust the number of running instances based on load. It helps maintain performance during high traffic and reduces cost during low usage. It typically works by monitoring metrics like CPU usage or request rate and scaling resources accordingly.</p></blockquote>
+<hr>
+<h2 id="14-learn-more-next-topic">14. Learn More (Next Topic)</h2>
+<hr>
+<p>👉 Next: <strong>What is Capacity Planning and Why Is It Important?</strong></p>
+
+    </article>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/interview-prep/platform-and-os/cloud-deployment-basics/" class="btn nav-btn">
+        Cloud and Deployment Basics : Home Page
+    </a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>
