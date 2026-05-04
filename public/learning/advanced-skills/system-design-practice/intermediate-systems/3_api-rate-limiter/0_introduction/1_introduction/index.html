@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta name="google-site-verification" content="uAulF6MENawH52RaV8zdWc1-fpSxxrBC5VtDtTOIQCY" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design an API Rate Limiter — Introduction</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777931741">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Design an API Rate Limiter — Introduction</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 4 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-what-is-a-rate-limiter">1. What is a Rate Limiter?</h2>
+<hr>
+<p>A Rate Limiter is a system that <strong>controls how many requests a client can make within a given time window</strong>.</p>
+<p>It is used to protect backend systems from:</p>
+<ul>
+<li>excessive traffic</li>
+<li>abuse (e.g., bots, brute-force attacks)</li>
+<li>accidental overload</li>
+</ul>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Allow 100 requests per user per minute
+</span></span></code></pre></div><p>If a user exceeds this limit:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>→ Reject further requests (HTTP 429 Too Many Requests)
+</span></span></code></pre></div><hr>
+<h2 id="2-why-rate-limiting-matters">2. Why Rate Limiting Matters</h2>
+<hr>
+<p>In real-world systems, uncontrolled traffic can lead to:</p>
+<ul>
+<li>system crashes</li>
+<li>degraded performance</li>
+<li>unfair resource usage</li>
+</ul>
+<p>Rate limiting helps ensure:</p>
+<ul>
+<li><strong>system stability</strong> → prevents overload</li>
+<li><strong>fairness</strong> → no single user dominates resources</li>
+<li><strong>security</strong> → mitigates abuse and attacks</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Insight:</strong><br>
+A rate limiter is not just a utility—it is a <strong>critical protection layer</strong> in modern backend systems.</p></blockquote>
+<hr>
+<h2 id="3-where-is-rate-limiting-used">3. Where is Rate Limiting Used?</h2>
+<hr>
+<p>Rate limiting is applied at multiple layers:</p>
+<ul>
+<li><strong>API Gateway</strong> → control incoming traffic</li>
+<li><strong>Authentication systems</strong> → prevent brute-force login attempts</li>
+<li><strong>Public APIs</strong> → enforce usage quotas</li>
+<li><strong>Microservices</strong> → protect internal services</li>
+</ul>
+<hr>
+<h2 id="4-problem-statement">4. Problem Statement</h2>
+<hr>
+<p>Design a Rate Limiter that:</p>
+<ul>
+<li>limits the number of requests per client (e.g., user/IP/API key)</li>
+<li>enforces limits within a configurable time window</li>
+<li>rejects requests that exceed the allowed limit</li>
+<li>supports high traffic in a scalable system</li>
+</ul>
+<h4 id="example-scenario">Example Scenario:</h4>
+<p>An API allows:<br>
+→ 100 requests per user per minute</p>
+<p>User A sends 120 requests in 1 minute:<br>
+→ First 100 → allowed<br>
+→ Next 20 → rejected (429 Too Many Requests)</p>
+<hr>
+<h2 id="5-why-this-problem-is-important-in-interviews">5. Why This Problem is Important in Interviews</h2>
+<hr>
+<p>This is a high-frequency interview problem because it tests:</p>
+<ul>
+<li><strong>algorithmic thinking</strong> → sliding window, token bucket</li>
+<li><strong>concurrency handling</strong> → multiple requests at the same time</li>
+<li><strong>distributed systems</strong> → shared state across servers</li>
+<li><strong>trade-offs</strong> → accuracy vs performance vs cost</li>
+</ul>
+<h3 id="key-challenge">Key Challenge:</h3>
+<p>A rate limiter seems simple, but becomes difficult when:</p>
+<ul>
+<li>multiple requests arrive simultaneously</li>
+<li>multiple servers handle traffic</li>
+<li>counters must remain consistent across the system</li>
+</ul>
+<hr>
+<h2 id="6-how-this-problem-evolves">6. How This Problem Evolves</h2>
+<hr>
+<p>This problem follows a layered design approach.</p>
+<h3 id="phase-1--core-logic-lld">Phase 1 — Core Logic (LLD)</h3>
+<ul>
+<li>Implement basic rate limiting algorithms</li>
+<li>Understand fixed window, sliding window, token bucket</li>
+</ul>
+<hr>
+<h3 id="phase-2--concurrency--atomicity">Phase 2 — Concurrency &amp; Atomicity</h3>
+<ul>
+<li>Handle multiple requests hitting the system simultaneously</li>
+<li>Ensure updates to counters are atomic</li>
+</ul>
+<hr>
+<h3 id="phase-3--distributed-system-hld">Phase 3 — Distributed System (HLD)</h3>
+<ul>
+<li>Scale across multiple instances</li>
+<li>Use shared storage (e.g., Redis)</li>
+<li>Ensure consistency and performance under load</li>
+</ul>
+<hr>
+<h2 id="7-how-to-approach-this-problem">7. How to Approach This Problem</h2>
+<hr>
+<p>In an interview, you can approach it as follows:</p>
+<ol>
+<li>
+<p><strong>Clarify requirements</strong></p>
+<ul>
+<li>Who is being limited? (user/IP/API key)</li>
+<li>What is the limit? (requests per second/minute)</li>
+</ul>
+</li>
+<li>
+<p><strong>Start simple</strong></p>
+<ul>
+<li>Build a basic single-node solution</li>
+</ul>
+</li>
+<li>
+<p><strong>Handle concurrency</strong></p>
+<ul>
+<li>Ensure correctness with multiple threads</li>
+</ul>
+</li>
+<li>
+<p><strong>Scale the system</strong></p>
+<ul>
+<li>Move to a distributed design</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>💡 <strong>Pro Tip:</strong><br>
+Start with a simple counter-based solution and evolve it step by step.</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>A Rate Limiter starts as a simple counter, but in real systems it must handle concurrency, distribution, and correctness under high load.</p>
+<p>It combines:</p>
+<ul>
+<li>algorithms</li>
+<li>concurrency control</li>
+<li>distributed state management</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/1_phase1/1_1_requirement_clarification/">Phase 1 — Core Logic &amp; Requirement Clarification</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Rate limiting protects systems from overload and abuse</li>
+<li>It requires both algorithmic and system design thinking</li>
+<li>A layered approach helps build a scalable solution</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-what-is-a-rate-limiter" data-toc-target="1-what-is-a-rate-limiter">1. What is a Rate Limiter?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-why-rate-limiting-matters" data-toc-target="2-why-rate-limiting-matters">2. Why Rate Limiting Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-where-is-rate-limiting-used" data-toc-target="3-where-is-rate-limiting-used">3. Where is Rate Limiting Used?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-problem-statement" data-toc-target="4-problem-statement">4. Problem Statement</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-why-this-problem-is-important-in-interviews" data-toc-target="5-why-this-problem-is-important-in-interviews">5. Why This Problem is Important in Interviews</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-how-this-problem-evolves" data-toc-target="6-how-this-problem-evolves">6. How This Problem Evolves</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-how-to-approach-this-problem" data-toc-target="7-how-to-approach-this-problem">7. How to Approach This Problem</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>
