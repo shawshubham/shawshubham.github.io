@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 3 — Consistency &amp; Failure Handling</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777899888">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Level 3 — Consistency &amp; Failure Handling</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 4 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-matters">1. Why This Matters</h2>
+<hr>
+<p>In a distributed system, failures are normal, not exceptional.</p>
+<p>For a price aggregator, incorrect handling of failures can lead to:</p>
+<ul>
+<li>wrong moving averages</li>
+<li>missed or duplicated ticks</li>
+<li>inconsistent views across regions</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Goal:</strong> Ensure correctness even when messages are duplicated, delayed, or components crash.</p></blockquote>
+<hr>
+<h2 id="2-delivery-semantics">2. Delivery Semantics</h2>
+<hr>
+<p>Message brokers like Kafka provide different delivery guarantees.</p>
+<h3 id="at-most-once">At-most-once</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Message may be lost, never retried
+</span></span></code></pre></div><p>❌ Not acceptable for trading data.</p>
+<hr>
+<h3 id="at-least-once-most-common">At-least-once (most common)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Message is delivered one or more times
+</span></span></code></pre></div><p>✔ No data loss
+❗ Duplicates possible</p>
+<hr>
+<h3 id="exactly-once-complex">Exactly-once (complex)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Processed exactly once end-to-end
+</span></span></code></pre></div><p>✔ Ideal but costly/complex (transactions, idempotent producers, EOS semantics)</p>
+<hr>
+<blockquote>
+<p>🧠 <strong>Practical choice:</strong> Use <strong>at-least-once + idempotency</strong>.</p></blockquote>
+<hr>
+<h2 id="3-idempotency-critical">3. Idempotency (Critical)</h2>
+<hr>
+<p>We must ensure processing the same event twice does not change the final state.</p>
+<h3 id="event-shape">Event shape</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;eventId&#34;</span>: <span style="color:#e6db74">&#34;evt-123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;symbol&#34;</span>: <span style="color:#e6db74">&#34;VOD.L&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;sequence&#34;</span>: <span style="color:#ae81ff">10045</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;price&#34;</span>: <span style="color:#ae81ff">102.45</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;eventTime&#34;</span>: <span style="color:#e6db74">&#34;2026-05-04T10:15:00Z&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="strategy">Strategy</h3>
+<p>Maintain <strong>last processed sequence per symbol</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>expected = lastProcessedSequence + 1
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>if incoming.sequence &lt;= lastProcessedSequence:
+</span></span><span style="display:flex;"><span>    ignore (duplicate or late event already processed)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>else if incoming.sequence == expected:
+</span></span><span style="display:flex;"><span>    process normally and update lastProcessedSequence
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>else:
+</span></span><span style="display:flex;"><span>    gap detected → trigger replay/recovery before processing
+</span></span></code></pre></div><hr>
+<div class="mermaid">
+flowchart LR
+    A[Incoming Event]
+    B{sequence == expected?}
+    C[Process Normally]
+    D{sequence <= lastProcessed?}
+    E[Ignore Duplicate]
+    F[Gap Detected]
+    G[Trigger Replay / Recovery]
+    H[Rebuild State]
+    I[Resume Processing]
+
+    A --> B
+    B -->|Yes| C
+    B -->|No| D
+    D -->|Yes| E
+    D -->|No| F --> G --> H --> I
+</div>
+<hr>
+<h2 id="4-ordering-guarantees">4. Ordering Guarantees</h2>
+<hr>
+<p>We rely on <strong>Kafka partitioning by symbol</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
+</span></span></code></pre></div><p>Guarantee:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Within a partition → events are ordered
+</span></span></code></pre></div><p>Implication:</p>
+<ul>
+<li>Each symbol is processed <strong>sequentially</strong> by one consumer</li>
+<li>No need for complex reordering logic (baseline design)</li>
+</ul>
+<blockquote>
+<h4 id="important-distinction">Important distinction:</h4>
+<p>Kafka guarantees ordering of events within a partition, but it does not guarantee completeness of the sequence. If producers publish events out of order or late, missing sequences can still occur. Therefore, sequence validation is still required at the consumer level.</p></blockquote>
+<hr>
+<h2 id="5-handling-duplicates">5. Handling Duplicates</h2>
+<hr>
+<p>Duplicates can occur due to retries or consumer restarts.</p>
+<p>Approaches:</p>
+<ul>
+<li><strong>Sequence check (preferred)</strong> per symbol</li>
+<li><strong>EventId dedupe cache</strong> (short TTL) if sequence not available</li>
+</ul>
+<p>Trade-off:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Sequence → lightweight, requires ordered stream
+</span></span><span style="display:flex;"><span>EventId cache → extra memory, works without strict ordering
+</span></span></code></pre></div><hr>
+<h2 id="51-handling-gaps-missing-events">5.1 Handling Gaps (Missing Events)</h2>
+<hr>
+<p>Building on the sequence validation logic above, let’s understand why gap detection is critical in distributed systems. Even with Kafka ordering, <strong>missing sequences can still occur</strong> if:</p>
+<ul>
+<li>producers send events out of order</li>
+<li>upstream systems delay certain events</li>
+<li>transient failures cause temporary gaps</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>lastProcessedSequence = 100
+</span></span><span style="display:flex;"><span>incoming = 103
+</span></span><span style="display:flex;"><span>→ missing 101, 102
+</span></span></code></pre></div><h3 id="why-this-is-dangerous">Why this is dangerous</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Moving average depends on complete ordered data
+</span></span><span style="display:flex;"><span>Missing events → incorrect aggregates
+</span></span></code></pre></div><h3 id="strategy-1">Strategy</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Do NOT process the newer event immediately
+</span></span><span style="display:flex;"><span>Pause processing for that symbol
+</span></span><span style="display:flex;"><span>Trigger replay/recovery
+</span></span><span style="display:flex;"><span>Fetch missing events
+</span></span><span style="display:flex;"><span>Rebuild correct state
+</span></span><span style="display:flex;"><span>Resume processing
+</span></span></code></pre></div><hr>
+<h3 id="final-design-decision">Final Design Decision</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>We combine:
+</span></span><span style="display:flex;"><span>- Kafka ordering (per partition)
+</span></span><span style="display:flex;"><span>- Sequence validation (consumer-side)
+</span></span><span style="display:flex;"><span>- Replay-based recovery (for gaps)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>This ensures correctness without relying solely on infrastructure guarantees.
+</span></span></code></pre></div><hr>
+<h2 id="6-handling-retries">6. Handling Retries</h2>
+<hr>
+<p>When processing fails:</p>
+<ul>
+<li>do not commit offset</li>
+<li>retry processing</li>
+</ul>
+<div class="mermaid">
+sequenceDiagram
+    participant Kafka
+    participant Aggregator
+
+    Kafka->>Aggregator: Deliver event
+    Aggregator->>Aggregator: Process
+    alt Success
+        Aggregator->>Kafka: Commit offset
+    else Failure
+        Aggregator->>Kafka: Do not commit
+        Kafka->>Aggregator: Redeliver event
+    end
+</div>
+<hr>
+<h2 id="7-offset-management">7. Offset Management</h2>
+<hr>
+<p>Offsets represent how far a consumer has progressed.</p>
+<p>Best practice:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Commit offset AFTER successful processing
+</span></span></code></pre></div><p>This ensures:</p>
+<ul>
+<li>no data loss</li>
+<li>duplicates handled via idempotency</li>
+</ul>
+<hr>
+<h2 id="8-failure-scenarios--handling">8. Failure Scenarios &amp; Handling</h2>
+<hr>
+<h3 id="81-aggregator-crash">8.1 Aggregator Crash</h3>
+<ul>
+<li>On restart, consumer resumes from last committed offset</li>
+<li>Replays uncommitted events</li>
+<li>Idempotency prevents double counting</li>
+</ul>
+<hr>
+<h3 id="82-cache-failure-eg-redis">8.2 Cache Failure (e.g., Redis)</h3>
+<ul>
+<li>Continue processing events</li>
+<li>Rebuild cache from stream or DB</li>
+</ul>
+<hr>
+<h3 id="83-database-failure">8.3 Database Failure</h3>
+<ul>
+<li>Use retries / circuit breaker</li>
+<li>Buffer writes (short term)</li>
+<li>Prioritize real-time path (cache) if needed</li>
+</ul>
+<hr>
+<h3 id="84-kafka-broker-failure">8.4 Kafka Broker Failure</h3>
+<ul>
+<li>Kafka replication handles broker loss</li>
+<li>Consumers re-balance to other brokers</li>
+</ul>
+<hr>
+<h2 id="9-exactly-once-when-needed">9. Exactly-Once (When Needed)</h2>
+<hr>
+<p>Kafka supports Exactly-Once Semantics (EOS) via:</p>
+<ul>
+<li>idempotent producers</li>
+<li>transactional writes</li>
+</ul>
+<p>But costs include:</p>
+<ul>
+<li>higher latency</li>
+<li>operational complexity</li>
+</ul>
+<blockquote>
+<p>🧠 Use EOS only when strict financial correctness requires it end-to-end.</p></blockquote>
+<hr>
+<h2 id="10-reprocessing--backfill">10. Reprocessing &amp; Backfill</h2>
+<hr>
+<p>Kafka enables replay for rebuilding state or correcting bugs.</p>
+<div class="mermaid">
+flowchart TD
+    A[Start Replay]
+    B[Read from earliest / checkpoint]
+    C[Process events]
+    D[Rebuild state]
+    E[Update cache/DB]
+
+    A --> B --> C --> D --> E
+</div>
+<p>Use cases:</p>
+<ul>
+<li>bug fixes</li>
+<li>new aggregates</li>
+<li>audit/reconciliation</li>
+</ul>
+<hr>
+<h2 id="11-multi-region-considerations-brief">11. Multi-Region Considerations (Brief)</h2>
+<hr>
+<ul>
+<li>Use region-local consumers for low latency</li>
+<li>Replicate streams across regions (e.g., MirrorMaker)</li>
+<li>Accept <strong>eventual consistency</strong> across regions</li>
+</ul>
+<hr>
+<h2 id="12-sla-choices">12. SLA Choices</h2>
+<hr>
+<p>Decide explicitly:</p>
+<ul>
+<li>Freshness (ms vs seconds)</li>
+<li>Consistency (strict vs eventual)</li>
+<li>Availability (always serve vs degrade)</li>
+</ul>
+<p>Example stance for trading dashboards:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Low latency + at-least-once + idempotent processing
+</span></span></code></pre></div><hr>
+<h2 id="13-interview-answer">13. Interview Answer</h2>
+<hr>
+<blockquote>
+<p>“I would rely on Kafka partitioning to preserve ordering per symbol, but I would not depend on it for correctness. I would implement sequence validation at the consumer level to detect duplicates and gaps. Duplicates would be ignored, while gaps would trigger replay/recovery, because continuing without missing events would corrupt rolling aggregates like moving averages. Offsets would be committed only after successful processing, and replay would be used for recovery.”</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>In streaming systems, correctness is not just about processing events in order, but ensuring that no required event is missing from the sequence.</p>
+<p>Correctness in distributed systems comes from combining:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>at-least-once delivery + idempotency + ordering + replay
+</span></span></code></pre></div><hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_5_scaling-and-performance/">Level 3 — Scaling &amp; Performance (Throughput, Partitioning, Caching) →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Prefer at-least-once + idempotent consumers</li>
+<li>Partition by symbol to preserve order</li>
+<li>Commit offsets after processing</li>
+<li>Plan for retries, duplicates, and replays</li>
+<li>Use exactly-once only when necessary</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-matters" data-toc-target="1-why-this-matters">1. Why This Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-delivery-semantics" data-toc-target="2-delivery-semantics">2. Delivery Semantics</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-idempotency-critical" data-toc-target="3-idempotency-critical">3. Idempotency (Critical)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-ordering-guarantees" data-toc-target="4-ordering-guarantees">4. Ordering Guarantees</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-handling-duplicates" data-toc-target="5-handling-duplicates">5. Handling Duplicates</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#51-handling-gaps-missing-events" data-toc-target="51-handling-gaps-missing-events">5.1 Handling Gaps (Missing Events)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-handling-retries" data-toc-target="6-handling-retries">6. Handling Retries</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-offset-management" data-toc-target="7-offset-management">7. Offset Management</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-failure-scenarios--handling" data-toc-target="8-failure-scenarios--handling">8. Failure Scenarios &amp;amp; Handling</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-exactly-once-when-needed" data-toc-target="9-exactly-once-when-needed">9. Exactly-Once (When Needed)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-reprocessing--backfill" data-toc-target="10-reprocessing--backfill">10. Reprocessing &amp;amp; Backfill</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-multi-region-considerations-brief" data-toc-target="11-multi-region-considerations-brief">11. Multi-Region Considerations (Brief)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-sla-choices" data-toc-target="12-sla-choices">12. SLA Choices</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-interview-answer" data-toc-target="13-interview-answer">13. Interview Answer</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_3_state-management-and-data-flow/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_5_scaling-and-performance/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

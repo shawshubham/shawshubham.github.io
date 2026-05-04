@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTTP Status Codes &amp; API Behavior</title>
+<title>Level 2 — Trade-offs &amp; Advanced Considerations</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">HTTP Status Codes &amp; API Behavior</h1>
+    <h1 class="main-heading">Level 2 — Trade-offs &amp; Advanced Considerations</h1>
     <h3>
   </div>
 </section>
@@ -156,280 +156,234 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Apr, 2026
+            Last updated on: 4 May, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-status-codes-matter">1. Why Status Codes Matter</h2>
+          <h2 id="1-why-trade-offs-matter">1. Why Trade-offs Matter</h2>
 <hr>
-<p>HTTP status codes are the <strong>first signal</strong> a client receives about the outcome of a request.</p>
-<p>They help clients quickly understand:</p>
+<p>At this stage, we already have a <strong>correct thread-safe implementation</strong>.</p>
+<p>But in real systems, correctness alone is not enough.</p>
+<p>We also need to think about:</p>
 <ul>
-<li>whether the request succeeded</li>
-<li>whether it failed</li>
-<li>whether it should retry</li>
+<li>performance</li>
+<li>scalability</li>
+<li>contention</li>
+<li>system behavior under load</li>
 </ul>
 <blockquote>
-<p>📝 <strong>Key Insight:</strong><br>
-Status codes should reflect <strong>what happened</strong>, while the response body explains <strong>why it happened</strong>.</p></blockquote>
+<p>📝 <strong>Key Point:</strong><br>
+Good engineers make systems work. Great engineers choose the right trade-offs.</p></blockquote>
 <hr>
-<h2 id="2-categories-of-status-codes">2. Categories of Status Codes</h2>
+<h2 id="2-recap-of-available-approaches">2. Recap of Available Approaches</h2>
 <hr>
+<p>We explored three approaches:</p>
+<ol>
+<li><code>synchronized</code> methods</li>
+<li><code>synchronized</code> blocks</li>
+<li><code>ReentrantReadWriteLock</code></li>
+</ol>
+<hr>
+<h2 id="3-synchronized-vs-reentrantlock">3. <code>synchronized</code> vs <code>ReentrantLock</code></h2>
+<hr>
+<p>Both provide <strong>mutual exclusion</strong>.</p>
+<h3 id="synchronized"><code>synchronized</code></h3>
+<ul>
+<li>built-in language feature</li>
+<li>simple to use</li>
+<li>automatically releases lock</li>
+</ul>
+<h3 id="reentrantlock"><code>ReentrantLock</code></h3>
+<ul>
+<li>more control (tryLock, fairness, interruptible)</li>
+<li>explicit lock/unlock</li>
+</ul>
+<h3 id="trade-off">Trade-off</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized → simpler
+</span></span><span style="display:flex;"><span>ReentrantLock → more flexible but more code
+</span></span></code></pre></div><p>In our problem, both behave similarly because both allow only <strong>one thread at a time</strong>.</p>
+<hr>
+<h2 id="4-reentrantlock-vs-reentrantreadwritelock">4. <code>ReentrantLock</code> vs <code>ReentrantReadWriteLock</code></h2>
+<hr>
+<h3 id="reentrantlock-1"><code>ReentrantLock</code></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single lock for both read and write
+</span></span></code></pre></div><ul>
+<li>one reader blocks other readers</li>
+<li>writer blocks everyone</li>
+</ul>
+<hr>
+<h3 id="reentrantreadwritelock"><code>ReentrantReadWriteLock</code></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Separate read and write locks
+</span></span></code></pre></div><ul>
+<li>multiple readers allowed simultaneously</li>
+<li>writers get exclusive access</li>
+</ul>
+<hr>
+<h3 id="trade-off-1">Trade-off</h3>
 <table>
   <thead>
       <tr>
-          <th>Category</th>
-          <th>Meaning</th>
+          <th>Feature</th>
+          <th>ReentrantLock</th>
+          <th>ReadWriteLock</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>2xx</td>
-          <td>Success</td>
-      </tr>
-      <tr>
-          <td>4xx</td>
-          <td>Client error</td>
-      </tr>
-      <tr>
-          <td>5xx</td>
-          <td>Server error</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="3-success-status-codes">3. Success Status Codes</h2>
-<hr>
-<h3 id="201-created">201 Created</h3>
-<p>Used for:</p>
-<ul>
-<li><code>POST /payments</code></li>
-</ul>
-<p>👉 Indicates a new resource was successfully created.</p>
-<hr>
-<h3 id="200-ok">200 OK</h3>
-<p>Used for:</p>
-<ul>
-<li><code>GET /payments/{id}</code></li>
-<li><code>POST /payments/{id}/confirm</code> (when returning result)</li>
-</ul>
-<p>👉 Indicates request was processed successfully.</p>
-<hr>
-<h3 id="202-accepted-optional-for-async">202 Accepted (Optional for Async)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is accepted but processing is not complete yet</li>
-</ul>
-<p>👉 Useful for async flows (future extension).</p>
-<hr>
-<h2 id="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</h2>
-<hr>
-<h3 id="400-bad-request">400 Bad Request</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid input format</li>
-<li>missing required fields</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_REQUEST&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Amount must be greater than zero&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="404-not-found">404 Not Found</h3>
-<p>Used when:</p>
-<ul>
-<li>payment does not exist</li>
-</ul>
-<hr>
-<h3 id="409-conflict">409 Conflict</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid state transition</li>
-<li>duplicate operation attempted</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="422-unprocessable-entity-optional">422 Unprocessable Entity (Optional)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is valid but business rules fail</li>
-</ul>
-<p>Example:</p>
-<ul>
-<li>insufficient balance</li>
-<li>unsupported currency</li>
-</ul>
-<hr>
-<h2 id="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</h2>
-<hr>
-<h3 id="500-internal-server-error">500 Internal Server Error</h3>
-<p>Used when:</p>
-<ul>
-<li>unexpected failure occurs</li>
-</ul>
-<p>👉 Should not expose internal details.</p>
-<hr>
-<h3 id="502--503-gateway-errors">502 / 503 (Gateway Errors)</h3>
-<p>Used when:</p>
-<ul>
-<li>external gateway fails or is unavailable</li>
-</ul>
-<hr>
-<h2 id="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Scenario</th>
-          <th>Status Code</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Payment created</td>
-          <td>201</td>
-      </tr>
-      <tr>
-          <td>Payment fetched</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Payment confirmed successfully</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Invalid input</td>
-          <td>400</td>
-      </tr>
-      <tr>
-          <td>Payment not found</td>
-          <td>404</td>
-      </tr>
-      <tr>
-          <td>Invalid state transition</td>
-          <td>409</td>
-      </tr>
-      <tr>
-          <td>Business validation failure</td>
-          <td>422</td>
-      </tr>
-      <tr>
-          <td>Internal failure</td>
-          <td>500</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="7-api-behavior-design">7. API Behavior Design</h2>
-<hr>
-<p>Status codes alone are not enough — API behavior must be <strong>consistent and predictable</strong>.</p>
-<hr>
-<h3 id="1-idempotent-behavior">1. Idempotent Behavior</h3>
-<ul>
-<li>repeated requests should return same result</li>
-<li>no duplicate side effects</li>
-</ul>
-<hr>
-<h3 id="2-consistent-error-structure">2. Consistent Error Structure</h3>
-<p>Always return:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;ERROR_CODE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Human readable message&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="3-state-aware-responses">3. State-Aware Responses</h3>
-<ul>
-<li>response must reflect current payment state</li>
-<li>do not rely only on status code</li>
-</ul>
-<hr>
-<h3 id="4-safe-retries">4. Safe Retries</h3>
-<ul>
-<li>client should know when retry is safe</li>
-<li>avoid ambiguous responses</li>
-</ul>
-<hr>
-<h2 id="8-retry-strategy-important">8. Retry Strategy (Important)</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Status Code</th>
-          <th>Retry?</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>2xx</td>
+          <td>Multiple readers</td>
           <td>❌ No</td>
-      </tr>
-      <tr>
-          <td>4xx</td>
-          <td>❌ No (fix request)</td>
-      </tr>
-      <tr>
-          <td>5xx</td>
           <td>✅ Yes</td>
       </tr>
+      <tr>
+          <td>Write safety</td>
+          <td>✅ Yes</td>
+          <td>✅ Yes</td>
+      </tr>
+      <tr>
+          <td>Complexity</td>
+          <td>Medium</td>
+          <td>Higher</td>
+      </tr>
+      <tr>
+          <td>Best for</td>
+          <td>balanced load</td>
+          <td>read-heavy systems</td>
+      </tr>
   </tbody>
 </table>
 <hr>
-<p>👉 Clients should retry only when failure is <strong>temporary</strong>.</p>
+<h2 id="5-read-heavy-vs-write-heavy-systems">5. Read-Heavy vs Write-Heavy Systems</h2>
 <hr>
-<h2 id="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</h2>
+<h3 id="read-heavy-system">Read-heavy system</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>many getMovingAverage calls
+</span></span><span style="display:flex;"><span>few addPrice calls
+</span></span></code></pre></div><p>👉 Best choice:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ReentrantReadWriteLock
+</span></span></code></pre></div><hr>
+<h3 id="write-heavy-system">Write-heavy system</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>frequent price updates
+</span></span><span style="display:flex;"><span>few reads
+</span></span></code></pre></div><p>👉 Simpler approach is often enough:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized or ReentrantLock
+</span></span></code></pre></div><hr>
+<h3 id="balanced-workload">Balanced workload</h3>
+<p>👉 Either approach can work depending on contention.</p>
 <hr>
-<h3 id="-using-200-for-everything">❌ Using 200 for everything</h3>
+<h2 id="6-lock-contention">6. Lock Contention</h2>
+<hr>
+<p>Lock contention happens when multiple threads compete for the same lock.</p>
+<p>With <code>synchronized</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>all threads wait in a single queue
+</span></span></code></pre></div><p>With <code>ReadWriteLock</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>readers can proceed in parallel
+</span></span><span style="display:flex;"><span>writers still block
+</span></span></code></pre></div><hr>
+<h2 id="7-latency-vs-throughput">7. Latency vs Throughput</h2>
+<hr>
+<h3 id="synchronized-1"><code>synchronized</code></h3>
 <ul>
-<li>hides real errors</li>
+<li>lower complexity</li>
+<li>higher latency under contention</li>
+<li>lower throughput</li>
 </ul>
 <hr>
-<h3 id="-exposing-internal-error-messages">❌ Exposing internal error messages</h3>
+<h3 id="readwritelock"><code>ReadWriteLock</code></h3>
 <ul>
-<li>security risk</li>
+<li>better throughput for reads</li>
+<li>slightly higher complexity</li>
 </ul>
 <hr>
-<h3 id="-inconsistent-status-usage">❌ Inconsistent status usage</h3>
-<ul>
-<li>confuses clients</li>
-</ul>
+<h2 id="8-why-thread-safe-collections-alone-are-not-enough">8. Why Thread-Safe Collections Alone Are Not Enough</h2>
 <hr>
-<h3 id="-mixing-business-errors-with-500">❌ Mixing business errors with 500</h3>
+<p>You might think of using:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">synchronizedList</span>(...)
+</span></span><span style="display:flex;"><span>CopyOnWriteArrayList
+</span></span><span style="display:flex;"><span>ConcurrentLinkedQueue
+</span></span></code></pre></div><p>These protect <strong>individual operations</strong>, but our logic is a <strong>compound operation</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read prefix → compute → write prefix
+</span></span></code></pre></div><p>Without a lock, this sequence can still break.</p>
+<p>👉 So we still need explicit synchronization.</p>
+<hr>
+<h2 id="9-can-we-avoid-locks-completely">9. Can We Avoid Locks Completely?</h2>
+<hr>
+<p>In advanced systems, yes — using:</p>
 <ul>
-<li>misleads retry logic</li>
+<li>lock-free algorithms</li>
+<li>atomic variables</li>
+<li>immutable snapshots</li>
 </ul>
+<p>But these approaches are:</p>
+<ul>
+<li>complex</li>
+<li>error-prone</li>
+<li>hard to reason about</li>
+</ul>
+<p>👉 Not expected in most interviews unless specifically asked.</p>
+<hr>
+<h2 id="10-real-world-system-thinking">10. Real-World System Thinking</h2>
+<hr>
+<p>In a real trading system, we might:</p>
+<ul>
+<li>separate write pipeline (price ingestion)</li>
+<li>maintain precomputed aggregates</li>
+<li>expose read-optimized views</li>
+</ul>
+<p>Instead of sharing mutable structures directly.</p>
+<hr>
+<h2 id="11-interview-answer-strategy">11. Interview Answer Strategy</h2>
+<hr>
+<p>A strong answer sounds like this:</p>
+<blockquote>
+<p>“I would first ensure correctness using synchronized methods. Then I would analyze the workload. Since getMovingAverage is a read operation and likely to be called more frequently, I would switch to ReentrantReadWriteLock to allow multiple concurrent readers while still protecting writes.”</p></blockquote>
+<hr>
+<h2 id="12-summary">12. Summary</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Decision Area</th>
+          <th>Recommendation</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Simple correctness</td>
+          <td>synchronized</td>
+      </tr>
+      <tr>
+          <td>More control</td>
+          <td>ReentrantLock</td>
+      </tr>
+      <tr>
+          <td>Read-heavy workload</td>
+          <td>ReadWriteLock</td>
+      </tr>
+      <tr>
+          <td>Complex/high-scale systems</td>
+          <td>redesign architecture</td>
+      </tr>
+  </tbody>
+</table>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>HTTP status codes and API behavior define how clients interact with your system.</p>
-<p>A well-designed API:</p>
-<ul>
-<li>uses correct status codes</li>
-<li>provides clear error messages</li>
-<li>behaves predictably under retries</li>
-</ul>
-<hr>
+<p>Concurrency is not just about adding locks.</p>
+<p>It is about:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>choosing the right locking strategy for the workload
+</span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/">API Design Best Practices →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_4_advanced-lock-free-approach/">Level 2 — Advanced: Lock-Free Thinking (Optional) →</a></strong></p>
+<p>👉 <strong>Level 2 — Advanced Lock-Free Approach</strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Use status codes to reflect outcome clearly</li>
-<li>Keep error handling consistent</li>
-<li>Design APIs that are predictable and retry-safe</li>
+<li>Start simple, then optimize</li>
+<li>Understand read vs write patterns</li>
+<li>Choose locks based on system behavior</li>
+<li>Thread-safe collections are not enough for compound operations</li>
 </ul></blockquote>
 
         </article>
@@ -458,55 +412,73 @@ Status codes should reflect <strong>what happened</strong>, while the response b
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-status-codes-matter" data-toc-target="1-why-status-codes-matter">1. Why Status Codes Matter</a>
+        <a class="toc-link" href="#1-why-trade-offs-matter" data-toc-target="1-why-trade-offs-matter">1. Why Trade-offs Matter</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-categories-of-status-codes" data-toc-target="2-categories-of-status-codes">2. Categories of Status Codes</a>
+        <a class="toc-link" href="#2-recap-of-available-approaches" data-toc-target="2-recap-of-available-approaches">2. Recap of Available Approaches</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-success-status-codes" data-toc-target="3-success-status-codes">3. Success Status Codes</a>
+        <a class="toc-link" href="#3-synchronized-vs-reentrantlock" data-toc-target="3-synchronized-vs-reentrantlock"></a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-client-error-status-codes-4xx" data-toc-target="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</a>
+        <a class="toc-link" href="#4-reentrantlock-vs-reentrantreadwritelock" data-toc-target="4-reentrantlock-vs-reentrantreadwritelock"></a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-server-error-status-codes-5xx" data-toc-target="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</a>
+        <a class="toc-link" href="#5-read-heavy-vs-write-heavy-systems" data-toc-target="5-read-heavy-vs-write-heavy-systems">5. Read-Heavy vs Write-Heavy Systems</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-mapping-status-codes-to-payment-api" data-toc-target="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</a>
+        <a class="toc-link" href="#6-lock-contention" data-toc-target="6-lock-contention">6. Lock Contention</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-api-behavior-design" data-toc-target="7-api-behavior-design">7. API Behavior Design</a>
+        <a class="toc-link" href="#7-latency-vs-throughput" data-toc-target="7-latency-vs-throughput">7. Latency vs Throughput</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-retry-strategy-important" data-toc-target="8-retry-strategy-important">8. Retry Strategy (Important)</a>
+        <a class="toc-link" href="#8-why-thread-safe-collections-alone-are-not-enough" data-toc-target="8-why-thread-safe-collections-alone-are-not-enough">8. Why Thread-Safe Collections Alone Are Not Enough</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-common-mistakes-to-avoid" data-toc-target="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</a>
+        <a class="toc-link" href="#9-can-we-avoid-locks-completely" data-toc-target="9-can-we-avoid-locks-completely">9. Can We Avoid Locks Completely?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-real-world-system-thinking" data-toc-target="10-real-world-system-thinking">10. Real-World System Thinking</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-interview-answer-strategy" data-toc-target="11-interview-answer-strategy">11. Interview Answer Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-summary" data-toc-target="12-summary">12. Summary</a>
       </li>
     
       
@@ -528,7 +500,7 @@ Status codes should reflect <strong>what happened</strong>, while the response b
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_3_response-models/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_2_making-thread-safe/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -560,7 +532,7 @@ Status codes should reflect <strong>what happened</strong>, while the response b
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_4_advanced-lock-free-approach/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

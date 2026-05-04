@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTTP Status Codes &amp; API Behavior</title>
+<title>Level 2 — Problem Evolution: Concurrency &amp; Thread Safety</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">HTTP Status Codes &amp; API Behavior</h1>
+    <h1 class="main-heading">Level 2 — Problem Evolution: Concurrency &amp; Thread Safety</h1>
     <h3>
   </div>
 </section>
@@ -156,280 +156,172 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Apr, 2026
+            Last updated on: 3 May, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-status-codes-matter">1. Why Status Codes Matter</h2>
+          <h2 id="1-why-concurrency-matters">1. Why Concurrency Matters</h2>
 <hr>
-<p>HTTP status codes are the <strong>first signal</strong> a client receives about the outcome of a request.</p>
-<p>They help clients quickly understand:</p>
+<p>So far, we have designed a solution that works correctly in a <strong>single-threaded environment</strong>.</p>
+<p>However, real-world systems are rarely single-threaded.</p>
+<p>In a trading system:</p>
 <ul>
-<li>whether the request succeeded</li>
-<li>whether it failed</li>
-<li>whether it should retry</li>
+<li>multiple <strong>price feeds</strong> may push updates simultaneously</li>
+<li>multiple <strong>clients (UI / risk systems)</strong> may query data at the same time</li>
 </ul>
 <blockquote>
-<p>📝 <strong>Key Insight:</strong><br>
-Status codes should reflect <strong>what happened</strong>, while the response body explains <strong>why it happened</strong>.</p></blockquote>
+<p>❗ This means <code>addPrice()</code> and <code>getMovingAverage()</code> can be called concurrently.</p></blockquote>
 <hr>
-<h2 id="2-categories-of-status-codes">2. Categories of Status Codes</h2>
+<h2 id="2-problem-evolution">2. Problem Evolution</h2>
+<hr>
+<p>Let’s evolve the problem:</p>
+<blockquote>
+<p>“Now assume 50 threads are calling <code>addPrice()</code> and 100 threads are calling <code>getMovingAverage()</code> at the same time.”</p></blockquote>
+<p>At this point, our Level 1 solution is no longer safe.</p>
+<hr>
+<h2 id="3-what-breaks-in-our-current-design">3. What Breaks in Our Current Design?</h2>
+<hr>
+<p>Our current implementation uses:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>BigDecimal<span style="color:#f92672">&gt;</span> prefixPriceSums;
+</span></span></code></pre></div><p>These are <strong>not thread-safe</strong>.</p>
+<hr>
+<h3 id="problem-1--race-conditions">Problem 1 — Race Conditions</h3>
+<hr>
+<p>Consider two threads executing <code>addPrice()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → reads last prefix sum
+</span></span><span style="display:flex;"><span>Thread B → reads same last prefix sum
+</span></span><span style="display:flex;"><span>Thread A → writes new prefix sum
+</span></span><span style="display:flex;"><span>Thread B → writes new prefix sum
+</span></span></code></pre></div><p>👉 One update is lost.</p>
+<hr>
+<h3 id="problem-2--data-inconsistency">Problem 2 — Data Inconsistency</h3>
+<hr>
+<p>Our logic depends on:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>prefix[n] = prefix[n-1] + price
+</span></span></code></pre></div><p>If operations interleave incorrectly, the prefix sum chain breaks.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Expected:
+</span></span><span style="display:flex;"><span>[0, 100, 200, 300]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Actual (due to race):
+</span></span><span style="display:flex;"><span>[0, 100, 200, 200]
+</span></span></code></pre></div><p>👉 Now all future calculations are wrong.</p>
+<hr>
+<h3 id="problem-3--non-atomic-operations">Problem 3 — Non-Atomic Operations</h3>
+<hr>
+<p>This line looks simple:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">add</span>(...)
+</span></span></code></pre></div><p>But internally it involves multiple steps:</p>
+<ol>
+<li>read last value</li>
+<li>compute new value</li>
+<li>append to list</li>
+</ol>
+<p>👉 These steps are not atomic.</p>
+<hr>
+<h3 id="problem-4--visibility-issues">Problem 4 — Visibility Issues</h3>
+<hr>
+<p>Even if one thread updates the list, another thread may not immediately see the updated value.</p>
+<p>This happens due to:</p>
+<ul>
+<li>CPU caching</li>
+<li>Java Memory Model behavior</li>
+</ul>
+<p>👉 Leads to stale reads.</p>
+<hr>
+<h3 id="problem-5--concurrent-reads-during-writes">Problem 5 — Concurrent Reads During Writes</h3>
+<hr>
+<p>While one thread is updating:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">add</span>(...)
+</span></span></code></pre></div><p>Another thread may execute:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>getMovingAverage(k)
+</span></span></code></pre></div><p>👉 It may read:</p>
+<ul>
+<li>partially updated data</li>
+<li>inconsistent prefix values</li>
+</ul>
+<hr>
+<h2 id="4-example-scenario-critical">4. Example Scenario (Critical)</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Initial:
+</span></span><span style="display:flex;"><span>prefix = [0, 100]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Thread A → addPrice(50)
+</span></span><span style="display:flex;"><span>Thread B → addPrice(60)
+</span></span></code></pre></div><p>Execution:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A reads 100
+</span></span><span style="display:flex;"><span>Thread B reads 100
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Thread A writes 150
+</span></span><span style="display:flex;"><span>Thread B writes 160
+</span></span></code></pre></div><p>Final state:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>prefix = [0, 100, 150, 160]
+</span></span></code></pre></div><p>👉 Correct value should have been:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[0, 100, 150, 210]
+</span></span></code></pre></div><hr>
+<h2 id="5-why-this-is-dangerous">5. Why This Is Dangerous</h2>
+<hr>
+<p>In a trading system:</p>
+<ul>
+<li>incorrect averages → wrong signals</li>
+<li>wrong signals → financial loss</li>
+</ul>
+<blockquote>
+<p>❗ Concurrency bugs are not just technical issues — they have real-world impact.</p></blockquote>
+<hr>
+<h2 id="6-summary-of-issues">6. Summary of Issues</h2>
 <hr>
 <table>
   <thead>
       <tr>
-          <th>Category</th>
-          <th>Meaning</th>
+          <th>Problem Type</th>
+          <th>Impact</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>2xx</td>
-          <td>Success</td>
+          <td>Race condition</td>
+          <td>Lost updates</td>
       </tr>
       <tr>
-          <td>4xx</td>
-          <td>Client error</td>
+          <td>Data inconsistency</td>
+          <td>Incorrect prefix sums</td>
       </tr>
       <tr>
-          <td>5xx</td>
-          <td>Server error</td>
+          <td>Non-atomic ops</td>
+          <td>Partial updates</td>
+      </tr>
+      <tr>
+          <td>Visibility issues</td>
+          <td>Stale reads</td>
       </tr>
   </tbody>
 </table>
 <hr>
-<h2 id="3-success-status-codes">3. Success Status Codes</h2>
+<h2 id="7-interview-question">7. Interview Question</h2>
 <hr>
-<h3 id="201-created">201 Created</h3>
-<p>Used for:</p>
-<ul>
-<li><code>POST /payments</code></li>
-</ul>
-<p>👉 Indicates a new resource was successfully created.</p>
-<hr>
-<h3 id="200-ok">200 OK</h3>
-<p>Used for:</p>
-<ul>
-<li><code>GET /payments/{id}</code></li>
-<li><code>POST /payments/{id}/confirm</code> (when returning result)</li>
-</ul>
-<p>👉 Indicates request was processed successfully.</p>
-<hr>
-<h3 id="202-accepted-optional-for-async">202 Accepted (Optional for Async)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is accepted but processing is not complete yet</li>
-</ul>
-<p>👉 Useful for async flows (future extension).</p>
-<hr>
-<h2 id="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</h2>
-<hr>
-<h3 id="400-bad-request">400 Bad Request</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid input format</li>
-<li>missing required fields</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_REQUEST&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Amount must be greater than zero&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="404-not-found">404 Not Found</h3>
-<p>Used when:</p>
-<ul>
-<li>payment does not exist</li>
-</ul>
-<hr>
-<h3 id="409-conflict">409 Conflict</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid state transition</li>
-<li>duplicate operation attempted</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="422-unprocessable-entity-optional">422 Unprocessable Entity (Optional)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is valid but business rules fail</li>
-</ul>
-<p>Example:</p>
-<ul>
-<li>insufficient balance</li>
-<li>unsupported currency</li>
-</ul>
-<hr>
-<h2 id="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</h2>
-<hr>
-<h3 id="500-internal-server-error">500 Internal Server Error</h3>
-<p>Used when:</p>
-<ul>
-<li>unexpected failure occurs</li>
-</ul>
-<p>👉 Should not expose internal details.</p>
-<hr>
-<h3 id="502--503-gateway-errors">502 / 503 (Gateway Errors)</h3>
-<p>Used when:</p>
-<ul>
-<li>external gateway fails or is unavailable</li>
-</ul>
-<hr>
-<h2 id="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Scenario</th>
-          <th>Status Code</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Payment created</td>
-          <td>201</td>
-      </tr>
-      <tr>
-          <td>Payment fetched</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Payment confirmed successfully</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Invalid input</td>
-          <td>400</td>
-      </tr>
-      <tr>
-          <td>Payment not found</td>
-          <td>404</td>
-      </tr>
-      <tr>
-          <td>Invalid state transition</td>
-          <td>409</td>
-      </tr>
-      <tr>
-          <td>Business validation failure</td>
-          <td>422</td>
-      </tr>
-      <tr>
-          <td>Internal failure</td>
-          <td>500</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="7-api-behavior-design">7. API Behavior Design</h2>
-<hr>
-<p>Status codes alone are not enough — API behavior must be <strong>consistent and predictable</strong>.</p>
-<hr>
-<h3 id="1-idempotent-behavior">1. Idempotent Behavior</h3>
-<ul>
-<li>repeated requests should return same result</li>
-<li>no duplicate side effects</li>
-</ul>
-<hr>
-<h3 id="2-consistent-error-structure">2. Consistent Error Structure</h3>
-<p>Always return:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;ERROR_CODE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Human readable message&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="3-state-aware-responses">3. State-Aware Responses</h3>
-<ul>
-<li>response must reflect current payment state</li>
-<li>do not rely only on status code</li>
-</ul>
-<hr>
-<h3 id="4-safe-retries">4. Safe Retries</h3>
-<ul>
-<li>client should know when retry is safe</li>
-<li>avoid ambiguous responses</li>
-</ul>
-<hr>
-<h2 id="8-retry-strategy-important">8. Retry Strategy (Important)</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Status Code</th>
-          <th>Retry?</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>2xx</td>
-          <td>❌ No</td>
-      </tr>
-      <tr>
-          <td>4xx</td>
-          <td>❌ No (fix request)</td>
-      </tr>
-      <tr>
-          <td>5xx</td>
-          <td>✅ Yes</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<p>👉 Clients should retry only when failure is <strong>temporary</strong>.</p>
-<hr>
-<h2 id="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</h2>
-<hr>
-<h3 id="-using-200-for-everything">❌ Using 200 for everything</h3>
-<ul>
-<li>hides real errors</li>
-</ul>
-<hr>
-<h3 id="-exposing-internal-error-messages">❌ Exposing internal error messages</h3>
-<ul>
-<li>security risk</li>
-</ul>
-<hr>
-<h3 id="-inconsistent-status-usage">❌ Inconsistent status usage</h3>
-<ul>
-<li>confuses clients</li>
-</ul>
-<hr>
-<h3 id="-mixing-business-errors-with-500">❌ Mixing business errors with 500</h3>
-<ul>
-<li>misleads retry logic</li>
-</ul>
+<p>At this point, the interviewer will ask:</p>
+<blockquote>
+<p>❓ “How would you make this implementation thread-safe?”</p></blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>HTTP status codes and API behavior define how clients interact with your system.</p>
-<p>A well-designed API:</p>
-<ul>
-<li>uses correct status codes</li>
-<li>provides clear error messages</li>
-<li>behaves predictably under retries</li>
-</ul>
-<hr>
+<p>Our Level 1 solution is correct <strong>only in a single-threaded environment</strong>.</p>
+<p>Once concurrency is introduced, it becomes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Incorrect + unsafe
+</span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/">API Design Best Practices →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_2_making-thread-safe/">Making It Thread-Safe →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Use status codes to reflect outcome clearly</li>
-<li>Keep error handling consistent</li>
-<li>Design APIs that are predictable and retry-safe</li>
+<li>Code that works in isolation can break under concurrency</li>
+<li>Prefix sum logic is especially sensitive to race conditions</li>
+<li>Thread-safety must be explicitly designed</li>
 </ul></blockquote>
 
         </article>
@@ -458,55 +350,43 @@ Status codes should reflect <strong>what happened</strong>, while the response b
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-status-codes-matter" data-toc-target="1-why-status-codes-matter">1. Why Status Codes Matter</a>
+        <a class="toc-link" href="#1-why-concurrency-matters" data-toc-target="1-why-concurrency-matters">1. Why Concurrency Matters</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-categories-of-status-codes" data-toc-target="2-categories-of-status-codes">2. Categories of Status Codes</a>
+        <a class="toc-link" href="#2-problem-evolution" data-toc-target="2-problem-evolution">2. Problem Evolution</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-success-status-codes" data-toc-target="3-success-status-codes">3. Success Status Codes</a>
+        <a class="toc-link" href="#3-what-breaks-in-our-current-design" data-toc-target="3-what-breaks-in-our-current-design">3. What Breaks in Our Current Design?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-client-error-status-codes-4xx" data-toc-target="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</a>
+        <a class="toc-link" href="#4-example-scenario-critical" data-toc-target="4-example-scenario-critical">4. Example Scenario (Critical)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-server-error-status-codes-5xx" data-toc-target="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</a>
+        <a class="toc-link" href="#5-why-this-is-dangerous" data-toc-target="5-why-this-is-dangerous">5. Why This Is Dangerous</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-mapping-status-codes-to-payment-api" data-toc-target="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</a>
+        <a class="toc-link" href="#6-summary-of-issues" data-toc-target="6-summary-of-issues">6. Summary of Issues</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-api-behavior-design" data-toc-target="7-api-behavior-design">7. API Behavior Design</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-retry-strategy-important" data-toc-target="8-retry-strategy-important">8. Retry Strategy (Important)</a>
-      </li>
-    
-      
-      
-      <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-common-mistakes-to-avoid" data-toc-target="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</a>
+        <a class="toc-link" href="#7-interview-question" data-toc-target="7-interview-question">7. Interview Question</a>
       </li>
     
       
@@ -527,8 +407,6 @@ Status codes should reflect <strong>what happened</strong>, while the response b
 
 <section class="topic-nav">
   <div class="container nav-buttons">
-    
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_3_response-models/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -560,7 +438,7 @@ Status codes should reflect <strong>what happened</strong>, while the response b
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_2_making-thread-safe/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

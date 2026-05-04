@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTTP Status Codes &amp; API Behavior</title>
+<title>Level 3 — Scaling &amp; Performance</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">HTTP Status Codes &amp; API Behavior</h1>
+    <h1 class="main-heading">Level 3 — Scaling &amp; Performance</h1>
     <h3>
   </div>
 </section>
@@ -156,280 +156,232 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Apr, 2026
+            Last updated on: 4 May, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-status-codes-matter">1. Why Status Codes Matter</h2>
+          <h2 id="1-goal-of-this-article">1. Goal of This Article</h2>
 <hr>
-<p>HTTP status codes are the <strong>first signal</strong> a client receives about the outcome of a request.</p>
-<p>They help clients quickly understand:</p>
-<ul>
-<li>whether the request succeeded</li>
-<li>whether it failed</li>
-<li>whether it should retry</li>
-</ul>
+<p>We now have a correct and resilient architecture. The next step is to ensure it performs under <strong>production-scale load</strong>.</p>
 <blockquote>
-<p>📝 <strong>Key Insight:</strong><br>
-Status codes should reflect <strong>what happened</strong>, while the response body explains <strong>why it happened</strong>.</p></blockquote>
+<p>📝 <strong>Goal:</strong> Maximize throughput while keeping latency low.</p></blockquote>
 <hr>
-<h2 id="2-categories-of-status-codes">2. Categories of Status Codes</h2>
+<h2 id="2-throughput-vs-latency">2. Throughput vs Latency</h2>
+<hr>
+<ul>
+<li><strong>Throughput</strong> → how many ticks per second we can process</li>
+<li><strong>Latency</strong> → how fast a single tick becomes visible to clients</li>
+</ul>
+<p>These are often in tension.</p>
+<div class="mermaid">
+flowchart LR
+    A[Higher Throughput] -->|Batching| B[Higher Latency]
+    C[Lower Latency] -->|Immediate Processing| D[Lower Throughput]
+</div>
+<blockquote>
+<p>🧠 Balance depends on product requirements (e.g., dashboards vs HFT - High Frequency Trading).</p></blockquote>
+<hr>
+<h2 id="3-horizontal-scaling-with-kafka-consumers">3. Horizontal Scaling with Kafka Consumers</h2>
+<hr>
+<p>Scale the aggregator by adding more consumer instances.</p>
+<p>Constraint:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>#Consumers ≤ #Partitions
+</span></span></code></pre></div><div class="mermaid">
+flowchart LR
+    P1[Partition 1] --> C1[Consumer 1]
+    P2[Partition 2] --> C2[Consumer 2]
+    P3[Partition 3] --> C3[Consumer 3]
+</div>
+<ul>
+<li>Each partition is processed by <strong>one consumer</strong> at a time</li>
+<li>Adding partitions increases parallelism</li>
+</ul>
+<hr>
+<h2 id="4-partitioning-strategy-revisited">4. Partitioning Strategy (Revisited)</h2>
+<hr>
+<p>Baseline:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
+</span></span></code></pre></div><h3 id="problem-hot-symbols">Problem: Hot Symbols</h3>
+<p>Some symbols (e.g., popular stocks) receive far more ticks.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>AAPL → very high traffic (hot partition)
+</span></span></code></pre></div><hr>
+<h3 id="mitigation-options">Mitigation Options</h3>
+<ol>
+<li><strong>Sub-partition by symbol + shard</strong></li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>key = symbol + hash(shardId)
+</span></span></code></pre></div><ol start="2">
+<li><strong>Split heavy symbols explicitly</strong></li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>AAPL-1, AAPL-2, AAPL-3
+</span></span></code></pre></div><ol start="3">
+<li><strong>Dedicated topic for hot symbols</strong></li>
+</ol>
+<hr>
+<div class="mermaid">
+flowchart TD
+    A[AAPL ticks] --> B{Shard}
+    B --> P1[AAPL-1]
+    B --> P2[AAPL-2]
+    B --> P3[AAPL-3]
+</div>
+<hr>
+<h2 id="5-consumer-scaling-patterns">5. Consumer Scaling Patterns</h2>
+<hr>
+<h3 id="option-1--scale-by-partitions">Option 1 — Scale by partitions</h3>
+<ul>
+<li>Increase partitions</li>
+<li>Add more consumers</li>
+</ul>
+<hr>
+<h3 id="option-2--scale-by-symbols">Option 2 — Scale by symbols</h3>
+<ul>
+<li>Assign symbol ranges to services</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Service 1 → A–M
+</span></span><span style="display:flex;"><span>Service 2 → N–Z
+</span></span></code></pre></div><hr>
+<h3 id="option-3--hybrid">Option 3 — Hybrid</h3>
+<ul>
+<li>Partition + service-level sharding</li>
+</ul>
+<hr>
+<h2 id="6-batching-vs-real-time-processing">6. Batching vs Real-Time Processing</h2>
+<hr>
+<h3 id="immediate-processing">Immediate Processing</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Process each tick individually
+</span></span></code></pre></div><p>✔ Lowest latency<br>
+❌ Lower throughput</p>
+<hr>
+<h3 id="batch-processing">Batch Processing</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Process N ticks together
+</span></span></code></pre></div><p>✔ Higher throughput<br>
+❌ Slight delay</p>
+<hr>
+<h3 id="practical-approach">Practical Approach</h3>
+<ul>
+<li>micro-batching (e.g., 10–100 events)</li>
+<li>time-based batching (e.g., 10–50 ms)</li>
+</ul>
+<hr>
+<h2 id="7-efficient-state-updates">7. Efficient State Updates</h2>
+<hr>
+<p>Avoid expensive operations per tick.</p>
+<p>Instead of recomputing:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>sum of last k prices each time
+</span></span></code></pre></div><p>Use rolling state:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>newSum = oldSum + newPrice - oldPrice
+</span></span></code></pre></div><p>👉 This keeps processing O(1) per event.</p>
+<hr>
+<h2 id="8-cache-design-for-low-latency">8. Cache Design for Low Latency</h2>
+<hr>
+<p>Use Redis (or similar) for serving queries.</p>
+<h3 id="key-design">Key design</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>moving-average:{symbol}:{window}
+</span></span></code></pre></div><h3 id="optimizations">Optimizations</h3>
+<ul>
+<li>use pipelining</li>
+<li>use TTL for stale cleanup</li>
+<li>store precomputed windows</li>
+</ul>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Aggregator] --> B[Redis Cache]
+    C[Client] --> B
+</div>
+<hr>
+<h2 id="9-read-scaling">9. Read Scaling</h2>
+<hr>
+<p>To support many clients:</p>
+<ul>
+<li>use <strong>cache replicas</strong></li>
+<li>use <strong>read replicas</strong></li>
+<li>optionally use <strong>CDN / edge caching</strong> for dashboards</li>
+</ul>
+<hr>
+<h2 id="10-backpressure-handling">10. Backpressure Handling</h2>
+<hr>
+<p>If consumers cannot keep up:</p>
+<ul>
+<li>Kafka buffers messages</li>
+<li>lag increases</li>
+</ul>
+<p>Mitigation:</p>
+<ul>
+<li>scale consumers</li>
+<li>increase partitions</li>
+<li>reduce processing cost</li>
+</ul>
+<hr>
+<h2 id="11-monitoring-key-metrics">11. Monitoring Key Metrics</h2>
+<hr>
+<p>Track:</p>
+<ul>
+<li>consumer lag</li>
+<li>processing latency</li>
+<li>cache hit ratio</li>
+<li>error rate</li>
+<li>throughput (events/sec)</li>
+</ul>
+<hr>
+<h2 id="12-cost-vs-performance-trade-offs">12. Cost vs Performance Trade-offs</h2>
 <hr>
 <table>
   <thead>
       <tr>
-          <th>Category</th>
-          <th>Meaning</th>
+          <th>Strategy</th>
+          <th>Benefit</th>
+          <th>Cost</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>2xx</td>
-          <td>Success</td>
+          <td>More partitions</td>
+          <td>higher parallelism</td>
+          <td>more overhead</td>
       </tr>
       <tr>
-          <td>4xx</td>
-          <td>Client error</td>
+          <td>More consumers</td>
+          <td>higher throughput</td>
+          <td>infra cost</td>
       </tr>
       <tr>
-          <td>5xx</td>
-          <td>Server error</td>
+          <td>Larger cache</td>
+          <td>faster reads</td>
+          <td>memory cost</td>
+      </tr>
+      <tr>
+          <td>Batching</td>
+          <td>throughput gain</td>
+          <td>latency increase</td>
       </tr>
   </tbody>
 </table>
 <hr>
-<h2 id="3-success-status-codes">3. Success Status Codes</h2>
+<h2 id="13-interview-explanation">13. Interview Explanation</h2>
 <hr>
-<h3 id="201-created">201 Created</h3>
-<p>Used for:</p>
-<ul>
-<li><code>POST /payments</code></li>
-</ul>
-<p>👉 Indicates a new resource was successfully created.</p>
-<hr>
-<h3 id="200-ok">200 OK</h3>
-<p>Used for:</p>
-<ul>
-<li><code>GET /payments/{id}</code></li>
-<li><code>POST /payments/{id}/confirm</code> (when returning result)</li>
-</ul>
-<p>👉 Indicates request was processed successfully.</p>
-<hr>
-<h3 id="202-accepted-optional-for-async">202 Accepted (Optional for Async)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is accepted but processing is not complete yet</li>
-</ul>
-<p>👉 Useful for async flows (future extension).</p>
-<hr>
-<h2 id="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</h2>
-<hr>
-<h3 id="400-bad-request">400 Bad Request</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid input format</li>
-<li>missing required fields</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_REQUEST&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Amount must be greater than zero&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="404-not-found">404 Not Found</h3>
-<p>Used when:</p>
-<ul>
-<li>payment does not exist</li>
-</ul>
-<hr>
-<h3 id="409-conflict">409 Conflict</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid state transition</li>
-<li>duplicate operation attempted</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="422-unprocessable-entity-optional">422 Unprocessable Entity (Optional)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is valid but business rules fail</li>
-</ul>
-<p>Example:</p>
-<ul>
-<li>insufficient balance</li>
-<li>unsupported currency</li>
-</ul>
-<hr>
-<h2 id="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</h2>
-<hr>
-<h3 id="500-internal-server-error">500 Internal Server Error</h3>
-<p>Used when:</p>
-<ul>
-<li>unexpected failure occurs</li>
-</ul>
-<p>👉 Should not expose internal details.</p>
-<hr>
-<h3 id="502--503-gateway-errors">502 / 503 (Gateway Errors)</h3>
-<p>Used when:</p>
-<ul>
-<li>external gateway fails or is unavailable</li>
-</ul>
-<hr>
-<h2 id="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Scenario</th>
-          <th>Status Code</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Payment created</td>
-          <td>201</td>
-      </tr>
-      <tr>
-          <td>Payment fetched</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Payment confirmed successfully</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Invalid input</td>
-          <td>400</td>
-      </tr>
-      <tr>
-          <td>Payment not found</td>
-          <td>404</td>
-      </tr>
-      <tr>
-          <td>Invalid state transition</td>
-          <td>409</td>
-      </tr>
-      <tr>
-          <td>Business validation failure</td>
-          <td>422</td>
-      </tr>
-      <tr>
-          <td>Internal failure</td>
-          <td>500</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="7-api-behavior-design">7. API Behavior Design</h2>
-<hr>
-<p>Status codes alone are not enough — API behavior must be <strong>consistent and predictable</strong>.</p>
-<hr>
-<h3 id="1-idempotent-behavior">1. Idempotent Behavior</h3>
-<ul>
-<li>repeated requests should return same result</li>
-<li>no duplicate side effects</li>
-</ul>
-<hr>
-<h3 id="2-consistent-error-structure">2. Consistent Error Structure</h3>
-<p>Always return:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;ERROR_CODE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Human readable message&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="3-state-aware-responses">3. State-Aware Responses</h3>
-<ul>
-<li>response must reflect current payment state</li>
-<li>do not rely only on status code</li>
-</ul>
-<hr>
-<h3 id="4-safe-retries">4. Safe Retries</h3>
-<ul>
-<li>client should know when retry is safe</li>
-<li>avoid ambiguous responses</li>
-</ul>
-<hr>
-<h2 id="8-retry-strategy-important">8. Retry Strategy (Important)</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Status Code</th>
-          <th>Retry?</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>2xx</td>
-          <td>❌ No</td>
-      </tr>
-      <tr>
-          <td>4xx</td>
-          <td>❌ No (fix request)</td>
-      </tr>
-      <tr>
-          <td>5xx</td>
-          <td>✅ Yes</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<p>👉 Clients should retry only when failure is <strong>temporary</strong>.</p>
-<hr>
-<h2 id="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</h2>
-<hr>
-<h3 id="-using-200-for-everything">❌ Using 200 for everything</h3>
-<ul>
-<li>hides real errors</li>
-</ul>
-<hr>
-<h3 id="-exposing-internal-error-messages">❌ Exposing internal error messages</h3>
-<ul>
-<li>security risk</li>
-</ul>
-<hr>
-<h3 id="-inconsistent-status-usage">❌ Inconsistent status usage</h3>
-<ul>
-<li>confuses clients</li>
-</ul>
-<hr>
-<h3 id="-mixing-business-errors-with-500">❌ Mixing business errors with 500</h3>
-<ul>
-<li>misleads retry logic</li>
-</ul>
+<blockquote>
+<p>“I would scale the system horizontally using Kafka partitions and multiple consumers. Each symbol would be processed in order within a partition. To handle hot symbols, I would introduce sub-partitioning or dedicated topics. For performance, I would use rolling aggregates, micro-batching, and Redis caching for low-latency reads. I would monitor consumer lag and scale dynamically to maintain SLA.”</p></blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>HTTP status codes and API behavior define how clients interact with your system.</p>
-<p>A well-designed API:</p>
-<ul>
-<li>uses correct status codes</li>
-<li>provides clear error messages</li>
-<li>behaves predictably under retries</li>
-</ul>
-<hr>
+<p>Scaling a streaming system requires careful balancing of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partitioning + consumer scaling + efficient state + caching
+</span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/">API Design Best Practices →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_6_final-summary-and-system-recap/">Level 3 — Final Summary &amp; System Recap →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Use status codes to reflect outcome clearly</li>
-<li>Keep error handling consistent</li>
-<li>Design APIs that are predictable and retry-safe</li>
+<li>Partitioning drives scalability</li>
+<li>Consumers scale horizontally</li>
+<li>Rolling state ensures O(1) updates</li>
+<li>Cache enables low-latency reads</li>
+<li>Monitor and adapt under load</li>
 </ul></blockquote>
 
         </article>
@@ -458,55 +410,79 @@ Status codes should reflect <strong>what happened</strong>, while the response b
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-status-codes-matter" data-toc-target="1-why-status-codes-matter">1. Why Status Codes Matter</a>
+        <a class="toc-link" href="#1-goal-of-this-article" data-toc-target="1-goal-of-this-article">1. Goal of This Article</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-categories-of-status-codes" data-toc-target="2-categories-of-status-codes">2. Categories of Status Codes</a>
+        <a class="toc-link" href="#2-throughput-vs-latency" data-toc-target="2-throughput-vs-latency">2. Throughput vs Latency</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-success-status-codes" data-toc-target="3-success-status-codes">3. Success Status Codes</a>
+        <a class="toc-link" href="#3-horizontal-scaling-with-kafka-consumers" data-toc-target="3-horizontal-scaling-with-kafka-consumers">3. Horizontal Scaling with Kafka Consumers</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-client-error-status-codes-4xx" data-toc-target="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</a>
+        <a class="toc-link" href="#4-partitioning-strategy-revisited" data-toc-target="4-partitioning-strategy-revisited">4. Partitioning Strategy (Revisited)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-server-error-status-codes-5xx" data-toc-target="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</a>
+        <a class="toc-link" href="#5-consumer-scaling-patterns" data-toc-target="5-consumer-scaling-patterns">5. Consumer Scaling Patterns</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-mapping-status-codes-to-payment-api" data-toc-target="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</a>
+        <a class="toc-link" href="#6-batching-vs-real-time-processing" data-toc-target="6-batching-vs-real-time-processing">6. Batching vs Real-Time Processing</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-api-behavior-design" data-toc-target="7-api-behavior-design">7. API Behavior Design</a>
+        <a class="toc-link" href="#7-efficient-state-updates" data-toc-target="7-efficient-state-updates">7. Efficient State Updates</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-retry-strategy-important" data-toc-target="8-retry-strategy-important">8. Retry Strategy (Important)</a>
+        <a class="toc-link" href="#8-cache-design-for-low-latency" data-toc-target="8-cache-design-for-low-latency">8. Cache Design for Low Latency</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-common-mistakes-to-avoid" data-toc-target="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</a>
+        <a class="toc-link" href="#9-read-scaling" data-toc-target="9-read-scaling">9. Read Scaling</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-backpressure-handling" data-toc-target="10-backpressure-handling">10. Backpressure Handling</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-monitoring-key-metrics" data-toc-target="11-monitoring-key-metrics">11. Monitoring Key Metrics</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-cost-vs-performance-trade-offs" data-toc-target="12-cost-vs-performance-trade-offs">12. Cost vs Performance Trade-offs</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-interview-explanation" data-toc-target="13-interview-explanation">13. Interview Explanation</a>
       </li>
     
       
@@ -528,7 +504,7 @@ Status codes should reflect <strong>what happened</strong>, while the response b
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_3_response-models/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_4_consistency-and-failure-handling/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -560,7 +536,7 @@ Status codes should reflect <strong>what happened</strong>, while the response b
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_6_final-summary-and-system-recap/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>
@@ -753,6 +729,17 @@ Status codes should reflect <strong>what happened</strong>, while the response b
   </div>
 </footer>
 
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
   
 </body>
 </html>

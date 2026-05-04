@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTTP Status Codes &amp; API Behavior</title>
+<title>Level 3 — Problem Evolution: Scaling Beyond a Single Node</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">HTTP Status Codes &amp; API Behavior</h1>
+    <h1 class="main-heading">Level 3 — Problem Evolution: Scaling Beyond a Single Node</h1>
     <h3>
   </div>
 </section>
@@ -156,280 +156,169 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Apr, 2026
+            Last updated on: 4 May, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-status-codes-matter">1. Why Status Codes Matter</h2>
+          <h2 id="1-why-we-need-to-evolve-further">1. Why We Need to Evolve Further</h2>
 <hr>
-<p>HTTP status codes are the <strong>first signal</strong> a client receives about the outcome of a request.</p>
-<p>They help clients quickly understand:</p>
+<p>So far, we have built a <code>PriceTracker</code> that is:</p>
 <ul>
-<li>whether the request succeeded</li>
-<li>whether it failed</li>
-<li>whether it should retry</li>
+<li>functionally correct</li>
+<li>optimized using prefix sums</li>
+<li>thread-safe using proper locking</li>
 </ul>
+<p>But it still assumes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single JVM
+</span></span><span style="display:flex;"><span>Single machine
+</span></span><span style="display:flex;"><span>Shared memory
+</span></span></code></pre></div><blockquote>
+<p>❗ This assumption does not hold in real-world trading systems.</p></blockquote>
+<hr>
+<h2 id="2-the-real-world-scenario">2. The Real-World Scenario</h2>
+<hr>
+<p>Let’s evolve the problem again:</p>
 <blockquote>
-<p>📝 <strong>Key Insight:</strong><br>
-Status codes should reflect <strong>what happened</strong>, while the response body explains <strong>why it happened</strong>.</p></blockquote>
-<hr>
-<h2 id="2-categories-of-status-codes">2. Categories of Status Codes</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Category</th>
-          <th>Meaning</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>2xx</td>
-          <td>Success</td>
-      </tr>
-      <tr>
-          <td>4xx</td>
-          <td>Client error</td>
-      </tr>
-      <tr>
-          <td>5xx</td>
-          <td>Server error</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="3-success-status-codes">3. Success Status Codes</h2>
-<hr>
-<h3 id="201-created">201 Created</h3>
-<p>Used for:</p>
+<p>“Your Price Aggregator is now deployed in production for a global trading platform.”</p></blockquote>
+<p>New constraints:</p>
 <ul>
-<li><code>POST /payments</code></li>
+<li>Users are located across regions (e.g., London, Singapore)</li>
+<li>Price feeds are coming from multiple exchanges</li>
+<li>System must handle <strong>millions of price updates per second</strong></li>
+<li>System must be <strong>highly available (HA)</strong></li>
 </ul>
-<p>👉 Indicates a new resource was successfully created.</p>
 <hr>
-<h3 id="200-ok">200 OK</h3>
-<p>Used for:</p>
+<h2 id="3-what-breaks-in-our-current-design">3. What Breaks in Our Current Design?</h2>
+<hr>
+<p>Our current system has major limitations:</p>
+<hr>
+<h3 id="-1-single-point-of-failure">❌ 1. Single Point of Failure</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>One JVM crashes → system is down
+</span></span></code></pre></div><p>No redundancy.</p>
+<hr>
+<h3 id="-2-limited-scalability">❌ 2. Limited Scalability</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>One machine = limited CPU + memory
+</span></span></code></pre></div><p>Cannot handle:</p>
 <ul>
-<li><code>GET /payments/{id}</code></li>
-<li><code>POST /payments/{id}/confirm</code> (when returning result)</li>
+<li>high-frequency tick data</li>
+<li>multiple instruments</li>
 </ul>
-<p>👉 Indicates request was processed successfully.</p>
 <hr>
-<h3 id="202-accepted-optional-for-async">202 Accepted (Optional for Async)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is accepted but processing is not complete yet</li>
-</ul>
-<p>👉 Useful for async flows (future extension).</p>
-<hr>
-<h2 id="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</h2>
-<hr>
-<h3 id="400-bad-request">400 Bad Request</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid input format</li>
-<li>missing required fields</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_REQUEST&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Amount must be greater than zero&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
+<h3 id="-3-no-data-persistence">❌ 3. No Data Persistence</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All data is in-memory
+</span></span></code></pre></div><p>If system restarts:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All price history is lost
 </span></span></code></pre></div><hr>
-<h3 id="404-not-found">404 Not Found</h3>
-<p>Used when:</p>
-<ul>
-<li>payment does not exist</li>
-</ul>
+<h3 id="-4-no-horizontal-scaling">❌ 4. No Horizontal Scaling</h3>
+<p>We cannot simply add more instances because:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>State is local to each instance
+</span></span></code></pre></div><p>👉 Different nodes will have inconsistent data</p>
 <hr>
-<h3 id="409-conflict">409 Conflict</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid state transition</li>
-<li>duplicate operation attempted</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
+<h3 id="-5-no-fault-tolerance">❌ 5. No Fault Tolerance</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If one instance fails → no recovery
 </span></span></code></pre></div><hr>
-<h3 id="422-unprocessable-entity-optional">422 Unprocessable Entity (Optional)</h3>
-<p>Used when:</p>
+<h2 id="4-new-system-requirements">4. New System Requirements</h2>
+<hr>
+<p>We now need to design a system that supports:</p>
+<h3 id="scalability">Scalability</h3>
 <ul>
-<li>request is valid but business rules fail</li>
-</ul>
-<p>Example:</p>
-<ul>
-<li>insufficient balance</li>
-<li>unsupported currency</li>
+<li>handle high throughput</li>
+<li>distribute load across multiple nodes</li>
 </ul>
 <hr>
-<h2 id="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</h2>
-<hr>
-<h3 id="500-internal-server-error">500 Internal Server Error</h3>
-<p>Used when:</p>
+<h3 id="high-availability-ha">High Availability (HA)</h3>
 <ul>
-<li>unexpected failure occurs</li>
-</ul>
-<p>👉 Should not expose internal details.</p>
-<hr>
-<h3 id="502--503-gateway-errors">502 / 503 (Gateway Errors)</h3>
-<p>Used when:</p>
-<ul>
-<li>external gateway fails or is unavailable</li>
+<li>system should survive node failures</li>
+<li>no downtime</li>
 </ul>
 <hr>
-<h2 id="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Scenario</th>
-          <th>Status Code</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Payment created</td>
-          <td>201</td>
-      </tr>
-      <tr>
-          <td>Payment fetched</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Payment confirmed successfully</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Invalid input</td>
-          <td>400</td>
-      </tr>
-      <tr>
-          <td>Payment not found</td>
-          <td>404</td>
-      </tr>
-      <tr>
-          <td>Invalid state transition</td>
-          <td>409</td>
-      </tr>
-      <tr>
-          <td>Business validation failure</td>
-          <td>422</td>
-      </tr>
-      <tr>
-          <td>Internal failure</td>
-          <td>500</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="7-api-behavior-design">7. API Behavior Design</h2>
-<hr>
-<p>Status codes alone are not enough — API behavior must be <strong>consistent and predictable</strong>.</p>
-<hr>
-<h3 id="1-idempotent-behavior">1. Idempotent Behavior</h3>
+<h3 id="data-durability">Data Durability</h3>
 <ul>
-<li>repeated requests should return same result</li>
-<li>no duplicate side effects</li>
+<li>price data should not be lost</li>
+<li>support recovery after crash</li>
 </ul>
 <hr>
-<h3 id="2-consistent-error-structure">2. Consistent Error Structure</h3>
-<p>Always return:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;ERROR_CODE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Human readable message&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
+<h3 id="low-latency">Low Latency</h3>
+<ul>
+<li>real-time price aggregation</li>
+<li>fast moving average queries</li>
+</ul>
+<hr>
+<h3 id="consistency">Consistency</h3>
+<ul>
+<li>correct ordering of price updates</li>
+<li>accurate moving averages</li>
+</ul>
+<hr>
+<h2 id="5-key-insight--we-must-break-the-monolith">5. Key Insight — We Must Break the Monolith</h2>
+<hr>
+<p>Our current design tightly couples:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>data ingestion
+</span></span><span style="display:flex;"><span>state management
+</span></span><span style="display:flex;"><span>query handling
+</span></span></code></pre></div><p>To scale, we must separate these concerns.</p>
+<hr>
+<h2 id="6-new-direction">6. New Direction</h2>
+<hr>
+<p>Instead of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>threads updating shared memory
+</span></span></code></pre></div><p>We move toward:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>event-driven architecture
 </span></span></code></pre></div><hr>
-<h3 id="3-state-aware-responses">3. State-Aware Responses</h3>
+<p>High-level idea:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Producers (price feeds)
+</span></span><span style="display:flex;"><span>        ↓
+</span></span><span style="display:flex;"><span>Message Queue (Kafka)
+</span></span><span style="display:flex;"><span>        ↓
+</span></span><span style="display:flex;"><span>Aggregator Service (consumes events)
+</span></span><span style="display:flex;"><span>        ↓
+</span></span><span style="display:flex;"><span>Storage / Cache
+</span></span><span style="display:flex;"><span>        ↓
+</span></span><span style="display:flex;"><span>Clients (queries)
+</span></span></code></pre></div><hr>
+<h2 id="7-concept-shift">7. Concept Shift</h2>
+<hr>
+<p>We are moving from:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>in-memory object design
+</span></span></code></pre></div><p>To:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>distributed streaming system
+</span></span></code></pre></div><hr>
+<h2 id="8-questions-we-now-need-to-answer">8. Questions We Now Need to Answer</h2>
+<hr>
+<p>As we design the system, we must think about:</p>
 <ul>
-<li>response must reflect current payment state</li>
-<li>do not rely only on status code</li>
+<li>How do we distribute price updates across nodes?</li>
+<li>How do we ensure ordering of events?</li>
+<li>Where do we store aggregated data?</li>
+<li>How do we serve fast queries?</li>
+<li>What happens if a node crashes?</li>
+<li>How do we recover state?</li>
 </ul>
 <hr>
-<h3 id="4-safe-retries">4. Safe Retries</h3>
-<ul>
-<li>client should know when retry is safe</li>
-<li>avoid ambiguous responses</li>
-</ul>
+<h2 id="9-interview-transition">9. Interview Transition</h2>
 <hr>
-<h2 id="8-retry-strategy-important">8. Retry Strategy (Important)</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Status Code</th>
-          <th>Retry?</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>2xx</td>
-          <td>❌ No</td>
-      </tr>
-      <tr>
-          <td>4xx</td>
-          <td>❌ No (fix request)</td>
-      </tr>
-      <tr>
-          <td>5xx</td>
-          <td>✅ Yes</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<p>👉 Clients should retry only when failure is <strong>temporary</strong>.</p>
-<hr>
-<h2 id="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</h2>
-<hr>
-<h3 id="-using-200-for-everything">❌ Using 200 for everything</h3>
-<ul>
-<li>hides real errors</li>
-</ul>
-<hr>
-<h3 id="-exposing-internal-error-messages">❌ Exposing internal error messages</h3>
-<ul>
-<li>security risk</li>
-</ul>
-<hr>
-<h3 id="-inconsistent-status-usage">❌ Inconsistent status usage</h3>
-<ul>
-<li>confuses clients</li>
-</ul>
-<hr>
-<h3 id="-mixing-business-errors-with-500">❌ Mixing business errors with 500</h3>
-<ul>
-<li>misleads retry logic</li>
-</ul>
+<p>At this stage, in an interview, you would say:</p>
+<blockquote>
+<p>“So far, we have built a thread-safe in-memory solution. However, this won’t scale for a real trading system. I would now evolve this into a distributed system using an event-driven architecture, where price updates are streamed through a message broker like Kafka, processed by aggregator services, and stored in a combination of in-memory cache and persistent storage.”</p></blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>HTTP status codes and API behavior define how clients interact with your system.</p>
-<p>A well-designed API:</p>
-<ul>
-<li>uses correct status codes</li>
-<li>provides clear error messages</li>
-<li>behaves predictably under retries</li>
-</ul>
-<hr>
+<p>Our Level 1 and Level 2 solutions are building blocks.</p>
+<p>But to handle real-world workloads, we must:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>move from single-node thinking → distributed system design
+</span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/">API Design Best Practices →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_2_high-level-architecture/">Level 3 — High-Level Architecture Design →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Use status codes to reflect outcome clearly</li>
-<li>Keep error handling consistent</li>
-<li>Design APIs that are predictable and retry-safe</li>
+<li>Single-instance systems do not scale for real-world workloads</li>
+<li>We need horizontal scaling and fault tolerance</li>
+<li>Event-driven systems are a natural fit for streaming data</li>
+<li>System design now shifts from code → architecture</li>
 </ul></blockquote>
 
         </article>
@@ -458,55 +347,55 @@ Status codes should reflect <strong>what happened</strong>, while the response b
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-status-codes-matter" data-toc-target="1-why-status-codes-matter">1. Why Status Codes Matter</a>
+        <a class="toc-link" href="#1-why-we-need-to-evolve-further" data-toc-target="1-why-we-need-to-evolve-further">1. Why We Need to Evolve Further</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-categories-of-status-codes" data-toc-target="2-categories-of-status-codes">2. Categories of Status Codes</a>
+        <a class="toc-link" href="#2-the-real-world-scenario" data-toc-target="2-the-real-world-scenario">2. The Real-World Scenario</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-success-status-codes" data-toc-target="3-success-status-codes">3. Success Status Codes</a>
+        <a class="toc-link" href="#3-what-breaks-in-our-current-design" data-toc-target="3-what-breaks-in-our-current-design">3. What Breaks in Our Current Design?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-client-error-status-codes-4xx" data-toc-target="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</a>
+        <a class="toc-link" href="#4-new-system-requirements" data-toc-target="4-new-system-requirements">4. New System Requirements</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-server-error-status-codes-5xx" data-toc-target="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</a>
+        <a class="toc-link" href="#5-key-insight--we-must-break-the-monolith" data-toc-target="5-key-insight--we-must-break-the-monolith">5. Key Insight — We Must Break the Monolith</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-mapping-status-codes-to-payment-api" data-toc-target="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</a>
+        <a class="toc-link" href="#6-new-direction" data-toc-target="6-new-direction">6. New Direction</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-api-behavior-design" data-toc-target="7-api-behavior-design">7. API Behavior Design</a>
+        <a class="toc-link" href="#7-concept-shift" data-toc-target="7-concept-shift">7. Concept Shift</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-retry-strategy-important" data-toc-target="8-retry-strategy-important">8. Retry Strategy (Important)</a>
+        <a class="toc-link" href="#8-questions-we-now-need-to-answer" data-toc-target="8-questions-we-now-need-to-answer">8. Questions We Now Need to Answer</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-common-mistakes-to-avoid" data-toc-target="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</a>
+        <a class="toc-link" href="#9-interview-transition" data-toc-target="9-interview-transition">9. Interview Transition</a>
       </li>
     
       
@@ -527,8 +416,6 @@ Status codes should reflect <strong>what happened</strong>, while the response b
 
 <section class="topic-nav">
   <div class="container nav-buttons">
-    
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_3_response-models/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -560,7 +447,7 @@ Status codes should reflect <strong>what happened</strong>, while the response b
     
 
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/" class="btn nav-btn">Next &rarr;</a>
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_2_high-level-architecture/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

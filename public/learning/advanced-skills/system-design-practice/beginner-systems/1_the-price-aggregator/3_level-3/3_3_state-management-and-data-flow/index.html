@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 3 — State Management &amp; Data Flow</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777899888">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Level 3 — State Management &amp; Data Flow</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 4 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-state-management-matters">1. Why State Management Matters</h2>
+<hr>
+<p>In Level 1, our state was simple:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>BigDecimal<span style="color:#f92672">&gt;</span> prefixPriceSums;
+</span></span></code></pre></div><p>That worked because everything lived inside one JVM.</p>
+<p>In a distributed system, state becomes harder because:</p>
+<ul>
+<li>multiple symbols are processed in parallel</li>
+<li>multiple aggregator instances may exist</li>
+<li>events may arrive late or duplicated</li>
+<li>instances can fail and restart</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Key Point:</strong><br>
+In a distributed price aggregator, the main challenge is not only processing events — it is managing state correctly.</p></blockquote>
+<hr>
+<h2 id="2-what-state-do-we-need">2. What State Do We Need?</h2>
+<hr>
+<p>For each symbol, the aggregator needs enough information to calculate moving averages.</p>
+<p>Example symbol:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>VOD.L
+</span></span></code></pre></div><p>State may include:</p>
+<ul>
+<li>latest price</li>
+<li>recent price window</li>
+<li>prefix sums or rolling sums</li>
+<li>last processed event timestamp / sequence number</li>
+<li>computed moving averages</li>
+</ul>
+<hr>
+<h2 id="3-state-per-symbol">3. State Per Symbol</h2>
+<hr>
+<p>The key idea is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>state is maintained per symbol
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>VOD.L  → state for Vodafone prices
+</span></span><span style="display:flex;"><span>BARC.L → state for Barclays prices
+</span></span><span style="display:flex;"><span>HSBA.L → state for HSBC prices
+</span></span></code></pre></div><hr>
+<div class="mermaid">
+flowchart TD
+    A[Aggregator Service]
+    A --> B[VOD.L State]
+    A --> C[BARC.L State]
+    A --> D[HSBA.L State]
+
+    B --> B1[Recent Prices]
+    B --> B2[Moving Averages]
+    C --> C1[Recent Prices]
+    C --> C2[Moving Averages]
+    D --> D1[Recent Prices]
+    D --> D2[Moving Averages]
+</div>
+<hr>
+<h2 id="4-why-event-ordering-matters">4. Why Event Ordering Matters</h2>
+<hr>
+<p>Moving average depends on the order of price ticks.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>100 → 101 → 102
+</span></span></code></pre></div><p>is not the same stream as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>102 → 100 → 101
+</span></span></code></pre></div><p>If events are processed out of order, the rolling window can become incorrect.</p>
+<hr>
+<h2 id="5-preserving-order-with-kafka-partitioning">5. Preserving Order with Kafka Partitioning</h2>
+<hr>
+<p>Kafka preserves ordering <strong>within a partition</strong>.</p>
+<p>So we partition by symbol:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
+</span></span></code></pre></div><p>This ensures all events for the same symbol go to the same partition.</p>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Tick: VOD.L] --> P1[Partition 1]
+    B[Tick: VOD.L] --> P1
+    C[Tick: BARC.L] --> P2[Partition 2]
+    D[Tick: HSBA.L] --> P3[Partition 3]
+
+    P1 --> C1[Aggregator Consumer 1]
+    P2 --> C2[Aggregator Consumer 2]
+    P3 --> C3[Aggregator Consumer 3]
+</div>
+<hr>
+<h2 id="6-data-flow-for-one-price-tick">6. Data Flow for One Price Tick</h2>
+<hr>
+<p>When a new price tick arrives, the flow looks like this:</p>
+<div class="mermaid">
+sequenceDiagram
+    participant Kafka
+    participant Aggregator
+    participant State as In-Memory State
+    participant Cache as Real-Time Cache
+    participant Store as Time-Series Store
+
+    Kafka->>Aggregator: Consume tick(symbol, price, timestamp)
+    Aggregator->>State: Load symbol state
+    Aggregator->>State: Update window / prefix sums
+    Aggregator->>State: Compute moving average
+    Aggregator->>Cache: Write latest aggregate
+    Aggregator->>Store: Persist tick / aggregate
+</div>
+<hr>
+<h2 id="7-rolling-window-state">7. Rolling Window State</h2>
+<hr>
+<p>If we only care about fixed windows, such as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>last 100 prices
+</span></span><span style="display:flex;"><span>last 1000 prices
+</span></span></code></pre></div><p>we can maintain rolling sums.</p>
+<p>Example state:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>symbol = VOD.L
+</span></span><span style="display:flex;"><span>lastPrice = 102.45
+</span></span><span style="display:flex;"><span>window100Sum = 10,245
+</span></span><span style="display:flex;"><span>window100Queue = [...]
+</span></span><span style="display:flex;"><span>window1000Sum = 102,450
+</span></span><span style="display:flex;"><span>window1000Queue = [...]
+</span></span></code></pre></div><hr>
+<h2 id="8-variable-k-vs-predefined-windows">8. Variable <code>k</code> vs Predefined Windows</h2>
+<hr>
+<p>In Level 1, we supported variable <code>k</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>getMovingAverage(5)
+</span></span><span style="display:flex;"><span>getMovingAverage(100)
+</span></span><span style="display:flex;"><span>getMovingAverage(1000)
+</span></span></code></pre></div><p>In production, systems often precompute common windows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>MA_50
+</span></span><span style="display:flex;"><span>MA_100
+</span></span><span style="display:flex;"><span>MA_1000
+</span></span></code></pre></div><p>Why?</p>
+<ul>
+<li>faster reads</li>
+<li>predictable memory usage</li>
+<li>simpler cache keys</li>
+</ul>
+<hr>
+<h3 id="trade-off">Trade-off</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Approach</th>
+          <th>Benefit</th>
+          <th>Cost</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Variable k</td>
+          <td>flexible queries</td>
+          <td>more complex state</td>
+      </tr>
+      <tr>
+          <td>Predefined windows</td>
+          <td>fast and predictable</td>
+          <td>less flexible</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="9-real-time-cache-update">9. Real-Time Cache Update</h2>
+<hr>
+<p>After computing the latest aggregates, write them to cache.</p>
+<p>Example keys:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>moving-average:VOD.L:50
+</span></span><span style="display:flex;"><span>moving-average:VOD.L:100
+</span></span><span style="display:flex;"><span>moving-average:VOD.L:1000
+</span></span></code></pre></div><p>Example value:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;symbol&#34;</span>: <span style="color:#e6db74">&#34;VOD.L&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;window&#34;</span>: <span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;average&#34;</span>: <span style="color:#ae81ff">102.45</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;eventTime&#34;</span>: <span style="color:#e6db74">&#34;2026-05-04T10:15:00Z&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="10-historical-store-update">10. Historical Store Update</h2>
+<hr>
+<p>The historical store is used for:</p>
+<ul>
+<li>audit</li>
+<li>replay</li>
+<li>analytics</li>
+<li>backtesting</li>
+</ul>
+<p>The aggregator may persist:</p>
+<ul>
+<li>raw tick events</li>
+<li>computed aggregates</li>
+<li>processing metadata</li>
+</ul>
+<hr>
+<h2 id="11-handling-duplicate-events">11. Handling Duplicate Events</h2>
+<hr>
+<p>Distributed systems may process the same event more than once.</p>
+<p>To protect correctness, events should contain a unique identifier or sequence number.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;eventId&#34;</span>: <span style="color:#e6db74">&#34;evt-123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;symbol&#34;</span>: <span style="color:#e6db74">&#34;VOD.L&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;sequence&#34;</span>: <span style="color:#ae81ff">10045</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;price&#34;</span>: <span style="color:#ae81ff">102.45</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The aggregator can track the last processed sequence per symbol.</p>
+<hr>
+<h2 id="12-handling-late-events">12. Handling Late Events</h2>
+<hr>
+<p>A late event is an event that arrives after newer events have already been processed.</p>
+<p>Options:</p>
+<ul>
+<li>reject late events</li>
+<li>process with allowed lateness window</li>
+<li>recompute affected aggregates</li>
+</ul>
+<p>For a beginner-level design, we can keep the rule simple:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>process events in Kafka order per symbol
+</span></span></code></pre></div><p>Advanced systems can handle event-time processing separately.</p>
+<hr>
+<h2 id="13-state-recovery-after-crash">13. State Recovery After Crash</h2>
+<hr>
+<p>If an aggregator instance crashes, it needs to rebuild its state.</p>
+<p>Possible recovery sources:</p>
+<ul>
+<li>Kafka replay</li>
+<li>snapshot from state store</li>
+<li>cache/database reload</li>
+</ul>
+<hr>
+<div class="mermaid">
+flowchart TD
+    A[Aggregator Restart]
+    B{State Snapshot Available?}
+    C[Load Snapshot]
+    D[Replay Kafka Events Since Snapshot]
+    E[Rebuild State]
+    F[Resume Processing]
+
+    A --> B
+    B -->|Yes| C --> D --> E --> F
+    B -->|No| D --> E --> F
+</div>
+<hr>
+<h2 id="14-interview-explanation">14. Interview Explanation</h2>
+<hr>
+<p>In an interview, you could explain it like this:</p>
+<blockquote>
+<p>“I would maintain state per symbol. Kafka events would be partitioned by symbol so ordering is preserved for each instrument. The aggregator consumes events, updates rolling window state, computes moving averages, writes the latest values to a low-latency cache, and persists raw ticks or aggregates to a time-series store. For recovery, the service can rebuild state by replaying Kafka events, optionally starting from a saved snapshot.”</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>State management is the heart of a distributed price aggregator.</p>
+<p>The key ideas are:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition by symbol → preserve order → update per-symbol state → publish aggregates
+</span></span></code></pre></div><p>This keeps the system scalable while maintaining correctness for each instrument stream.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_4_consistency-and-failure-handling/">Level 3 — Consistency &amp; Failure Handling →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Maintain state per symbol</li>
+<li>Partition by symbol to preserve event order</li>
+<li>Use cache for latest aggregates</li>
+<li>Use time-series storage for history and replay</li>
+<li>Plan for duplicate events, late events, and recovery</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-state-management-matters" data-toc-target="1-why-state-management-matters">1. Why State Management Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-state-do-we-need" data-toc-target="2-what-state-do-we-need">2. What State Do We Need?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-state-per-symbol" data-toc-target="3-state-per-symbol">3. State Per Symbol</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-why-event-ordering-matters" data-toc-target="4-why-event-ordering-matters">4. Why Event Ordering Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-preserving-order-with-kafka-partitioning" data-toc-target="5-preserving-order-with-kafka-partitioning">5. Preserving Order with Kafka Partitioning</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-data-flow-for-one-price-tick" data-toc-target="6-data-flow-for-one-price-tick">6. Data Flow for One Price Tick</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-rolling-window-state" data-toc-target="7-rolling-window-state">7. Rolling Window State</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-variable-k-vs-predefined-windows" data-toc-target="8-variable-k-vs-predefined-windows"> vs Predefined Windows</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-real-time-cache-update" data-toc-target="9-real-time-cache-update">9. Real-Time Cache Update</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-historical-store-update" data-toc-target="10-historical-store-update">10. Historical Store Update</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-handling-duplicate-events" data-toc-target="11-handling-duplicate-events">11. Handling Duplicate Events</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-handling-late-events" data-toc-target="12-handling-late-events">12. Handling Late Events</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-state-recovery-after-crash" data-toc-target="13-state-recovery-after-crash">13. State Recovery After Crash</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-interview-explanation" data-toc-target="14-interview-explanation">14. Interview Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_2_high-level-architecture/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_4_consistency-and-failure-handling/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

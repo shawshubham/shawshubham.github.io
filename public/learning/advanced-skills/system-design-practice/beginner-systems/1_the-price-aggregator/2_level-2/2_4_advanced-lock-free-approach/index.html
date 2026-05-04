@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTTP Status Codes &amp; API Behavior</title>
+<title>Level 2 — Advanced: Lock-Free Thinking (Optional)</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
@@ -76,7 +76,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">HTTP Status Codes &amp; API Behavior</h1>
+    <h1 class="main-heading">Level 2 — Advanced: Lock-Free Thinking (Optional)</h1>
     <h3>
   </div>
 </section>
@@ -156,280 +156,220 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 21 Apr, 2026
+            Last updated on: 4 May, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          <h2 id="1-why-status-codes-matter">1. Why Status Codes Matter</h2>
+          <h2 id="1-why-talk-about-lock-free">1. Why Talk About Lock-Free?</h2>
 <hr>
-<p>HTTP status codes are the <strong>first signal</strong> a client receives about the outcome of a request.</p>
-<p>They help clients quickly understand:</p>
+<p>So far, we improved concurrency using:</p>
 <ul>
-<li>whether the request succeeded</li>
-<li>whether it failed</li>
-<li>whether it should retry</li>
+<li><code>synchronized</code></li>
+<li><code>ReentrantReadWriteLock</code></li>
+</ul>
+<p>These approaches use <strong>locks</strong> to protect shared state.</p>
+<p>But locks introduce:</p>
+<ul>
+<li>blocking</li>
+<li>context switching</li>
+<li>lock contention under high load</li>
 </ul>
 <blockquote>
-<p>📝 <strong>Key Insight:</strong><br>
-Status codes should reflect <strong>what happened</strong>, while the response body explains <strong>why it happened</strong>.</p></blockquote>
+<p>❗ In ultra low-latency systems (like trading engines), even small delays matter.</p></blockquote>
 <hr>
-<h2 id="2-categories-of-status-codes">2. Categories of Status Codes</h2>
+<h2 id="2-what-is-lock-free-programming">2. What Is Lock-Free Programming?</h2>
+<hr>
+<p>Lock-free programming avoids traditional locks.</p>
+<p>Instead, it uses:</p>
+<ul>
+<li>atomic operations</li>
+<li>hardware-level primitives</li>
+<li>retry-based updates</li>
+</ul>
+<p>Core idea:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Try → Check → Update → Retry if failed
+</span></span></code></pre></div><hr>
+<h2 id="3-key-concept--compare-and-swap-cas">3. Key Concept — Compare And Swap (CAS)</h2>
+<hr>
+<p>CAS is a low-level atomic operation.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If current value == expected value → update
+</span></span><span style="display:flex;"><span>Else → fail and retry
+</span></span></code></pre></div><hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>current value = 100
+</span></span><span style="display:flex;"><span>Thread A expects 100 → updates to 150 ✅
+</span></span><span style="display:flex;"><span>Thread B expects 100 → fails ❌
+</span></span></code></pre></div><p>Thread B must retry with new value.</p>
+<hr>
+<h2 id="4-java-support-for-lock-free">4. Java Support for Lock-Free</h2>
+<hr>
+<p>Java provides atomic classes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicInteger
+</span></span><span style="display:flex;"><span>AtomicLong
+</span></span><span style="display:flex;"><span>AtomicReference
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicLong sum <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AtomicLong(0);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sum.<span style="color:#a6e22e">addAndGet</span>(price);
+</span></span></code></pre></div><p>These operations are:</p>
+<ul>
+<li>thread-safe</li>
+<li>non-blocking</li>
+</ul>
+<hr>
+<h2 id="5-can-we-make-pricetracker-lock-free">5. Can We Make PriceTracker Lock-Free?</h2>
+<hr>
+<p>Short answer:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Not easily
+</span></span></code></pre></div><hr>
+<h3 id="why">Why?</h3>
+<p>Our logic depends on multiple steps:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. read last prefix sum
+</span></span><span style="display:flex;"><span>2. compute new sum
+</span></span><span style="display:flex;"><span>3. append to list
+</span></span></code></pre></div><p>This is a <strong>compound operation</strong>.</p>
+<p>CAS works best when:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>single variable update
+</span></span></code></pre></div><p>But here we have:</p>
+<ul>
+<li>multiple structures (<code>prices</code>, <code>prefixPriceSums</code>)</li>
+<li>ordering dependency</li>
+<li>index-based access</li>
+</ul>
+<p>👉 Hard to make atomic without locks</p>
+<hr>
+<h2 id="6-where-lock-free-works-well">6. Where Lock-Free Works Well</h2>
+<hr>
+<p>Lock-free approaches are great for:</p>
+<ul>
+<li>counters</li>
+<li>simple accumulators</li>
+<li>queues (e.g. <code>ConcurrentLinkedQueue</code>)</li>
+<li>high-frequency metrics</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicLong totalSum;
+</span></span><span style="display:flex;"><span>AtomicLong count;
+</span></span></code></pre></div><p>But this only gives <strong>global average</strong>, not <strong>last k average</strong>.</p>
+<hr>
+<h2 id="7-why-sliding-window--lock-free-is-hard">7. Why Sliding Window + Lock-Free Is Hard</h2>
+<hr>
+<p>Our requirement is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>average of last k values
+</span></span></code></pre></div><p>This needs:</p>
+<ul>
+<li>ordering</li>
+<li>eviction of old values</li>
+<li>consistent window</li>
+</ul>
+<p>These require coordination between multiple values.</p>
+<p>👉 Lock-free becomes complex and error-prone</p>
+<hr>
+<h2 id="8-real-world-approach-instead-of-lock-free">8. Real-World Approach Instead of Lock-Free</h2>
+<hr>
+<p>In high-performance systems, engineers often avoid shared mutable state entirely.</p>
+<p>Instead they use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single Writer Principle
+</span></span></code></pre></div><hr>
+<h3 id="pattern">Pattern</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one thread updates state
+</span></span><span style="display:flex;"><span>many threads read snapshots
+</span></span></code></pre></div><hr>
+<p>Example architecture:</p>
+<ul>
+<li>single aggregator thread processes price stream</li>
+<li>maintains prefix/window</li>
+<li>publishes results to:
+<ul>
+<li>cache</li>
+<li>read replicas</li>
+</ul>
+</li>
+</ul>
+<p>Readers do not modify shared state.</p>
+<hr>
+<h2 id="9-event-driven-alternative-important">9. Event-Driven Alternative (Important)</h2>
+<hr>
+<p>Instead of multiple threads writing:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>use message queue (Kafka)
+</span></span></code></pre></div><p>Flow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>producers → Kafka → single consumer → aggregator → cache
+</span></span></code></pre></div><p>👉 eliminates need for locks</p>
+<hr>
+<h2 id="10-trade-offs-of-lock-free">10. Trade-offs of Lock-Free</h2>
 <hr>
 <table>
   <thead>
       <tr>
-          <th>Category</th>
-          <th>Meaning</th>
+          <th>Aspect</th>
+          <th>Lock-Based</th>
+          <th>Lock-Free</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td>2xx</td>
-          <td>Success</td>
+          <td>Simplicity</td>
+          <td>High</td>
+          <td>Low</td>
       </tr>
       <tr>
-          <td>4xx</td>
-          <td>Client error</td>
+          <td>Performance</td>
+          <td>Good</td>
+          <td>Excellent (if correct)</td>
       </tr>
       <tr>
-          <td>5xx</td>
-          <td>Server error</td>
+          <td>Complexity</td>
+          <td>Low</td>
+          <td>Very High</td>
+      </tr>
+      <tr>
+          <td>Debugging</td>
+          <td>Easier</td>
+          <td>Hard</td>
+      </tr>
+      <tr>
+          <td>Correctness</td>
+          <td>Easier</td>
+          <td>Risky</td>
       </tr>
   </tbody>
 </table>
 <hr>
-<h2 id="3-success-status-codes">3. Success Status Codes</h2>
+<h2 id="11-interview-answer-strategy">11. Interview Answer Strategy</h2>
 <hr>
-<h3 id="201-created">201 Created</h3>
-<p>Used for:</p>
+<p>You should NOT jump to lock-free immediately.</p>
+<p>A strong answer is:</p>
+<blockquote>
+<p>“I would first ensure correctness using locks. If profiling shows lock contention is a bottleneck, we could explore lock-free approaches using CAS or redesign the system to follow a single-writer model. Lock-free improves latency but significantly increases complexity, so it should be used only when necessary.”</p></blockquote>
+<hr>
+<h2 id="12-when-should-you-mention-lock-free">12. When Should You Mention Lock-Free?</h2>
+<hr>
+<p>Mention it when:</p>
 <ul>
-<li><code>POST /payments</code></li>
-</ul>
-<p>👉 Indicates a new resource was successfully created.</p>
-<hr>
-<h3 id="200-ok">200 OK</h3>
-<p>Used for:</p>
-<ul>
-<li><code>GET /payments/{id}</code></li>
-<li><code>POST /payments/{id}/confirm</code> (when returning result)</li>
-</ul>
-<p>👉 Indicates request was processed successfully.</p>
-<hr>
-<h3 id="202-accepted-optional-for-async">202 Accepted (Optional for Async)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is accepted but processing is not complete yet</li>
-</ul>
-<p>👉 Useful for async flows (future extension).</p>
-<hr>
-<h2 id="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</h2>
-<hr>
-<h3 id="400-bad-request">400 Bad Request</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid input format</li>
-<li>missing required fields</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_REQUEST&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Amount must be greater than zero&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="404-not-found">404 Not Found</h3>
-<p>Used when:</p>
-<ul>
-<li>payment does not exist</li>
-</ul>
-<hr>
-<h3 id="409-conflict">409 Conflict</h3>
-<p>Used when:</p>
-<ul>
-<li>invalid state transition</li>
-<li>duplicate operation attempted</li>
-</ul>
-<p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="422-unprocessable-entity-optional">422 Unprocessable Entity (Optional)</h3>
-<p>Used when:</p>
-<ul>
-<li>request is valid but business rules fail</li>
-</ul>
-<p>Example:</p>
-<ul>
-<li>insufficient balance</li>
-<li>unsupported currency</li>
-</ul>
-<hr>
-<h2 id="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</h2>
-<hr>
-<h3 id="500-internal-server-error">500 Internal Server Error</h3>
-<p>Used when:</p>
-<ul>
-<li>unexpected failure occurs</li>
-</ul>
-<p>👉 Should not expose internal details.</p>
-<hr>
-<h3 id="502--503-gateway-errors">502 / 503 (Gateway Errors)</h3>
-<p>Used when:</p>
-<ul>
-<li>external gateway fails or is unavailable</li>
-</ul>
-<hr>
-<h2 id="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Scenario</th>
-          <th>Status Code</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Payment created</td>
-          <td>201</td>
-      </tr>
-      <tr>
-          <td>Payment fetched</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Payment confirmed successfully</td>
-          <td>200</td>
-      </tr>
-      <tr>
-          <td>Invalid input</td>
-          <td>400</td>
-      </tr>
-      <tr>
-          <td>Payment not found</td>
-          <td>404</td>
-      </tr>
-      <tr>
-          <td>Invalid state transition</td>
-          <td>409</td>
-      </tr>
-      <tr>
-          <td>Business validation failure</td>
-          <td>422</td>
-      </tr>
-      <tr>
-          <td>Internal failure</td>
-          <td>500</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<h2 id="7-api-behavior-design">7. API Behavior Design</h2>
-<hr>
-<p>Status codes alone are not enough — API behavior must be <strong>consistent and predictable</strong>.</p>
-<hr>
-<h3 id="1-idempotent-behavior">1. Idempotent Behavior</h3>
-<ul>
-<li>repeated requests should return same result</li>
-<li>no duplicate side effects</li>
-</ul>
-<hr>
-<h3 id="2-consistent-error-structure">2. Consistent Error Structure</h3>
-<p>Always return:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;ERROR_CODE&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Human readable message&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><hr>
-<h3 id="3-state-aware-responses">3. State-Aware Responses</h3>
-<ul>
-<li>response must reflect current payment state</li>
-<li>do not rely only on status code</li>
-</ul>
-<hr>
-<h3 id="4-safe-retries">4. Safe Retries</h3>
-<ul>
-<li>client should know when retry is safe</li>
-<li>avoid ambiguous responses</li>
-</ul>
-<hr>
-<h2 id="8-retry-strategy-important">8. Retry Strategy (Important)</h2>
-<hr>
-<table>
-  <thead>
-      <tr>
-          <th>Status Code</th>
-          <th>Retry?</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>2xx</td>
-          <td>❌ No</td>
-      </tr>
-      <tr>
-          <td>4xx</td>
-          <td>❌ No (fix request)</td>
-      </tr>
-      <tr>
-          <td>5xx</td>
-          <td>✅ Yes</td>
-      </tr>
-  </tbody>
-</table>
-<hr>
-<p>👉 Clients should retry only when failure is <strong>temporary</strong>.</p>
-<hr>
-<h2 id="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</h2>
-<hr>
-<h3 id="-using-200-for-everything">❌ Using 200 for everything</h3>
-<ul>
-<li>hides real errors</li>
-</ul>
-<hr>
-<h3 id="-exposing-internal-error-messages">❌ Exposing internal error messages</h3>
-<ul>
-<li>security risk</li>
-</ul>
-<hr>
-<h3 id="-inconsistent-status-usage">❌ Inconsistent status usage</h3>
-<ul>
-<li>confuses clients</li>
-</ul>
-<hr>
-<h3 id="-mixing-business-errors-with-500">❌ Mixing business errors with 500</h3>
-<ul>
-<li>misleads retry logic</li>
+<li>interviewer asks about high-performance systems</li>
+<li>latency is critical (HFT, trading engines)</li>
+<li>you already explained lock-based approach</li>
 </ul>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
-<p>HTTP status codes and API behavior define how clients interact with your system.</p>
-<p>A well-designed API:</p>
-<ul>
-<li>uses correct status codes</li>
-<li>provides clear error messages</li>
-<li>behaves predictably under retries</li>
-</ul>
-<hr>
+<p>Lock-free programming is powerful but advanced.</p>
+<p>For this problem:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ReadWriteLock = practical solution
+</span></span><span style="display:flex;"><span>Lock-free = advanced optimization / redesign
+</span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
-<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/">API Design Best Practices →</a></strong></p>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_1_problem-evolution/">Level 3 — Scaling Beyond a Single Node →</a></strong></p>
 <hr>
 <blockquote>
 <p>📝 <strong>Takeaway</strong>:</p>
 <ul>
-<li>Use status codes to reflect outcome clearly</li>
-<li>Keep error handling consistent</li>
-<li>Design APIs that are predictable and retry-safe</li>
+<li>Lock-free avoids blocking but increases complexity</li>
+<li>CAS enables atomic updates without locks</li>
+<li>Not suitable for complex multi-step logic like prefix sums</li>
+<li>Real systems often avoid shared state instead of going fully lock-free</li>
 </ul></blockquote>
 
         </article>
@@ -458,55 +398,73 @@ Status codes should reflect <strong>what happened</strong>, while the response b
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#1-why-status-codes-matter" data-toc-target="1-why-status-codes-matter">1. Why Status Codes Matter</a>
+        <a class="toc-link" href="#1-why-talk-about-lock-free" data-toc-target="1-why-talk-about-lock-free">1. Why Talk About Lock-Free?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#2-categories-of-status-codes" data-toc-target="2-categories-of-status-codes">2. Categories of Status Codes</a>
+        <a class="toc-link" href="#2-what-is-lock-free-programming" data-toc-target="2-what-is-lock-free-programming">2. What Is Lock-Free Programming?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#3-success-status-codes" data-toc-target="3-success-status-codes">3. Success Status Codes</a>
+        <a class="toc-link" href="#3-key-concept--compare-and-swap-cas" data-toc-target="3-key-concept--compare-and-swap-cas">3. Key Concept — Compare And Swap (CAS)</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#4-client-error-status-codes-4xx" data-toc-target="4-client-error-status-codes-4xx">4. Client Error Status Codes (4xx)</a>
+        <a class="toc-link" href="#4-java-support-for-lock-free" data-toc-target="4-java-support-for-lock-free">4. Java Support for Lock-Free</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#5-server-error-status-codes-5xx" data-toc-target="5-server-error-status-codes-5xx">5. Server Error Status Codes (5xx)</a>
+        <a class="toc-link" href="#5-can-we-make-pricetracker-lock-free" data-toc-target="5-can-we-make-pricetracker-lock-free">5. Can We Make PriceTracker Lock-Free?</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#6-mapping-status-codes-to-payment-api" data-toc-target="6-mapping-status-codes-to-payment-api">6. Mapping Status Codes to Payment API</a>
+        <a class="toc-link" href="#6-where-lock-free-works-well" data-toc-target="6-where-lock-free-works-well">6. Where Lock-Free Works Well</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#7-api-behavior-design" data-toc-target="7-api-behavior-design">7. API Behavior Design</a>
+        <a class="toc-link" href="#7-why-sliding-window--lock-free-is-hard" data-toc-target="7-why-sliding-window--lock-free-is-hard">7. Why Sliding Window &#43; Lock-Free Is Hard</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#8-retry-strategy-important" data-toc-target="8-retry-strategy-important">8. Retry Strategy (Important)</a>
+        <a class="toc-link" href="#8-real-world-approach-instead-of-lock-free" data-toc-target="8-real-world-approach-instead-of-lock-free">8. Real-World Approach Instead of Lock-Free</a>
       </li>
     
       
       
       <li class="toc-item toc-h2">
-        <a class="toc-link" href="#9-common-mistakes-to-avoid" data-toc-target="9-common-mistakes-to-avoid">9. Common Mistakes to Avoid</a>
+        <a class="toc-link" href="#9-event-driven-alternative-important" data-toc-target="9-event-driven-alternative-important">9. Event-Driven Alternative (Important)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-trade-offs-of-lock-free" data-toc-target="10-trade-offs-of-lock-free">10. Trade-offs of Lock-Free</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-interview-answer-strategy" data-toc-target="11-interview-answer-strategy">11. Interview Answer Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-when-should-you-mention-lock-free" data-toc-target="12-when-should-you-mention-lock-free">12. When Should You Mention Lock-Free?</a>
       </li>
     
       
@@ -528,7 +486,7 @@ Status codes should reflect <strong>what happened</strong>, while the response b
 <section class="topic-nav">
   <div class="container nav-buttons">
     
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_3_response-models/" class="btn nav-btn">&larr; Back</a>
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_3_trade-offs-and-advanced-considerations/" class="btn nav-btn">&larr; Back</a>
     
 
     
@@ -559,8 +517,6 @@ Status codes should reflect <strong>what happened</strong>, while the response b
     </a>
     
 
-    
-    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/6_payment-api/4_phase-4/4_5_api-best-practices/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 3 — High-Level Architecture</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777899888">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Level 3 — High-Level Architecture</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 4 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-goal-of-this-article">1. Goal of This Article</h2>
+<hr>
+<p>In Level 1 and Level 2, we designed an in-memory <code>PriceTracker</code>.</p>
+<p>Now we need to design a distributed system that can:</p>
+<ul>
+<li>ingest high-frequency price ticks</li>
+<li>calculate moving averages in real time</li>
+<li>serve low-latency queries</li>
+<li>store historical prices for later analysis</li>
+<li>survive failures</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Goal:</strong><br>
+Move from a single in-memory class to a scalable price aggregation architecture.</p></blockquote>
+<hr>
+<h2 id="2-high-level-architecture">2. High-Level Architecture</h2>
+<hr>
+<p>At a high level, the system can be split into five major parts:</p>
+<ol>
+<li>Price producers</li>
+<li>Event streaming layer</li>
+<li>Aggregator service</li>
+<li>Real-time cache</li>
+<li>Historical storage</li>
+</ol>
+<hr>
+<div class="mermaid">
+flowchart LR
+    A[Exchange / Price Feed Producers]
+    B[Kafka / Event Stream]
+    C[Price Aggregator Service]
+    D[Real-Time Cache]
+    E[Time-Series Database]
+    F[Client / UI / Risk Systems]
+
+    A --> B
+    B --> C
+    C --> D
+    C --> E
+    F --> D
+    F --> E
+</div>
+<hr>
+<h2 id="3-component-responsibilities">3. Component Responsibilities</h2>
+<hr>
+<h3 id="1-price-feed-producers">1. Price Feed Producers</h3>
+<p>These are systems that publish price updates.</p>
+<p>Examples:</p>
+<ul>
+<li>exchange feeds</li>
+<li>market data providers</li>
+<li>internal pricing systems</li>
+</ul>
+<p>They produce events such as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;symbol&#34;</span>: <span style="color:#e6db74">&#34;VOD.L&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;price&#34;</span>: <span style="color:#ae81ff">102.45</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;eventTime&#34;</span>: <span style="color:#e6db74">&#34;2026-05-04T10:15:00Z&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="2-event-streaming-layer">2. Event Streaming Layer</h3>
+<p>Kafka or a similar message broker acts as the durable event pipeline.</p>
+<p>It helps with:</p>
+<ul>
+<li>buffering spikes</li>
+<li>replaying events</li>
+<li>decoupling producers from consumers</li>
+<li>horizontal scaling using partitions</li>
+</ul>
+<hr>
+<h3 id="3-price-aggregator-service">3. Price Aggregator Service</h3>
+<p>This service consumes price ticks and computes aggregates.</p>
+<p>Responsibilities:</p>
+<ul>
+<li>consume price events</li>
+<li>maintain recent price windows</li>
+<li>calculate moving averages</li>
+<li>publish latest aggregate state</li>
+</ul>
+<hr>
+<h3 id="4-real-time-cache">4. Real-Time Cache</h3>
+<p>A cache such as Redis can store the latest computed moving averages.</p>
+<p>Used for:</p>
+<ul>
+<li>fast client queries</li>
+<li>dashboards</li>
+<li>risk systems</li>
+</ul>
+<p>Example keys:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>price:VOD.L:latest
+</span></span><span style="display:flex;"><span>moving-average:VOD.L:100
+</span></span><span style="display:flex;"><span>moving-average:VOD.L:1000
+</span></span></code></pre></div><hr>
+<h3 id="5-time-series-database">5. Time-Series Database</h3>
+<p>A time-series database stores historical tick data and aggregates.</p>
+<p>Used for:</p>
+<ul>
+<li>audit</li>
+<li>backtesting</li>
+<li>analytics</li>
+<li>historical queries</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>TimescaleDB</li>
+<li>InfluxDB</li>
+<li>ClickHouse</li>
+</ul>
+<hr>
+<h2 id="4-request--data-flow">4. Request / Data Flow</h2>
+<hr>
+<div class="mermaid">
+sequenceDiagram
+    participant Feed as Price Feed
+    participant Kafka
+    participant Aggregator
+    participant Cache as Real-Time Cache
+    participant TSDB as Time-Series DB
+    participant Client
+
+    Feed->>Kafka: Publish price tick
+    Kafka->>Aggregator: Consume tick
+    Aggregator->>Aggregator: Update moving average
+    Aggregator->>Cache: Store latest aggregate
+    Aggregator->>TSDB: Persist tick / aggregate
+    Client->>Cache: Query latest moving average
+    Cache-->>Client: Return low-latency result
+</div>
+<hr>
+<h2 id="5-why-kafka-fits-this-problem">5. Why Kafka Fits This Problem</h2>
+<hr>
+<p>Kafka is useful because price updates are naturally event streams.</p>
+<p>Kafka gives us:</p>
+<ul>
+<li>ordered events within a partition</li>
+<li>durable storage for replay</li>
+<li>consumer groups for horizontal scaling</li>
+<li>backpressure handling through buffering</li>
+</ul>
+<blockquote>
+<p>🧠 <strong>Key Point:</strong><br>
+Kafka turns price ticks into a replayable stream instead of transient in-memory updates.</p></blockquote>
+<hr>
+<h2 id="6-partitioning-strategy">6. Partitioning Strategy</h2>
+<hr>
+<p>To preserve ordering for each symbol, partition events by symbol.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>VOD.L  → Partition 1
+</span></span><span style="display:flex;"><span>BARC.L → Partition 2
+</span></span><span style="display:flex;"><span>HSBA.L → Partition 3
+</span></span></code></pre></div><hr>
+<div class="mermaid">
+flowchart TD
+    A[Price Events]
+    B{Partition by Symbol}
+    C[Partition 1: VOD.L]
+    D[Partition 2: BARC.L]
+    E[Partition 3: HSBA.L]
+    F[Aggregator Instance 1]
+    G[Aggregator Instance 2]
+    H[Aggregator Instance 3]
+
+    A --> B
+    B --> C --> F
+    B --> D --> G
+    B --> E --> H
+</div>
+<hr>
+<h2 id="7-why-partition-by-symbol">7. Why Partition by Symbol?</h2>
+<hr>
+<p>Moving average depends on the order of prices for the same symbol.</p>
+<p>If events for the same symbol are processed out of order, calculations may become incorrect.</p>
+<p>Partitioning by symbol ensures:</p>
+<ul>
+<li>all ticks for the same symbol go to the same partition</li>
+<li>ordering is preserved within that partition</li>
+<li>one consumer processes that symbol stream in order</li>
+</ul>
+<hr>
+<h2 id="8-real-time-vs-historical-paths">8. Real-Time vs Historical Paths</h2>
+<hr>
+<p>The system has two different read needs.</p>
+<h3 id="real-time-path">Real-Time Path</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Cache → latest aggregate
+</span></span></code></pre></div><p>Optimized for:</p>
+<ul>
+<li>low latency</li>
+<li>dashboard updates</li>
+<li>risk views</li>
+</ul>
+<hr>
+<h3 id="historical-path">Historical Path</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client → Time-Series DB → historical prices / aggregates
+</span></span></code></pre></div><p>Optimized for:</p>
+<ul>
+<li>analytics</li>
+<li>audit</li>
+<li>backtesting</li>
+</ul>
+<hr>
+<h2 id="9-why-separate-cache-and-database">9. Why Separate Cache and Database?</h2>
+<hr>
+<p>A single storage system usually cannot optimize for everything.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Need</th>
+          <th>Better Fit</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Latest moving average</td>
+          <td>Cache</td>
+      </tr>
+      <tr>
+          <td>Historical ticks</td>
+          <td>Time-series DB</td>
+      </tr>
+      <tr>
+          <td>Low-latency reads</td>
+          <td>Cache</td>
+      </tr>
+      <tr>
+          <td>Long-term analysis</td>
+          <td>Database</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="10-high-availability-view">10. High Availability View</h2>
+<hr>
+<p>To avoid single points of failure, each major component should run with redundancy.</p>
+<div class="mermaid">
+flowchart LR
+    A[Price Producers]
+    B[Kafka Cluster]
+    C[Aggregator Instances]
+    D[Redis Cluster]
+    E[Time-Series DB Cluster]
+    F[Clients]
+
+    A --> B
+    B --> C
+    C --> D
+    C --> E
+    F --> D
+    F --> E
+</div>
+<hr>
+<p>This gives us:</p>
+<ul>
+<li>Kafka replication</li>
+<li>multiple aggregator instances</li>
+<li>replicated cache</li>
+<li>replicated/persistent historical storage</li>
+</ul>
+<hr>
+<h2 id="11-interview-explanation">11. Interview Explanation</h2>
+<hr>
+<p>In an interview, you could explain the architecture like this:</p>
+<blockquote>
+<p>“I would move price updates into an event stream like Kafka. Producers publish ticks, partitioned by symbol to preserve ordering. Aggregator services consume those ticks, maintain rolling windows, and write latest moving averages to Redis for low-latency reads. Historical ticks and aggregates can be persisted to a time-series database for audit and analytics. This separates ingestion, computation, real-time serving, and long-term storage.”</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>The high-level architecture separates responsibilities clearly:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ingestion → streaming → aggregation → real-time cache → historical storage
+</span></span></code></pre></div><p>This makes the system:</p>
+<ul>
+<li>scalable</li>
+<li>fault-tolerant</li>
+<li>low-latency</li>
+<li>suitable for real-world trading workloads</li>
+</ul>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_3_state-management-and-data-flow/">Level 3 — State Management &amp; Data Flow →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Use Kafka to decouple producers and consumers</li>
+<li>Partition by symbol to preserve ordering</li>
+<li>Use cache for real-time reads</li>
+<li>Use time-series storage for historical queries</li>
+<li>Separate real-time and historical paths</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-goal-of-this-article" data-toc-target="1-goal-of-this-article">1. Goal of This Article</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-high-level-architecture" data-toc-target="2-high-level-architecture">2. High-Level Architecture</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-component-responsibilities" data-toc-target="3-component-responsibilities">3. Component Responsibilities</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-request--data-flow" data-toc-target="4-request--data-flow">4. Request / Data Flow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-why-kafka-fits-this-problem" data-toc-target="5-why-kafka-fits-this-problem">5. Why Kafka Fits This Problem</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-partitioning-strategy" data-toc-target="6-partitioning-strategy">6. Partitioning Strategy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-why-partition-by-symbol" data-toc-target="7-why-partition-by-symbol">7. Why Partition by Symbol?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-real-time-vs-historical-paths" data-toc-target="8-real-time-vs-historical-paths">8. Real-Time vs Historical Paths</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-why-separate-cache-and-database" data-toc-target="9-why-separate-cache-and-database">9. Why Separate Cache and Database?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-high-availability-view" data-toc-target="10-high-availability-view">10. High Availability View</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-interview-explanation" data-toc-target="11-interview-explanation">11. Interview Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_1_problem-evolution/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_3_state-management-and-data-flow/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

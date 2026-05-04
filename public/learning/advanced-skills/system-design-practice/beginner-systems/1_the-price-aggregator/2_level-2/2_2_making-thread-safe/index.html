@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 2 — Making PriceTracker Thread-Safe</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1777899888">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Level 2 — Making PriceTracker Thread-Safe</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 4 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-goal-of-this-article">1. Goal of This Article</h2>
+<hr>
+<p>In the previous article, we saw that our optimized <code>PriceTracker</code> is correct only in a <strong>single-threaded environment</strong>.</p>
+<p>Now we need to make it safe when:</p>
+<ul>
+<li>multiple threads call <code>addPrice(...)</code></li>
+<li>multiple threads call <code>getMovingAverage(...)</code></li>
+<li>reads and writes happen at the same time</li>
+</ul>
+<blockquote>
+<p>📝 <strong>Goal:</strong><br>
+Preserve correctness first, then improve concurrency where possible.</p></blockquote>
+<hr>
+<h2 id="2-current-problem-recap">2. Current Problem Recap</h2>
+<hr>
+<p>Our current implementation uses shared mutable state:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>BigDecimal<span style="color:#f92672">&gt;</span> prefixPriceSums;
+</span></span></code></pre></div><p>Both lists are modified/read by multiple methods.</p>
+<p>The dangerous operations are:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prices.<span style="color:#a6e22e">add</span>(price);
+</span></span><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">add</span>(...);
+</span></span></code></pre></div><p>and:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex)
+</span></span><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex <span style="color:#f92672">-</span> count)
+</span></span></code></pre></div><p>If these happen concurrently, the reader may observe inconsistent state.</p>
+<hr>
+<h2 id="3-step-1--use-synchronized-methods">3. Step 1 — Use <code>synchronized</code> Methods</h2>
+<hr>
+<p>The simplest way to make the class thread-safe is to synchronize both public methods.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addPrice</span>(<span style="color:#66d9ef">double</span> price) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// write shared state</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getMovingAverage</span>(<span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// read shared state</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This ensures only one thread can execute either method at a time on the same <code>PriceTracker</code> instance.</p>
+<hr>
+<h2 id="4-synchronized-method-implementation">4. Synchronized Method Implementation</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/thepriceaggregator/optimized/threadsafe/synchronizedmethod">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.synchronizedmethod;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.BigDecimal;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.RoundingMode;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayList;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.List;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PriceTracker</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>BigDecimal<span style="color:#f92672">&gt;</span> prefixPriceSums;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PriceTracker</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prices</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prefixPriceSums</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prefixPriceSums</span>.<span style="color:#a6e22e">add</span>(BigDecimal.<span style="color:#a6e22e">ZERO</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addPrice</span>(<span style="color:#66d9ef">double</span> price) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (price <span style="color:#f92672">&lt;</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;price must be greater than or equal to 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        prices.<span style="color:#a6e22e">add</span>(price);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        BigDecimal latestPrefixSum <span style="color:#f92672">=</span> prefixPriceSums
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">get</span>(prefixPriceSums.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">add</span>(BigDecimal.<span style="color:#a6e22e">valueOf</span>(price));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        prefixPriceSums.<span style="color:#a6e22e">add</span>(latestPrefixSum);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getMovingAverage</span>(<span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (k <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;k must be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (prices.<span style="color:#a6e22e">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;No prices available&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">min</span>(k, prices.<span style="color:#a6e22e">size</span>());
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> calculateMovingAverage(count);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateMovingAverage</span>(<span style="color:#66d9ef">int</span> count) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> lastIndex <span style="color:#f92672">=</span> prefixPriceSums.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        BigDecimal sum <span style="color:#f92672">=</span> prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">subtract</span>(prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex <span style="color:#f92672">-</span> count));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> sum.<span style="color:#a6e22e">divide</span>(BigDecimal.<span style="color:#a6e22e">valueOf</span>(count), 2, RoundingMode.<span style="color:#a6e22e">HALF_UP</span>)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">doubleValue</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="5-why-this-works">5. Why This Works</h2>
+<hr>
+<p><code>synchronized</code> protects the critical section using the intrinsic lock of the object.</p>
+<p>That means:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A enters addPrice()
+</span></span><span style="display:flex;"><span>Thread B tries getMovingAverage()
+</span></span><span style="display:flex;"><span>Thread B waits until Thread A exits
+</span></span></code></pre></div><p>This prevents:</p>
+<ul>
+<li>lost updates</li>
+<li>broken prefix sums</li>
+<li>reads during partial writes</li>
+</ul>
+<hr>
+<h2 id="6-limitation-of-synchronized-methods">6. Limitation of <code>synchronized</code> Methods</h2>
+<hr>
+<p>The solution is correct, but it is restrictive.</p>
+<p>With synchronized methods:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one writer blocks all readers
+</span></span><span style="display:flex;"><span>one reader blocks all writers
+</span></span><span style="display:flex;"><span>one reader blocks other readers
+</span></span></code></pre></div><p>This can reduce throughput when many threads only want to read the moving average.</p>
+<hr>
+<h2 id="7-step-2--use-synchronized-blocks">7. Step 2 — Use <code>synchronized</code> Blocks</h2>
+<hr>
+<p>Instead of synchronizing the whole method, we can synchronize only the part that touches shared state.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// critical section</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This gives more control over lock scope.</p>
+<hr>
+<h2 id="8-synchronized-block-implementation">8. Synchronized Block Implementation</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/thepriceaggregator/optimized/threadsafe/synchronizedblock">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.synchronizedblock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.BigDecimal;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.RoundingMode;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayList;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.List;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PriceTracker</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>BigDecimal<span style="color:#f92672">&gt;</span> prefixPriceSums;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PriceTracker</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prices</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prefixPriceSums</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prefixPriceSums</span>.<span style="color:#a6e22e">add</span>(BigDecimal.<span style="color:#a6e22e">ZERO</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addPrice</span>(<span style="color:#66d9ef">double</span> price) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (price <span style="color:#f92672">&lt;</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;price must be greater than or equal to 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+</span></span><span style="display:flex;"><span>            prices.<span style="color:#a6e22e">add</span>(price);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            BigDecimal latestPrefixSum <span style="color:#f92672">=</span> prefixPriceSums
+</span></span><span style="display:flex;"><span>                    .<span style="color:#a6e22e">get</span>(prefixPriceSums.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1)
+</span></span><span style="display:flex;"><span>                    .<span style="color:#a6e22e">add</span>(BigDecimal.<span style="color:#a6e22e">valueOf</span>(price));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            prefixPriceSums.<span style="color:#a6e22e">add</span>(latestPrefixSum);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getMovingAverage</span>(<span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (k <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;k must be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (prices.<span style="color:#a6e22e">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;No prices available&#34;</span>);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">min</span>(k, prices.<span style="color:#a6e22e">size</span>());
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> calculateMovingAverage(count);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateMovingAverage</span>(<span style="color:#66d9ef">int</span> count) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> lastIndex <span style="color:#f92672">=</span> prefixPriceSums.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        BigDecimal sum <span style="color:#f92672">=</span> prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">subtract</span>(prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex <span style="color:#f92672">-</span> count));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> sum.<span style="color:#a6e22e">divide</span>(BigDecimal.<span style="color:#a6e22e">valueOf</span>(count), 2, RoundingMode.<span style="color:#a6e22e">HALF_UP</span>)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">doubleValue</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="9-what-did-we-improve">9. What Did We Improve?</h2>
+<hr>
+<p>We moved validation outside the lock where possible.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (price <span style="color:#f92672">&lt;</span> 0) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(...);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This does not need synchronization because it does not access shared state.</p>
+<hr>
+<h2 id="10-limitation-of-synchronized-blocks">10. Limitation of <code>synchronized</code> Blocks</h2>
+<hr>
+<p>In this specific problem, most meaningful work still touches shared state.</p>
+<p>So <code>synchronized</code> blocks give cleaner control, but they do not dramatically improve concurrency.</p>
+<p>Readers still block other readers.</p>
+<hr>
+<h2 id="11-step-3--use-reentrantreadwritelock">11. Step 3 — Use <code>ReentrantReadWriteLock</code></h2>
+<hr>
+<p>Now observe the operation types:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>addPrice(...)          → write operation
+</span></span><span style="display:flex;"><span>getMovingAverage(...)  → read operation
+</span></span></code></pre></div><p>This suggests a better lock model.</p>
+<p>A <code>ReentrantReadWriteLock</code> provides:</p>
+<ul>
+<li><strong>write lock</strong> → exclusive access for updates</li>
+<li><strong>read lock</strong> → shared access for multiple readers</li>
+</ul>
+<hr>
+<h2 id="12-why-readwrite-lock-fits-better">12. Why Read/Write Lock Fits Better</h2>
+<hr>
+<p>In many systems, reads are more frequent than writes.</p>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>price feed updates occasionally
+</span></span><span style="display:flex;"><span>many dashboards query moving average frequently
+</span></span></code></pre></div><p>With a read/write lock:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>multiple readers can read together
+</span></span><span style="display:flex;"><span>writer gets exclusive access
+</span></span></code></pre></div><p>This improves throughput for read-heavy workloads.</p>
+<hr>
+<h2 id="13-reentrantreadwritelock-implementation">13. ReentrantReadWriteLock Implementation</h2>
+<hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/thepriceaggregator/optimized/threadsafe/reentrantreadwritelock">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.readwritelock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.BigDecimal;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.RoundingMode;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayList;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.List;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.locks.ReentrantReadWriteLock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PriceTracker</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>BigDecimal<span style="color:#f92672">&gt;</span> prefixPriceSums;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReentrantReadWriteLock lock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PriceTracker</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prices</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prefixPriceSums</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">prefixPriceSums</span>.<span style="color:#a6e22e">add</span>(BigDecimal.<span style="color:#a6e22e">ZERO</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">lock</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReentrantReadWriteLock();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addPrice</span>(<span style="color:#66d9ef">double</span> price) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (price <span style="color:#f92672">&lt;</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;price must be greater than or equal to 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        lock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            prices.<span style="color:#a6e22e">add</span>(price);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            BigDecimal latestPrefixSum <span style="color:#f92672">=</span> prefixPriceSums
+</span></span><span style="display:flex;"><span>                    .<span style="color:#a6e22e">get</span>(prefixPriceSums.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1)
+</span></span><span style="display:flex;"><span>                    .<span style="color:#a6e22e">add</span>(BigDecimal.<span style="color:#a6e22e">valueOf</span>(price));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            prefixPriceSums.<span style="color:#a6e22e">add</span>(latestPrefixSum);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>            lock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">unlock</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getMovingAverage</span>(<span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (k <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;k must be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        lock.<span style="color:#a6e22e">readLock</span>().<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (prices.<span style="color:#a6e22e">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;No prices available&#34;</span>);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">min</span>(k, prices.<span style="color:#a6e22e">size</span>());
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> calculateMovingAverage(count);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>            lock.<span style="color:#a6e22e">readLock</span>().<span style="color:#a6e22e">unlock</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateMovingAverage</span>(<span style="color:#66d9ef">int</span> count) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> lastIndex <span style="color:#f92672">=</span> prefixPriceSums.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        BigDecimal sum <span style="color:#f92672">=</span> prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">subtract</span>(prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex <span style="color:#f92672">-</span> count));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> sum.<span style="color:#a6e22e">divide</span>(BigDecimal.<span style="color:#a6e22e">valueOf</span>(count), 2, RoundingMode.<span style="color:#a6e22e">HALF_UP</span>)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">doubleValue</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="14-why-tryfinally-is-important">14. Why <code>try/finally</code> Is Important</h2>
+<hr>
+<p>When using explicit locks, we must always release the lock.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>lock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// critical section</span>
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>    lock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">unlock</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>If an exception occurs and the lock is not released, other threads may block forever.</p>
+<hr>
+<h2 id="15-complexity-after-thread-safety">15. Complexity After Thread Safety</h2>
+<hr>
+<p>The algorithmic complexity remains the same:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>addPrice(price)         → O(1)
+</span></span><span style="display:flex;"><span>getMovingAverage(k)     → O(1)
+</span></span></code></pre></div><p>But now we also consider concurrency cost:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized            → safe but restrictive
+</span></span><span style="display:flex;"><span>ReadWriteLock           → better for read-heavy access
+</span></span></code></pre></div><hr>
+<h2 id="16-interview-explanation">16. Interview Explanation</h2>
+<hr>
+<p>In an interview, you could explain it like this:</p>
+<blockquote>
+<p>“The prefix sum solution is not thread-safe because updates and reads touch shared mutable lists. First, I would make the public methods synchronized to guarantee correctness. Then, since <code>addPrice</code> is a write operation and <code>getMovingAverage</code> is a read operation, I would improve the design using <code>ReentrantReadWriteLock</code>, allowing multiple readers while still ensuring writers get exclusive access.”</p></blockquote>
+<hr>
+<h2 id="17-summary-of-implementation-journey">17. Summary of Implementation Journey</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Approach</th>
+          <th>Correct?</th>
+          <th>Reader Concurrency</th>
+          <th>Complexity</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>No lock</td>
+          <td>❌ No</td>
+          <td>Unsafe</td>
+          <td>Simple but broken</td>
+      </tr>
+      <tr>
+          <td>synchronized methods</td>
+          <td>✅ Yes</td>
+          <td>❌ Readers block each other</td>
+          <td>Simple</td>
+      </tr>
+      <tr>
+          <td>synchronized blocks</td>
+          <td>✅ Yes</td>
+          <td>❌ Readers block each other</td>
+          <td>More control</td>
+      </tr>
+      <tr>
+          <td>ReadWriteLock</td>
+          <td>✅ Yes</td>
+          <td>✅ Multiple readers allowed</td>
+          <td>More code</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Thread safety is not just about adding locks randomly.</p>
+<p>We should evolve the solution carefully:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correctness first → reduce lock scope → improve read concurrency
+</span></span></code></pre></div><hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_3_trade-offs-and-advanced-considerations/">Level 2 Trade-offs &amp; Advanced Considerations →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li><code>synchronized</code> is the simplest correct fix</li>
+<li><code>synchronized</code> blocks give better lock-scope control</li>
+<li><code>ReentrantReadWriteLock</code> is better for read-heavy workloads</li>
+<li>Always release explicit locks in <code>finally</code></li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-goal-of-this-article" data-toc-target="1-goal-of-this-article">1. Goal of This Article</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-current-problem-recap" data-toc-target="2-current-problem-recap">2. Current Problem Recap</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-step-1--use-synchronized-methods" data-toc-target="3-step-1--use-synchronized-methods"> Methods</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-synchronized-method-implementation" data-toc-target="4-synchronized-method-implementation">4. Synchronized Method Implementation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-why-this-works" data-toc-target="5-why-this-works">5. Why This Works</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-limitation-of-synchronized-methods" data-toc-target="6-limitation-of-synchronized-methods"> Methods</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-step-2--use-synchronized-blocks" data-toc-target="7-step-2--use-synchronized-blocks"> Blocks</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-synchronized-block-implementation" data-toc-target="8-synchronized-block-implementation">8. Synchronized Block Implementation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-what-did-we-improve" data-toc-target="9-what-did-we-improve">9. What Did We Improve?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-limitation-of-synchronized-blocks" data-toc-target="10-limitation-of-synchronized-blocks"> Blocks</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-step-3--use-reentrantreadwritelock" data-toc-target="11-step-3--use-reentrantreadwritelock"></a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-why-readwrite-lock-fits-better" data-toc-target="12-why-readwrite-lock-fits-better">12. Why Read/Write Lock Fits Better</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#13-reentrantreadwritelock-implementation" data-toc-target="13-reentrantreadwritelock-implementation">13. ReentrantReadWriteLock Implementation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#14-why-tryfinally-is-important" data-toc-target="14-why-tryfinally-is-important"> Is Important</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#15-complexity-after-thread-safety" data-toc-target="15-complexity-after-thread-safety">15. Complexity After Thread Safety</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#16-interview-explanation" data-toc-target="16-interview-explanation">16. Interview Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#17-summary-of-implementation-journey" data-toc-target="17-summary-of-implementation-journey">17. Summary of Implementation Journey</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_1_problem_evolution/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_3_trade-offs-and-advanced-considerations/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>
