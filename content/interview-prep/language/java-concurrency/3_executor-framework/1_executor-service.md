@@ -87,11 +87,20 @@ ExecutorService solves this by:
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-ExecutorService executor = Executors.newFixedThreadPool(2);
+ExecutorService executor = Executors.newFixedThreadPool(4);
 
-executor.submit(() -> {
-    System.out.println(Thread.currentThread().getName());
-});
+List<String> paymentIds = List.of("P1", "P2", "P3", "P4", "P5", "P6");
+
+for (String paymentId : paymentIds) {
+    executor.submit(() -> {
+        System.out.println(
+            Thread.currentThread().getName() + " processing " + paymentId
+        );
+
+        // simulate work: DB call / API call / enrichment
+        processPayment(paymentId);
+    });
+}
 
 executor.shutdown();
 ```

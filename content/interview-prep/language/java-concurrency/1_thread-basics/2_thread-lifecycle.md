@@ -50,7 +50,7 @@ Java defines thread states in `Thread.State` enum:
 
 ---
 
-## 4. Lifecycle Diagram (Mermaid)
+## 4. Lifecycle Diagram
 
 ---
 

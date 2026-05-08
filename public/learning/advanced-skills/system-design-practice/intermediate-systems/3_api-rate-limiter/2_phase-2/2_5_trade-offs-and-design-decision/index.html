@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta name="google-site-verification" content="uAulF6MENawH52RaV8zdWc1-fpSxxrBC5VtDtTOIQCY" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 — Trade-offs &amp; Design Decisions</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1778173345">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Phase 2 — Trade-offs &amp; Design Decisions</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 5 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-this-article-matters">1. Why This Article Matters</h2>
+<hr>
+<p>In Phase 2, we explored multiple ways to make the rate limiter thread-safe.</p>
+<p>Each approach solved correctness, but introduced different trade-offs.</p>
+<blockquote>
+<p>📝 <strong>Goal:</strong><br>
+Understand how to choose the right approach based on system requirements.</p></blockquote>
+<hr>
+<h2 id="2-what-we-solved-so-far">2. What We Solved So Far</h2>
+<hr>
+<p>We started with an unsafe implementation and improved it step by step:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Naive → Race Condition
+</span></span><span style="display:flex;"><span>synchronized → Correct but slow
+</span></span><span style="display:flex;"><span>Per-client locking → Better concurrency
+</span></span><span style="display:flex;"><span>Atomic operations → Limited applicability
+</span></span></code></pre></div><hr>
+<h2 id="3-the-core-trade-off">3. The Core Trade-off</h2>
+<hr>
+<p>All concurrency decisions revolve around this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correctness vs Performance vs Complexity
+</span></span></code></pre></div><hr>
+<h2 id="4-approach-comparison">4. Approach Comparison</h2>
+<hr>
+<h3 id="1-global-lock-synchronized">1. Global Lock (<code>synchronized</code>)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Correct
+</span></span><span style="display:flex;"><span>✔ Simple
+</span></span><span style="display:flex;"><span>❌ Low throughput
+</span></span><span style="display:flex;"><span>❌ All clients block each other
+</span></span></code></pre></div><hr>
+<h3 id="2-fine-grained-locking-per-client">2. Fine-Grained Locking (Per Client)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Correct
+</span></span><span style="display:flex;"><span>✔ Higher throughput
+</span></span><span style="display:flex;"><span>✔ Independent clients run in parallel
+</span></span><span style="display:flex;"><span>❌ Extra memory (locks per client)
+</span></span><span style="display:flex;"><span>❌ Slightly more complex
+</span></span></code></pre></div><hr>
+<h3 id="3-atomic-operations">3. Atomic Operations</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ High performance
+</span></span><span style="display:flex;"><span>✔ Lock-free
+</span></span><span style="display:flex;"><span>❌ Not suitable for multi-step logic
+</span></span><span style="display:flex;"><span>❌ Hard to reason about correctness
+</span></span></code></pre></div><hr>
+<h2 id="5-decision-matrix">5. Decision Matrix</h2>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Requirement</th>
+          <th>Recommended Approach</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Low traffic</td>
+          <td>synchronized</td>
+      </tr>
+      <tr>
+          <td>Moderate traffic</td>
+          <td>per-client locking</td>
+      </tr>
+      <tr>
+          <td>High performance requirement</td>
+          <td>atomic (if possible)</td>
+      </tr>
+      <tr>
+          <td>Complex multi-step logic</td>
+          <td>locking required</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="6-real-world-thinking">6. Real-World Thinking</h2>
+<hr>
+<p>In production systems, we rarely jump directly to the most complex solution.</p>
+<p>Instead, we evolve:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Step 1 → Make it correct
+</span></span><span style="display:flex;"><span>Step 2 → Identify bottlenecks
+</span></span><span style="display:flex;"><span>Step 3 → Optimize selectively
+</span></span></code></pre></div><hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Start → synchronized
+</span></span><span style="display:flex;"><span>High latency observed → move to per-client locking
+</span></span><span style="display:flex;"><span>Extreme scale → consider lock-free or distributed design
+</span></span></code></pre></div><hr>
+<h2 id="7-hidden-trade-offs">7. Hidden Trade-offs</h2>
+<hr>
+<h3 id="memory-vs-concurrency">Memory vs Concurrency</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Per-client locking → more memory
+</span></span><span style="display:flex;"><span>Global lock → less memory
+</span></span></code></pre></div><hr>
+<h3 id="simplicity-vs-performance">Simplicity vs Performance</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized → simple but slow
+</span></span><span style="display:flex;"><span>locks → faster but complex
+</span></span></code></pre></div><hr>
+<h3 id="correctness-vs-optimization">Correctness vs Optimization</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Always prioritize correctness first
+</span></span></code></pre></div><hr>
+<h2 id="8-what-interviewers-look-for">8. What Interviewers Look For</h2>
+<hr>
+<p>They do NOT expect you to jump to the perfect solution immediately.</p>
+<p>They expect:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Identify the problem (race condition)
+</span></span><span style="display:flex;"><span>✔ Apply a simple fix (synchronized)
+</span></span><span style="display:flex;"><span>✔ Improve it (fine-grained locking)
+</span></span><span style="display:flex;"><span>✔ Discuss trade-offs
+</span></span></code></pre></div><hr>
+<h2 id="9-interview-explanation">9. Interview Explanation</h2>
+<hr>
+<blockquote>
+<p>“I would first ensure correctness using synchronized. This guarantees atomicity but limits concurrency because all clients share the same lock. To improve throughput, I would introduce fine-grained locking per client, allowing independent clients to be processed in parallel. Atomic operations can help in simple cases, but since rate limiting involves multi-step logic, locks are still required. The final choice depends on traffic patterns, performance requirements, and system complexity.”</p></blockquote>
+<hr>
+<h2 id="10-what-we-are-still-missing">10. What We Are Still Missing</h2>
+<hr>
+<p>So far, everything is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single-node
+</span></span></code></pre></div><p>But real systems are:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Distributed
+</span></span></code></pre></div><p>Problems we have NOT solved:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>❌ multiple instances
+</span></span><span style="display:flex;"><span>❌ shared state across servers
+</span></span><span style="display:flex;"><span>❌ consistency across nodes
+</span></span></code></pre></div><hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>There is no one-size-fits-all solution.</p>
+<p>Good system design is about choosing the right trade-off:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>correctness → performance → scalability
+</span></span></code></pre></div><hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong>Phase 3 — Distributed Rate Limiting →</strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Start with correctness, then optimize</li>
+<li>Use synchronized for simplicity</li>
+<li>Use per-client locking for better concurrency</li>
+<li>Atomic operations are limited to simple cases</li>
+<li>Always reason about trade-offs before choosing a design</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-this-article-matters" data-toc-target="1-why-this-article-matters">1. Why This Article Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-we-solved-so-far" data-toc-target="2-what-we-solved-so-far">2. What We Solved So Far</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-the-core-trade-off" data-toc-target="3-the-core-trade-off">3. The Core Trade-off</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-approach-comparison" data-toc-target="4-approach-comparison">4. Approach Comparison</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-decision-matrix" data-toc-target="5-decision-matrix">5. Decision Matrix</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-real-world-thinking" data-toc-target="6-real-world-thinking">6. Real-World Thinking</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-hidden-trade-offs" data-toc-target="7-hidden-trade-offs">7. Hidden Trade-offs</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-what-interviewers-look-for" data-toc-target="8-what-interviewers-look-for">8. What Interviewers Look For</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-interview-explanation" data-toc-target="9-interview-explanation">9. Interview Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-what-we-are-still-missing" data-toc-target="10-what-we-are-still-missing">10. What We Are Still Missing</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/2_phase-2/2_4_atomic-operations-and-limitations/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

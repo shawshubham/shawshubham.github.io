@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta name="google-site-verification" content="uAulF6MENawH52RaV8zdWc1-fpSxxrBC5VtDtTOIQCY" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 1 — Sliding Window Algorithm</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1778173345">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Phase 1 — Sliding Window Algorithm</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 5 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-why-do-we-need-sliding-window">1. Why Do We Need Sliding Window?</h2>
+<hr>
+<p>In the previous approach (Fixed Window Counter), we saw a major issue:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Boundary Burst Problem
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>12:00:59 → 100 requests
+</span></span><span style="display:flex;"><span>12:01:00 → 100 requests
+</span></span></code></pre></div><p>Result:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>200 requests in ~1 second ❌
+</span></span></code></pre></div><p>This happens because each window is treated independently.</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Goal:</strong><br>
+Smooth out request distribution across time instead of resetting abruptly.</p></blockquote>
+<hr>
+<h2 id="2-what-is-sliding-window">2. What is Sliding Window?</h2>
+<hr>
+<p>Sliding Window removes the concept of rigid boundaries.</p>
+<p>Instead of fixed intervals, it considers a <strong>rolling time window</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>At any point in time:
+</span></span><span style="display:flex;"><span>Only consider requests in the last N seconds
+</span></span></code></pre></div><hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests per 60 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>At time T:
+</span></span><span style="display:flex;"><span>Count requests between (T - 60 seconds) → T
+</span></span></code></pre></div><hr>
+<h2 id="3-how-it-works">3. How It Works</h2>
+<hr>
+<p>For each request:</p>
+<ol>
+<li>Remove requests that are older than the window</li>
+<li>Count remaining requests</li>
+<li>If count &lt; limit → allow</li>
+<li>Else → reject</li>
+</ol>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId):
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    remove requests older than (now - window)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    if current request count &lt; limit:
+</span></span><span style="display:flex;"><span>        add current request timestamp
+</span></span><span style="display:flex;"><span>        allow
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    else:
+</span></span><span style="display:flex;"><span>        reject
+</span></span></code></pre></div><hr>
+<h2 id="4-sliding-window-log-exact-approach">4. Sliding Window Log (Exact Approach)</h2>
+<hr>
+<p>We store timestamps of all requests.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>clientId → list of timestamps
+</span></span></code></pre></div><hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 3 requests / 10 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Timestamps:
+</span></span><span style="display:flex;"><span>[10, 12, 15]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>New request at time = 20
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Remove timestamps &lt; (20 - 10 = 10)
+</span></span><span style="display:flex;"><span>Remaining → [10, 12, 15]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Count = 3 → reject ❌
+</span></span></code></pre></div><hr>
+<h3 id="data-structure">Data Structure</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> timestamps;
+</span></span></code></pre></div><p>We use a queue because:</p>
+<ul>
+<li>oldest request at front</li>
+<li>newest request at back</li>
+</ul>
+<hr>
+<h2 id="5-simple-implementation-idea">5. Simple Implementation Idea</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
+</span></span></code></pre></div><hr>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/apiratelimiter/slidingwindowrequestlog">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.slidingwindowrequestlog;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayDeque;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Deque;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.HashMap;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Map;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RateLimiter</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Request Limit</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> requestLimit;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> timeWindowInMillis;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>(); <span style="color:#75715e">//limit needed OOM</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">RateLimiter</span>(<span style="color:#66d9ef">int</span> requestLimit, <span style="color:#66d9ef">int</span> timeWindowInSeconds) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (requestLimit <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;requestLimit must be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (timeWindowInSeconds <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;timeWindowInSeconds must be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">requestLimit</span> <span style="color:#f92672">=</span> requestLimit;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">timeWindowInMillis</span> <span style="color:#f92672">=</span> timeWindowInSeconds <span style="color:#f92672">*</span> 1000L;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (clientId <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> clientId.<span style="color:#a6e22e">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;clientId cannot be null or empty&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> now <span style="color:#f92672">=</span> System.<span style="color:#a6e22e">currentTimeMillis</span>();
+</span></span><span style="display:flex;"><span>        Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> requestTimeStamps <span style="color:#f92672">=</span> requestLogs.<span style="color:#a6e22e">computeIfAbsent</span>(clientId, k <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>requestTimeStamps.<span style="color:#a6e22e">isEmpty</span>() <span style="color:#f92672">&amp;&amp;</span> requestTimeStamps.<span style="color:#a6e22e">peekFirst</span>() <span style="color:#f92672">&lt;=</span> now <span style="color:#f92672">-</span> timeWindowInMillis){
+</span></span><span style="display:flex;"><span>            requestTimeStamps.<span style="color:#a6e22e">pollFirst</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (requestTimeStamps.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">&lt;</span> requestLimit) {
+</span></span><span style="display:flex;"><span>            requestTimeStamps.<span style="color:#a6e22e">addLast</span>(now);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="6-complexity">6. Complexity</h2>
+<hr>
+<h3 id="time-complexity">Time Complexity</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Worst-case: O(n) (cleanup of old timestamps)
+</span></span><span style="display:flex;"><span>Average: amortized O(1)
+</span></span></code></pre></div><hr>
+<h3 id="space-complexity">Space Complexity</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>O(number of requests in window per client)
+</span></span></code></pre></div><p>This can be large under heavy traffic.</p>
+<hr>
+<h2 id="7-pros-and-cons">7. Pros and Cons</h2>
+<hr>
+<h3 id="pros">Pros</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Accurate rate limiting
+</span></span><span style="display:flex;"><span>- No boundary burst problem
+</span></span><span style="display:flex;"><span>- Smooth request distribution
+</span></span></code></pre></div><hr>
+<h3 id="cons">Cons</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- High memory usage (store all timestamps)
+</span></span><span style="display:flex;"><span>- Cleanup overhead
+</span></span><span style="display:flex;"><span>- Not ideal for very high traffic systems
+</span></span></code></pre></div><hr>
+<h2 id="8-sliding-window-counter-optimized-variant">8. Sliding Window Counter (Optimized Variant)</h2>
+<hr>
+<p>The Sliding Window Log approach is accurate but can consume significant memory because it stores every request timestamp.</p>
+<p>To optimize this, we can use an <strong>approximation technique</strong> called <strong>Sliding Window Counter</strong>.</p>
+<h3 id="-core-idea">💡 Core Idea</h3>
+<p>Instead of storing every request timestamp, we:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Track request count for current window
+</span></span><span style="display:flex;"><span>- Track request count for previous window
+</span></span><span style="display:flex;"><span>- Estimate current usage using a weighted combination
+</span></span></code></pre></div><h3 id="-formula">📊 Formula</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>estimatedCount =
+</span></span><span style="display:flex;"><span>    currentWindowCount +
+</span></span><span style="display:flex;"><span>    (previousWindowCount × overlapRatio)
+</span></span></code></pre></div><p>Where:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>overlapRatio =
+</span></span><span style="display:flex;"><span>    remaining time in current window / full window size
+</span></span></code></pre></div><hr>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests / 60 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Previous window count = 80
+</span></span><span style="display:flex;"><span>Current window count = 30
+</span></span><span style="display:flex;"><span>Current window elapsed = 30 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Remaining time = 30 seconds
+</span></span><span style="display:flex;"><span>overlapRatio = 30 / 60 = 0.5
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Estimated count = 30 + (80 × 0.5)
+</span></span><span style="display:flex;"><span>                = 70
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>70 &lt; 100 → allow request
+</span></span></code></pre></div><h3 id="-full-java-implementation-for-learning">🔧 Full Java Implementation (For Learning)</h3>
+<blockquote>
+<p>⚠️ Note:<br>
+This implementation is provided for conceptual understanding.
+In interviews, you are usually expected to implement Sliding Window Log, not this optimized version.</p></blockquote>
+<div class="btn-row">
+    <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/apiratelimiter/slidingwindowcounter">See Code in Git Repo</a>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.slidingwindowcounter;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.HashMap;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Map;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RateLimiter</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> requestLimit;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> windowSizeInMillis;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, ClientWindow<span style="color:#f92672">&gt;</span> clientWindows <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">RateLimiter</span>(<span style="color:#66d9ef">int</span> requestLimit, <span style="color:#66d9ef">int</span> timeWindowInSeconds) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">requestLimit</span> <span style="color:#f92672">=</span> requestLimit;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">windowSizeInMillis</span> <span style="color:#f92672">=</span> timeWindowInSeconds <span style="color:#f92672">*</span> 1000L;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> now <span style="color:#f92672">=</span> System.<span style="color:#a6e22e">currentTimeMillis</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> currentWindowStart <span style="color:#f92672">=</span> getWindowStart(now);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ClientWindow window <span style="color:#f92672">=</span> clientWindows.<span style="color:#a6e22e">get</span>(clientId);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (window <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>            clientWindows.<span style="color:#a6e22e">put</span>(clientId, <span style="color:#66d9ef">new</span> ClientWindow(currentWindowStart, 1, 0));
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Same window</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (window.<span style="color:#a6e22e">currentWindowStart</span> <span style="color:#f92672">==</span> currentWindowStart) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">double</span> estimated <span style="color:#f92672">=</span> calculateEstimatedCount(window, now);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (estimated <span style="color:#f92672">&gt;=</span> requestLimit) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">currentWindowCount</span><span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Previous window → shift window</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (window.<span style="color:#a6e22e">currentWindowStart</span> <span style="color:#f92672">==</span> currentWindowStart <span style="color:#f92672">-</span> windowSizeInMillis) {
+</span></span><span style="display:flex;"><span>            clientWindows.<span style="color:#a6e22e">put</span>(clientId,
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">new</span> ClientWindow(currentWindowStart, 1, window.<span style="color:#a6e22e">currentWindowCount</span>));
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Completely new window</span>
+</span></span><span style="display:flex;"><span>        clientWindows.<span style="color:#a6e22e">put</span>(clientId, <span style="color:#66d9ef">new</span> ClientWindow(currentWindowStart, 1, 0));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">getWindowStart</span>(<span style="color:#66d9ef">long</span> now) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (now <span style="color:#f92672">/</span> windowSizeInMillis) <span style="color:#f92672">*</span> windowSizeInMillis;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateEstimatedCount</span>(ClientWindow window, <span style="color:#66d9ef">long</span> now) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> elapsed <span style="color:#f92672">=</span> now <span style="color:#f92672">-</span> window.<span style="color:#a6e22e">currentWindowStart</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> remaining <span style="color:#f92672">=</span> windowSizeInMillis <span style="color:#f92672">-</span> elapsed;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">double</span> overlapRatio <span style="color:#f92672">=</span> (<span style="color:#66d9ef">double</span>) remaining <span style="color:#f92672">/</span> windowSizeInMillis;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> window.<span style="color:#a6e22e">currentWindowCount</span> <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>               (window.<span style="color:#a6e22e">previousWindowCount</span> <span style="color:#f92672">*</span> overlapRatio);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ClientWindow</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">long</span> currentWindowStart;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> currentWindowCount;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> previousWindowCount;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ClientWindow</span>(<span style="color:#66d9ef">long</span> start, <span style="color:#66d9ef">int</span> current, <span style="color:#66d9ef">int</span> previous) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">currentWindowStart</span> <span style="color:#f92672">=</span> start;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">currentWindowCount</span> <span style="color:#f92672">=</span> current;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">previousWindowCount</span> <span style="color:#f92672">=</span> previous;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="trade-off">Trade-off</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Sliding Window Log:
+</span></span><span style="display:flex;"><span>✔ Accurate
+</span></span><span style="display:flex;"><span>❌ High memory
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Sliding Window Counter:
+</span></span><span style="display:flex;"><span>✔ Lower memory
+</span></span><span style="display:flex;"><span>❌ Approximate results
+</span></span></code></pre></div><h3 id="-when-to-use">🎯 When to Use</h3>
+<p>Use Sliding Window Counter when:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- traffic is very high
+</span></span><span style="display:flex;"><span>- memory is constrained
+</span></span><span style="display:flex;"><span>- slight approximation is acceptable
+</span></span></code></pre></div><h3 id="-interview-guidance">📝 Interview Guidance</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Implement Sliding Window Log (expected)
+</span></span><span style="display:flex;"><span>- Explain Sliding Window Counter (bonus)
+</span></span><span style="display:flex;"><span>- Avoid coding this unless explicitly asked
+</span></span></code></pre></div><hr>
+<h2 id="9-fixed-window-vs-sliding-window">9. Fixed Window vs Sliding Window</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Fixed Window:
+</span></span><span style="display:flex;"><span>- simple
+</span></span><span style="display:flex;"><span>- fast
+</span></span><span style="display:flex;"><span>- bursty ❌
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Sliding Window:
+</span></span><span style="display:flex;"><span>- smooth
+</span></span><span style="display:flex;"><span>- accurate ✅
+</span></span><span style="display:flex;"><span>- higher memory cost
+</span></span></code></pre></div><hr>
+<h2 id="10-when-to-use-sliding-window">10. When to Use Sliding Window</h2>
+<hr>
+<p>Use Sliding Window when:</p>
+<ul>
+<li>fairness is important</li>
+<li>traffic smoothing is required</li>
+<li>bursts must be controlled strictly</li>
+</ul>
+<hr>
+<h2 id="11-interview-explanation">11. Interview Explanation</h2>
+<hr>
+<blockquote>
+<p>“Sliding Window solves the boundary burst issue by considering a rolling time window instead of fixed intervals. The simplest implementation uses a log of timestamps per client and removes expired entries before counting. This provides accurate rate limiting but increases memory usage, so optimized versions use bucket-based approximation.”</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Sliding Window provides more accurate and fair rate limiting compared to fixed window approaches.</p>
+<p>However, it introduces memory and cleanup overhead.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/1_phase1/1_5_token-bucket/">Token Bucket / Leaky Bucket →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li>Sliding Window uses a rolling time window</li>
+<li>Eliminates boundary burst issue</li>
+<li>More accurate but memory-intensive</li>
+<li>Can be optimized using bucket-based approximation</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-do-we-need-sliding-window" data-toc-target="1-why-do-we-need-sliding-window">1. Why Do We Need Sliding Window?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-is-sliding-window" data-toc-target="2-what-is-sliding-window">2. What is Sliding Window?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-how-it-works" data-toc-target="3-how-it-works">3. How It Works</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-sliding-window-log-exact-approach" data-toc-target="4-sliding-window-log-exact-approach">4. Sliding Window Log (Exact Approach)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-simple-implementation-idea" data-toc-target="5-simple-implementation-idea">5. Simple Implementation Idea</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-complexity" data-toc-target="6-complexity">6. Complexity</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-pros-and-cons" data-toc-target="7-pros-and-cons">7. Pros and Cons</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-sliding-window-counter-optimized-variant" data-toc-target="8-sliding-window-counter-optimized-variant">8. Sliding Window Counter (Optimized Variant)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-fixed-window-vs-sliding-window" data-toc-target="9-fixed-window-vs-sliding-window">9. Fixed Window vs Sliding Window</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-when-to-use-sliding-window" data-toc-target="10-when-to-use-sliding-window">10. When to Use Sliding Window</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-interview-explanation" data-toc-target="11-interview-explanation">11. Interview Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/1_phase1/1_3_fixed-window-counter/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/1_phase1/1_5_token-bucket/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta name="google-site-verification" content="uAulF6MENawH52RaV8zdWc1-fpSxxrBC5VtDtTOIQCY" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 — Thread-Safe Using synchronized</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1778173345">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Systems / GenAI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/learning/online-compilers/online-java-compiler/1_java-compiler/1_1_java-compiler/">Java Compiler</a>
+      
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Phase 2 — Thread-Safe Using synchronized</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">System Design Practice</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. System Design Practice - Beginner Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. System Design Practice - Intermediate Systems</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 5 May, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-goal-of-this-article">1. Goal of This Article</h2>
+<hr>
+<p>In the previous article, we saw that the rate limiter can break when multiple threads call <code>allowRequest()</code> at the same time.</p>
+<p>The core issue was:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read → check → update
+</span></span></code></pre></div><p>This must be executed atomically.</p>
+<p>In this article, we will make the <strong>Sliding Window Log</strong> implementation thread-safe using the simplest approach:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">synchronized</span>
+</span></span></code></pre></div><blockquote>
+<p>📝 <strong>Goal:</strong><br>
+Make the implementation correct under concurrent access before optimizing performance.</p></blockquote>
+<hr>
+<h2 id="2-reminder--unsafe-sliding-window-log">2. Reminder — Unsafe Sliding Window Log</h2>
+<hr>
+<p>Our Sliding Window Log stores request timestamps per client:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
+</span></span></code></pre></div><p>The core logic is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Get client queue
+</span></span><span style="display:flex;"><span>2. Remove expired timestamps
+</span></span><span style="display:flex;"><span>3. Check queue size
+</span></span><span style="display:flex;"><span>4. Add current timestamp if allowed
+</span></span></code></pre></div><p>These steps must happen together.</p>
+<hr>
+<h2 id="3-why-synchronized-works">3. Why <code>synchronized</code> Works</h2>
+<hr>
+<p>In Java, <code>synchronized</code> ensures that only one thread can enter the synchronized method/block at a time for the same object.</p>
+<p>If we make <code>allowRequest()</code> synchronized:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId)
+</span></span></code></pre></div><p>then only one thread can execute the rate limit check at a time.</p>
+<hr>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A enters allowRequest()
+</span></span><span style="display:flex;"><span>Thread B waits
+</span></span><span style="display:flex;"><span>Thread A completes update
+</span></span><span style="display:flex;"><span>Thread B enters after state is consistent
+</span></span></code></pre></div><p>This prevents race conditions.</p>
+<hr>
+<h2 id="4-thread-safe-implementation">4. Thread-Safe Implementation</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.threadsafe.synchronizedmethod;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayDeque;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Deque;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.HashMap;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Map;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RateLimiter</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> requestLimit;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> timeWindowInMillis;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">RateLimiter</span>(<span style="color:#66d9ef">int</span> requestLimit, <span style="color:#66d9ef">int</span> timeWindowInSeconds) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (requestLimit <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;requestLimit must be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (timeWindowInSeconds <span style="color:#f92672">&lt;=</span> 0) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;timeWindowInSeconds must be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">requestLimit</span> <span style="color:#f92672">=</span> requestLimit;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">timeWindowInMillis</span> <span style="color:#f92672">=</span> timeWindowInSeconds <span style="color:#f92672">*</span> 1000L;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (clientId <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> clientId.<span style="color:#a6e22e">isBlank</span>()) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;clientId cannot be null or empty&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> now <span style="color:#f92672">=</span> System.<span style="color:#a6e22e">currentTimeMillis</span>();
+</span></span><span style="display:flex;"><span>        Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> requestTimestamps <span style="color:#f92672">=</span> requestLogs.<span style="color:#a6e22e">computeIfAbsent</span>(
+</span></span><span style="display:flex;"><span>                clientId,
+</span></span><span style="display:flex;"><span>                key <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>()
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> windowStart <span style="color:#f92672">=</span> now <span style="color:#f92672">-</span> timeWindowInMillis;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>requestTimestamps.<span style="color:#a6e22e">isEmpty</span>()
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&amp;&amp;</span> requestTimestamps.<span style="color:#a6e22e">peekFirst</span>() <span style="color:#f92672">&lt;=</span> windowStart) {
+</span></span><span style="display:flex;"><span>            requestTimestamps.<span style="color:#a6e22e">pollFirst</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (requestTimestamps.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">&lt;</span> requestLimit) {
+</span></span><span style="display:flex;"><span>            requestTimestamps.<span style="color:#a6e22e">addLast</span>(now);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="5-what-is-protected-now">5. What Is Protected Now?</h2>
+<hr>
+<p>The full critical section is protected:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>get queue → cleanup → check size → add timestamp
+</span></span></code></pre></div><p>This means two threads cannot simultaneously:</p>
+<ul>
+<li>read the same queue size</li>
+<li>both decide the request is allowed</li>
+<li>both add timestamps beyond the limit</li>
+</ul>
+<hr>
+<h2 id="6-why-we-synchronize-the-whole-method">6. Why We Synchronize the Whole Method</h2>
+<hr>
+<p>At first, synchronizing the whole method is acceptable because almost all meaningful work touches shared state.</p>
+<p>Shared state includes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>requestLogs
+</span></span><span style="display:flex;"><span>requestTimestamps
+</span></span></code></pre></div><p>So this is clear and correct.</p>
+<hr>
+<h2 id="7-can-we-use-a-synchronized-block-instead">7. Can We Use a <code>synchronized</code> Block Instead?</h2>
+<hr>
+<p>Yes.</p>
+<p>We can validate input before locking and synchronize only the shared-state logic.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (clientId <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> clientId.<span style="color:#a6e22e">isBlank</span>()) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;clientId cannot be null or empty&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// access and update requestLogs safely</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This reduces the synchronized scope slightly.</p>
+<hr>
+<h2 id="8-synchronized-block-version">8. Synchronized Block Version</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (clientId <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> clientId.<span style="color:#a6e22e">isBlank</span>()) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;clientId cannot be null or empty&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> now <span style="color:#f92672">=</span> System.<span style="color:#a6e22e">currentTimeMillis</span>();
+</span></span><span style="display:flex;"><span>        Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> requestTimestamps <span style="color:#f92672">=</span> requestLogs.<span style="color:#a6e22e">computeIfAbsent</span>(
+</span></span><span style="display:flex;"><span>                clientId,
+</span></span><span style="display:flex;"><span>                key <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>()
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> windowStart <span style="color:#f92672">=</span> now <span style="color:#f92672">-</span> timeWindowInMillis;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>requestTimestamps.<span style="color:#a6e22e">isEmpty</span>()
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&amp;&amp;</span> requestTimestamps.<span style="color:#a6e22e">peekFirst</span>() <span style="color:#f92672">&lt;=</span> windowStart) {
+</span></span><span style="display:flex;"><span>            requestTimestamps.<span style="color:#a6e22e">pollFirst</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (requestTimestamps.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">&lt;</span> requestLimit) {
+</span></span><span style="display:flex;"><span>            requestTimestamps.<span style="color:#a6e22e">addLast</span>(now);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="9-complexity">9. Complexity</h2>
+<hr>
+<p>Algorithmic complexity remains the same:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId) → amortized O(1)
+</span></span></code></pre></div><p>But concurrency behavior changes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Only one thread can execute rate limit logic at a time
+</span></span></code></pre></div><hr>
+<h2 id="10-limitation-of-this-approach">10. Limitation of This Approach</h2>
+<hr>
+<p><code>synchronized</code> gives correctness, but it limits throughput.</p>
+<p>With one global lock:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request blocks Client B request
+</span></span><span style="display:flex;"><span>Client B request blocks Client C request
+</span></span></code></pre></div><p>Even if different clients are independent, they still wait for the same object lock.</p>
+<hr>
+<h3 id="example-1">Example</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A → allowRequest()
+</span></span><span style="display:flex;"><span>Client B → allowRequest()
+</span></span><span style="display:flex;"><span>Client C → allowRequest()
+</span></span></code></pre></div><p>All requests are serialized.</p>
+<p>This is safe, but not scalable under high traffic.</p>
+<hr>
+<h2 id="11-why-this-is-still-a-good-first-fix">11. Why This Is Still a Good First Fix</h2>
+<hr>
+<p>In interviews, correctness comes first.</p>
+<p>A simple synchronized solution shows that you understand:</p>
+<ul>
+<li>shared mutable state</li>
+<li>race conditions</li>
+<li>atomicity</li>
+<li>critical sections</li>
+</ul>
+<p>Then you can improve from there.</p>
+<hr>
+<h2 id="12-interview-explanation">12. Interview Explanation</h2>
+<hr>
+<blockquote>
+<p>“The Sliding Window Log implementation performs multiple operations: cleanup old timestamps, check the queue size, and add the current timestamp. These must be atomic. The simplest fix is to synchronize <code>allowRequest()</code> so only one thread can modify the in-memory state at a time. This makes the limiter correct, but it uses a global lock, so different clients block each other. That is acceptable as a first fix, but we can improve it using finer-grained locking.”</p></blockquote>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Using <code>synchronized</code> gives us a correct thread-safe baseline.</p>
+<p>But it also introduces a scalability limitation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>safe but serialized
+</span></span></code></pre></div><hr>
+<h3 id="-whats-next">🔗 What’s Next?</h3>
+<p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/2_phase-2/2_3_fine-grained-locking-per-client/">Fine-Grained Locking Per Client →</a></strong></p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong>:</p>
+<ul>
+<li><code>synchronized</code> makes the rate limiter thread-safe</li>
+<li>It protects the full read-check-update operation</li>
+<li>It is simple and correct</li>
+<li>It serializes all requests, even for different clients</li>
+</ul></blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-goal-of-this-article" data-toc-target="1-goal-of-this-article">1. Goal of This Article</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-reminder--unsafe-sliding-window-log" data-toc-target="2-reminder--unsafe-sliding-window-log">2. Reminder — Unsafe Sliding Window Log</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-why-synchronized-works" data-toc-target="3-why-synchronized-works"> Works</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-thread-safe-implementation" data-toc-target="4-thread-safe-implementation">4. Thread-Safe Implementation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-what-is-protected-now" data-toc-target="5-what-is-protected-now">5. What Is Protected Now?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-why-we-synchronize-the-whole-method" data-toc-target="6-why-we-synchronize-the-whole-method">6. Why We Synchronize the Whole Method</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-can-we-use-a-synchronized-block-instead" data-toc-target="7-can-we-use-a-synchronized-block-instead"> Block Instead?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-synchronized-block-version" data-toc-target="8-synchronized-block-version">8. Synchronized Block Version</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-complexity" data-toc-target="9-complexity">9. Complexity</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-limitation-of-this-approach" data-toc-target="10-limitation-of-this-approach">10. Limitation of This Approach</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-why-this-is-still-a-good-first-fix" data-toc-target="11-why-this-is-still-a-good-first-fix">11. Why This Is Still a Good First Fix</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-interview-explanation" data-toc-target="12-interview-explanation">12. Interview Explanation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/2_phase-2/2_1_problem-evolution/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/system-design-practice/" class="btn nav-btn">
+      System Design Practice : Home Page
+    </a>
+    
+
+    
+    <a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/2_phase-2/2_3_fine-grained-locking-per-client/" class="btn nav-btn">Next &rarr;</a>
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+</body>
+</html>

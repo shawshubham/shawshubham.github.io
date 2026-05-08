@@ -343,17 +343,17 @@ To apply this pattern under real interview conditions, explore tagged problems i
 **👉 [Binary Search – Practice Problems](/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems)**  
 _(Coderpad Practice → Apply the Binary Search filter)_
 
-### ✅ Phase 1 — Core
+### Phase 1 — Core Binary Search
 
-- First/Last Occurrence
+1. LeetCode 704 — Binary Search
+2. LeetCode 35 — Search Insert Position
+3. LeetCode 34 — Find First and Last Position of Element in Sorted Array
 
-### ✅ Phase 2 — Stretch
+### Phase 2 — Pattern Variations
 
-- Search in Rotated Sorted Array
-
-### ✅ Phase 3 — Advanced
-
-- Peak Element
+4. LeetCode 33 — Search in Rotated Sorted Array
+5. LeetCode 153 — Find Minimum in Rotated Sorted Array
+6. LeetCode 162 — Find Peak Element
 
 ---
 

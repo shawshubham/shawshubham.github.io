@@ -298,17 +298,11 @@ To apply this pattern under real interview conditions, explore tagged problems i
 **👉 [Binary Search on Answer – Practice Problems](/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems)**  
 _(Coderpad Practice → Apply the Binary Search filter)_
 
-### ✅ Phase 1 — Core
+### Practice Questions — Binary Search on Answer
 
-- Koko Eating Bananas
-
-### ✅ Phase 2 — Stretch
-
-- Capacity to Ship Packages
-
-### ✅ Phase 3 — Advanced
-
-- Aggressive Cows
+1. LeetCode 875 — Koko Eating Bananas
+2. LeetCode 1011 — Capacity To Ship Packages Within D Days
+3. LeetCode 410 — Split Array Largest Sum
 
 ---
 

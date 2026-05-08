@@ -241,7 +241,7 @@ Fixed Window Counter improves our naive approach by formalizing the idea of time
 
 ### 🔗 What’s Next?
 
-👉 **Sliding Window Algorithm →**
+👉 **[Sliding Window Algorithm →](/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/1_phase1/1_4_sliding-window-algorithm/)**
 
 ---
 

@@ -144,7 +144,7 @@ Threads form a circular dependency.
 
 ---
 
-### 1. Lock Ordering (Best Practice)
+### 7.1 Lock Ordering (Best Practice)
 
 Always acquire locks in same order:
 
@@ -159,7 +159,27 @@ synchronized(lock1) {
 
 ---
 
-### 2. Use tryLock (ReentrantLock)
+### 7.2 Use `tryLock()` (`ReentrantLock`)
+
+---
+
+Another way to reduce deadlock risk is to use `tryLock()` instead of `lock()`.
+
+With `lock()`, a thread waits until the lock becomes available.
+
+```java
+lock1.lock();
+lock2.lock(); // may wait forever
+```
+
+This can cause deadlock if another thread already holds `lock2` and is waiting for `lock1`.
+
+With `tryLock()`, the thread does not wait forever.
+
+It tries to acquire the lock:
+
+- if lock is available → returns true
+- if lock is not available → returns false
 
 ```java
 if (lock1.tryLock()) {
@@ -177,15 +197,77 @@ if (lock1.tryLock()) {
 }
 ```
 
+### How this prevents deadlock
+
+Assume:
+
+```text
+Thread A holds lock1
+Thread B holds lock2
+```
+
+Now:
+
+```text
+Thread A tries lock2
+```
+
+If `lock2` is not available, `tryLock()` returns `false`.
+
+So Thread A does not wait forever.
+
+Instead, it releases lock1:
+
+```java
+finally {
+    lock1.unlock();
+}
+```
+
+This allows other threads to continue.
+
+### Key Idea
+
+> If a thread cannot acquire all required locks, it releases the locks it already holds instead of waiting forever.
+
+This breaks one of the main deadlock conditions: **hold and wait**.
+
+### Important Note
+
+This code avoids deadlock, but the work may be skipped if both locks are not acquired.
+
+In real applications, we usually retry after a short delay.
+
+```java
+while (true) {
+    if (lock1.tryLock()) {
+        try {
+            if (lock2.tryLock()) {
+                try {
+                    // critical section
+                    break;
+                } finally {
+                    lock2.unlock();
+                }
+            }
+        } finally {
+            lock1.unlock();
+        }
+    }
+
+    Thread.sleep(10);
+}
+```
+
 ---
 
-### 3. Avoid Nested Locks
+### 7.3 Avoid Nested Locks
 
 Reduce dependency between locks.
 
 ---
 
-### 4. Timeout Mechanism
+### 7.4 Timeout Mechanism
 
 Use timed locks to avoid indefinite waiting.
 
