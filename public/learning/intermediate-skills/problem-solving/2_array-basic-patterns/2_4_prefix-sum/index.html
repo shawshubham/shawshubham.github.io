@@ -4,12 +4,12 @@
   <meta name="google-site-verification" content="uAulF6MENawH52RaV8zdWc1-fpSxxrBC5VtDtTOIQCY" />
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prefix Sum</title>
+<title>Prefix Sum ✅</title>
 
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778232176">
+<link rel="stylesheet" href="/css/main.css?v=1778358592">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -77,7 +77,7 @@
 <section class="hero hero-small">
   <div class="container">
     <p class="tagline">Let's Explore</p>
-    <h1 class="main-heading">Prefix Sum</h1>
+    <h1 class="main-heading">Prefix Sum ✅</h1>
     <h3>
   </div>
 </section>
@@ -238,7 +238,7 @@
                             <ul class="subject-phase-topics">
                               
                                 <li class="">
-                                  <a href="/learning/intermediate-skills/problem-solving/2_array-basic-patterns/2_1_hashing/">3.1. Hashing (Map/Set)</a>
+                                  <a href="/learning/intermediate-skills/problem-solving/2_array-basic-patterns/2_1_hashing/">3.1. Hashing (Map/Set) ✅</a>
                                 </li>
                               
                                 <li class="">
@@ -250,7 +250,7 @@
                                 </li>
                               
                                 <li class="active">
-                                  <a href="/learning/intermediate-skills/problem-solving/2_array-basic-patterns/2_4_prefix-sum/">3.4. Prefix Sum</a>
+                                  <a href="/learning/intermediate-skills/problem-solving/2_array-basic-patterns/2_4_prefix-sum/">3.4. Prefix Sum ✅</a>
                                 </li>
                               
                                 <li class="">
@@ -663,13 +663,216 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 29 Apr, 2026
+            Last updated on: 9 May, 2026
             
           </p>
         </div>
 
         <article class="topic-content">
-          
+          <h1 id="prefix-sum--eliminating-repeated-range-computation">Prefix Sum – Eliminating Repeated Range Computation</h1>
+<h2 id="1-why-the-prefix-sum-pattern-matters">1. Why the Prefix Sum Pattern Matters</h2>
+<p>Many interview problems involve:</p>
+<ul>
+<li>subarray sums,</li>
+<li>range computations,</li>
+<li>cumulative totals,</li>
+<li>counting subarrays,</li>
+<li>or repeated sum calculations.</li>
+</ul>
+<p>A brute force approach would often:</p>
+<ul>
+<li>generate all possible ranges,</li>
+<li>recompute sums repeatedly,</li>
+<li>and result in O(n²) or worse complexity.</li>
+</ul>
+<p>The Prefix Sum pattern exists to eliminate that repeated computation.</p>
+<p>When applied correctly, it lets you:</p>
+<ul>
+<li>compute range sums efficiently,</li>
+<li>answer repeated queries quickly,</li>
+<li>transform nested loops into linear solutions,</li>
+<li>and solve many counting problems elegantly.</li>
+</ul>
+<hr>
+<h2 id="2-what-is-prefix-sum">2. What Is Prefix Sum?</h2>
+<p>Prefix Sum stores:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Cumulative sum till current index
+</span></span></code></pre></div><p>Meaning:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>prefix[i]
+</span></span><span style="display:flex;"><span>=
+</span></span><span style="display:flex;"><span>sum of elements from 0 → i
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>nums = [1,2,3,4]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>prefix = [1,3,6,10]
+</span></span></code></pre></div><hr>
+<h2 id="3-the-core-insight">3. The Core Insight</h2>
+<p>Suppose:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>prefix[r] = sum(0 → r)
+</span></span><span style="display:flex;"><span>prefix[l - 1] = sum(0 → l-1)
+</span></span></code></pre></div><p>Then:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>sum(l → r)
+</span></span><span style="display:flex;"><span>=
+</span></span><span style="display:flex;"><span>prefix[r] - prefix[l - 1]
+</span></span></code></pre></div><p>This is the entire foundation of the pattern.</p>
+<p>Instead of recomputing the range:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>reuse previously computed cumulative sums.
+</span></span></code></pre></div><hr>
+<h2 id="4-when-should-you-think-of-prefix-sum">4. When Should You Think of Prefix Sum?</h2>
+<p>Prefix Sum is a strong candidate when:</p>
+<ul>
+<li>repeated range sums are needed,</li>
+<li>subarray sums are involved,</li>
+<li>cumulative totals matter,</li>
+<li>counting subarrays is required,</li>
+<li>modulo/remainder logic appears.</li>
+</ul>
+<p>Common interview trigger phrases:</p>
+<ul>
+<li>“subarray sum”</li>
+<li>“range sum”</li>
+<li>“contiguous”</li>
+<li>“sum equals K”</li>
+<li>“divisible by K”</li>
+<li>“cumulative total”</li>
+</ul>
+<hr>
+<h2 id="5-a-minimal-example-to-build-intuition">5. A Minimal Example to Build Intuition</h2>
+<h3 id="problem-shape">Problem Shape</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Find sum of subarray from index l to r
+</span></span></code></pre></div><p>Brute force:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Iterate from l → r every time
+</span></span></code></pre></div><p>Complexity:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>O(n) per query
+</span></span></code></pre></div><p>Prefix Sum approach:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>prefix[r] - prefix[l - 1]
+</span></span></code></pre></div><p>Complexity:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>O(1) per query
+</span></span></code></pre></div><p>The key idea is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Precompute once → reuse many times.
+</span></span></code></pre></div><hr>
+<h2 id="6-running-prefix-sum-pattern">6. Running Prefix Sum Pattern</h2>
+<p>Sometimes we do not explicitly build a prefix array.</p>
+<p>Instead, we maintain:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>running cumulative sum
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>sum <span style="color:#f92672">+=</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span></code></pre></div><p>Used in:</p>
+<ul>
+<li>Subarray Sum Equals K</li>
+<li>Prefix modulo problems</li>
+<li>cumulative counting problems</li>
+</ul>
+<hr>
+<h2 id="7-prefix-sum--hashmap-pattern">7. Prefix Sum + HashMap Pattern</h2>
+<p>One of the most important interview combinations is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Prefix Sum + HashMap
+</span></span></code></pre></div><p>This appears in:</p>
+<ul>
+<li>Subarray Sum Equals K</li>
+<li>Continuous Subarray Sum</li>
+<li>Subarray Sums Divisible by K</li>
+</ul>
+<p>Core idea:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Store previously seen prefix states
+</span></span></code></pre></div><p>instead of recomputing all subarrays.</p>
+<hr>
+<h2 id="8-prefix-modulo-pattern">8. Prefix Modulo Pattern</h2>
+<p>A very common advanced variation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>prefix[r] % k == prefix[l - 1] % k
+</span></span></code></pre></div><p>Meaning:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>subarray sum between them is divisible by k
+</span></span></code></pre></div><p>This transforms:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>subarray divisibility problems
+</span></span></code></pre></div><p>into:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>matching remainder problems
+</span></span></code></pre></div><hr>
+<h2 id="9-why-the-pattern-works">9. Why the Pattern Works</h2>
+<p>Prefix Sum works because:</p>
+<ul>
+<li>cumulative computation is reused,</li>
+<li>repeated range traversal is eliminated,</li>
+<li>subarray problems transform into prefix relationships.</li>
+</ul>
+<p>📌 The optimization comes from:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Trading preprocessing for fast queries.
+</span></span></code></pre></div><hr>
+<h2 id="10-common-mistakes-to-avoid">10. Common Mistakes to Avoid</h2>
+<p>Prefix Sum problems fail most often due to:</p>
+<ul>
+<li>incorrect prefix initialization,</li>
+<li>off-by-one errors,</li>
+<li>forgetting base cases,</li>
+<li>mishandling negative numbers,</li>
+<li>incorrect remainder handling.</li>
+</ul>
+<p>📌 Prefix modulo problems are especially error-prone.</p>
+<hr>
+<h2 id="11-how-interviewers-evaluate-prefix-sum-solutions">11. How Interviewers Evaluate Prefix Sum Solutions</h2>
+<p>Interviewers look for:</p>
+<ul>
+<li>recognition of repeated range computation,</li>
+<li>correct transformation into cumulative relationships,</li>
+<li>clean handling of prefix state,</li>
+<li>understanding of HashMap integration.</li>
+</ul>
+<p>Naming the pattern is optional —
+recognizing the optimization opportunity is not.</p>
+<hr>
+<h2 id="12-when-prefix-sum-is-the-wrong-choice">12. When Prefix Sum Is the Wrong Choice</h2>
+<p>Do NOT force Prefix Sum when:</p>
+<ul>
+<li>ordering matters dynamically,</li>
+<li>updates occur frequently,</li>
+<li>sliding constraints dominate,</li>
+<li>independent non-contiguous selections are required.</li>
+</ul>
+<p>Sometimes:</p>
+<ul>
+<li>Sliding Window,</li>
+<li>DP,</li>
+<li>or Segment Trees</li>
+</ul>
+<p>are better suited.</p>
+<hr>
+<h2 id="-quick-mental-trigger">🧠 Quick Mental Trigger</h2>
+<p>If you can say:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&#34;I am repeatedly calculating subarray or range sums&#34;
+</span></span></code></pre></div><p>👉 Think Prefix Sum</p>
+<hr>
+<h2 id="-practice-problems-coderpad-style">🔗 Practice Problems (CoderPad Style)</h2>
+<p>To apply this pattern under real interview conditions, explore tagged problems in the practice section:</p>
+<p><strong>👉 <a href="/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems">Prefix Sum – Practice Problems</a></strong><br>
+<em>(Coderpad Practice → Apply the Prefix Sum filter)</em></p>
+<h3 id="-phase-1--core">✅ Phase 1 — Core</h3>
+<ul>
+<li>Running Sum of 1D Array</li>
+<li>Range Sum Query – Immutable</li>
+<li>Find Pivot Index</li>
+</ul>
+<h3 id="-phase-2--stretch">✅ Phase 2 — Stretch</h3>
+<ul>
+<li>Subarray Sum Equals K</li>
+<li>Continuous Subarray Sum</li>
+</ul>
+<h3 id="-phase-3--advanced">✅ Phase 3 — Advanced</h3>
+<ul>
+<li>Subarray Sums Divisible by K</li>
+<li>Contiguous Array</li>
+</ul>
+<hr>
+<h2 id="key-takeaway">Key Takeaway</h2>
+<blockquote>
+<p>Prefix Sum is not about cumulative arrays —
+it is about reusing previously computed computation efficiently.</p></blockquote>
+<p>Once you learn to transform range problems into prefix relationships,
+large classes of subarray problems become dramatically simpler.</p>
+<hr>
+<h2 id="-whats-next">🔗 What’s Next?</h2>
+<p>The next pattern focuses on combining information from both directions simultaneously.</p>
+<p>Up next:</p>
+<p><strong>👉 Prefix-Suffix Pattern – Combining Left and Right Information Efficiently</strong></p>
+
         </article>
 
       </div>
@@ -692,6 +895,102 @@
 
 <nav class="sidebar-toc" aria-label="Table of contents">
   <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-why-the-prefix-sum-pattern-matters" data-toc-target="1-why-the-prefix-sum-pattern-matters">1. Why the Prefix Sum Pattern Matters</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-what-is-prefix-sum" data-toc-target="2-what-is-prefix-sum">2. What Is Prefix Sum?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-the-core-insight" data-toc-target="3-the-core-insight">3. The Core Insight</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-when-should-you-think-of-prefix-sum" data-toc-target="4-when-should-you-think-of-prefix-sum">4. When Should You Think of Prefix Sum?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-a-minimal-example-to-build-intuition" data-toc-target="5-a-minimal-example-to-build-intuition">5. A Minimal Example to Build Intuition</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-running-prefix-sum-pattern" data-toc-target="6-running-prefix-sum-pattern">6. Running Prefix Sum Pattern</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-prefix-sum--hashmap-pattern" data-toc-target="7-prefix-sum--hashmap-pattern">7. Prefix Sum &#43; HashMap Pattern</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-prefix-modulo-pattern" data-toc-target="8-prefix-modulo-pattern">8. Prefix Modulo Pattern</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-why-the-pattern-works" data-toc-target="9-why-the-pattern-works">9. Why the Pattern Works</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-common-mistakes-to-avoid" data-toc-target="10-common-mistakes-to-avoid">10. Common Mistakes to Avoid</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-how-interviewers-evaluate-prefix-sum-solutions" data-toc-target="11-how-interviewers-evaluate-prefix-sum-solutions">11. How Interviewers Evaluate Prefix Sum Solutions</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-when-prefix-sum-is-the-wrong-choice" data-toc-target="12-when-prefix-sum-is-the-wrong-choice">12. When Prefix Sum Is the Wrong Choice</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#-quick-mental-trigger" data-toc-target="-quick-mental-trigger">🧠 Quick Mental Trigger</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#-practice-problems-coderpad-style" data-toc-target="-practice-problems-coderpad-style">🔗 Practice Problems (CoderPad Style)</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#key-takeaway" data-toc-target="key-takeaway">Key Takeaway</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#-whats-next" data-toc-target="-whats-next">🔗 What’s Next?</a>
+      </li>
     
   </ul>
 </nav>

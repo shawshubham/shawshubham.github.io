@@ -257,43 +257,217 @@ Each problem there follows the standard structure:
 
 ---
 
-### ✅ Recommended Learning Path (Minimum Set)
+### ✅ Recommended Learning Path (High ROI Order)
 
-To build strong intuition for the Two Pointers pattern, it is **strongly recommended** to solve at least the following four problems in order:
+To build strong intuition for the Two Pointers pattern, it is strongly recommended to solve the following problems in order.
 
-1. **Two Sum II – Input Array Is Sorted**  
-   → Basic recognition of sorted input + opposite direction pointers
+The progression below is intentional:
 
-2. **Remove Duplicates from Sorted Array**  
-   → Fast & slow pointers + in-place constraints
+- start with basic pointer movement,
+- then introduce in-place modification,
+- then duplicate handling,
+- and finally greedy reasoning.
 
-3. **3Sum**  
-   → Sorting + Two Pointers + duplicate handling discipline
+---
 
-4. **Container With Most Water**  
-   → Greedy pointer movement + proof of correctness
+### ✅ Phase 1 — Core Recognition
 
-These four problems together cover:
+#### 1. Two Sum II – Input Array Is Sorted
 
-- both pointer variants (opposite direction & fast/slow),
-- constraint handling,
-- duplicate control,
-- and greedy reasoning.
+**LeetCode:** https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+
+Focus:
+
+- sorted input recognition
+- opposite direction pointers
+- pointer movement based on comparison
+
+Key intuition:
+
+```text
+If sum is too small → move left
+If sum is too large → move right
+```
+
+---
+
+#### 2. Valid Palindrome
+
+**LeetCode:** https://leetcode.com/problems/valid-palindrome/
+
+Focus:
+
+- inward pointer traversal
+- character filtering
+- boundary handling
+
+Key intuition:
+
+```text
+Compare mirrored positions while shrinking search space.
+```
+
+---
+
+### ✅ Phase 2 — Fast & Slow Pointer Discipline
+
+#### 3. Remove Duplicates from Sorted Array
+
+**LeetCode:** https://leetcode.com/problems/remove-duplicates-from-sorted-array/
+
+Focus:
+
+- fast & slow pointers
+- in-place modification
+- maintaining valid structure
+
+Key intuition:
+
+```text
+One pointer explores,
+other pointer maintains valid compacted region.
+```
+
+---
+
+#### 4. Move Zeroes
+
+**LeetCode:** https://leetcode.com/problems/move-zeroes/
+
+Focus:
+
+- stable movement
+- in-place swapping
+- maintaining non-zero region
+
+Key intuition:
+
+```text
+Slow pointer tracks placement position.
+```
+
+---
+
+### ✅ Phase 3 — Duplicate Handling + Multi-Pointer Reasoning
+
+#### 5. 3Sum
+
+**LeetCode:** https://leetcode.com/problems/3sum/
+
+Focus:
+
+- sorting + Two Pointers
+- duplicate handling
+- nested pointer logic
+
+Key intuition:
+
+```text
+Fix one element,
+solve remaining pair using Two Pointers.
+```
+
+---
+
+#### 6. 4Sum
+
+**LeetCode:** https://leetcode.com/problems/4sum/
+
+Focus:
+
+- generalized k-sum thinking
+- duplicate elimination discipline
+- layered pointer reasoning
+
+---
+
+### ✅ Phase 4 — Greedy Pointer Movement
+
+#### 7. Container With Most Water
+
+**LeetCode:** https://leetcode.com/problems/container-with-most-water/
+
+Focus:
+
+- greedy pointer movement
+- proof of correctness
+- area optimization
+
+Key intuition:
+
+```text
+Move the smaller height pointer.
+Larger height cannot improve area while width shrinks.
+```
+
+---
+
+#### 8. Trapping Rain Water
+
+**LeetCode:** https://leetcode.com/problems/trapping-rain-water/
+
+Focus:
+
+- bidirectional constraints
+- leftMax / rightMax reasoning
+- greedy boundary movement
+
+Key intuition:
+
+```text
+Water level depends on smaller boundary.
+```
+
+---
+
+### ✅ Phase 5 — Advanced Variations
+
+#### 9. Sort Colors
+
+**LeetCode:** https://leetcode.com/problems/sort-colors/
+
+Focus:
+
+- Dutch National Flag pattern
+- three-pointer partitioning
+- in-place categorization
+
+---
+
+#### 10. Backspace String Compare
+
+**LeetCode:** https://leetcode.com/problems/backspace-string-compare/
+
+Focus:
+
+- reverse traversal
+- conditional pointer skipping
+- simulated processing without extra space
 
 ---
 
 ### 🚦 After This Point
 
-Once you are comfortable with these four problems:
+Once you are comfortable with these problems:
 
-- pointer movement feels instinctive,
-- edge cases are handled naturally,
-- and explanations are clear while coding,
+- pointer movement feels natural,
+- edge cases are handled confidently,
+- and explanations are clean while coding,
 
-you can confidently move on to **any Two Pointers problem** of your choice.
+you can move comfortably into:
 
-More problems should reinforce intuition —  
-not replace understanding with memorization.
+- Sliding Window
+- Linked List Fast/Slow patterns
+- Monotonic structures
+- advanced partitioning problems
+
+At this stage, Two Pointers should feel like:
+
+```text
+controlled search-space reduction
+```
+
+rather than a memorized trick.
 
 ---
 

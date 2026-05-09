@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778173345">
+<link rel="stylesheet" href="/css/main.css?v=1778365392">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -546,6 +546,22 @@
                                   <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_34_saga-pattern-choreography-reliability/">8.34. Saga Pattern — Choreography Reliability (Deep Dive)</a>
                                 </li>
                               
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_35_saga-pattern-reconciliation-as-a-first-class-component/">8.35. Saga Pattern — Reconciliation as a First-class Component</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_36_cap-theorem-correct-interpretation/">8.36. CAP Theorem — Correct Interpretation (No Myths)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_37_cap-theorem-applying-to-phase3/">8.37. CAP Theorem — Applying CAP to Phase 3 Decisions</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_38_cap-consistency-synthesis/">8.38. CAP Theorem — CAP &#43; Consistency Models (Synthesis)</a>
+                                </li>
+                              
                             </ul>
                           </details>
                         </li>
@@ -555,9 +571,17 @@
 
                         <li class="subject-phase ">
                           <details class="subject-phase-details" >
-                            <summary class="subject-phase-title">9. Concepts - Storage Systems</summary>
+                            <summary class="subject-phase-title">9. Concepts - Storage Systems (HLD)</summary>
 
                             <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/10_concepts-storage-system/10_1_storage-systems-hub/">9.1. Storage Systems Hub — How to Choose Storage in System Design</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/high-level-design/10_concepts-storage-system/10_2_object-storage-what-it-is/">9.2. Object Storage — What It Is (S3/GCS mental model)</a>
+                                </li>
                               
                             </ul>
                           </details>
@@ -576,7 +600,7 @@
         <div class="topic-meta">
           <p class="last-updated">
             
-            Last updated on: 5 Apr, 2026
+            Last updated on: 9 May, 2026
             
           </p>
         </div>
@@ -791,7 +815,50 @@ flowchart TD
     style RA fill:#ffebee,stroke:#c62828
     style RB fill:#ffebee,stroke:#c62828
 </div>
-<h3 id="need-to-complete-this-section">Need to complete this section</h3>
+<p>This works reliably only if:</p>
+<ul>
+<li>each service uses outbox/inbox</li>
+<li>all events have stable IDs</li>
+<li>compensation steps are idempotent</li>
+<li>correlation IDs exist for tracing</li>
+</ul>
+<hr>
+<h2 id="8-when-choreography-is-a-good-fit">8. When Choreography Is a Good Fit</h2>
+<hr>
+<p>Choreography works well when:</p>
+<ul>
+<li>the organization is strongly event-driven</li>
+<li>teams are disciplined about event contracts and versioning</li>
+<li>you have strong observability (tracing + workflow projection)</li>
+<li>workflows can tolerate eventual coordination</li>
+</ul>
+<p>For correctness-critical payments, orchestration is still often simpler.</p>
+<p>But choreography is a real pattern used at scale.</p>
+<hr>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<hr>
+<ul>
+<li>Choreography reliability depends on outbox/inbox everywhere.</li>
+<li>Make compensation explicit as message/event flows.</li>
+<li>Correlation IDs are essential for debugging and observability.</li>
+<li>Build workflow projections to answer “where is it stuck?”</li>
+<li>Enforce monotonic transitions and idempotent compensations to handle out-of-order + duplicates.</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<hr>
+<p>Choreography-based sagas can be reliable, but the reliability burden shifts into every service.</p>
+<p>Use outbox/inbox patterns, explicit compensation events, correlation IDs, and workflow projections. Without these, choreography becomes difficult to debug and unsafe under at-least-once delivery.</p>
+<hr>
+<h3 id="-whats-next">🔗 What’s Next</h3>
+<p>Next we’ll cover the final reality layer of distributed correctness:</p>
+<ul>
+<li>reconciliation as a first-class component</li>
+<li>mismatch detection</li>
+<li>healing workflows and closing “in doubt” outcomes</li>
+</ul>
+<p><strong>👉 Up Next: →</strong>
+<strong><a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_35_saga-pattern-reconciliation-as-a-first-class-component/">Saga Pattern — Reconciliation as a First-class Component</a></strong>￼</p>
 
         </article>
 
@@ -858,6 +925,24 @@ flowchart TD
         <a class="toc-link" href="#7-example-event-driven-compensation-chain-payment--inventory--shipping" data-toc-target="7-example-event-driven-compensation-chain-payment--inventory--shipping">7. Example: Event-driven Compensation Chain (Payment &#43; Inventory &#43; Shipping)</a>
       </li>
     
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-when-choreography-is-a-good-fit" data-toc-target="8-when-choreography-is-a-good-fit">8. When Choreography Is a Good Fit</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#key-takeaways" data-toc-target="key-takeaways">Key Takeaways</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#tldr" data-toc-target="tldr">TL;DR</a>
+      </li>
+    
   </ul>
 </nav>
 
@@ -902,6 +987,8 @@ flowchart TD
     </a>
     
 
+    
+    <a href="/learning/advanced-skills/high-level-design/8_concepts-phase3/8_35_saga-pattern-reconciliation-as-a-first-class-component/" class="btn nav-btn">Next &rarr;</a>
     
   </div>
 </section>

@@ -259,4 +259,61 @@ flowchart TD
     style RB fill:#ffebee,stroke:#c62828
 ```
 
-### Need to complete this section
+This works reliably only if:
+
+- each service uses outbox/inbox
+- all events have stable IDs
+- compensation steps are idempotent
+- correlation IDs exist for tracing
+
+---
+
+## 8. When Choreography Is a Good Fit
+
+---
+
+Choreography works well when:
+
+- the organization is strongly event-driven
+- teams are disciplined about event contracts and versioning
+- you have strong observability (tracing + workflow projection)
+- workflows can tolerate eventual coordination
+
+For correctness-critical payments, orchestration is still often simpler.
+
+But choreography is a real pattern used at scale.
+
+---
+
+## Key Takeaways
+
+---
+
+- Choreography reliability depends on outbox/inbox everywhere.
+- Make compensation explicit as message/event flows.
+- Correlation IDs are essential for debugging and observability.
+- Build workflow projections to answer “where is it stuck?”
+- Enforce monotonic transitions and idempotent compensations to handle out-of-order + duplicates.
+
+---
+
+## TL;DR
+
+---
+
+Choreography-based sagas can be reliable, but the reliability burden shifts into every service.
+
+Use outbox/inbox patterns, explicit compensation events, correlation IDs, and workflow projections. Without these, choreography becomes difficult to debug and unsafe under at-least-once delivery.
+
+---
+
+### 🔗 What’s Next
+
+Next we’ll cover the final reality layer of distributed correctness:
+
+- reconciliation as a first-class component
+- mismatch detection
+- healing workflows and closing “in doubt” outcomes
+
+**👉 Up Next: →**
+**[Saga Pattern — Reconciliation as a First-class Component](/learning/advanced-skills/high-level-design/8_concepts-phase3/8_35_saga-pattern-reconciliation-as-a-first-class-component/)**￼
