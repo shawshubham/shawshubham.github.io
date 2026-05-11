@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -172,7 +172,8 @@
 </ul>
 <p>Now we formalize it as a <strong>reusable backend component</strong>.</p>
 <blockquote>
-<p>🧠 Goal: Design idempotency handling as a <strong>first-class system feature</strong>, not scattered logic.</p></blockquote>
+<p>🧠 Goal: Design idempotency handling as a <strong>first-class system feature</strong>, not scattered logic.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-this-article-does-not-repeat">2. What This Article Does NOT Repeat</h2>
 <hr>
@@ -199,7 +200,7 @@
 <hr>
 <h2 id="4-idempotency-record-model">4. Idempotency Record Model</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Entity</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Entity</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IdempotencyRecord</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Id</span>
@@ -223,7 +224,7 @@
 </span></span></code></pre></div><hr>
 <h2 id="5-status-lifecycle">5. Status Lifecycle</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IN_PROGRESS → COMPLETED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IN_PROGRESS → COMPLETED
 </span></span></code></pre></div><hr>
 <h3 id="meaning">Meaning</h3>
 <ul>
@@ -233,7 +234,7 @@
 <hr>
 <h2 id="6-idempotency-flow">6. Idempotency Flow</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Request arrives with key
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Request arrives with key
 </span></span><span style="display:flex;"><span>2. Lookup record
 </span></span><span style="display:flex;"><span>3. If exists:
 </span></span><span style="display:flex;"><span>   - COMPLETED → return stored response
@@ -245,7 +246,7 @@
 </span></span></code></pre></div><hr>
 <h2 id="7-idempotency-service-detailed">7. Idempotency Service (Detailed)</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Service</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IdempotencyService</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> IdempotencyRepository repository;
@@ -296,10 +297,10 @@
 <h2 id="8-handling-duplicate-requests">8. Handling Duplicate Requests</h2>
 <hr>
 <h3 id="case-1--completed">Case 1 — COMPLETED</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return stored response
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return stored response
 </span></span></code></pre></div><hr>
 <h3 id="case-2--in_progress">Case 2 — IN_PROGRESS</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return 409 or &#34;Processing&#34;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Return 409 or &#34;Processing&#34;
 </span></span></code></pre></div><hr>
 <p>👉 Prevents duplicate execution</p>
 <hr>
@@ -308,17 +309,17 @@
 <p>Same key should represent same request.</p>
 <hr>
 <h3 id="problem">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Same key, different payload
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Same key, different payload
 </span></span></code></pre></div><hr>
 <h3 id="fix">Fix</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>existing.<span style="color:#a6e22e">getRequestHash</span>().<span style="color:#a6e22e">equals</span>(hash(request))) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>existing.<span style="color:#a6e22e">getRequestHash</span>().<span style="color:#a6e22e">equals</span>(hash(request))) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;Request mismatch for same idempotency key&#34;</span>);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h2 id="10-db-constraint-critical">10. DB Constraint (Critical)</h2>
 <hr>
 <p>Ensure uniqueness:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UNIQUE</span> (<span style="color:#66d9ef">key</span>, <span style="color:#66d9ef">operation</span>)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UNIQUE</span> (<span style="color:#66d9ef">key</span>, <span style="color:#66d9ef">operation</span>)
 </span></span></code></pre></div><hr>
 <p>👉 This guarantees only one reservation succeeds.</p>
 <hr>
@@ -333,7 +334,7 @@
 <h2 id="12-retry-safety">12. Retry Safety</h2>
 <hr>
 <p>Idempotency ensures:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry → same result → no duplicate execution
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry → same result → no duplicate execution
 </span></span></code></pre></div><hr>
 <h2 id="13-common-mistakes">13. Common Mistakes</h2>
 <hr>
@@ -360,7 +361,8 @@
 <h2 id="14-design-insight">14. Design Insight</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Idempotency is not just a check — it is a state machine for request processing.</strong></p></blockquote>
+<p>🧠 <strong>Idempotency is not just a check — it is a state machine for request processing.</strong></p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
@@ -381,7 +383,8 @@
 <li>Use DB constraints for safety</li>
 <li>Track request state explicitly</li>
 <li>Store responses for consistent retries</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

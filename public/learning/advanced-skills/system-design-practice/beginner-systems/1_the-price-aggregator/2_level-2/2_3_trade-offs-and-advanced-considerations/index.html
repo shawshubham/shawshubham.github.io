@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -176,7 +176,8 @@
 </ul>
 <blockquote>
 <p>📝 <strong>Key Point:</strong><br>
-Good engineers make systems work. Great engineers choose the right trade-offs.</p></blockquote>
+Good engineers make systems work. Great engineers choose the right trade-offs.</p>
+</blockquote>
 <hr>
 <h2 id="2-recap-of-available-approaches">2. Recap of Available Approaches</h2>
 <hr>
@@ -202,21 +203,21 @@ Good engineers make systems work. Great engineers choose the right trade-offs.</
 <li>explicit lock/unlock</li>
 </ul>
 <h3 id="trade-off">Trade-off</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized → simpler
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized → simpler
 </span></span><span style="display:flex;"><span>ReentrantLock → more flexible but more code
 </span></span></code></pre></div><p>In our problem, both behave similarly because both allow only <strong>one thread at a time</strong>.</p>
 <hr>
 <h2 id="4-reentrantlock-vs-reentrantreadwritelock">4. <code>ReentrantLock</code> vs <code>ReentrantReadWriteLock</code></h2>
 <hr>
 <h3 id="reentrantlock-1"><code>ReentrantLock</code></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single lock for both read and write
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single lock for both read and write
 </span></span></code></pre></div><ul>
 <li>one reader blocks other readers</li>
 <li>writer blocks everyone</li>
 </ul>
 <hr>
 <h3 id="reentrantreadwritelock"><code>ReentrantReadWriteLock</code></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Separate read and write locks
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Separate read and write locks
 </span></span></code></pre></div><ul>
 <li>multiple readers allowed simultaneously</li>
 <li>writers get exclusive access</li>
@@ -258,16 +259,16 @@ Good engineers make systems work. Great engineers choose the right trade-offs.</
 <h2 id="5-read-heavy-vs-write-heavy-systems">5. Read-Heavy vs Write-Heavy Systems</h2>
 <hr>
 <h3 id="read-heavy-system">Read-heavy system</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>many getMovingAverage calls
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>many getMovingAverage calls
 </span></span><span style="display:flex;"><span>few addPrice calls
 </span></span></code></pre></div><p>👉 Best choice:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ReentrantReadWriteLock
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ReentrantReadWriteLock
 </span></span></code></pre></div><hr>
 <h3 id="write-heavy-system">Write-heavy system</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>frequent price updates
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>frequent price updates
 </span></span><span style="display:flex;"><span>few reads
 </span></span></code></pre></div><p>👉 Simpler approach is often enough:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized or ReentrantLock
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized or ReentrantLock
 </span></span></code></pre></div><hr>
 <h3 id="balanced-workload">Balanced workload</h3>
 <p>👉 Either approach can work depending on contention.</p>
@@ -276,9 +277,9 @@ Good engineers make systems work. Great engineers choose the right trade-offs.</
 <hr>
 <p>Lock contention happens when multiple threads compete for the same lock.</p>
 <p>With <code>synchronized</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>all threads wait in a single queue
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>all threads wait in a single queue
 </span></span></code></pre></div><p>With <code>ReadWriteLock</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>readers can proceed in parallel
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>readers can proceed in parallel
 </span></span><span style="display:flex;"><span>writers still block
 </span></span></code></pre></div><hr>
 <h2 id="7-latency-vs-throughput">7. Latency vs Throughput</h2>
@@ -299,11 +300,11 @@ Good engineers make systems work. Great engineers choose the right trade-offs.</
 <h2 id="8-why-thread-safe-collections-alone-are-not-enough">8. Why Thread-Safe Collections Alone Are Not Enough</h2>
 <hr>
 <p>You might think of using:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">synchronizedList</span>(...)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">synchronizedList</span>(...)
 </span></span><span style="display:flex;"><span>CopyOnWriteArrayList
 </span></span><span style="display:flex;"><span>ConcurrentLinkedQueue
 </span></span></code></pre></div><p>These protect <strong>individual operations</strong>, but our logic is a <strong>compound operation</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read prefix → compute → write prefix
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read prefix → compute → write prefix
 </span></span></code></pre></div><p>Without a lock, this sequence can still break.</p>
 <p>👉 So we still need explicit synchronization.</p>
 <hr>
@@ -337,7 +338,8 @@ Good engineers make systems work. Great engineers choose the right trade-offs.</
 <hr>
 <p>A strong answer sounds like this:</p>
 <blockquote>
-<p>“I would first ensure correctness using synchronized methods. Then I would analyze the workload. Since getMovingAverage is a read operation and likely to be called more frequently, I would switch to ReentrantReadWriteLock to allow multiple concurrent readers while still protecting writes.”</p></blockquote>
+<p>“I would first ensure correctness using synchronized methods. Then I would analyze the workload. Since getMovingAverage is a read operation and likely to be called more frequently, I would switch to ReentrantReadWriteLock to allow multiple concurrent readers while still protecting writes.”</p>
+</blockquote>
 <hr>
 <h2 id="12-summary">12. Summary</h2>
 <hr>
@@ -372,7 +374,7 @@ Good engineers make systems work. Great engineers choose the right trade-offs.</
 <hr>
 <p>Concurrency is not just about adding locks.</p>
 <p>It is about:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>choosing the right locking strategy for the workload
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>choosing the right locking strategy for the workload
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_4_advanced-lock-free-approach/">Level 2 — Advanced: Lock-Free Thinking (Optional) →</a></strong></p>
@@ -385,7 +387,8 @@ Good engineers make systems work. Great engineers choose the right trade-offs.</
 <li>Understand read vs write patterns</li>
 <li>Choose locks based on system behavior</li>
 <li>Thread-safe collections are not enough for compound operations</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

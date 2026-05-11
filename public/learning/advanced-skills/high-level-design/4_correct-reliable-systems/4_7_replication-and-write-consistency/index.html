@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -654,7 +654,8 @@ flowchart TD
 </ul>
 <p>Now a new correctness problem becomes unavoidable:</p>
 <blockquote>
-<p><strong>Multiple service instances can write concurrently to the same account.</strong></p></blockquote>
+<p><strong>Multiple service instances can write concurrently to the same account.</strong></p>
+</blockquote>
 <p>Replication scales reads. It does <strong>not</strong> automatically make concurrent writes safe.</p>
 <p>This article focuses on <strong>write correctness</strong>.</p>
 <hr>
@@ -728,7 +729,7 @@ Durability
 <h3 id="51-pessimistic-concurrency-row-locking">5.1 Pessimistic Concurrency (Row Locking)</h3>
 <p>In pessimistic locking, the database locks the account row while processing the payment.</p>
 <p>Typical pattern:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> balance <span style="color:#66d9ef">FROM</span> accounts <span style="color:#66d9ef">WHERE</span> account_id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> balance <span style="color:#66d9ef">FROM</span> accounts <span style="color:#66d9ef">WHERE</span> account_id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
 </span></span></code></pre></div><p>This guarantees that only one transaction can modify that row at a time.</p>
 <p>Example flow:</p>
 <div class="mermaid">
@@ -782,7 +783,7 @@ sequenceDiagram
 <li>update succeeds only if the version is unchanged</li>
 </ul>
 <p>Example pattern:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> balance <span style="color:#f92672">=</span> <span style="color:#f92672">?</span>, <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> account_id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#f92672">?</span>;
 </span></span></code></pre></div><p>If 0 rows are updated, someone else wrote first.</p>
@@ -801,11 +802,11 @@ sequenceDiagram
 <h3 id="53-atomic-update-single-statement-funds-check">5.3 Atomic Update (Single-Statement Funds Check)</h3>
 <p>This is a highly practical pattern that avoids the read-modify-write race entirely.</p>
 <p>Instead of:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Read balance
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Read balance
 </span></span><span style="display:flex;"><span>Check balance &gt;= amount
 </span></span><span style="display:flex;"><span>Write new balance
 </span></span></code></pre></div><p>perform the check and update in <strong>one atomic SQL statement</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> balance <span style="color:#f92672">=</span> balance <span style="color:#f92672">-</span> :amount
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> account_id <span style="color:#f92672">=</span> :id <span style="color:#66d9ef">AND</span> balance <span style="color:#f92672">&gt;=</span> :amount;
 </span></span></code></pre></div><p>Interpretation:</p>
@@ -835,7 +836,7 @@ sequenceDiagram
 <li>Balance update performed using an <strong>atomic update</strong> (funds check + debit in one statement)</li>
 </ol>
 <p>High-level flow:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>BEGIN TRANSACTION
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>BEGIN TRANSACTION
 </span></span><span style="display:flex;"><span>1) Atomic debit: UPDATE ... WHERE balance &gt;= amount
 </span></span><span style="display:flex;"><span>2) If debit succeeded: insert payment transaction record
 </span></span><span style="display:flex;"><span>3) COMMIT
@@ -847,12 +848,13 @@ sequenceDiagram
 <li>failure is clean and deterministic</li>
 </ul>
 <blockquote>
-<p>If <strong>later we add more complex invariants (holds, limits, multi-account transfers)</strong>, we can extend this with <strong>pessimistic locking</strong> or <strong>optimistic version checks</strong>.</p></blockquote>
+<p>If <strong>later we add more complex invariants (holds, limits, multi-account transfers)</strong>, we can extend this with <strong>pessimistic locking</strong> or <strong>optimistic version checks</strong>.</p>
+</blockquote>
 <hr>
 <h2 id="7-how-replication-fits-one-line-rule">7. How Replication Fits (One-Line Rule)</h2>
 <hr>
 <p>To avoid mixing with the previous article:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All writes happen on the leader DB.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All writes happen on the leader DB.
 </span></span><span style="display:flex;"><span>Replicas never accept writes.
 </span></span></code></pre></div><p>The leader’s commit log defines the write order.</p>
 <hr>
@@ -878,7 +880,7 @@ sequenceDiagram
 <li>Prevent race conditions using locking, optimistic versioning, or atomic updates.</li>
 <li>Best practical default for balances:</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>  <span style="color:#66d9ef">UPDATE</span> ... <span style="color:#66d9ef">SET</span> balance <span style="color:#f92672">=</span> balance <span style="color:#f92672">-</span> amount <span style="color:#66d9ef">WHERE</span> balance <span style="color:#f92672">&gt;=</span> amount.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>  <span style="color:#66d9ef">UPDATE</span> ... <span style="color:#66d9ef">SET</span> balance <span style="color:#f92672">=</span> balance <span style="color:#f92672">-</span> amount <span style="color:#66d9ef">WHERE</span> balance <span style="color:#f92672">&gt;=</span> amount.
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>Now that our payment system handles:</p>

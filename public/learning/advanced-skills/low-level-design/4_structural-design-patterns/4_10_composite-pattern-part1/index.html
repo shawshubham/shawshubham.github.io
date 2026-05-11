@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -404,7 +404,8 @@
 <p>But the business introduces a new requirement:</p>
 <blockquote>
 <p>“We need to generate reports not just for a single employee,<br>
-but for teams, departments, and the entire organization.”</p></blockquote>
+but for teams, departments, and the entire organization.”</p>
+</blockquote>
 <p>Examples:</p>
 <ul>
 <li>Export report for Employee(E123)</li>
@@ -414,7 +415,8 @@ but for teams, departments, and the entire organization.”</p></blockquote>
 </ul>
 <p>Important constraint:</p>
 <blockquote>
-<p>The reporting pipeline (Strategy + Decorator + Bundle) must remain unchanged.</p></blockquote>
+<p>The reporting pipeline (Strategy + Decorator + Bundle) must remain unchanged.</p>
+</blockquote>
 <p>The caller should not care whether the target represents:</p>
 <ul>
 <li>one employee</li>
@@ -426,12 +428,12 @@ but for teams, departments, and the entire organization.”</p></blockquote>
 <h2 id="2-the-naive-solution-and-why-it-breaks">2. The Naive Solution (And Why It Breaks)</h2>
 <hr>
 <p>The first instinct is usually API expansion:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>exportEmployeeReport(Employee employee);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>exportEmployeeReport(Employee employee);
 </span></span><span style="display:flex;"><span>exportTeamReport(List<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> employees);
 </span></span><span style="display:flex;"><span>exportDepartmentReport(Department department);
 </span></span><span style="display:flex;"><span>exportOrganizationReport(Organization org);
 </span></span></code></pre></div><p>Or worse — loops leak outward:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> employees <span style="color:#f92672">=</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> employees <span style="color:#f92672">=</span>
 </span></span><span style="display:flex;"><span>        employeeDirectory.<span style="color:#a6e22e">getEmployeesByDepartment</span>(departmentId);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Employee e : employees) {
@@ -460,7 +462,8 @@ flowchart TD
 <p>The business does not think in lists.</p>
 <p>It thinks in <strong>targets</strong>.</p>
 <blockquote>
-<p>“Generate report for this reporting target.”</p></blockquote>
+<p>“Generate report for this reporting target.”</p>
+</blockquote>
 <p>A reporting target may represent:</p>
 <ul>
 <li>A single employee</li>
@@ -471,13 +474,15 @@ flowchart TD
 </ul>
 <p>The mental shift:</p>
 <blockquote>
-<p>Instead of passing lists, pass a <strong>structure that resolves employees</strong>.</p></blockquote>
+<p>Instead of passing lists, pass a <strong>structure that resolves employees</strong>.</p>
+</blockquote>
 <p>This is exactly what Composite provides.</p>
 <hr>
 <h2 id="4-the-composite-pattern-definition">4. The Composite Pattern (Definition)</h2>
 <hr>
 <blockquote>
-<p>Composite lets you treat individual objects and compositions of objects uniformly.</p></blockquote>
+<p>Composite lets you treat individual objects and compositions of objects uniformly.</p>
+</blockquote>
 <p>In EMS terms:</p>
 <ul>
 <li>Individual employee → leaf</li>
@@ -491,7 +496,7 @@ flowchart TD
 <h2 id="5-designing-composite-for-ems">5. Designing Composite for EMS</h2>
 <hr>
 <p>We define a single abstraction:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportTarget</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportTarget</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * Resolves the set of employees this target represents.
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * This may involve data access (DB/API) and is expected to be side-effect free.
@@ -512,7 +517,8 @@ flowchart TD
 </ul>
 <p>This interface represents:</p>
 <blockquote>
-<p>“Anything that can produce employees for reporting.”</p></blockquote>
+<p>“Anything that can produce employees for reporting.”</p>
+</blockquote>
 <p>We deliberately return <code>Stream&lt;Employee&gt;</code> instead of <code>List&lt;Employee&gt;</code>:</p>
 <ul>
 <li>avoids large memory allocations</li>
@@ -521,12 +527,13 @@ flowchart TD
 </ul>
 <blockquote>
 <p><strong>Note:</strong><br>
-In production systems this often returns EmployeeId / EmployeeRef instead of full Employee objects, to avoid large payloads and repeated fetching. The pattern remains the same.</p></blockquote>
+In production systems this often returns EmployeeId / EmployeeRef instead of full Employee objects, to avoid large payloads and repeated fetching. The pattern remains the same.</p>
+</blockquote>
 <hr>
 <h2 id="6-leaf-targets-individual-selectors">6. Leaf Targets (Individual Selectors)</h2>
 <hr>
 <h3 id="61-employeetarget-leaf">6.1 EmployeeTarget (Leaf)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">EmployeeTarget</span>(String employeeId) <span style="color:#66d9ef">implements</span> ReportTarget {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">EmployeeTarget</span>(String employeeId) <span style="color:#66d9ef">implements</span> ReportTarget {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repository) {
@@ -539,7 +546,7 @@ No branching.<br>
 Simple leaf node.</p>
 <hr>
 <h3 id="62-teamtarget">6.2 TeamTarget</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">TeamTarget</span>(String teamId) <span style="color:#66d9ef">implements</span> ReportTarget {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">TeamTarget</span>(String teamId) <span style="color:#66d9ef">implements</span> ReportTarget {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repository) {
@@ -550,7 +557,7 @@ Simple leaf node.</p>
 <p>Still uniform.</p>
 <hr>
 <h3 id="63-departmenttarget">6.3 DepartmentTarget</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">DepartmentTarget</span>(String departmentId)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">DepartmentTarget</span>(String departmentId)
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> ReportTarget {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
@@ -560,7 +567,7 @@ Simple leaf node.</p>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="64-organizationtarget">6.4 OrganizationTarget</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">OrganizationTarget</span>()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">OrganizationTarget</span>()
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> ReportTarget {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
@@ -576,12 +583,14 @@ Simple leaf node.</p>
 <hr>
 <p>Sometimes business asks:</p>
 <blockquote>
-<p>“Export reports for Backend team + HR team only.”</p></blockquote>
+<p>“Export reports for Backend team + HR team only.”</p>
+</blockquote>
 <p>Or:</p>
 <blockquote>
-<p>“Export reports for these 3 departments together.”</p></blockquote>
+<p>“Export reports for these 3 departments together.”</p>
+</blockquote>
 <p>Now we need real composition.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">CompositeReportTarget</span>(List<span style="color:#f92672">&lt;</span>ReportTarget<span style="color:#f92672">&gt;</span> children) <span style="color:#66d9ef">implements</span> ReportTarget {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">CompositeReportTarget</span>(List<span style="color:#f92672">&lt;</span>ReportTarget<span style="color:#f92672">&gt;</span> children) <span style="color:#66d9ef">implements</span> ReportTarget {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repository) {
@@ -664,7 +673,8 @@ CompositeReportTarget o--> ReportTarget
 </ul>
 <p>Business wants:</p>
 <blockquote>
-<p>Engineering + HR combined report.</p></blockquote>
+<p>Engineering + HR combined report.</p>
+</blockquote>
 <div class="mermaid">
 flowchart TB
     Root[CompositeReportTarget]
@@ -691,11 +701,11 @@ flowchart TB
 <hr>
 <p>Now we update our reporting flow:</p>
 <p>Before:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>reportingFacade.<span style="color:#a6e22e">exportReport</span>(employee, request);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>reportingFacade.<span style="color:#a6e22e">exportReport</span>(employee, request);
 </span></span></code></pre></div><p>Now:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>reportingFacade.<span style="color:#a6e22e">exportReport</span>(reportTarget, request);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>reportingFacade.<span style="color:#a6e22e">exportReport</span>(reportTarget, request);
 </span></span></code></pre></div><p>Inside facade:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(ReportTarget target,
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(ReportTarget target,
 </span></span><span style="display:flex;"><span>                         ExportReportRequest request) {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    target.<span style="color:#a6e22e">resolveEmployees</span>(employeeRepository)
@@ -704,7 +714,7 @@ flowchart TB
 </span></span><span style="display:flex;"><span>              exportSingleEmployeeReport(emp, request));
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Caller now can create target as shown below and pass to exportReport:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportTarget target <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CompositeReportTarget(List.<span style="color:#a6e22e">of</span>(
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportTarget target <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CompositeReportTarget(List.<span style="color:#a6e22e">of</span>(
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> DepartmentTarget(<span style="color:#e6db74">&#34;engineering&#34;</span>),
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> EmployeeTarget(<span style="color:#e6db74">&#34;emp-123&#34;</span>),
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> DepartmentTarget(<span style="color:#e6db74">&#34;hr&#34;</span>)
@@ -726,7 +736,7 @@ It changes structure.</p>
 <li>caller simplification</li>
 </ul>
 <p>It removes conditional logic like:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (target <span style="color:#66d9ef">instanceof</span> Department) { ... }
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (target <span style="color:#66d9ef">instanceof</span> Department) { ... }
 </span></span></code></pre></div><p>That alone justifies the pattern.</p>
 <hr>
 <h2 id="12-when-not-to-use-composite-pattern">12. When NOT to Use Composite Pattern</h2>
@@ -750,13 +760,16 @@ It changes structure.</p>
 <hr>
 <p>If asked:</p>
 <blockquote>
-<p>“When would you use Composite?”</p></blockquote>
+<p>“When would you use Composite?”</p>
+</blockquote>
 <p>Strong answer:</p>
 <blockquote>
-<p>When you need to treat individual objects and groups of objects uniformly, especially in recursive or hierarchical domains.</p></blockquote>
+<p>When you need to treat individual objects and groups of objects uniformly, especially in recursive or hierarchical domains.</p>
+</blockquote>
 <p>Bonus insight:</p>
 <blockquote>
-<p>It eliminates type-based branching and centralizes traversal logic inside the structure itself.</p></blockquote>
+<p>It eliminates type-based branching and centralizes traversal logic inside the structure itself.</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
@@ -815,7 +828,8 @@ from</li>
 <li>It centralizes traversal logic</li>
 <li>It is ideal for recursive structures</li>
 <li>When hierarchy grows, Composite becomes natural</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

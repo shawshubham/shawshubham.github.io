@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -134,7 +134,8 @@
       <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
 <hr>
 <blockquote>
-<p><strong>A race condition occurs when multiple threads access and modify shared data concurrently without proper synchronization, leading to unpredictable and incorrect results.</strong></p></blockquote>
+<p><strong>A race condition occurs when multiple threads access and modify shared data concurrently without proper synchronization, leading to unpredictable and incorrect results.</strong></p>
+</blockquote>
 <hr>
 <h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
 <hr>
@@ -157,18 +158,19 @@
 </ul>
 <p>Result:</p>
 <blockquote>
-<p>Final output depends on thread execution order (which is unpredictable).</p></blockquote>
+<p>Final output depends on thread execution order (which is unpredictable).</p>
+</blockquote>
 <hr>
 <h2 id="4-example-of-race-condition">4. Example of Race Condition</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> 0;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">increment</span>() {
 </span></span><span style="display:flex;"><span>        count<span style="color:#f92672">++</span>; <span style="color:#75715e">// Not atomic</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Counter counter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Counter();
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Counter counter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Counter();
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Runnable task <span style="color:#f92672">=</span> () <span style="color:#f92672">-&gt;</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> 1000; i<span style="color:#f92672">++</span>) {
@@ -182,18 +184,18 @@
 </span></span><span style="display:flex;"><span>t1.<span style="color:#a6e22e">start</span>();
 </span></span><span style="display:flex;"><span>t2.<span style="color:#a6e22e">start</span>();
 </span></span></code></pre></div><p>Expected output:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>2000
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>2000
 </span></span></code></pre></div><p>Actual output:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&lt; unpredictable (e.g., 1732, 1890, etc.) &gt;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&lt; unpredictable (e.g., 1732, 1890, etc.) &gt;
 </span></span></code></pre></div><hr>
 <h2 id="5-why-does-this-happen">5. Why Does This Happen?</h2>
 <hr>
 <p><code>count++</code> is not atomic. It consists of multiple steps:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read value
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read value
 </span></span><span style="display:flex;"><span>2. Increment
 </span></span><span style="display:flex;"><span>3. Write back
 </span></span></code></pre></div><p>If two threads execute simultaneously:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A reads 5
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A reads 5
 </span></span><span style="display:flex;"><span>Thread B reads 5
 </span></span><span style="display:flex;"><span>Thread A writes 6
 </span></span><span style="display:flex;"><span>Thread B writes 6
@@ -201,7 +203,7 @@
 <hr>
 <h2 id="6-fix-using-synchronized">6. Fix Using synchronized</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> 0;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">increment</span>() {
@@ -216,7 +218,7 @@
 <hr>
 <h2 id="7-fix-using-atomic-classes">7. Fix Using Atomic Classes</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.atomic.AtomicInteger;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.atomic.AtomicInteger;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Counter</span> {
 </span></span><span style="display:flex;"><span>    AtomicInteger count <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AtomicInteger(0);
@@ -269,10 +271,12 @@ sequenceDiagram
 <hr>
 <p>If interviewer asks:</p>
 <blockquote>
-<p>What is race condition in Java?</p></blockquote>
+<p>What is race condition in Java?</p>
+</blockquote>
 <p>Answer like this:</p>
 <blockquote>
-<p>A race condition occurs when multiple threads access and modify shared data concurrently without proper synchronization, leading to unpredictable results. It typically happens in read-modify-write operations like increment. It can be fixed using synchronization, locks, or atomic classes to ensure thread safety.</p></blockquote>
+<p>A race condition occurs when multiple threads access and modify shared data concurrently without proper synchronization, leading to unpredictable results. It typically happens in read-modify-write operations like increment. It can be fixed using synchronization, locks, or atomic classes to ensure thread safety.</p>
+</blockquote>
 
     </article>
   </div>

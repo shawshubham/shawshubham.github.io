@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -396,7 +396,8 @@
 <hr>
 <p>In Part 1, we solved the core problem:</p>
 <blockquote>
-<p><strong>Construct complex objects safely without telescoping constructors.</strong></p></blockquote>
+<p><strong>Construct complex objects safely without telescoping constructors.</strong></p>
+</blockquote>
 <p>For most business systems, that is enough.</p>
 <p>However, two “advanced” enhancements sometimes appear in real codebases:</p>
 <ol>
@@ -418,9 +419,10 @@ They exist for <strong>specific design pressure</strong>, not everyday use.</p>
 <li>type</li>
 <li>department</li>
 </ul>
-<p>before anything else can be set.”</p></blockquote>
+<p>before anything else can be set.”</p>
+</blockquote>
 <p>With a normal builder, this is enforced at runtime:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">build</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> EmployeeReport <span style="color:#a6e22e">build</span>() {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (name <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> type <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> department <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;Name, type, and department are mandatory&#34;</span>);
 </span></span><span style="display:flex;"><span>    }
@@ -439,7 +441,7 @@ They exist for <strong>specific design pressure</strong>, not everyday use.</p>
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/builder/stagedbuilder/">See Code in Git Repo</a>
 </div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">NameStep</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">NameStep</span> {
 </span></span><span style="display:flex;"><span>    TypeStep <span style="color:#a6e22e">name</span>(String name);
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
@@ -468,8 +470,9 @@ They exist for <strong>specific design pressure</strong>, not everyday use.</p>
 <blockquote>
 <p><strong>Note:</strong><br>
 The Builder stays private.
-Only the step interfaces are exposed publicly.</p></blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> <span style="color:#66d9ef">implements</span> NameStep, TypeStep, DepartmentStep, OptionalFieldStep {
+Only the step interfaces are exposed publicly.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> <span style="color:#66d9ef">implements</span> NameStep, TypeStep, DepartmentStep, OptionalFieldStep {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String name;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> EmployeeType type;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Department department;
@@ -554,10 +557,11 @@ Only the step interfaces are exposed publicly.</p></blockquote>
 Instead of exposing the internal Builder class directly, we invoke the builder() method, which returns a <strong>staged interface</strong>.</p>
 <blockquote>
 <p>In this design, the builder is composed of multiple steps:<br>
-<strong>NameStep → TypeStep → DepartmentStep → OptionalStep</strong></p></blockquote>
+<strong>NameStep → TypeStep → DepartmentStep → OptionalStep</strong></p>
+</blockquote>
 <p>Each step exposes <strong>only the next valid method</strong>, forcing the client to follow the correct construction order.<br>
 For example, after calling <strong>name()</strong>, the only available method is <strong>type()</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeeReport report <span style="color:#f92672">=</span> EmployeeReport.<span style="color:#a6e22e">builder</span>()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeeReport report <span style="color:#f92672">=</span> EmployeeReport.<span style="color:#a6e22e">builder</span>()
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">name</span>(employee.<span style="color:#a6e22e">getName</span>())
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">type</span>(employee.<span style="color:#a6e22e">getType</span>())
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">department</span>(employee.<span style="color:#a6e22e">getDepartment</span>())
@@ -582,14 +586,15 @@ For example, after calling <strong>name()</strong>, the only available method is
 <p>📌 <strong>Rule of Thumb</strong></p>
 <p>Use staged builders only when invalid construction must be impossible at compile time<br>
 (protocol handshakes, DSLs, security tokens, strict workflows).<br>
-For business DTOs, runtime validation is usually the better trade-off.</p></blockquote>
+For business DTOs, runtime validation is usually the better trade-off.</p>
+</blockquote>
 <p>For most business systems, <strong>simple builders are better</strong>.</p>
 <h2 id="3-enhancement-2-copy-builder-tobuilder--safe-evolution-of-immutable-objects">3. Enhancement 2: Copy Builder (toBuilder) – Safe Evolution of Immutable Objects</h2>
 <h3 id="31-the-problem-it-solves">3.1 The problem it solves</h3>
 <p>Builder works great for creation.
 But what if you want to <strong>modify an immutable object slightly</strong>?</p>
 <p>Without a copy builder, you often end up doing this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// ❌ Must rebuild everything again</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// ❌ Must rebuild everything again</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">new</span> EmployeeReport.<span style="color:#a6e22e">Builder</span>()
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">name</span>(old.<span style="color:#a6e22e">getName</span>())
 </span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">type</span>(old.<span style="color:#a6e22e">getType</span>())
@@ -605,11 +610,11 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/blob/master/src/main/java/com/theshubhamco/designpattern/creational/builder/tobuilderexample/">See Code in Git Repo</a>
 </div>
 <h4 id="step-1-add-tobuilder-in-the-immutable-class-employeereport">Step 1: Add toBuilder() in the immutable class (EmployeeReport)</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">toBuilder</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">toBuilder</span>() {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Builder(<span style="color:#66d9ef">this</span>);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h4 id="step-2-add-a-copy-constructor-inside-builder">Step 2: Add a “copy constructor” inside Builder</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Added public no-arg constructor and a private all-args constructor for toBuilder() feature</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Builder</span>() {}
 </span></span><span style="display:flex;"><span>
@@ -628,7 +633,7 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// fluent setters + build() stay the same</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="34-usage">3.4 Usage</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// For some reason we need to modify it later</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// For some reason we need to modify it later</span>
 </span></span><span style="display:flex;"><span>report <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">toBuilder</span>()
 </span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">remarks</span>(<span style="color:#e6db74">&#34;Updated Remarks&#34;</span>)
 </span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">build</span>();
@@ -648,7 +653,8 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
 <li>Use staged builders when compile-time ordering is the priority</li>
 <li>Use copy builders when immutable evolution is the priority</li>
 <li>Don’t force both unless you genuinely need both</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 <hr>
 <h2 id="4-lombok-buildertobuilder--true-quick-note">4. Lombok @Builder(toBuilder = true) (Quick Note)</h2>
 <hr>
@@ -667,14 +673,15 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
 <li>equals() / hashCode()</li>
 <li>toString()</li>
 <li>builders</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 <p>This feature comes from <strong>Lombok</strong>, not Spring.</p>
 <ul>
 <li>@Builder generates a builder automatically.</li>
 <li>@Builder(toBuilder = true) also generates a toBuilder() method that returns a builder pre-filled from the current object.</li>
 </ul>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Builder</span>(toBuilder <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Builder</span>(toBuilder <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeReport</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeType type;
@@ -682,7 +689,7 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ...</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Then you can do:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeeReport updated <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">toBuilder</span>()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeeReport updated <span style="color:#f92672">=</span> report.<span style="color:#a6e22e">toBuilder</span>()
 </span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">remarks</span>(<span style="color:#e6db74">&#34;Updated&#34;</span>)
 </span></span><span style="display:flex;"><span>        .<span style="color:#a6e22e">build</span>();
 </span></span></code></pre></div><blockquote>
@@ -690,7 +697,8 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
 <ul>
 <li>your invariants are still enforced (via validation in constructor/build)</li>
 <li>you’re not accidentally encouraging “wide mutable configuration” in the wrong places</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
@@ -711,7 +719,8 @@ But what if you want to <strong>modify an immutable object slightly</strong>?</p
 <li>Use staged builder for strict compile-time construction flows</li>
 <li>Use toBuilder for safe evolution of immutable value objects</li>
 <li>Lombok’s @Builder(toBuilder = true) is a shortcut, not a replacement for thinking</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

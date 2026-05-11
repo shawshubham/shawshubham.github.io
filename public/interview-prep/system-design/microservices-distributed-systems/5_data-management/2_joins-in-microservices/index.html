@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -138,7 +138,8 @@
       <h2 id="1-short-answer-interview-style">1. Short Answer (Interview Style)</h2>
 <hr>
 <blockquote>
-<p><strong>We generally cannot use joins across microservices because each service is expected to own its own database and data model. Direct joins would tightly couple services at the database level, break service independence, and create deployment and scaling problems.</strong></p></blockquote>
+<p><strong>We generally cannot use joins across microservices because each service is expected to own its own database and data model. Direct joins would tightly couple services at the database level, break service independence, and create deployment and scaling problems.</strong></p>
+</blockquote>
 <hr>
 <h2 id="2-why-this-question-matters">2. Why This Question Matters</h2>
 <hr>
@@ -161,7 +162,7 @@
 </ul>
 <hr>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> o.id, <span style="color:#66d9ef">c</span>.name
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> o.id, <span style="color:#66d9ef">c</span>.name
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> orders o
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">JOIN</span> customers <span style="color:#66d9ef">c</span> <span style="color:#66d9ef">ON</span> o.customer_id <span style="color:#f92672">=</span> <span style="color:#66d9ef">c</span>.id;
 </span></span></code></pre></div><hr>
@@ -177,7 +178,7 @@
 </ul>
 <hr>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service DB → orders
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service DB → orders
 </span></span><span style="display:flex;"><span>Customer Service DB → customers
 </span></span></code></pre></div><hr>
 <p>👉 A direct SQL join across these databases is not a good design because it breaks service boundaries.</p>
@@ -227,9 +228,9 @@
 <li>Customer Service stores customer details</li>
 </ul>
 <p>If UI wants:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order ID + Customer Name
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order ID + Customer Name
 </span></span></code></pre></div><p>You should NOT do:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service DB JOIN Customer Service DB
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Order Service DB JOIN Customer Service DB
 </span></span></code></pre></div><hr>
 <p>Instead:</p>
 <ul>
@@ -243,7 +244,7 @@
 <h3 id="1-api-composition">1. API Composition</h3>
 <p>One service calls multiple services and combines results.</p>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>API Gateway / Aggregator
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>API Gateway / Aggregator
 </span></span><span style="display:flex;"><span>→ calls Order Service
 </span></span><span style="display:flex;"><span>→ calls Customer Service
 </span></span><span style="display:flex;"><span>→ merges response
@@ -316,10 +317,12 @@
 <hr>
 <p>If interviewer asks:</p>
 <blockquote>
-<p>Why can’t we use joins across microservices?</p></blockquote>
+<p>Why can’t we use joins across microservices?</p>
+</blockquote>
 <p>Answer like this:</p>
 <blockquote>
-<p>In microservices, each service is supposed to own its own database and internal data model. If we use joins across services, we create tight database-level coupling, break service independence, and make deployments and schema changes risky. Instead of joins, we usually use API composition, event-driven data duplication, or separate read models depending on the use case.</p></blockquote>
+<p>In microservices, each service is supposed to own its own database and internal data model. If we use joins across services, we create tight database-level coupling, break service independence, and make deployments and schema changes risky. Instead of joins, we usually use API composition, event-driven data duplication, or separate read models depending on the use case.</p>
+</blockquote>
 
     </article>
   </div>

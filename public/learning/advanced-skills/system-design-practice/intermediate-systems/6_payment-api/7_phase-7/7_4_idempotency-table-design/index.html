@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -168,7 +168,8 @@
 <p>In Phase 5, we discussed <strong>idempotency as a concept</strong>.</p>
 <p>Now we make it concrete.</p>
 <blockquote>
-<p>❗ Idempotency only works if it is <strong>persisted reliably</strong>.</p></blockquote>
+<p>❗ Idempotency only works if it is <strong>persisted reliably</strong>.</p>
+</blockquote>
 <p>Without a database-backed idempotency store:</p>
 <ul>
 <li>duplicate requests cannot be detected</li>
@@ -180,7 +181,8 @@
 <hr>
 <p>The idempotency table answers:</p>
 <blockquote>
-<p>❓ <em>Have we already processed this exact request?</em></p></blockquote>
+<p>❓ <em>Have we already processed this exact request?</em></p>
+</blockquote>
 <p>It enables:</p>
 <ul>
 <li>safe retries</li>
@@ -190,7 +192,7 @@
 <hr>
 <h2 id="3-core-schema-recommended">3. Core Schema (Recommended)</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IDEMPOTENCY_RECORDS
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IDEMPOTENCY_RECORDS
 </span></span><span style="display:flex;"><span>- idempotency_key (string)
 </span></span><span style="display:flex;"><span>- operation_type (string)
 </span></span><span style="display:flex;"><span>- request_hash (string)
@@ -212,7 +214,7 @@
 <li>identifies the API operation</li>
 </ul>
 <p>Examples:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATE_PAYMENT
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATE_PAYMENT
 </span></span><span style="display:flex;"><span>CONFIRM_PAYMENT
 </span></span></code></pre></div><p>👉 Prevents cross-operation conflicts</p>
 <hr>
@@ -224,7 +226,7 @@
 <hr>
 <h3 id="4-status">4. <code>status</code></h3>
 <p>Represents processing state of the request.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IN_PROGRESS
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>IN_PROGRESS
 </span></span><span style="display:flex;"><span>COMPLETED
 </span></span></code></pre></div><hr>
 <h3 id="5-response_payload">5. <code>response_payload</code></h3>
@@ -238,7 +240,7 @@
 <li>reference to business entity</li>
 </ul>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>payment_id
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>payment_id
 </span></span></code></pre></div><hr>
 <h3 id="7-created_at">7. <code>created_at</code></h3>
 <ul>
@@ -252,7 +254,7 @@
 <hr>
 <h2 id="5-unique-constraint-critical">5. Unique Constraint (Critical)</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>UNIQUE(operation_type, idempotency_key)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>UNIQUE(operation_type, idempotency_key)
 </span></span></code></pre></div><hr>
 <h3 id="why">Why?</h3>
 <ul>
@@ -263,7 +265,7 @@
 <h2 id="6-lifecycle-of-an-idempotency-record">6. Lifecycle of an Idempotency Record</h2>
 <hr>
 <h3 id="step-1-reservation">Step 1: Reservation</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = IN_PROGRESS
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = IN_PROGRESS
 </span></span></code></pre></div><ul>
 <li>inserted before side effects</li>
 </ul>
@@ -274,18 +276,18 @@
 </ul>
 <hr>
 <h3 id="step-3-completion">Step 3: Completion</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = COMPLETED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = COMPLETED
 </span></span><span style="display:flex;"><span>response_payload = &lt;response&gt;
 </span></span></code></pre></div><hr>
 <h2 id="7-flow-example">7. Flow Example</h2>
 <hr>
 <h3 id="first-request">First Request</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Insert key → IN_PROGRESS
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Insert key → IN_PROGRESS
 </span></span><span style="display:flex;"><span>Process request
 </span></span><span style="display:flex;"><span>Update → COMPLETED
 </span></span></code></pre></div><hr>
 <h3 id="retry-request">Retry Request</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Find key
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Find key
 </span></span><span style="display:flex;"><span>If COMPLETED → return stored response
 </span></span><span style="display:flex;"><span>If IN_PROGRESS → return processing/409
 </span></span></code></pre></div><hr>
@@ -317,10 +319,10 @@
 <h2 id="9-indexing-strategy">9. Indexing Strategy</h2>
 <hr>
 <h3 id="required">Required</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>INDEX(operation_type, idempotency_key)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>INDEX(operation_type, idempotency_key)
 </span></span></code></pre></div><hr>
 <h3 id="optional">Optional</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>INDEX(resource_id)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>INDEX(resource_id)
 </span></span></code></pre></div><hr>
 <h3 id="why-1">Why?</h3>
 <ul>
@@ -360,7 +362,7 @@
 <li>use <code>expires_at</code> for cleanup</li>
 </ul>
 <p>Typical TTL:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>24–48 hours
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>24–48 hours
 </span></span></code></pre></div><hr>
 <h2 id="12-how-this-supports-system-design">12. How This Supports System Design</h2>
 <hr>
@@ -398,7 +400,8 @@
 <li>Idempotency requires persistent storage</li>
 <li>Unique constraints prevent race conditions</li>
 <li>IN_PROGRESS → COMPLETED lifecycle ensures safe execution</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

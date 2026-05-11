@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -166,10 +166,11 @@
           <h2 id="1-why-confirm-flow-is-critical">1. Why Confirm Flow is Critical</h2>
 <hr>
 <p>The <strong>Confirm Payment</strong> API is where actual money movement happens.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
 </span></span></code></pre></div><blockquote>
 <p>📝 <strong>Key Insight:</strong><br>
-This is the most sensitive part of the system — mistakes here can lead to <strong>duplicate charges or financial loss</strong>.</p></blockquote>
+This is the most sensitive part of the system — mistakes here can lead to <strong>duplicate charges or financial loss</strong>.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-this-flow-must-guarantee">2. What This Flow Must Guarantee</h2>
 <hr>
@@ -217,7 +218,7 @@ sequenceDiagram
 <h2 id="4-step-by-step-execution">4. Step-by-Step Execution</h2>
 <hr>
 <h3 id="step-1-receive-request">Step 1: Receive Request</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
 </span></span><span style="display:flex;"><span>Idempotency<span style="color:#f92672">-</span>Key: <span style="color:#f92672">&lt;</span>confirm<span style="color:#f92672">-</span>operation<span style="color:#f92672">-</span>key<span style="color:#f92672">&gt;</span>
 </span></span></code></pre></div><blockquote>
 <p>📝 Use a <strong>different idempotency key</strong> for confirm than the one used for create.</p>
@@ -225,7 +226,8 @@ sequenceDiagram
 <li><code>POST /payments</code> → one idempotency key</li>
 <li><code>POST /payments/{paymentId}/confirm</code> → another idempotency key</li>
 </ul>
-<p>Idempotency keys should be scoped <strong>per operation / endpoint</strong>, not reused across different business actions.</p></blockquote>
+<p>Idempotency keys should be scoped <strong>per operation / endpoint</strong>, not reused across different business actions.</p>
+</blockquote>
 <hr>
 <h3 id="step-2-basic-validation">Step 2: Basic Validation</h3>
 <hr>
@@ -247,7 +249,7 @@ sequenceDiagram
 <h3 id="step-4-reserve-idempotency-key-critical-step">Step 4: Reserve Idempotency Key (Critical Step)</h3>
 <hr>
 <p>Try to <strong>atomically insert</strong> idempotency record:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>idempotencyKey = &lt;confirm-operation-key&gt;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>idempotencyKey = &lt;confirm-operation-key&gt;
 </span></span><span style="display:flex;"><span>requestHash = &lt;hash&gt;
 </span></span><span style="display:flex;"><span>status = IN_PROGRESS
 </span></span><span style="display:flex;"><span>operation = CONFIRM_PAYMENT
@@ -284,7 +286,7 @@ sequenceDiagram
 <h3 id="step-7-mark-as-processing">Step 7: Mark as PROCESSING</h3>
 <hr>
 <p>Update payment:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = PROCESSING
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = PROCESSING
 </span></span></code></pre></div><p>👉 Prevents other concurrent executions.</p>
 <hr>
 <h3 id="step-8-call-payment-gateway">Step 8: Call Payment Gateway</h3>
@@ -301,12 +303,12 @@ sequenceDiagram
 <h3 id="step-9-handle-gateway-response">Step 9: Handle Gateway Response</h3>
 <hr>
 <h4 id="case-1-success">Case 1: Success</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = SUCCEEDED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = SUCCEEDED
 </span></span></code></pre></div><h4 id="case-2-failure">Case 2: Failure</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = FAILED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = FAILED
 </span></span><span style="display:flex;"><span>failureReason = &lt;reason&gt;
 </span></span></code></pre></div><h4 id="case-3-timeout--unknown">Case 3: Timeout / Unknown</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = PROCESSING
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>status = PROCESSING
 </span></span></code></pre></div><p>👉 Requires retry or reconciliation.</p>
 <hr>
 <h3 id="step-10-persist-result">Step 10: Persist Result</h3>
@@ -330,7 +332,7 @@ sequenceDiagram
 <h3 id="step-12-return-response">Step 12: Return Response</h3>
 <hr>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;SUCCEEDED&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;gatewayReference&#34;</span>: <span style="color:#e6db74">&#34;txn_123&#34;</span>
@@ -425,7 +427,8 @@ sequenceDiagram
 <li>Confirm flow is the most critical part of payment systems</li>
 <li>Must prevent duplicate execution under all conditions</li>
 <li>Requires combining multiple safeguards for correctness</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

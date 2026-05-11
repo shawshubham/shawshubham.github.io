@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -166,7 +166,7 @@
           <h2 id="1-what-we-built-end-to-end">1. What We Built (End-to-End)</h2>
 <hr>
 <p>We started with a simple requirement:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Compute moving average of last k prices
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Compute moving average of last k prices
 </span></span></code></pre></div><p>And evolved it into a <strong>production-grade distributed system</strong>.</p>
 <hr>
 <h2 id="2-evolution-across-levels">2. Evolution Across Levels</h2>
@@ -177,7 +177,7 @@
 <li>Proper validation and edge cases</li>
 <li>(Optionally) integer-based representation for precision</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Goal → Correctness + O(1) performance
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Goal → Correctness + O(1) performance
 </span></span></code></pre></div><hr>
 <h3 id="level-2--concurrency-single-node">Level 2 — Concurrency (Single Node)</h3>
 <ul>
@@ -185,9 +185,10 @@
 <li>Read vs write separation (ReadWriteLock)</li>
 <li>Understanding contention and throughput</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Goal → Safe concurrent access (not strict ordering)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Goal → Safe concurrent access (not strict ordering)
 </span></span></code></pre></div><blockquote>
-<p>📝 Note: Thread safety ≠ deterministic ordering. Ordering is solved at the distributed layer.</p></blockquote>
+<p>📝 Note: Thread safety ≠ deterministic ordering. Ordering is solved at the distributed layer.</p>
+</blockquote>
 <hr>
 <h3 id="level-3--distributed-system-hld">Level 3 — Distributed System (HLD)</h3>
 <ul>
@@ -198,7 +199,7 @@
 <li>Time-series DB for history</li>
 <li>Idempotency + sequence validation + replay</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Goal → Scalability + Availability + Correctness under failure
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Goal → Scalability + Availability + Correctness under failure
 </span></span></code></pre></div><hr>
 <h2 id="3-final-architecture-clean-view">3. Final Architecture (Clean View)</h2>
 <hr>
@@ -254,14 +255,15 @@ sequenceDiagram
 <hr>
 <h2 id="6-correctness-model-critical">6. Correctness Model (Critical)</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Ordering (Kafka) + Idempotency (consumer) + Replay (recovery)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Ordering (Kafka) + Idempotency (consumer) + Replay (recovery)
 </span></span></code></pre></div><ul>
 <li>Duplicates → ignored</li>
 <li>In-order events → processed</li>
 <li>Gaps → pause + replay + rebuild state</li>
 </ul>
 <blockquote>
-<p>🧠 Key insight: Ordering guarantees do not imply sequence completeness.</p></blockquote>
+<p>🧠 Key insight: Ordering guarantees do not imply sequence completeness.</p>
+</blockquote>
 <hr>
 <h2 id="7-throughput-vs-latency-positioning">7. Throughput vs Latency (Positioning)</h2>
 <hr>
@@ -290,7 +292,8 @@ sequenceDiagram
 <h2 id="9-one-minute-interview-answer">9. One-Minute Interview Answer</h2>
 <hr>
 <blockquote>
-<p>“I’d start with an in-memory O(1) solution using a rolling sum for the last k prices. Then I’d make it thread-safe using a ReadWriteLock for concurrent reads. To scale, I’d move to an event-driven architecture using Kafka, partitioned by symbol to preserve ordering. Aggregator services would maintain per-symbol rolling state, write the latest aggregates to Redis for low-latency reads, and persist ticks/aggregates to a time-series database for history. For correctness, I’d use at-least-once delivery with idempotent consumers, validate sequences per symbol to detect duplicates and gaps, and trigger replay to rebuild state when gaps are found. Offsets are committed after successful processing.”</p></blockquote>
+<p>“I’d start with an in-memory O(1) solution using a rolling sum for the last k prices. Then I’d make it thread-safe using a ReadWriteLock for concurrent reads. To scale, I’d move to an event-driven architecture using Kafka, partitioned by symbol to preserve ordering. Aggregator services would maintain per-symbol rolling state, write the latest aggregates to Redis for low-latency reads, and persist ticks/aggregates to a time-series database for history. For correctness, I’d use at-least-once delivery with idempotent consumers, validate sequences per symbol to detect duplicates and gaps, and trigger replay to rebuild state when gaps are found. Offsets are committed after successful processing.”</p>
+</blockquote>
 <hr>
 <h2 id="10-extensions-if-pushed-further">10. Extensions (If Pushed Further)</h2>
 <hr>
@@ -324,7 +327,7 @@ sequenceDiagram
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>We evolved a simple requirement into a system that is:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correct + Scalable + Fault-Tolerant + Low-Latency
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correct + Scalable + Fault-Tolerant + Low-Latency
 </span></span></code></pre></div><hr>
 <h3 id="-end-of-design">🔗 End of Design</h3>
 <p>This concludes the <strong>Price Aggregator</strong> system design journey.</p>
@@ -336,7 +339,8 @@ sequenceDiagram
 <li>Make it safe (concurrency)</li>
 <li>Make it scale (distributed system)</li>
 <li>Make it correct under failure (idempotency + replay)</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

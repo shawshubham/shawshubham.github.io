@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -610,7 +610,8 @@
 <hr>
 <p>Once you decide <em>where</em> idempotency must live (API, step, workflow), the next design question is:</p>
 <blockquote>
-<p><strong>Where do we store the idempotency record?</strong></p></blockquote>
+<p><strong>Where do we store the idempotency record?</strong></p>
+</blockquote>
 <p>There are two common approaches:</p>
 <ol>
 <li>
@@ -643,7 +644,8 @@ Store idempotency keys in a fast key-value store for low-latency lookups.</p>
 <p>The important part is not the schema.</p>
 <p>The important part is:</p>
 <blockquote>
-<p>the record must be durable enough to survive failures and retries.</p></blockquote>
+<p>the record must be durable enough to survive failures and retries.</p>
+</blockquote>
 <hr>
 <h2 id="2-pattern-a--db-first-atomic-with-business-data">2. Pattern A — DB-first (Atomic With Business Data)</h2>
 <hr>
@@ -655,7 +657,8 @@ Store idempotency keys in a fast key-value store for low-latency lookups.</p>
 <h3 id="21-why-db-first-is-the-default-baseline">2.1 Why DB-first is the default baseline</h3>
 <p>Because it gives you the strongest correctness property:</p>
 <blockquote>
-<p>idempotency state and business state commit together.</p></blockquote>
+<p>idempotency state and business state commit together.</p>
+</blockquote>
 <p>So you avoid “split brain” scenarios like:</p>
 <ul>
 <li>payment committed but idempotency record missing</li>
@@ -670,29 +673,30 @@ Store idempotency keys in a fast key-value store for low-latency lookups.</p>
 <li>Update idempotency record with final outcome + response</li>
 </ol>
 <p>A simplified representation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">BEGIN</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">BEGIN</span>;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- 1) Try claim the idempotency key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> idempotency(<span style="color:#66d9ef">key</span>, request_hash, status)
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> idempotency(<span style="color:#66d9ef">key</span>, request_hash, status)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">VALUES</span> (:k, :hash, <span style="color:#e6db74">&#39;IN_PROGRESS&#39;</span>)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">ON</span> CONFLICT (<span style="color:#66d9ef">key</span>) <span style="color:#66d9ef">DO</span> <span style="color:#66d9ef">NOTHING</span>;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- 2) If insert did nothing, read and return existing response
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">-- (implementation detail depends on DB + code)
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- 3) Perform business writes
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> payments(...);
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> payments(...);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts ...;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- 4) Store response snapshot
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">UPDATE</span> idempotency
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> idempotency
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;SUCCEEDED&#39;</span>, response_snapshot<span style="color:#f92672">=</span>:resp
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> <span style="color:#66d9ef">key</span><span style="color:#f92672">=</span>:k;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">COMMIT</span>;
 </span></span></code></pre></div><p>The key idea is the atomic boundary:</p>
 <blockquote>
-<p><strong>business writes + idempotency record move together</strong></p></blockquote>
+<p><strong>business writes + idempotency record move together</strong></p>
+</blockquote>
 <h3 id="23-trade-offs">2.3 Trade-offs</h3>
 <p>DB-first is:</p>
 <ul>
@@ -725,7 +729,8 @@ Store idempotency keys in a fast key-value store for low-latency lookups.</p>
 <h3 id="32-the-correctness-cost">3.2 The correctness cost</h3>
 <p>The main issue is:</p>
 <blockquote>
-<p>Redis/KV is now a second source of truth.</p></blockquote>
+<p>Redis/KV is now a second source of truth.</p>
+</blockquote>
 <p>If you store idempotency only in Redis, you risk:</p>
 <ul>
 <li>Redis eviction or restart losing idempotency state</li>
@@ -774,7 +779,8 @@ flowchart LR
 <p>This improves latency without moving correctness responsibility to Redis.</p>
 <p>Key point:</p>
 <blockquote>
-<p>Redis can speed up retries, but DB must be able to reconstruct truth.</p></blockquote>
+<p>Redis can speed up retries, but DB must be able to reconstruct truth.</p>
+</blockquote>
 <hr>
 <h2 id="5-ttl-and-cleanup-unavoidable-operational-detail">5. TTL and Cleanup (Unavoidable Operational Detail)</h2>
 <hr>

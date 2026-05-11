@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -167,20 +167,21 @@
 <hr>
 <p>In the previous article, we saw that the rate limiter can break when multiple threads call <code>allowRequest()</code> at the same time.</p>
 <p>The core issue was:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read → check → update
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read → check → update
 </span></span></code></pre></div><p>This must be executed atomically.</p>
 <p>In this article, we will make the <strong>Sliding Window Log</strong> implementation thread-safe using the simplest approach:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">synchronized</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">synchronized</span>
 </span></span></code></pre></div><blockquote>
 <p>📝 <strong>Goal:</strong><br>
-Make the implementation correct under concurrent access before optimizing performance.</p></blockquote>
+Make the implementation correct under concurrent access before optimizing performance.</p>
+</blockquote>
 <hr>
 <h2 id="2-reminder--unsafe-sliding-window-log">2. Reminder — Unsafe Sliding Window Log</h2>
 <hr>
 <p>Our Sliding Window Log stores request timestamps per client:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
 </span></span></code></pre></div><p>The core logic is:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Get client queue
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Get client queue
 </span></span><span style="display:flex;"><span>2. Remove expired timestamps
 </span></span><span style="display:flex;"><span>3. Check queue size
 </span></span><span style="display:flex;"><span>4. Add current timestamp if allowed
@@ -190,11 +191,11 @@ Make the implementation correct under concurrent access before optimizing perfor
 <hr>
 <p>In Java, <code>synchronized</code> ensures that only one thread can enter the synchronized method/block at a time for the same object.</p>
 <p>If we make <code>allowRequest()</code> synchronized:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId)
 </span></span></code></pre></div><p>then only one thread can execute the rate limit check at a time.</p>
 <hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A enters allowRequest()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A enters allowRequest()
 </span></span><span style="display:flex;"><span>Thread B waits
 </span></span><span style="display:flex;"><span>Thread A completes update
 </span></span><span style="display:flex;"><span>Thread B enters after state is consistent
@@ -202,7 +203,7 @@ Make the implementation correct under concurrent access before optimizing perfor
 <hr>
 <h2 id="4-thread-safe-implementation">4. Thread-Safe Implementation</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.threadsafe.synchronizedmethod;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.threadsafe.synchronizedmethod;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayDeque;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Deque;
@@ -258,7 +259,7 @@ Make the implementation correct under concurrent access before optimizing perfor
 <h2 id="5-what-is-protected-now">5. What Is Protected Now?</h2>
 <hr>
 <p>The full critical section is protected:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>get queue → cleanup → check size → add timestamp
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>get queue → cleanup → check size → add timestamp
 </span></span></code></pre></div><p>This means two threads cannot simultaneously:</p>
 <ul>
 <li>read the same queue size</li>
@@ -270,7 +271,7 @@ Make the implementation correct under concurrent access before optimizing perfor
 <hr>
 <p>At first, synchronizing the whole method is acceptable because almost all meaningful work touches shared state.</p>
 <p>Shared state includes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>requestLogs
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>requestLogs
 </span></span><span style="display:flex;"><span>requestTimestamps
 </span></span></code></pre></div><p>So this is clear and correct.</p>
 <hr>
@@ -278,7 +279,7 @@ Make the implementation correct under concurrent access before optimizing perfor
 <hr>
 <p>Yes.</p>
 <p>We can validate input before locking and synchronize only the shared-state logic.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (clientId <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> clientId.<span style="color:#a6e22e">isBlank</span>()) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;clientId cannot be null or empty&#34;</span>);
 </span></span><span style="display:flex;"><span>    }
@@ -291,7 +292,7 @@ Make the implementation correct under concurrent access before optimizing perfor
 <hr>
 <h2 id="8-synchronized-block-version">8. Synchronized Block Version</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (clientId <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> clientId.<span style="color:#a6e22e">isBlank</span>()) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;clientId cannot be null or empty&#34;</span>);
 </span></span><span style="display:flex;"><span>    }
@@ -322,20 +323,20 @@ Make the implementation correct under concurrent access before optimizing perfor
 <h2 id="9-complexity">9. Complexity</h2>
 <hr>
 <p>Algorithmic complexity remains the same:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId) → amortized O(1)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId) → amortized O(1)
 </span></span></code></pre></div><p>But concurrency behavior changes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Only one thread can execute rate limit logic at a time
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Only one thread can execute rate limit logic at a time
 </span></span></code></pre></div><hr>
 <h2 id="10-limitation-of-this-approach">10. Limitation of This Approach</h2>
 <hr>
 <p><code>synchronized</code> gives correctness, but it limits throughput.</p>
 <p>With one global lock:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request blocks Client B request
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request blocks Client B request
 </span></span><span style="display:flex;"><span>Client B request blocks Client C request
 </span></span></code></pre></div><p>Even if different clients are independent, they still wait for the same object lock.</p>
 <hr>
 <h3 id="example-1">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A → allowRequest()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A → allowRequest()
 </span></span><span style="display:flex;"><span>Client B → allowRequest()
 </span></span><span style="display:flex;"><span>Client C → allowRequest()
 </span></span></code></pre></div><p>All requests are serialized.</p>
@@ -356,13 +357,14 @@ Make the implementation correct under concurrent access before optimizing perfor
 <h2 id="12-interview-explanation">12. Interview Explanation</h2>
 <hr>
 <blockquote>
-<p>“The Sliding Window Log implementation performs multiple operations: cleanup old timestamps, check the queue size, and add the current timestamp. These must be atomic. The simplest fix is to synchronize <code>allowRequest()</code> so only one thread can modify the in-memory state at a time. This makes the limiter correct, but it uses a global lock, so different clients block each other. That is acceptable as a first fix, but we can improve it using finer-grained locking.”</p></blockquote>
+<p>“The Sliding Window Log implementation performs multiple operations: cleanup old timestamps, check the queue size, and add the current timestamp. These must be atomic. The simplest fix is to synchronize <code>allowRequest()</code> so only one thread can modify the in-memory state at a time. This makes the limiter correct, but it uses a global lock, so different clients block each other. That is acceptable as a first fix, but we can improve it using finer-grained locking.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>Using <code>synchronized</code> gives us a correct thread-safe baseline.</p>
 <p>But it also introduces a scalability limitation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>safe but serialized
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>safe but serialized
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/2_phase-2/2_3_fine-grained-locking-per-client/">Fine-Grained Locking Per Client →</a></strong></p>
@@ -374,7 +376,8 @@ Make the implementation correct under concurrent access before optimizing perfor
 <li>It protects the full read-check-update operation</li>
 <li>It is simple and correct</li>
 <li>It serializes all requests, even for different clients</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -402,7 +402,8 @@
 </ul>
 <p>A new HR requirement arrives:</p>
 <blockquote>
-<p><strong>“We want attendance-based salary deductions and a new Employee Type”</strong></p></blockquote>
+<p><strong>“We want attendance-based salary deductions and a new Employee Type”</strong></p>
+</blockquote>
 <h3 id="final-requirement">Final Requirement</h3>
 <p>HR has added a new employee type: <strong>Commission-Based Employees (New)</strong></p>
 <ul>
@@ -445,7 +446,7 @@
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/lsp/example1/bad">See Code in Git Repo</a>
 </div>
 <h3 id="-step-1-a-wrong-assumption-in-the-base-class">❌ Step 1: A Wrong Assumption in the Base Class</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span>(String name) {
@@ -466,10 +467,11 @@
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>The base class now <strong>declares a behavioral contract</strong>:</p>
 <blockquote>
-<p><strong>“You can safely calculate attendance-based deductions for any Employee.”</strong></p></blockquote>
+<p><strong>“You can safely calculate attendance-based deductions for any Employee.”</strong></p>
+</blockquote>
 <p>This assumption is <strong>not true for all employee types</strong>.</p>
 <h3 id="-step-2-employeetype-expansion">❌ Step 2: EmployeeType Expansion</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> EmployeeType {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> EmployeeType {
 </span></span><span style="display:flex;"><span>    FULLTIME,
 </span></span><span style="display:flex;"><span>    CONTRACT,
 </span></span><span style="display:flex;"><span>    INTERN,
@@ -480,7 +482,7 @@ This does not break LSP by itself, but it clearly exposes an assumption in the b
 <h3 id="-step-3-subclasses-try-to-fix-the-problem">❌ Step 3: Subclasses Try to “Fix” the Problem</h3>
 <h4 id="1-full-time-employee-works-fine-as-this-subclass-happens-to-match-the-base-class-assumption">1. Full-Time Employee works fine as this subclass happens to match the base-class assumption.</h4>
 <h4 id="2-contract-employee-semantic-drift">2. Contract Employee (Semantic Drift)</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">int</span> daysAbsent) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> missingHours <span style="color:#f92672">=</span> MAX_WORK_TIME <span style="color:#f92672">-</span> hoursWorked;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> missingHours <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">?</span> missingHours <span style="color:#f92672">*</span> 5 : 0;
@@ -490,9 +492,10 @@ This does not break LSP by itself, but it clearly exposes an assumption in the b
 <li>The method name and contract no longer mean the same thing.</li>
 </ul>
 <blockquote>
-<p>⚠ This silently violates LSP.</p></blockquote>
+<p>⚠ This silently violates LSP.</p>
+</blockquote>
 <h4 id="3-intern-employee-hard-failure">3. Intern Employee (Hard Failure)</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">int</span> daysAbsent) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> UnsupportedOperationException(<span style="color:#e6db74">&#34;Interns do not have deductions.&#34;</span>);
 </span></span><span style="display:flex;"><span>}
@@ -502,7 +505,7 @@ This does not break LSP by itself, but it clearly exposes an assumption in the b
 <li>The subclass crashes at runtime.</li>
 </ul>
 <h4 id="4-commissioned-employee-hidden-contract-violation">4. Commissioned Employee (Hidden Contract Violation)</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">int</span> daysAbsent) {
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">//assuming 10% number of compliance breach, ❌ ignoring the daysAbsent completely</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Math.<span style="color:#a6e22e">max</span>(0, complianceBreach <span style="color:#f92672">*</span> 0.<span style="color:#a6e22e">1</span>);
@@ -514,7 +517,7 @@ This does not break LSP by itself, but it clearly exposes an assumption in the b
 </ul>
 <p>This breaks <strong>behavioral substitutability</strong> silently.</p>
 <h3 id="step-4-added-new-salary-calculation-strategy-for-commissioned-employee">Step 4. Added new Salary Calculation Strategy for COMMISSIONED Employee</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedSalaryStrategy</span> <span style="color:#66d9ef">implements</span> SalaryCalculationStrategy{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedSalaryStrategy</span> <span style="color:#66d9ef">implements</span> SalaryCalculationStrategy{
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculate</span>(Employee employee) {
 </span></span><span style="display:flex;"><span>        CommissionedEmployee commissionedEmployee <span style="color:#f92672">=</span> (CommissionedEmployee) employee;
@@ -535,15 +538,16 @@ This does not break LSP by itself, but it clearly exposes an assumption in the b
 </span></span></code></pre></div><blockquote>
 <p><strong>Note:</strong><br>
 Salary calculation remains unchanged from the OCP example and is shown here only to keep the Employee Management System complete.<br>
-The LSP violation discussed in this section is <strong>strictly related to deduction logic</strong>, not salary calculation.</p></blockquote>
+The LSP violation discussed in this section is <strong>strictly related to deduction logic</strong>, not salary calculation.</p>
+</blockquote>
 <h3 id="step-5-updated-employeeservice-class-to-add-salarydeduction-service-method">Step 5. Updated EmployeeService class, to add SalaryDeduction service method.</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee, <span style="color:#66d9ef">int</span> daysAbsent){
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee, <span style="color:#66d9ef">int</span> daysAbsent){
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> salaryDeduction <span style="color:#f92672">=</span> employee.<span style="color:#a6e22e">calculateDeduction</span>(daysAbsent);
 </span></span><span style="display:flex;"><span>    logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;Name: %s, Type: %s, Deductions: %s&#34;</span>, employee.<span style="color:#a6e22e">getName</span>(), employee.<span style="color:#a6e22e">getType</span>(), salaryDeduction));
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> salaryDeduction;
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="step-6-the-mainclient">Step 6. The MainClient</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculating deduction...&#34;</span>);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculating deduction...&#34;</span>);
 </span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>, 4500, 3000), 2); <span style="color:#75715e">// ✅ Works</span>
 </span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>, 11, 40), 0); <span style="color:#75715e">// ⚠ Different meaning</span>
 </span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>, 1000), 0); <span style="color:#75715e">// ❌ Runtime exception</span>
@@ -571,7 +575,8 @@ this is a <strong>broken inheritance contract</strong>.</p>
 <p>The problem in the previous design was <strong>not inheritance itself</strong>, but an abstraction that made promises not all subclasses could honor.</p>
 <p>The base <code>Employee</code> class assumed:</p>
 <blockquote>
-<p>“All employees support attendance-based deductions.”</p></blockquote>
+<p>“All employees support attendance-based deductions.”</p>
+</blockquote>
 <p>But our business rules clearly showed that this assumption is false.</p>
 <p>To fix this, we must:</p>
 <ul>
@@ -590,7 +595,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/lsp/example1/good">See Code in Git Repo</a>
 </div>
 <p>Instead of putting deduction logic in <code>Employee</code>, we introduce a dedicated policy:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">DeductionPolicy</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">DeductionPolicy</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>This interface represents how deductions are calculated, independent of employee identity.</p>
@@ -598,7 +603,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
 <h2 id="5-implement-deduction-policies-per-employee-type">5. Implement Deduction Policies Per Employee Type</h2>
 <hr>
 <h3 id="51-full-time-deduction-policy">5.1 Full-Time Deduction Policy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FullTimeDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FullTimeDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
 </span></span><span style="display:flex;"><span>        FullTimeEmployee fullTimeEmployee <span style="color:#f92672">=</span> (FullTimeEmployee) employee;
@@ -606,7 +611,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="52-contract-deduction-policy">5.2 Contract Deduction Policy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContractDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContractDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
 </span></span><span style="display:flex;"><span>        ContractEmployee contractEmployee <span style="color:#f92672">=</span> (ContractEmployee) employee;
@@ -615,14 +620,14 @@ this is a <strong>broken inheritance contract</strong>.</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="53-intern-deduction-policy">5.3 Intern Deduction Policy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InternDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InternDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> 0; <span style="color:#75715e">// Interns never have deductions</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="54-commissioned-deduction-policy">5.4 Commissioned Deduction Policy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedDeductionPolicy</span> <span style="color:#66d9ef">implements</span> DeductionPolicy{
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee) {
 </span></span><span style="display:flex;"><span>        CommissionedEmployee commissionedEmployee <span style="color:#f92672">=</span> (CommissionedEmployee) employee;
@@ -639,7 +644,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
 <p>Each policy fully honors its contract.</p>
 <h3 id="6-refactor-the-employee-class-composition-over-inheritance">6. Refactor the Employee Class (Composition Over Inheritance)</h3>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String name;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> DeductionPolicy deductionPolicy;
 </span></span><span style="display:flex;"><span>
@@ -667,7 +672,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
 <h2 id="7-subclasses-inject-the-correct-policy">7. Subclasses Inject the Correct Policy</h2>
 <hr>
 <h3 id="71-full-time-employee-class">7.1 Full-Time Employee class</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FullTimeEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FullTimeEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> baseSalary;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> bonus;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> daysAbsent;
@@ -693,7 +698,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// You can later add methods like assignBonus(), manageTeam(), etc.</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="72-contract-employee-class">7.2 Contract Employee class</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContractEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContractEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> hourlyRate;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> hoursWorked;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> MAX_WORK_TIME <span style="color:#f92672">=</span> 160; <span style="color:#75715e">//40 hours a week</span>
@@ -714,7 +719,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getHoursWorked</span>() { <span style="color:#66d9ef">return</span> hoursWorked; }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="73-intern-employee-class">7.3 Intern Employee class</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InternEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InternEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> stipend;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">InternEmployee</span>(String name, <span style="color:#66d9ef">double</span> stipend) {
@@ -730,7 +735,7 @@ this is a <strong>broken inheritance contract</strong>.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">getStipend</span>() { <span style="color:#66d9ef">return</span> stipend; }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="74-commissioned-employee-class">7.4 Commissioned Employee class</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommissionedEmployee</span> <span style="color:#66d9ef">extends</span> Employee {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> baseSalary;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> monthlySales;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> complianceBreach;
@@ -760,14 +765,14 @@ this is a <strong>broken inheritance contract</strong>.</p>
 No subclass violates expectations.</p>
 <h2 id="8-employeeservice-class---the-orchestrator">8. EmployeeService Class - The orchestrator</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee){
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">calculateDeduction</span>(Employee employee){
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> salaryDeduction <span style="color:#f92672">=</span> employee.<span style="color:#a6e22e">calculateDeduction</span>();
 </span></span><span style="display:flex;"><span>    logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;Name: %s, Type: %s, Deductions: %s&#34;</span>, employee.<span style="color:#a6e22e">getName</span>(), employee.<span style="color:#a6e22e">getType</span>(), salaryDeduction));
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> salaryDeduction;
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="9-the-mainclient-class---mimicking-client">9. The MainClient class - Mimicking Client</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculating deduction...&#34;</span>);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>logger.<span style="color:#a6e22e">log</span>(Level.<span style="color:#a6e22e">INFO</span>, <span style="color:#e6db74">&#34;Calculating deduction...&#34;</span>);
 </span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> FullTimeEmployee(<span style="color:#e6db74">&#34;Shubham&#34;</span>, 4500, 3000, 5); <span style="color:#75715e">// ✅ Works</span>
 </span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> ContractEmployee(<span style="color:#e6db74">&#34;Ashwarya&#34;</span>, 11, 40); <span style="color:#75715e">// ✅ Works</span>
 </span></span><span style="display:flex;"><span>employeeService.<span style="color:#a6e22e">calculateDeduction</span>(<span style="color:#66d9ef">new</span> InternEmployee(<span style="color:#e6db74">&#34;Arvind&#34;</span>, 1000); <span style="color:#75715e">// ✅ Works</span>
@@ -831,7 +836,8 @@ placing strategies in the service layer offers more flexibility.</p>
 <strong>Domain invariants belong with the model.
 Use-case logic belongs in services.</strong></p>
 <p>We’ll revisit these design trade-offs in more detail later in the tutorial series,
-when we discuss design patterns and architectural decision-making.</p></blockquote>
+when we discuss design patterns and architectural decision-making.</p>
+</blockquote>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>The key lesson of LSP is:
@@ -851,7 +857,8 @@ A base class should only define behavior that all subclasses can honor.</p>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>Now that we’ve fixed a broken inheritance contract, the next problem shows up naturally:</p>
 <blockquote>
-<p>Many classes start accumulating “fat” interfaces that clients don’t fully need.</p></blockquote>
+<p>Many classes start accumulating “fat” interfaces that clients don’t fully need.</p>
+</blockquote>
 <p>That’s where the <strong>Interface Segregation Principle (ISP)</strong> helps.</p>
 <p>👉 <strong><a href="/learning/advanced-skills/low-level-design/2_SOLID-in-action/2_8_isp-example1">Interface Segregation Principle (ISP) in action →</a></strong><br>
 Design small, focused interfaces that clients actually use — and avoid forcing implementations to depend on unused methods.</p>
@@ -864,7 +871,8 @@ Design small, focused interfaces that clients actually use — and avoid forcing
 <li>Exceptions and silent behavior changes are both LSP violations</li>
 <li>Composition (policies) is the safest fix</li>
 <li>Correct abstractions make systems extensible and predictable</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

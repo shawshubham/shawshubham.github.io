@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -178,7 +178,8 @@
 <li>lock contention under high load</li>
 </ul>
 <blockquote>
-<p>❗ In ultra low-latency systems (like trading engines), even small delays matter.</p></blockquote>
+<p>❗ In ultra low-latency systems (like trading engines), even small delays matter.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-is-lock-free-programming">2. What Is Lock-Free Programming?</h2>
 <hr>
@@ -190,16 +191,16 @@
 <li>retry-based updates</li>
 </ul>
 <p>Core idea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Try → Check → Update → Retry if failed
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Try → Check → Update → Retry if failed
 </span></span></code></pre></div><hr>
 <h2 id="3-key-concept--compare-and-swap-cas">3. Key Concept — Compare And Swap (CAS)</h2>
 <hr>
 <p>CAS is a low-level atomic operation.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If current value == expected value → update
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If current value == expected value → update
 </span></span><span style="display:flex;"><span>Else → fail and retry
 </span></span></code></pre></div><hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>current value = 100
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>current value = 100
 </span></span><span style="display:flex;"><span>Thread A expects 100 → updates to 150 ✅
 </span></span><span style="display:flex;"><span>Thread B expects 100 → fails ❌
 </span></span></code></pre></div><p>Thread B must retry with new value.</p>
@@ -207,11 +208,11 @@
 <h2 id="4-java-support-for-lock-free">4. Java Support for Lock-Free</h2>
 <hr>
 <p>Java provides atomic classes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicInteger
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicInteger
 </span></span><span style="display:flex;"><span>AtomicLong
 </span></span><span style="display:flex;"><span>AtomicReference
 </span></span></code></pre></div><p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicLong sum <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AtomicLong(0);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicLong sum <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AtomicLong(0);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>sum.<span style="color:#a6e22e">addAndGet</span>(price);
 </span></span></code></pre></div><p>These operations are:</p>
@@ -223,16 +224,16 @@
 <h2 id="5-can-we-make-pricetracker-lock-free">5. Can We Make PriceTracker Lock-Free?</h2>
 <hr>
 <p>Short answer:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Not easily
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Not easily
 </span></span></code></pre></div><hr>
 <h3 id="why">Why?</h3>
 <p>Our logic depends on multiple steps:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. read last prefix sum
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. read last prefix sum
 </span></span><span style="display:flex;"><span>2. compute new sum
 </span></span><span style="display:flex;"><span>3. append to list
 </span></span></code></pre></div><p>This is a <strong>compound operation</strong>.</p>
 <p>CAS works best when:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>single variable update
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>single variable update
 </span></span></code></pre></div><p>But here we have:</p>
 <ul>
 <li>multiple structures (<code>prices</code>, <code>prefixPriceSums</code>)</li>
@@ -251,14 +252,14 @@
 <li>high-frequency metrics</li>
 </ul>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicLong totalSum;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicLong totalSum;
 </span></span><span style="display:flex;"><span>AtomicLong count;
 </span></span></code></pre></div><p>But this only gives <strong>global average</strong>, not <strong>last k average</strong>.</p>
 <hr>
 <h2 id="7-why-sliding-window--lock-free-is-hard">7. Why Sliding Window + Lock-Free Is Hard</h2>
 <hr>
 <p>Our requirement is:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>average of last k values
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>average of last k values
 </span></span></code></pre></div><p>This needs:</p>
 <ul>
 <li>ordering</li>
@@ -272,10 +273,10 @@
 <hr>
 <p>In high-performance systems, engineers often avoid shared mutable state entirely.</p>
 <p>Instead they use:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single Writer Principle
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single Writer Principle
 </span></span></code></pre></div><hr>
 <h3 id="pattern">Pattern</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one thread updates state
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one thread updates state
 </span></span><span style="display:flex;"><span>many threads read snapshots
 </span></span></code></pre></div><hr>
 <p>Example architecture:</p>
@@ -294,9 +295,9 @@
 <h2 id="9-event-driven-alternative-important">9. Event-Driven Alternative (Important)</h2>
 <hr>
 <p>Instead of multiple threads writing:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>use message queue (Kafka)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>use message queue (Kafka)
 </span></span></code></pre></div><p>Flow:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>producers → Kafka → single consumer → aggregator → cache
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>producers → Kafka → single consumer → aggregator → cache
 </span></span></code></pre></div><p>👉 eliminates need for locks</p>
 <hr>
 <h2 id="10-trade-offs-of-lock-free">10. Trade-offs of Lock-Free</h2>
@@ -343,7 +344,8 @@
 <p>You should NOT jump to lock-free immediately.</p>
 <p>A strong answer is:</p>
 <blockquote>
-<p>“I would first ensure correctness using locks. If profiling shows lock contention is a bottleneck, we could explore lock-free approaches using CAS or redesign the system to follow a single-writer model. Lock-free improves latency but significantly increases complexity, so it should be used only when necessary.”</p></blockquote>
+<p>“I would first ensure correctness using locks. If profiling shows lock contention is a bottleneck, we could explore lock-free approaches using CAS or redesign the system to follow a single-writer model. Lock-free improves latency but significantly increases complexity, so it should be used only when necessary.”</p>
+</blockquote>
 <hr>
 <h2 id="12-when-should-you-mention-lock-free">12. When Should You Mention Lock-Free?</h2>
 <hr>
@@ -358,7 +360,7 @@
 <hr>
 <p>Lock-free programming is powerful but advanced.</p>
 <p>For this problem:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ReadWriteLock = practical solution
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ReadWriteLock = practical solution
 </span></span><span style="display:flex;"><span>Lock-free = advanced optimization / redesign
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
@@ -371,7 +373,8 @@
 <li>CAS enables atomic updates without locks</li>
 <li>Not suitable for complex multi-step logic like prefix sums</li>
 <li>Real systems often avoid shared state instead of going fully lock-free</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

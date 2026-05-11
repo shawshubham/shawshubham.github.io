@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -167,73 +167,74 @@
 <hr>
 <p>In Phase 1, we built a correct rate limiter using different algorithms.</p>
 <p>Those implementations assumed:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single-threaded execution
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single-threaded execution
 </span></span></code></pre></div><p>Which means:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Only one request is processed at a time
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Only one request is processed at a time
 </span></span></code></pre></div><hr>
 <blockquote>
 <p>📝 <strong>Reality Check:</strong><br>
-In production systems, thousands of requests can hit the rate limiter <strong>simultaneously</strong>.</p></blockquote>
+In production systems, thousands of requests can hit the rate limiter <strong>simultaneously</strong>.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-changes-in-phase-2">2. What Changes in Phase 2?</h2>
 <hr>
 <p>We move from:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correct logic
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correct logic
 </span></span></code></pre></div><p>to:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correct behavior under concurrency
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correct behavior under concurrency
 </span></span></code></pre></div><hr>
 <h2 id="3-the-core-problem">3. The Core Problem</h2>
 <hr>
 <p>Consider this logic from our Sliding Window implementation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read current request count
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read current request count
 </span></span><span style="display:flex;"><span>2. Check if limit is exceeded
 </span></span><span style="display:flex;"><span>3. Add new request
 </span></span></code></pre></div><p>This is a <strong>multi-step operation</strong>.</p>
 <hr>
 <h3 id="-problem-not-atomic">❗ Problem: Not Atomic</h3>
 <p>These steps are not executed as a single unit.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read → check → update
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read → check → update
 </span></span></code></pre></div><p>Between these steps, another thread can modify the state.</p>
 <hr>
 <h2 id="4-race-condition-example">4. Race Condition Example</h2>
 <hr>
 <p>Assume:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests
 </span></span><span style="display:flex;"><span>Current count = 99
 </span></span></code></pre></div><p>Two threads arrive at the same time:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → sees count = 99
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → sees count = 99
 </span></span><span style="display:flex;"><span>Thread B → sees count = 99
 </span></span></code></pre></div><hr>
 <h3 id="what-happens-next">What happens next?</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → allows request → count becomes 100
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → allows request → count becomes 100
 </span></span><span style="display:flex;"><span>Thread B → allows request → count becomes 101 ❌
 </span></span></code></pre></div><hr>
 <h3 id="result">Result</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>We allowed more requests than the limit
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>We allowed more requests than the limit
 </span></span></code></pre></div><p>This is called a:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Race Condition
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Race Condition
 </span></span></code></pre></div><hr>
 <h2 id="5-why-this-happens">5. Why This Happens</h2>
 <hr>
 <p>Because multiple threads are:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- reading shared state
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- reading shared state
 </span></span><span style="display:flex;"><span>- modifying shared state
 </span></span><span style="display:flex;"><span>- without coordination
 </span></span></code></pre></div><hr>
 <h3 id="key-issue">Key Issue</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>No synchronization
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>No synchronization
 </span></span><span style="display:flex;"><span>No atomicity
 </span></span></code></pre></div><hr>
 <h2 id="6-where-this-appears-in-our-code">6. Where This Appears in Our Code</h2>
 <hr>
 <p>In Sliding Window Log:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- remove expired timestamps
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- remove expired timestamps
 </span></span><span style="display:flex;"><span>- check queue size
 </span></span><span style="display:flex;"><span>- add new timestamp
 </span></span></code></pre></div><p>All of these together form one logical operation.</p>
 <hr>
 <p>But in a multi-threaded environment:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A modifies queue
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A modifies queue
 </span></span><span style="display:flex;"><span>Thread B reads stale data
 </span></span><span style="display:flex;"><span>Thread C updates simultaneously
 </span></span></code></pre></div><p>👉 This leads to inconsistent results.</p>
@@ -241,21 +242,21 @@ In production systems, thousands of requests can hit the rate limiter <strong>si
 <h2 id="7-key-concept--atomicity">7. Key Concept — Atomicity</h2>
 <hr>
 <p>To fix this, we need:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Atomic operations
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Atomic operations
 </span></span></code></pre></div><hr>
 <h3 id="definition">Definition</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>An operation is atomic if it is executed completely or not at all,
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>An operation is atomic if it is executed completely or not at all,
 </span></span><span style="display:flex;"><span>with no interference from other threads.
 </span></span></code></pre></div><hr>
 <h3 id="in-our-case">In our case</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read → check → update
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>read → check → update
 </span></span></code></pre></div><p>must become:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one atomic operation
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one atomic operation
 </span></span></code></pre></div><hr>
 <h2 id="8-what-we-will-do-next">8. What We Will Do Next</h2>
 <hr>
 <p>In the next articles, we will:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Make the rate limiter thread-safe using synchronized
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Make the rate limiter thread-safe using synchronized
 </span></span><span style="display:flex;"><span>2. Improve concurrency using locks
 </span></span><span style="display:flex;"><span>3. Explore atomic operations and their limitations
 </span></span><span style="display:flex;"><span>4. Understand trade-offs between performance and correctness
@@ -263,9 +264,9 @@ In production systems, thousands of requests can hit the rate limiter <strong>si
 <h2 id="9-important-scope-clarification">9. Important Scope Clarification</h2>
 <hr>
 <p>In this phase, we are still working within:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single-node system
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single-node system
 </span></span></code></pre></div><p>We are NOT solving:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>❌ distributed rate limiting
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>❌ distributed rate limiting
 </span></span><span style="display:flex;"><span>❌ Redis-based coordination
 </span></span><span style="display:flex;"><span>❌ multiple server consistency
 </span></span></code></pre></div><p>That will be handled in Phase 3.</p>
@@ -273,13 +274,14 @@ In production systems, thousands of requests can hit the rate limiter <strong>si
 <h2 id="10-interview-explanation">10. Interview Explanation</h2>
 <hr>
 <blockquote>
-<p>“In a single-threaded environment, our rate limiter works correctly. However, in real systems, multiple threads can call the limiter simultaneously. Since our logic involves multiple steps—read, check, and update—it is not atomic. This leads to race conditions where more requests than allowed can pass through. To fix this, we need to make the operations thread-safe using synchronization or locking mechanisms.”</p></blockquote>
+<p>“In a single-threaded environment, our rate limiter works correctly. However, in real systems, multiple threads can call the limiter simultaneously. Since our logic involves multiple steps—read, check, and update—it is not atomic. This leads to race conditions where more requests than allowed can pass through. To fix this, we need to make the operations thread-safe using synchronization or locking mechanisms.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>Correct logic is not enough.</p>
 <p>In concurrent systems, we must ensure:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>correctness under simultaneous access
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>correctness under simultaneous access
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/2_phase-2/2_2_thread-safe-using-synchronized/">Making the Rate Limiter Thread-Safe (synchronized) →</a></strong></p>
@@ -291,7 +293,8 @@ In production systems, thousands of requests can hit the rate limiter <strong>si
 <li>Multi-step operations cause race conditions</li>
 <li>Atomicity is critical for correctness</li>
 <li>Concurrency control is required before scaling systems</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

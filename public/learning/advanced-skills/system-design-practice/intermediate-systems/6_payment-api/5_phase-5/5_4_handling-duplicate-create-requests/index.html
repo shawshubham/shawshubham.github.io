@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -166,7 +166,7 @@
           <h2 id="1-why-duplicate-create-requests-are-a-problem">1. Why Duplicate Create Requests Are a Problem</h2>
 <hr>
 <p>When a client calls:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
 </span></span></code></pre></div><p>there is a risk that the same request is sent multiple times due to:</p>
 <ul>
 <li>user double-clicking the payment button</li>
@@ -177,12 +177,12 @@
 <hr>
 <h2 id="2-example-problem-scenario">2. Example Problem Scenario</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User clicks &#34;Pay&#34;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>User clicks &#34;Pay&#34;
 </span></span><span style="display:flex;"><span>→ Request sent
 </span></span><span style="display:flex;"><span>→ Response lost
 </span></span><span style="display:flex;"><span>→ Client retries
 </span></span></code></pre></div><p>Without protection:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → pay_001 created
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → pay_001 created
 </span></span><span style="display:flex;"><span>Request 2 → pay_002 created
 </span></span></code></pre></div><p>👉 Now the system has two payments for one order.</p>
 <hr>
@@ -205,7 +205,7 @@
 <h2 id="4-solution-1--idempotency-for-create-api">4. Solution 1 — Idempotency for Create API</h2>
 <hr>
 <p>Client sends:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
 </span></span><span style="display:flex;"><span>Idempotency<span style="color:#f92672">-</span>Key: abc<span style="color:#f92672">-</span>123
 </span></span></code></pre></div><hr>
 <h3 id="behavior">Behavior</h3>
@@ -215,18 +215,18 @@
 </ul>
 <hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → creates pay_001
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → creates pay_001
 </span></span><span style="display:flex;"><span>Request 2 → returns pay_001
 </span></span></code></pre></div><p>👉 Prevents duplicate entries for the same request.</p>
 <hr>
 <h2 id="5-solution-2--business-constraint-order-level">5. Solution 2 — Business Constraint (Order-Level)</h2>
 <hr>
 <p>Even with idempotency, this can still happen:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Same orderId
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Same orderId
 </span></span><span style="display:flex;"><span>Different idempotency keys
 </span></span></code></pre></div><hr>
 <h3 id="example-1">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → orderId = ORD-123 → pay_001
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → orderId = ORD-123 → pay_001
 </span></span><span style="display:flex;"><span>Request 2 → orderId = ORD-123 → pay_002
 </span></span></code></pre></div><p>👉 This is a different problem.</p>
 <hr>
@@ -244,7 +244,7 @@
 </ul>
 <hr>
 <h3 id="example-behavior">Example Behavior</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If active payment exists for order:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If active payment exists for order:
 </span></span><span style="display:flex;"><span>→ return existing payment
 </span></span><span style="display:flex;"><span>OR
 </span></span><span style="display:flex;"><span>→ reject new request
@@ -352,7 +352,8 @@ flowchart TD
 <li>Duplicate create requests are common in real systems</li>
 <li>Idempotency alone is not enough</li>
 <li>Combine idempotency with business rules for full protection</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

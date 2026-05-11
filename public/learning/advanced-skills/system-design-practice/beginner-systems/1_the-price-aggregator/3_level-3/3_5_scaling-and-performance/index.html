@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -167,7 +167,8 @@
 <hr>
 <p>We now have a correct and resilient architecture. The next step is to ensure it performs under <strong>production-scale load</strong>.</p>
 <blockquote>
-<p>📝 <strong>Goal:</strong> Maximize throughput while keeping latency low.</p></blockquote>
+<p>📝 <strong>Goal:</strong> Maximize throughput while keeping latency low.</p>
+</blockquote>
 <hr>
 <h2 id="2-throughput-vs-latency">2. Throughput vs Latency</h2>
 <hr>
@@ -182,13 +183,14 @@ flowchart LR
     C[Lower Latency] -->|Immediate Processing| D[Lower Throughput]
 </div>
 <blockquote>
-<p>🧠 Balance depends on product requirements (e.g., dashboards vs HFT - High Frequency Trading).</p></blockquote>
+<p>🧠 Balance depends on product requirements (e.g., dashboards vs HFT - High Frequency Trading).</p>
+</blockquote>
 <hr>
 <h2 id="3-horizontal-scaling-with-kafka-consumers">3. Horizontal Scaling with Kafka Consumers</h2>
 <hr>
 <p>Scale the aggregator by adding more consumer instances.</p>
 <p>Constraint:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>#Consumers ≤ #Partitions
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>#Consumers ≤ #Partitions
 </span></span></code></pre></div><div class="mermaid">
 flowchart LR
     P1[Partition 1] --> C1[Consumer 1]
@@ -203,20 +205,20 @@ flowchart LR
 <h2 id="4-partitioning-strategy-revisited">4. Partitioning Strategy (Revisited)</h2>
 <hr>
 <p>Baseline:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
 </span></span></code></pre></div><h3 id="problem-hot-symbols">Problem: Hot Symbols</h3>
 <p>Some symbols (e.g., popular stocks) receive far more ticks.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>AAPL → very high traffic (hot partition)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>AAPL → very high traffic (hot partition)
 </span></span></code></pre></div><hr>
 <h3 id="mitigation-options">Mitigation Options</h3>
 <ol>
 <li><strong>Sub-partition by symbol + shard</strong></li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>key = symbol + hash(shardId)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>key = symbol + hash(shardId)
 </span></span></code></pre></div><ol start="2">
 <li><strong>Split heavy symbols explicitly</strong></li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>AAPL-1, AAPL-2, AAPL-3
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>AAPL-1, AAPL-2, AAPL-3
 </span></span></code></pre></div><ol start="3">
 <li><strong>Dedicated topic for hot symbols</strong></li>
 </ol>
@@ -241,7 +243,7 @@ flowchart TD
 <ul>
 <li>Assign symbol ranges to services</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Service 1 → A–M
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Service 1 → A–M
 </span></span><span style="display:flex;"><span>Service 2 → N–Z
 </span></span></code></pre></div><hr>
 <h3 id="option-3--hybrid">Option 3 — Hybrid</h3>
@@ -252,12 +254,12 @@ flowchart TD
 <h2 id="6-batching-vs-real-time-processing">6. Batching vs Real-Time Processing</h2>
 <hr>
 <h3 id="immediate-processing">Immediate Processing</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Process each tick individually
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Process each tick individually
 </span></span></code></pre></div><p>✔ Lowest latency<br>
 ❌ Lower throughput</p>
 <hr>
 <h3 id="batch-processing">Batch Processing</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Process N ticks together
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Process N ticks together
 </span></span></code></pre></div><p>✔ Higher throughput<br>
 ❌ Slight delay</p>
 <hr>
@@ -271,16 +273,16 @@ flowchart TD
 <hr>
 <p>Avoid expensive operations per tick.</p>
 <p>Instead of recomputing:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>sum of last k prices each time
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>sum of last k prices each time
 </span></span></code></pre></div><p>Use rolling state:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>newSum = oldSum + newPrice - oldPrice
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>newSum = oldSum + newPrice - oldPrice
 </span></span></code></pre></div><p>👉 This keeps processing O(1) per event.</p>
 <hr>
 <h2 id="8-cache-design-for-low-latency">8. Cache Design for Low Latency</h2>
 <hr>
 <p>Use Redis (or similar) for serving queries.</p>
 <h3 id="key-design">Key design</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>moving-average:{symbol}:{window}
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>moving-average:{symbol}:{window}
 </span></span></code></pre></div><h3 id="optimizations">Optimizations</h3>
 <ul>
 <li>use pipelining</li>
@@ -365,12 +367,13 @@ flowchart LR
 <h2 id="13-interview-explanation">13. Interview Explanation</h2>
 <hr>
 <blockquote>
-<p>“I would scale the system horizontally using Kafka partitions and multiple consumers. Each symbol would be processed in order within a partition. To handle hot symbols, I would introduce sub-partitioning or dedicated topics. For performance, I would use rolling aggregates, micro-batching, and Redis caching for low-latency reads. I would monitor consumer lag and scale dynamically to maintain SLA.”</p></blockquote>
+<p>“I would scale the system horizontally using Kafka partitions and multiple consumers. Each symbol would be processed in order within a partition. To handle hot symbols, I would introduce sub-partitioning or dedicated topics. For performance, I would use rolling aggregates, micro-batching, and Redis caching for low-latency reads. I would monitor consumer lag and scale dynamically to maintain SLA.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>Scaling a streaming system requires careful balancing of:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partitioning + consumer scaling + efficient state + caching
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partitioning + consumer scaling + efficient state + caching
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_6_final-summary-and-system-recap/">Level 3 — Final Summary &amp; System Recap →</a></strong></p>
@@ -383,7 +386,8 @@ flowchart LR
 <li>Rolling state ensures O(1) updates</li>
 <li>Cache enables low-latency reads</li>
 <li>Monitor and adapt under load</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

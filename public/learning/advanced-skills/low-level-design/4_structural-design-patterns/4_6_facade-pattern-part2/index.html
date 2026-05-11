@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -396,7 +396,8 @@
 <hr>
 <p>In <strong>Part 1</strong>, we made a deliberate decision:</p>
 <blockquote>
-<p><strong>Do not introduce Facade until the system demands it.</strong></p></blockquote>
+<p><strong>Do not introduce Facade until the system demands it.</strong></p>
+</blockquote>
 <p>At that point:</p>
 <ul>
 <li>EMS had clean, SRP-aligned services</li>
@@ -409,7 +410,8 @@
 <hr>
 <p>HR introduces a new requirement:</p>
 <blockquote>
-<p>“When an employee leaves the organization, we must fully offboard them.”</p></blockquote>
+<p>“When an employee leaves the organization, we must fully offboard them.”</p>
+</blockquote>
 <p>This is <strong>not a single operation</strong>.</p>
 <p>It is a <strong>business workflow</strong> that spans multiple subsystems.</p>
 <hr>
@@ -451,7 +453,7 @@
 <h2 id="4-the-naive-approach-orchestration-in-the-controller">4. The Naive Approach: Orchestration in the Controller</h2>
 <hr>
 <p>The most common first attempt looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@PostMapping</span>(<span style="color:#e6db74">&#34;/{id}/offboard&#34;</span>)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@PostMapping</span>(<span style="color:#e6db74">&#34;/{id}/offboard&#34;</span>)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">offboardEmployee</span>(String id, OffboardingRequest request) {
 </span></span><span style="display:flex;"><span>    hrOperations.<span style="color:#a6e22e">deactivateEmployee</span>(id, request.<span style="color:#a6e22e">reason</span>());
 </span></span><span style="display:flex;"><span>    payrollOperations.<span style="color:#a6e22e">stopSalary</span>(id);
@@ -475,14 +477,16 @@ flowchart TD
     C --> R[Reporting Operations]
 </div>
 <blockquote>
-<p>Controllers should <strong>delegate</strong>, not <strong>coordinate</strong>.</p></blockquote>
+<p>Controllers should <strong>delegate</strong>, not <strong>coordinate</strong>.</p>
+</blockquote>
 <hr>
 <h2 id="5-lets-put-it-in-a-service-still-wrong">5. “Let’s Put It in a Service” (Still Wrong)</h2>
 <hr>
 <p>Next instinct:</p>
 <blockquote>
-<p>“Let’s put offboarding into HR service.”</p></blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HROperationsService</span> {
+<p>“Let’s put offboarding into HR service.”</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HROperationsService</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">offboardEmployee</span>(...) {
 </span></span><span style="display:flex;"><span>        payroll.<span style="color:#a6e22e">stopSalary</span>(...);
 </span></span><span style="display:flex;"><span>        itAdmin.<span style="color:#a6e22e">revokeAccess</span>(...);
@@ -512,7 +516,7 @@ flowchart TD
 <h2 id="7-introducing-the-facade-employeeoffboardingfacade-orchestration--call-order">7. Introducing the Facade: EmployeeOffboardingFacade (Orchestration &amp; Call Order)</h2>
 <hr>
 <p>The Facade becomes the <strong>explicit owner of the workflow</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeOffboardingFacade</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeOffboardingFacade</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> HROperations hr;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PayrollOperations payroll;
@@ -600,7 +604,7 @@ It <strong>protected them</strong>.</p>
 <li>UI-triggered workflows</li>
 </ul>
 <h3 id="example-1-scheduled-offboarding-job">Example 1: Scheduled Offboarding Job</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OffboardingJob</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OffboardingJob</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeOffboardingFacade offboardingFacade;
 </span></span><span style="display:flex;"><span>
@@ -611,7 +615,7 @@ It <strong>protected them</strong>.</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="example-2-rest-controller">Example 2: REST Controller:</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">@RequestMapping</span>(<span style="color:#e6db74">&#34;/employees&#34;</span>)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeController</span> {
 </span></span><span style="display:flex;"><span>
@@ -636,13 +640,15 @@ It <strong>protected them</strong>.</p>
 <p><strong>The key insight:</strong></p>
 <p>Controllers, jobs, and event handlers are <strong>delivery mechanisms</strong>.<br>
 The Facade is the <strong>business workflow boundary</strong>.</p>
-<p>That boundary stays stable even when entry points change.</p></blockquote>
+<p>That boundary stays stable even when entry points change.</p>
+</blockquote>
 <hr>
 <h2 id="10-what-about-failures-and-rollback">10. What About Failures and Rollback?</h2>
 <hr>
 <p>A natural question:</p>
 <blockquote>
-<p>“What if payroll succeeds but IT access revocation fails?”</p></blockquote>
+<p>“What if payroll succeeds but IT access revocation fails?”</p>
+</blockquote>
 <p>This is the <strong>right question</strong>, but not for this pattern.</p>
 <p>For now, we intentionally <strong>do not</strong> introduce:
 • distributed transactions
@@ -671,7 +677,8 @@ It decides <em>how things work together</em>.</p>
 <hr>
 <h3 id="when-do-you-introduce-a-facade">When do you introduce a Facade?</h3>
 <blockquote>
-<p>When multiple domain services must collaborate to fulfill a single business use case, and that coordination should not live in controllers or inside any one service.</p></blockquote>
+<p>When multiple domain services must collaborate to fulfill a single business use case, and that coordination should not live in controllers or inside any one service.</p>
+</blockquote>
 <p>That answer signals <strong>design maturity</strong>.</p>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
@@ -715,7 +722,8 @@ it will add <strong>architectural judgment</strong>.</p>
 <li>Controllers and clients often look like facades but aren’t</li>
 <li>Facade becomes obvious only under workflow pressure</li>
 <li>We delay complexity until the design truly demands it</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

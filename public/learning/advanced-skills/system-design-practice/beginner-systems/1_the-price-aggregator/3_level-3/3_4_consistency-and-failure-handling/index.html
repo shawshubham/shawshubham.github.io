@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -173,32 +173,34 @@
 <li>inconsistent views across regions</li>
 </ul>
 <blockquote>
-<p>📝 <strong>Goal:</strong> Ensure correctness even when messages are duplicated, delayed, or components crash.</p></blockquote>
+<p>📝 <strong>Goal:</strong> Ensure correctness even when messages are duplicated, delayed, or components crash.</p>
+</blockquote>
 <hr>
 <h2 id="2-delivery-semantics">2. Delivery Semantics</h2>
 <hr>
 <p>Message brokers like Kafka provide different delivery guarantees.</p>
 <h3 id="at-most-once">At-most-once</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Message may be lost, never retried
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Message may be lost, never retried
 </span></span></code></pre></div><p>❌ Not acceptable for trading data.</p>
 <hr>
 <h3 id="at-least-once-most-common">At-least-once (most common)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Message is delivered one or more times
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Message is delivered one or more times
 </span></span></code></pre></div><p>✔ No data loss
 ❗ Duplicates possible</p>
 <hr>
 <h3 id="exactly-once-complex">Exactly-once (complex)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Processed exactly once end-to-end
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Processed exactly once end-to-end
 </span></span></code></pre></div><p>✔ Ideal but costly/complex (transactions, idempotent producers, EOS semantics)</p>
 <hr>
 <blockquote>
-<p>🧠 <strong>Practical choice:</strong> Use <strong>at-least-once + idempotency</strong>.</p></blockquote>
+<p>🧠 <strong>Practical choice:</strong> Use <strong>at-least-once + idempotency</strong>.</p>
+</blockquote>
 <hr>
 <h2 id="3-idempotency-critical">3. Idempotency (Critical)</h2>
 <hr>
 <p>We must ensure processing the same event twice does not change the final state.</p>
 <h3 id="event-shape">Event shape</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;eventId&#34;</span>: <span style="color:#e6db74">&#34;evt-123&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;symbol&#34;</span>: <span style="color:#e6db74">&#34;VOD.L&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;sequence&#34;</span>: <span style="color:#ae81ff">10045</span>,
@@ -207,7 +209,7 @@
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="strategy">Strategy</h3>
 <p>Maintain <strong>last processed sequence per symbol</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>expected = lastProcessedSequence + 1
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>expected = lastProcessedSequence + 1
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>if incoming.sequence &lt;= lastProcessedSequence:
 </span></span><span style="display:flex;"><span>    ignore (duplicate or late event already processed)
@@ -240,9 +242,9 @@ flowchart LR
 <h2 id="4-ordering-guarantees">4. Ordering Guarantees</h2>
 <hr>
 <p>We rely on <strong>Kafka partitioning by symbol</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>partition key = symbol
 </span></span></code></pre></div><p>Guarantee:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Within a partition → events are ordered
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Within a partition → events are ordered
 </span></span></code></pre></div><p>Implication:</p>
 <ul>
 <li>Each symbol is processed <strong>sequentially</strong> by one consumer</li>
@@ -250,7 +252,8 @@ flowchart LR
 </ul>
 <blockquote>
 <h4 id="important-distinction">Important distinction:</h4>
-<p>Kafka guarantees ordering of events within a partition, but it does not guarantee completeness of the sequence. If producers publish events out of order or late, missing sequences can still occur. Therefore, sequence validation is still required at the consumer level.</p></blockquote>
+<p>Kafka guarantees ordering of events within a partition, but it does not guarantee completeness of the sequence. If producers publish events out of order or late, missing sequences can still occur. Therefore, sequence validation is still required at the consumer level.</p>
+</blockquote>
 <hr>
 <h2 id="5-handling-duplicates">5. Handling Duplicates</h2>
 <hr>
@@ -261,7 +264,7 @@ flowchart LR
 <li><strong>EventId dedupe cache</strong> (short TTL) if sequence not available</li>
 </ul>
 <p>Trade-off:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Sequence → lightweight, requires ordered stream
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Sequence → lightweight, requires ordered stream
 </span></span><span style="display:flex;"><span>EventId cache → extra memory, works without strict ordering
 </span></span></code></pre></div><hr>
 <h2 id="51-handling-gaps-missing-events">5.1 Handling Gaps (Missing Events)</h2>
@@ -273,14 +276,14 @@ flowchart LR
 <li>transient failures cause temporary gaps</li>
 </ul>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>lastProcessedSequence = 100
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>lastProcessedSequence = 100
 </span></span><span style="display:flex;"><span>incoming = 103
 </span></span><span style="display:flex;"><span>→ missing 101, 102
 </span></span></code></pre></div><h3 id="why-this-is-dangerous">Why this is dangerous</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Moving average depends on complete ordered data
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Moving average depends on complete ordered data
 </span></span><span style="display:flex;"><span>Missing events → incorrect aggregates
 </span></span></code></pre></div><h3 id="strategy-1">Strategy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Do NOT process the newer event immediately
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Do NOT process the newer event immediately
 </span></span><span style="display:flex;"><span>Pause processing for that symbol
 </span></span><span style="display:flex;"><span>Trigger replay/recovery
 </span></span><span style="display:flex;"><span>Fetch missing events
@@ -288,7 +291,7 @@ flowchart LR
 </span></span><span style="display:flex;"><span>Resume processing
 </span></span></code></pre></div><hr>
 <h3 id="final-design-decision">Final Design Decision</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>We combine:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>We combine:
 </span></span><span style="display:flex;"><span>- Kafka ordering (per partition)
 </span></span><span style="display:flex;"><span>- Sequence validation (consumer-side)
 </span></span><span style="display:flex;"><span>- Replay-based recovery (for gaps)
@@ -321,7 +324,7 @@ sequenceDiagram
 <hr>
 <p>Offsets represent how far a consumer has progressed.</p>
 <p>Best practice:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Commit offset AFTER successful processing
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Commit offset AFTER successful processing
 </span></span></code></pre></div><p>This ensures:</p>
 <ul>
 <li>no data loss</li>
@@ -369,7 +372,8 @@ sequenceDiagram
 <li>operational complexity</li>
 </ul>
 <blockquote>
-<p>🧠 Use EOS only when strict financial correctness requires it end-to-end.</p></blockquote>
+<p>🧠 Use EOS only when strict financial correctness requires it end-to-end.</p>
+</blockquote>
 <hr>
 <h2 id="10-reprocessing--backfill">10. Reprocessing &amp; Backfill</h2>
 <hr>
@@ -408,18 +412,19 @@ flowchart TD
 <li>Availability (always serve vs degrade)</li>
 </ul>
 <p>Example stance for trading dashboards:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Low latency + at-least-once + idempotent processing
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Low latency + at-least-once + idempotent processing
 </span></span></code></pre></div><hr>
 <h2 id="13-interview-answer">13. Interview Answer</h2>
 <hr>
 <blockquote>
-<p>“I would rely on Kafka partitioning to preserve ordering per symbol, but I would not depend on it for correctness. I would implement sequence validation at the consumer level to detect duplicates and gaps. Duplicates would be ignored, while gaps would trigger replay/recovery, because continuing without missing events would corrupt rolling aggregates like moving averages. Offsets would be committed only after successful processing, and replay would be used for recovery.”</p></blockquote>
+<p>“I would rely on Kafka partitioning to preserve ordering per symbol, but I would not depend on it for correctness. I would implement sequence validation at the consumer level to detect duplicates and gaps. Duplicates would be ignored, while gaps would trigger replay/recovery, because continuing without missing events would corrupt rolling aggregates like moving averages. Offsets would be committed only after successful processing, and replay would be used for recovery.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>In streaming systems, correctness is not just about processing events in order, but ensuring that no required event is missing from the sequence.</p>
 <p>Correctness in distributed systems comes from combining:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>at-least-once delivery + idempotency + ordering + replay
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>at-least-once delivery + idempotency + ordering + replay
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_5_scaling-and-performance/">Level 3 — Scaling &amp; Performance (Throughput, Partitioning, Caching) →</a></strong></p>
@@ -432,7 +437,8 @@ flowchart TD
 <li>Commit offsets after processing</li>
 <li>Plan for retries, duplicates, and replays</li>
 <li>Use exactly-once only when necessary</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

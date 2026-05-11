@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -175,7 +175,8 @@
 </ul>
 <blockquote>
 <p>📝 <strong>Key Point:</strong><br>
-Rate limiting is not just about counting requests — it is about enforcing a clear traffic policy.</p></blockquote>
+Rate limiting is not just about counting requests — it is about enforcing a clear traffic policy.</p>
+</blockquote>
 <hr>
 <h2 id="2-clarification-questions-interview-conversation">2. Clarification Questions (Interview Conversation)</h2>
 <hr>
@@ -183,17 +184,17 @@ Rate limiting is not just about counting requests — it is about enforcing a cl
 <p><strong>You:</strong> Are we limiting requests by user, IP address, API key, tenant, or endpoint?</p>
 <p><strong>Interviewer:</strong> Assume we limit by client ID or API key.</p>
 <p><strong>Decision:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>rate limit key = clientId / apiKey
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>rate limit key = clientId / apiKey
 </span></span></code></pre></div><p>This means each client gets its own independent quota.</p>
 <hr>
 <h3 id="q2--what-is-the-rate-limit">Q2 — What is the rate limit?</h3>
 <p><strong>You:</strong> What limit should we enforce?</p>
 <p><strong>Interviewer:</strong> Start with 100 requests per minute per client.</p>
 <p><strong>Decision:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>limit = 100 requests
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>limit = 100 requests
 </span></span><span style="display:flex;"><span>window = 1 minute
 </span></span></code></pre></div><p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A → max 100 requests/minute
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A → max 100 requests/minute
 </span></span><span style="display:flex;"><span>Client B → max 100 requests/minute
 </span></span></code></pre></div><hr>
 <h3 id="q3--what-happens-when-the-client-exceeds-the-limit">Q3 — What happens when the client exceeds the limit?</h3>
@@ -201,15 +202,15 @@ Rate limiting is not just about counting requests — it is about enforcing a cl
 <p><strong>Interviewer:</strong> Reject requests immediately once the limit is exceeded.</p>
 <p><strong>Decision:</strong></p>
 <p>Return:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>HTTP 429 Too Many Requests
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>HTTP 429 Too Many Requests
 </span></span></code></pre></div><p>Optionally include:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry-After header
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry-After header
 </span></span></code></pre></div><hr>
 <h3 id="q4--is-this-a-hard-limit-or-soft-limit">Q4 — Is this a hard limit or soft limit?</h3>
 <p><strong>You:</strong> Should the limit be strict, or can we allow short bursts?</p>
 <p><strong>Interviewer:</strong> Start with a strict limit for Phase 1.</p>
 <p><strong>Decision:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Hard limit: more than 100 requests/minute should be rejected
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Hard limit: more than 100 requests/minute should be rejected
 </span></span></code></pre></div><p>Later algorithms like Token Bucket can support controlled bursts.</p>
 <hr>
 <h3 id="q5--is-the-limiter-single-node-or-distributed">Q5 — Is the limiter single-node or distributed?</h3>
@@ -229,7 +230,7 @@ Rate limiting is not just about counting requests — it is about enforcing a cl
 <p><strong>You:</strong> Is this applied at the API Gateway, load balancer, or inside the application service?</p>
 <p><strong>Interviewer:</strong> For now, implement the core logic as a reusable component.</p>
 <p><strong>Decision:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>RateLimiter.allowRequest(clientId)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>RateLimiter.allowRequest(clientId)
 </span></span></code></pre></div><p>Later, we can place it at:</p>
 <ul>
 <li>API Gateway</li>
@@ -241,7 +242,7 @@ Rate limiting is not just about counting requests — it is about enforcing a cl
 <p><strong>You:</strong> Do all clients have the same limit, or do premium clients get higher limits?</p>
 <p><strong>Interviewer:</strong> For Phase 1, assume same limit for all clients.</p>
 <p><strong>Decision:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Default limit = 100 requests/minute per client
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Default limit = 100 requests/minute per client
 </span></span></code></pre></div><p>Later, we can support client-specific plans.</p>
 <hr>
 <h3 id="q8--what-is-the-expected-response-format">Q8 — What is the expected response format?</h3>
@@ -249,9 +250,9 @@ Rate limiting is not just about counting requests — it is about enforcing a cl
 <p><strong>Interviewer:</strong> Start with allowed/denied, but mention useful response metadata.</p>
 <p><strong>Decision:</strong></p>
 <p>Core method:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowRequest</span>(String clientId)
 </span></span></code></pre></div><p>Future metadata:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>X-RateLimit-Limit
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>X-RateLimit-Limit
 </span></span><span style="display:flex;"><span>X-RateLimit-Remaining
 </span></span><span style="display:flex;"><span>X-RateLimit-Reset
 </span></span><span style="display:flex;"><span>Retry-After
@@ -274,7 +275,8 @@ Rate limiting is not just about counting requests — it is about enforcing a cl
 <hr>
 <p>In an interview, you could say:</p>
 <blockquote>
-<p>“Before choosing an algorithm, I’d like to clarify the policy. Are we limiting by user, IP, or API key? What is the limit and time window? Should requests be rejected or delayed after the limit is exceeded? Is this a single-node limiter or distributed across many servers? For the first version, I’ll assume a single-node in-memory limiter by client ID, with a hard limit of 100 requests per minute, returning false or HTTP 429 once exceeded.”</p></blockquote>
+<p>“Before choosing an algorithm, I’d like to clarify the policy. Are we limiting by user, IP, or API key? What is the limit and time window? Should requests be rejected or delayed after the limit is exceeded? Is this a single-node limiter or distributed across many servers? For the first version, I’ll assume a single-node in-memory limiter by client ID, with a hard limit of 100 requests per minute, returning false or HTTP 429 once exceeded.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
@@ -292,7 +294,8 @@ Rate limiting is not just about counting requests — it is about enforcing a cl
 <li>Decide rejection behavior</li>
 <li>Keep Phase 1 single-node and in-memory</li>
 <li>Algorithm choice depends on policy</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -166,30 +166,31 @@
           <h2 id="1-why-do-we-need-another-algorithm">1. Why Do We Need Another Algorithm?</h2>
 <hr>
 <p>So far we have seen:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Fixed Window → simple but bursty
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Fixed Window → simple but bursty
 </span></span><span style="display:flex;"><span>Sliding Window → accurate but memory heavy
 </span></span></code></pre></div><p>We now want a solution that:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- allows small bursts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- allows small bursts
 </span></span><span style="display:flex;"><span>- enforces a steady rate
 </span></span><span style="display:flex;"><span>- uses minimal memory
 </span></span></code></pre></div><hr>
 <blockquote>
 <p>📝 <strong>Goal:</strong><br>
-Balance flexibility (bursts) with control (rate limiting).</p></blockquote>
+Balance flexibility (bursts) with control (rate limiting).</p>
+</blockquote>
 <hr>
 <h2 id="2-what-is-token-bucket">2. What is Token Bucket?</h2>
 <hr>
 <p>Token Bucket is one of the most widely used rate limiting algorithms in production systems.</p>
 <h3 id="core-idea">Core Idea</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Tokens are added to a bucket at a fixed rate
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Tokens are added to a bucket at a fixed rate
 </span></span><span style="display:flex;"><span>- Each request consumes one token
 </span></span><span style="display:flex;"><span>- If no tokens are available → reject request
 </span></span></code></pre></div><hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Bucket capacity = 10 tokens
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Bucket capacity = 10 tokens
 </span></span><span style="display:flex;"><span>Refill rate = 1 token per second
 </span></span></code></pre></div><p>Scenario:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>At time 0 → bucket has 10 tokens
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>At time 0 → bucket has 10 tokens
 </span></span><span style="display:flex;"><span>User sends 5 requests → allowed (5 tokens left)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>After 5 seconds → 5 tokens added → bucket back to 10
@@ -197,17 +198,17 @@ Balance flexibility (bursts) with control (rate limiting).</p></blockquote>
 <h2 id="3-key-properties">3. Key Properties</h2>
 <hr>
 <h3 id="-allows-burst-traffic">✔ Allows Burst Traffic</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If bucket is full → multiple requests allowed instantly
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If bucket is full → multiple requests allowed instantly
 </span></span></code></pre></div><hr>
 <h3 id="-enforces-average-rate">✔ Enforces Average Rate</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Over time, requests are limited by token refill rate
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Over time, requests are limited by token refill rate
 </span></span></code></pre></div><hr>
 <h3 id="-memory-efficient">✔ Memory Efficient</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>No need to store individual request timestamps
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>No need to store individual request timestamps
 </span></span></code></pre></div><hr>
 <h2 id="4-algorithm">4. Algorithm</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest():
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest():
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    refill tokens based on elapsed time
 </span></span><span style="display:flex;"><span>
@@ -220,7 +221,7 @@ Balance flexibility (bursts) with control (rate limiting).</p></blockquote>
 </span></span></code></pre></div><hr>
 <h2 id="5-java-implementation">5. Java Implementation</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.tokenbucket;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.tokenbucket;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RateLimiter</span> {
 </span></span><span style="display:flex;"><span>
@@ -265,36 +266,36 @@ Balance flexibility (bursts) with control (rate limiting).</p></blockquote>
 </span></span></code></pre></div><hr>
 <h2 id="6-complexity">6. Complexity</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time Complexity → O(1)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Time Complexity → O(1)
 </span></span><span style="display:flex;"><span>Space Complexity → O(1)
 </span></span></code></pre></div><hr>
 <h2 id="7-pros-and-cons">7. Pros and Cons</h2>
 <hr>
 <h3 id="pros">Pros</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Allows controlled bursts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Allows controlled bursts
 </span></span><span style="display:flex;"><span>- Smooth traffic over time
 </span></span><span style="display:flex;"><span>- Memory efficient
 </span></span><span style="display:flex;"><span>- Widely used in production systems
 </span></span></code></pre></div><hr>
 <h3 id="cons">Cons</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Slightly more complex than fixed window
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Slightly more complex than fixed window
 </span></span><span style="display:flex;"><span>- Requires time-based calculations
 </span></span></code></pre></div><hr>
 <h2 id="8-what-is-leaky-bucket">8. What is Leaky Bucket?</h2>
 <hr>
 <p>Leaky Bucket is another rate limiting algorithm with a slightly different behavior.</p>
 <h3 id="core-idea-1">Core Idea</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Requests enter a queue (bucket)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Requests enter a queue (bucket)
 </span></span><span style="display:flex;"><span>- Requests are processed at a fixed rate
 </span></span><span style="display:flex;"><span>- If queue is full → reject new requests
 </span></span></code></pre></div><hr>
 <h3 id="analogy">Analogy</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Water flows into a bucket
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Water flows into a bucket
 </span></span><span style="display:flex;"><span>Water leaks out at a constant rate
 </span></span></code></pre></div><hr>
 <h2 id="9-token-bucket-vs-leaky-bucket">9. Token Bucket vs Leaky Bucket</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Token Bucket:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Token Bucket:
 </span></span><span style="display:flex;"><span>- allows bursts
 </span></span><span style="display:flex;"><span>- flexible
 </span></span><span style="display:flex;"><span>
@@ -305,19 +306,20 @@ Balance flexibility (bursts) with control (rate limiting).</p></blockquote>
 <h2 id="10-when-to-use-token-bucket">10. When to Use Token Bucket</h2>
 <hr>
 <p>Use Token Bucket when:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- burst traffic should be allowed
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- burst traffic should be allowed
 </span></span><span style="display:flex;"><span>- system needs flexibility
 </span></span><span style="display:flex;"><span>- APIs expect short spikes in traffic
 </span></span></code></pre></div><hr>
 <h2 id="11-interview-explanation">11. Interview Explanation</h2>
 <hr>
 <blockquote>
-<p>“Token Bucket allows bursts by accumulating tokens over time and consuming one per request. It ensures that the average rate is maintained while still allowing short bursts. Compared to sliding window, it is more memory efficient and widely used in real-world systems.”</p></blockquote>
+<p>“Token Bucket allows bursts by accumulating tokens over time and consuming one per request. It ensures that the average rate is maintained while still allowing short bursts. Compared to sliding window, it is more memory efficient and widely used in real-world systems.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>Token Bucket provides a balance between:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>burst handling + rate control + efficiency
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>burst handling + rate control + efficiency
 </span></span></code></pre></div><p>This makes it one of the most practical rate limiting algorithms.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
@@ -330,7 +332,8 @@ Balance flexibility (bursts) with control (rate limiting).</p></blockquote>
 <li>Allows bursts while enforcing average rate</li>
 <li>Memory efficient and widely used in production</li>
 <li>Better suited than fixed/sliding window for many real-world APIs</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

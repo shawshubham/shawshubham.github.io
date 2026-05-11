@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -174,7 +174,8 @@
 </ul>
 <p>Now we consolidate everything into:</p>
 <blockquote>
-<p>❗ <strong>What actually goes wrong in real systems</strong></p></blockquote>
+<p>❗ <strong>What actually goes wrong in real systems</strong></p>
+</blockquote>
 <hr>
 <h2 id="2-what-this-article-focuses-on">2. What This Article Focuses On</h2>
 <hr>
@@ -189,12 +190,12 @@
 <h2 id="3-race-condition-1--check-then-act">3. Race Condition 1 — Check-Then-Act</h2>
 <hr>
 <h3 id="problem">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read state
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read state
 </span></span><span style="display:flex;"><span>2. Decide
 </span></span><span style="display:flex;"><span>3. Update state
 </span></span></code></pre></div><hr>
 <h3 id="failure-scenario">Failure Scenario</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A reads CREATED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A reads CREATED
 </span></span><span style="display:flex;"><span>B reads CREATED
 </span></span><span style="display:flex;"><span>A updates → PROCESSING
 </span></span><span style="display:flex;"><span>B also updates → PROCESSING
@@ -214,12 +215,12 @@
 <h2 id="4-race-condition-2--late-idempotency-write">4. Race Condition 2 — Late Idempotency Write</h2>
 <hr>
 <h3 id="problem-1">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Validate request
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Validate request
 </span></span><span style="display:flex;"><span>Process payment
 </span></span><span style="display:flex;"><span>Then store idempotency
 </span></span></code></pre></div><hr>
 <h3 id="failure-scenario-1">Failure Scenario</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Two requests pass validation
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Two requests pass validation
 </span></span><span style="display:flex;"><span>Both execute payment
 </span></span><span style="display:flex;"><span>Then idempotency is written
 </span></span></code></pre></div><hr>
@@ -236,10 +237,10 @@
 <h2 id="5-race-condition-3--no-locking-on-critical-path">5. Race Condition 3 — No Locking on Critical Path</h2>
 <hr>
 <h3 id="problem-2">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Multiple requests process same payment concurrently
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Multiple requests process same payment concurrently
 </span></span></code></pre></div><hr>
 <h3 id="failure-scenario-2">Failure Scenario</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A executes payment
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A executes payment
 </span></span><span style="display:flex;"><span>B executes payment
 </span></span><span style="display:flex;"><span>→ double charge
 </span></span></code></pre></div><hr>
@@ -251,10 +252,10 @@
 <h2 id="6-race-condition-4--ignoring-terminal-states">6. Race Condition 4 — Ignoring Terminal States</h2>
 <hr>
 <h3 id="problem-3">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Allowing re-processing after SUCCEEDED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Allowing re-processing after SUCCEEDED
 </span></span></code></pre></div><hr>
 <h3 id="failure-scenario-3">Failure Scenario</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment already succeeded
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment already succeeded
 </span></span><span style="display:flex;"><span>Retry triggers execution again
 </span></span></code></pre></div><hr>
 <h3 id="fix-3">Fix</h3>
@@ -265,10 +266,10 @@
 <h2 id="7-race-condition-5--timeout-misinterpretation">7. Race Condition 5 — Timeout Misinterpretation</h2>
 <hr>
 <h3 id="problem-4">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Treat timeout as failure
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Treat timeout as failure
 </span></span></code></pre></div><hr>
 <h3 id="failure-scenario-4">Failure Scenario</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment succeeded externally
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Payment succeeded externally
 </span></span><span style="display:flex;"><span>System retries → duplicate charge
 </span></span></code></pre></div><hr>
 <h3 id="fix-4">Fix</h3>
@@ -280,7 +281,7 @@
 <h2 id="8-race-condition-6--missing-reconciliation">8. Race Condition 6 — Missing Reconciliation</h2>
 <hr>
 <h3 id="problem-5">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>System never resolves PROCESSING state
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>System never resolves PROCESSING state
 </span></span></code></pre></div><hr>
 <h3 id="failure-scenario-5">Failure Scenario</h3>
 <ul>
@@ -296,7 +297,7 @@
 <h2 id="9-anti-pattern-1--single-layer-protection">9. Anti-Pattern 1 — Single Layer Protection</h2>
 <hr>
 <h3 id="problem-6">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Only using idempotency OR only locking
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Only using idempotency OR only locking
 </span></span></code></pre></div><hr>
 <h3 id="why-it-breaks-2">Why It Breaks</h3>
 <ul>
@@ -311,7 +312,7 @@
 <h2 id="10-anti-pattern-2--long-transactions">10. Anti-Pattern 2 — Long Transactions</h2>
 <hr>
 <h3 id="problem-7">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Holding DB locks during gateway call
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Holding DB locks during gateway call
 </span></span></code></pre></div><hr>
 <h3 id="impact">Impact</h3>
 <ul>
@@ -328,7 +329,7 @@
 <h2 id="11-anti-pattern-3--blind-retries">11. Anti-Pattern 3 — Blind Retries</h2>
 <hr>
 <h3 id="problem-8">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry without idempotency or verification
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Retry without idempotency or verification
 </span></span></code></pre></div><hr>
 <h3 id="impact-1">Impact</h3>
 <ul>
@@ -343,7 +344,7 @@
 <h2 id="12-anti-pattern-4--overtrusting-external-systems">12. Anti-Pattern 4 — Overtrusting External Systems</h2>
 <hr>
 <h3 id="problem-9">Problem</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Assuming gateway response always arrives correctly
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Assuming gateway response always arrives correctly
 </span></span></code></pre></div><hr>
 <h3 id="reality">Reality</h3>
 <ul>
@@ -404,7 +405,8 @@
 <h2 id="14-design-philosophy">14. Design Philosophy</h2>
 <hr>
 <blockquote>
-<p>🧠 <strong>Systems fail at the edges — concurrency, retries, and failures.</strong></p></blockquote>
+<p>🧠 <strong>Systems fail at the edges — concurrency, retries, and failures.</strong></p>
+</blockquote>
 <hr>
 <p>A good design:</p>
 <ul>
@@ -432,7 +434,8 @@
 <li>Most failures come from race conditions</li>
 <li>Correct design is about prevention, not reaction</li>
 <li>Layered safeguards are essential</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

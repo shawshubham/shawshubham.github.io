@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -406,7 +406,8 @@
 <p>However, we want to introduce these behaviors <strong>without modifying the original service</strong>.</p>
 <p>This is exactly where the <strong>Proxy Pattern</strong> becomes useful.</p>
 <blockquote>
-<p>A Proxy acts as a <strong>stand-in object</strong> that controls access to another object.</p></blockquote>
+<p>A Proxy acts as a <strong>stand-in object</strong> that controls access to another object.</p>
+</blockquote>
 <p>The client interacts with the proxy <strong>as if it were the real object</strong>, while the proxy decides how and when to delegate the request.</p>
 <hr>
 <h2 id="2-the-new-design-pressure-in-ems">2. The New Design Pressure in EMS</h2>
@@ -426,7 +427,8 @@
 </ul>
 <p>But a new requirement appears.</p>
 <blockquote>
-<p>Not every user should be allowed to export every report.</p></blockquote>
+<p>Not every user should be allowed to export every report.</p>
+</blockquote>
 <p>Example rules:</p>
 <ul>
 <li>Employees can export <strong>their own reports only</strong></li>
@@ -439,7 +441,7 @@
 <hr>
 <p>A common first attempt is to place authorization logic directly inside the service.</p>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingOperationsService</span> <span style="color:#66d9ef">implements</span> ReportingOperations {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingOperationsService</span> <span style="color:#66d9ef">implements</span> ReportingOperations {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(ReportTarget target, ExportReportRequest request, User user) {
@@ -503,7 +505,7 @@ flowchart LR
 <h2 id="6-defining-the-service-boundary">6. Defining the Service Boundary</h2>
 <hr>
 <p>First, we define a stable interface:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportingOperations</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportingOperations</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    ExportSummary <span style="color:#a6e22e">exportReport</span>(
 </span></span><span style="display:flex;"><span>        ReportTarget target,
@@ -511,7 +513,7 @@ flowchart LR
 </span></span><span style="display:flex;"><span>    );
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Our real implementation already exists:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingOperationsService</span> <span style="color:#66d9ef">implements</span> ReportingOperations {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingOperationsService</span> <span style="color:#66d9ef">implements</span> ReportingOperations {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportSummary <span style="color:#a6e22e">exportReport</span>(
@@ -527,7 +529,7 @@ flowchart LR
 <h2 id="7-implementing-the-protection-proxy">7. Implementing the Protection Proxy</h2>
 <hr>
 <p>The proxy performs authorization before delegating.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SecureReportingOperationsProxy</span> <span style="color:#66d9ef">implements</span> ReportingOperations {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SecureReportingOperationsProxy</span> <span style="color:#66d9ef">implements</span> ReportingOperations {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportingOperations delegate;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> AuthorizationService authorizationService;
@@ -712,7 +714,8 @@ flowchart LR
 </table>
 <p>Despite the difference in layer, both follow the same architectural principle:</p>
 <blockquote>
-<p><strong>Introduce an intermediary that controls access to a resource.</strong></p></blockquote>
+<p><strong>Introduce an intermediary that controls access to a resource.</strong></p>
+</blockquote>
 <hr>
 <h2 id="12-how-all-patterns-fit-together-in-ems">12. How All Patterns Fit Together in EMS</h2>
 <hr>
@@ -792,7 +795,8 @@ flowchart TD
 <p>Each pattern solves <strong>one structural pressure</strong>.</p>
 <p>Together, they produce a system that remains <strong>extensible, testable, and maintainable</strong>.</p>
 <blockquote>
-<p>This is how real systems evolve: patterns emerge incrementally as new design pressures appear.</p></blockquote>
+<p>This is how real systems evolve: patterns emerge incrementally as new design pressures appear.</p>
+</blockquote>
 <hr>
 <h2 id="13-what-we-achieved">13. What We Achieved</h2>
 <hr>
@@ -815,7 +819,8 @@ flowchart TD
 <hr>
 <p>The Proxy Pattern solves a simple but important problem:</p>
 <blockquote>
-<p><strong>How do we control access to an object without modifying the object itself?</strong></p></blockquote>
+<p><strong>How do we control access to an object without modifying the object itself?</strong></p>
+</blockquote>
 <p>By introducing a proxy:</p>
 <ul>
 <li>the client interface remains unchanged</li>
@@ -843,7 +848,8 @@ flowchart TD
 <li>It implements the same interface as the real service</li>
 <li>Clients remain unaware of the proxy</li>
 <li>Access policies can evolve without modifying core services</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

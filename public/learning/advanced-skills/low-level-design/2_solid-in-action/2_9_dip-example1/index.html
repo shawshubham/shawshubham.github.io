@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -396,11 +396,13 @@
 <hr>
 <blockquote>
 <p><strong>High-level modules should not depend on low-level modules.<br>
-Both should depend on abstractions.</strong></p></blockquote>
+Both should depend on abstractions.</strong></p>
+</blockquote>
 <p>In simple terms:</p>
 <blockquote>
 <p><strong>Business logic should not depend on technical details.<br>
-Technical details should depend on business abstractions.</strong></p></blockquote>
+Technical details should depend on business abstractions.</strong></p>
+</blockquote>
 <p>This principle is often misunderstood because it is frequently confused with <strong>Dependency Injection (DI)</strong>.</p>
 <p>📌 <strong>Important distinction</strong>:</p>
 <ul>
@@ -411,7 +413,7 @@ Technical details should depend on business abstractions.</strong></p></blockquo
 <hr>
 <p>If you followed the earlier chapters closely, this might feel familiar.</p>
 <p>In the <strong>Open/Closed Principle (OCP)</strong> example, we introduced:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeePersistenceStrategy
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>EmployeePersistenceStrategy
 </span></span></code></pre></div><p>and injected it into EmployeeService.</p>
 <p>At the time, our goal was <strong>extensibility</strong> — adding new persistence mechanisms without modifying existing code.</p>
 <p>However, that same design decision also demonstrates <strong>Dependency Inversion Principle</strong>.</p>
@@ -441,7 +443,8 @@ Technical details should depend on business abstractions.</strong></p></blockquo
 <p>This step may feel theoretical, but it is essential. DIP cannot be applied correctly unless we first identify which parts of the system represent business intent and which parts are technical details.</p>
 <p>Before we apply the Dependency Inversion Principle, we must answer one <strong>foundational question</strong>:</p>
 <blockquote>
-<p><strong>Which parts of our system represent business decisions, and which parts are just technical details?</strong></p></blockquote>
+<p><strong>Which parts of our system represent business decisions, and which parts are just technical details?</strong></p>
+</blockquote>
 <p>DIP is not about writing new code first —
 it is about <strong>understanding dependency direction</strong>.</p>
 <p>So let’s clearly identify the roles in our Employee Management System.</p>
@@ -493,7 +496,8 @@ it is about <strong>understanding dependency direction</strong>.</p>
 </ul>
 <p>Importantly:</p>
 <blockquote>
-<p><strong>The business does not care about these details.</strong></p></blockquote>
+<p><strong>The business does not care about these details.</strong></p>
+</blockquote>
 <p>If tomorrow we switch from:</p>
 <ul>
 <li>file → database</li>
@@ -505,20 +509,23 @@ it is about <strong>understanding dependency direction</strong>.</p>
 <h3 id="33-the-missing-piece-abstraction">3.3 The Missing Piece: Abstraction</h3>
 <p>Now we ask:</p>
 <blockquote>
-<p><strong>How should high-level business logic talk to low-level infrastructure without being coupled to it?</strong></p></blockquote>
+<p><strong>How should high-level business logic talk to low-level infrastructure without being coupled to it?</strong></p>
+</blockquote>
 <p>The answer is <strong>abstraction</strong>.</p>
 <p>In our EMS, that abstraction is:</p>
 <p><strong>✅ EmployeePersistenceStrategy</strong><br>
 This interface represents:</p>
 <blockquote>
 <p>“The business needs to persist employee data —
-but it does not care how.”</p></blockquote>
+but it does not care how.”</p>
+</blockquote>
 <p>The abstraction defines <strong>what is needed</strong>, not <strong>how it is done</strong>.</p>
 <h3 id="34-the-key-dip-diagnostic-question">3.4 The Key DIP Diagnostic Question</h3>
 <p>With these roles identified, we can now ask the <strong>real DIP question</strong>:</p>
 <blockquote>
 <p><strong>Does EmployeeService depend on concrete details like files, databases, or APIs?</strong><br>
-<strong>Or does it depend only on an abstraction?</strong></p></blockquote>
+<strong>Or does it depend only on an abstraction?</strong></p>
+</blockquote>
 <p>This question determines whether DIP is satisfied — and whether future infrastructure changes will force modifications in business logic.</p>
 <ul>
 <li>If business logic depends on concrete classes → ❌ DIP violation</li>
@@ -537,7 +544,7 @@ but because business logic and infrastructure are never clearly separated.</p>
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designprinciple/solid/ocp/example1/bad">See Code in Git Repo</a>
 </div>
 <p>Before applying DIP, a typical implementation might look like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFormatter employeeFormatter;
@@ -605,11 +612,11 @@ but because business logic and infrastructure are never clearly separated.</p>
 </div>
 <p>Here is the design you already implemented earlier:</p>
 <h4 id="abstraction">Abstraction</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">EmployeePersistenceStrategy</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span>(String formattedEmployee);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h4 id="low-level-modules-depend-on-the-abstraction">Low-Level Modules Depend on the Abstraction</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFilePersistenceStrategy</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeFilePersistenceStrategy</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
@@ -617,7 +624,7 @@ but because business logic and infrastructure are never clearly separated.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// file persistence logic</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeDBPersistenceStrategy</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeDBPersistenceStrategy</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> EmployeePersistenceStrategy {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
@@ -626,7 +633,7 @@ but because business logic and infrastructure are never clearly separated.</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h4 id="high-level-module-depends-on-the-abstraction">High-Level Module Depends on the Abstraction</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmployeeService</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EmployeeService.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeFormatter employeeFormatter;
@@ -688,7 +695,8 @@ DIP makes the system <strong>architecturally stable</strong>.</p>
 </ul>
 <blockquote>
 <p><strong>Frameworks help you apply DIP —</strong><br>
-<strong>they do not replace the need to understand it.</strong></p></blockquote>
+<strong>they do not replace the need to understand it.</strong></p>
+</blockquote>
 <h2 id="8-how-dip-completes-the-solid-story">8. How DIP Completes the SOLID Story</h2>
 <hr>
 <p>Let’s see how DIP ties everything together in our EMS:</p>
@@ -733,7 +741,8 @@ DIP makes the system <strong>architecturally stable</strong>.</p>
 <hr>
 <p>The Dependency Inversion Principle teaches us that:</p>
 <blockquote>
-<p><strong>Stable business rules should not depend on unstable technical details.</strong></p></blockquote>
+<p><strong>Stable business rules should not depend on unstable technical details.</strong></p>
+</blockquote>
 <p>When dependency direction is correct:</p>
 <ul>
 <li>systems scale safely</li>
@@ -756,7 +765,8 @@ We’ll recap the entire Employee Management System and see how the principles r
 <li>OCP and DIP often appear together in real designs</li>
 <li>DIP protects business logic from infrastructure changes</li>
 <li>Frameworks exist to support DIP — not replace it</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

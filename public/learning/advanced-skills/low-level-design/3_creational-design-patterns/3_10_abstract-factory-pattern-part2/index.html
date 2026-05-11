@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -405,14 +405,15 @@
 <p>And yet, the system allowed this:</p>
 <blockquote>
 <p><strong>All parts were valid.</strong><br>
-<strong>The system was invalid.</strong></p></blockquote>
+<strong>The system was invalid.</strong></p>
+</blockquote>
 <p>Export format, delivery channel, and notification type could be chosen independently—allowing combinations that made no business sense.</p>
 <p>This is where <strong>Abstract Factory</strong> enters—not as a refactor, but as a <strong>correction in how we model the problem</strong>.</p>
 <hr>
 <h2 id="2-the-core-insight-the-business-thinks-in-workflows-not-options">2. The Core Insight: The Business Thinks in Workflows, Not Options</h2>
 <hr>
 <p>Our earlier design asked callers to choose options:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>format + delivery + notification
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>format + delivery + notification
 </span></span></code></pre></div><p>But this is not how the business thinks.</p>
 <p>The business thinks in <strong>intent-driven workflows</strong>:</p>
 <ul>
@@ -427,24 +428,28 @@
 <hr>
 <h3 id="31-why-option-based-design-breaks-down">3.1 Why “Option-Based Design” Breaks Down</h3>
 <p>An option-based API encourages callers to assemble behavior themselves:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExportFormat = PDF
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExportFormat = PDF
 </span></span><span style="display:flex;"><span>Delivery     = DOWNLOAD
 </span></span><span style="display:flex;"><span>Notification = SMS
 </span></span></code></pre></div><p>This compiles.<br>
 It passes tests.<br>
 It is still wrong.</p>
 <blockquote>
-<p>The user never asked for “SMS + download”.</p></blockquote>
+<p>The user never asked for “SMS + download”.</p>
+</blockquote>
 <p>This is the design smell:</p>
 <blockquote>
-<p><strong>Locally correct parts forming a globally incorrect system.</strong></p></blockquote>
+<p><strong>Locally correct parts forming a globally incorrect system.</strong></p>
+</blockquote>
 <h3 id="32-the-shift-from-combinations-to-capabilities">3.2 The Shift: From Combinations to Capabilities</h3>
 <p>Instead of asking:</p>
 <blockquote>
-<p>“Which format, which delivery, which notification?”</p></blockquote>
+<p>“Which format, which delivery, which notification?”</p>
+</blockquote>
 <p>We should be asking:</p>
 <blockquote>
-<p><strong>“What kind of report experience is this?”</strong></p></blockquote>
+<p><strong>“What kind of report experience is this?”</strong></p>
+</blockquote>
 <p>Each experience:</p>
 <ul>
 <li>represents clear intent</li>
@@ -461,7 +466,8 @@ They are <strong>business capabilities</strong>.</p>
 <h3 id="41-bundle-1-portal-download--portal_download">4.1 Bundle 1: Portal Download : PORTAL_DOWNLOAD</h3>
 <h4 id="intent">Intent</h4>
 <blockquote>
-<p>“Generate a report and let me download it.”</p></blockquote>
+<p>“Generate a report and let me download it.”</p>
+</blockquote>
 <h4 id="rules">Rules</h4>
 <ul>
 <li>Delivery: DOWNLOAD</li>
@@ -471,7 +477,8 @@ They are <strong>business capabilities</strong>.</p>
 <h3 id="42-bundle-2-email-attachment--email_attachment">4.2 Bundle 2: Email Attachment : EMAIL_ATTACHMENT</h3>
 <h4 id="intent-1">Intent</h4>
 <blockquote>
-<p>“Send me the report as an email attachment.”</p></blockquote>
+<p>“Send me the report as an email attachment.”</p>
+</blockquote>
 <h4 id="rules-1">Rules</h4>
 <ul>
 <li>Delivery: EMAIL (attachment)</li>
@@ -481,7 +488,8 @@ They are <strong>business capabilities</strong>.</p>
 <h3 id="43-bundle-3-email-link--email_link">4.3 Bundle 3: Email Link : EMAIL_LINK</h3>
 <h4 id="intent-2">Intent</h4>
 <blockquote>
-<p>“Email me a secure link to download the report.”</p></blockquote>
+<p>“Email me a secure link to download the report.”</p>
+</blockquote>
 <h4 id="rules-2">Rules</h4>
 <ul>
 <li>Delivery: EMAIL (link)</li>
@@ -498,7 +506,8 @@ They are <strong>business capabilities</strong>.</p>
 </ul>
 <p>Now we have the real problem statement:</p>
 <blockquote>
-<p><strong>How do we create a compatible family of objects for each bundle?</strong></p></blockquote>
+<p><strong>How do we create a compatible family of objects for each bundle?</strong></p>
+</blockquote>
 <hr>
 <h2 id="5-identify-the-family-that-must-change-together">5. Identify the “Family” That Must Change Together</h2>
 <hr>
@@ -517,14 +526,15 @@ They are <strong>business capabilities</strong>.</p>
 </ul>
 <p>This is the textbook definition of <strong>Abstract Factory</strong>:</p>
 <blockquote>
-<p><strong>Create families of related or dependent objects without specifying their concrete classes.</strong></p></blockquote>
+<p><strong>Create families of related or dependent objects without specifying their concrete classes.</strong></p>
+</blockquote>
 <p>The key word is <strong>family</strong> — not “object”, not “strategy”.</p>
 <hr>
 <blockquote>
 <h3 id="-design-evolution-note-package-structure-refactor">📦 <em>Design Evolution Note: Package Structure Refactor</em></h3>
 <p>As this example evolved from <strong>independent strategies</strong> to <strong>workflow-based bundles</strong>, the original package structure started to break down.</p>
 <p>Earlier, the code was organized mainly by <strong>technical concerns</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>export / delivery / notification / factory
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>export / delivery / notification / factory
 </span></span></code></pre></div><p>This worked when behaviors were independent.</p>
 <p>However, once <strong>Abstract Factory</strong> was introduced:</p>
 <ul>
@@ -534,7 +544,7 @@ They are <strong>business capabilities</strong>.</p>
 </ul>
 <p>This is a subtle <strong>SRP violation at the package level</strong>.</p>
 <p>To fix this, we reorganized the code around <strong>reporting workflows (bundles)</strong> instead of isolated mechanisms:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>reporting/
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>reporting/
 </span></span><span style="display:flex;"><span> ├── bundle/
 </span></span><span style="display:flex;"><span> ├── export/
 </span></span><span style="display:flex;"><span> ├── delivery/
@@ -550,7 +560,8 @@ They are <strong>business capabilities</strong>.</p>
 it forced us to realign the <strong>module structure</strong>.</p>
 <h4 id="-takeaway">💡 Takeaway</h4>
 <p>When design patterns evolve, <strong>package structure must evolve too</strong>.<br>
-Resistance in structure is often a <strong>design signal</strong>, not a code smell.</p></blockquote>
+Resistance in structure is often a <strong>design signal</strong>, not a code smell.</p>
+</blockquote>
 <hr>
 <h2 id="6-the-abstract-factory-contract">6. The Abstract Factory Contract</h2>
 <hr>
@@ -558,7 +569,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/Low-Level-Design/tree/master/src/main/java/com/theshubhamco/designpattern/creational/abstractfactory/improved/ems/">See Code in Git Repo</a>
 </div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportBundleFactory</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportBundleFactory</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>();
 </span></span><span style="display:flex;"><span>
@@ -577,7 +588,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <h2 id="7-concrete-bundle-factories-one-per-bundle">7. Concrete Bundle Factories (One per Bundle)</h2>
 <hr>
 <h3 id="71-portal-download-bundle-factory">7.1 Portal Download Bundle Factory</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PortalDownloadBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PortalDownloadBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory{
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExportFormat format;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PortalDownloadBundleFactory</span>(ExportFormat format) {
@@ -606,7 +617,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <li>Format constrained by constructor</li>
 </ul>
 <h3 id="72-email-attachment-bundle-factory">7.2 Email Attachment Bundle Factory</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailAttachmentBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailAttachmentBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory {
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ReportExportStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(ExportFormat.<span style="color:#a6e22e">PDF</span>);
@@ -630,7 +641,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 </ul>
 <p>This was <strong>impossible</strong> to enforce cleanly in Part 1.</p>
 <h3 id="73-email-link-bundle-factory">7.3 Email Link Bundle Factory</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailLinkBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailLinkBundleFactory</span> <span style="color:#66d9ef">implements</span> ReportBundleFactory {
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ReportExportStrategy <span style="color:#a6e22e">createExportStrategy</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ReportExportStrategyFactory.<span style="color:#a6e22e">getStrategy</span>(ExportFormat.<span style="color:#a6e22e">PDF</span>);
@@ -655,7 +666,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <h3 id="74-bundle-selection-introducing-reportbundletype">7.4 Bundle Selection: Introducing ReportBundleType</h3>
 <p>At this stage, we need a way for the client to express <strong>which workflow it wants</strong>, without assembling the bundle manually.</p>
 <p>The simplest and most readable option is an explicit <strong>bundle identifier</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> ReportBundleType {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> ReportBundleType {
 </span></span><span style="display:flex;"><span>    PORTAL_DOWNLOAD,
 </span></span><span style="display:flex;"><span>    EMAIL_ATTACHMENT,
 </span></span><span style="display:flex;"><span>    EMAIL_LINK
@@ -669,7 +680,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <p>This keeps the client API expressive and intention-revealing.</p>
 <h3 id="75-reportbundlefactoryprovider-centralizing-bundle-creation">7.5 ReportBundleFactoryProvider: Centralizing Bundle Creation</h3>
 <p>Next, we introduce a small but important component: <strong>a bundle factory provider</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportBundleFactoryProvider</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportBundleFactoryProvider</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> ReportBundleFactory <span style="color:#a6e22e">getBundleFactory</span>(ExportReportRequest request) {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">switch</span> (request.<span style="color:#a6e22e">getBundleType</span>()) {
@@ -689,7 +700,8 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <p>This switch exists at a <strong>composition boundary</strong>, not inside domain logic.</p>
 <p>Its responsibility is limited and clear:</p>
 <blockquote>
-<p>“Given a requested workflow, return the correct bundle.”</p></blockquote>
+<p>“Given a requested workflow, return the correct bundle.”</p>
+</blockquote>
 <p>This is a <strong>single, centralized decision point</strong>, not scattered conditional logic.</p>
 <h3 id="76-exportreportrequest-a-practical-first-cut">7.6 ExportReportRequest: A Practical First Cut</h3>
 <p>To support this, we introduce a request object that carries:</p>
@@ -698,7 +710,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <li>destinations needed for delivery/notification</li>
 <li>bundle-specific configuration (like format)</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExportReportRequest</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExportReportRequest</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportBundleType bundleType;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// destinations (used by some bundles)</span>
@@ -726,14 +738,15 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 </ul>
 <p>This aligns with <strong>YAGNI</strong>:</p>
 <blockquote>
-<p>Solve today’s problem cleanly before optimizing tomorrow’s model.</p></blockquote>
+<p>Solve today’s problem cleanly before optimizing tomorrow’s model.</p>
+</blockquote>
 <p>We’ll deliberately revisit this design later.</p>
 <hr>
 <h2 id="8-using-the-abstract-factory-in-reportingoperationsservice">8. Using the Abstract Factory in ReportingOperationsService</h2>
 <hr>
 <p>The service no longer assembles behavior.</p>
 <p>It <strong>executes a bundle.</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employeeData, ExportReportRequest request) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">exportReport</span>(Employee employeeData, ExportReportRequest request) {
 </span></span><span style="display:flex;"><span>  logger.<span style="color:#a6e22e">info</span>(<span style="color:#e6db74">&#34;Exporting report for &#34;</span> <span style="color:#f92672">+</span> employeeData.<span style="color:#a6e22e">getName</span>());
 </span></span><span style="display:flex;"><span>  ReportBundleFactory bundleFactory <span style="color:#f92672">=</span> ReportBundleFactoryProvider.<span style="color:#a6e22e">getBundleFactory</span>(request);
 </span></span><span style="display:flex;"><span>
@@ -764,7 +777,7 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <hr>
 <h2 id="9-client-usage-expressing-intent-not-assembly">9. Client Usage: Expressing Intent, Not Assembly</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EMSApplication</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EMSApplication</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getLogger</span>(EMSApplication.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getName</span>());
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> String persistenceFileName <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;employees.txt&#34;</span>;
 </span></span><span style="display:flex;"><span>
@@ -807,7 +820,8 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <li>how this improves correctness before the factory is even involved</li>
 </ul>
 <p>For now, the focus of this article is complete:</p>
-<p><strong>Abstract Factory has moved system correctness into object creation.</strong></p></blockquote>
+<p><strong>Abstract Factory has moved system correctness into object creation.</strong></p>
+</blockquote>
 <hr>
 <h2 id="10-why-abstract-factory-was-the-missing-piece">10. Why Abstract Factory Was the Missing Piece</h2>
 <hr>
@@ -907,7 +921,8 @@ Resistance in structure is often a <strong>design signal</strong>, not a code sm
 <h4 id="key-interview-line">Key interview line:</h4>
 <p>Strategy varies behavior.<br>
 Factory Method chooses implementations.<br>
-Abstract Factory enforces which variations are allowed together.</p></blockquote>
+Abstract Factory enforces which variations are allowed together.</p>
+</blockquote>
 <hr>
 <h2 id="12-when-you-actually-need-abstract-factory-notes">12. When You Actually Need Abstract Factory (Notes)</h2>
 <hr>
@@ -931,7 +946,8 @@ Abstract Factory enforces which variations are allowed together.</p></blockquote
 <p>Abstract Factory is not “just another factory”.</p>
 <p>It solves a very specific failure mode:</p>
 <blockquote>
-<p><strong>Individually valid choices forming a globally invalid system.</strong></p></blockquote>
+<p><strong>Individually valid choices forming a globally invalid system.</strong></p>
+</blockquote>
 <p>By modeling <strong>workflows as bundles</strong>, we enforced compatibility at creation time:</p>
 <ul>
 <li>callers express <strong>intent</strong> (PORTAL_DOWNLOAD, EMAIL_ATTACHMENT, EMAIL_LINK)</li>
@@ -951,7 +967,8 @@ Abstract Factory enforces which variations are allowed together.</p></blockquote
 <li>Abstract Factory enforces allowed combinations</li>
 <li>It protects system correctness at creation time</li>
 <li>Use it when options are valid individually but not together</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

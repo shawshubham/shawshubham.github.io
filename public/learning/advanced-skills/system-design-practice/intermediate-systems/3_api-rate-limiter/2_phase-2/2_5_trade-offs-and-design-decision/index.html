@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -169,12 +169,13 @@
 <p>Each approach solved correctness, but introduced different trade-offs.</p>
 <blockquote>
 <p>📝 <strong>Goal:</strong><br>
-Understand how to choose the right approach based on system requirements.</p></blockquote>
+Understand how to choose the right approach based on system requirements.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-we-solved-so-far">2. What We Solved So Far</h2>
 <hr>
 <p>We started with an unsafe implementation and improved it step by step:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Naive → Race Condition
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Naive → Race Condition
 </span></span><span style="display:flex;"><span>synchronized → Correct but slow
 </span></span><span style="display:flex;"><span>Per-client locking → Better concurrency
 </span></span><span style="display:flex;"><span>Atomic operations → Limited applicability
@@ -182,25 +183,25 @@ Understand how to choose the right approach based on system requirements.</p></b
 <h2 id="3-the-core-trade-off">3. The Core Trade-off</h2>
 <hr>
 <p>All concurrency decisions revolve around this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correctness vs Performance vs Complexity
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correctness vs Performance vs Complexity
 </span></span></code></pre></div><hr>
 <h2 id="4-approach-comparison">4. Approach Comparison</h2>
 <hr>
 <h3 id="1-global-lock-synchronized">1. Global Lock (<code>synchronized</code>)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Correct
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Correct
 </span></span><span style="display:flex;"><span>✔ Simple
 </span></span><span style="display:flex;"><span>❌ Low throughput
 </span></span><span style="display:flex;"><span>❌ All clients block each other
 </span></span></code></pre></div><hr>
 <h3 id="2-fine-grained-locking-per-client">2. Fine-Grained Locking (Per Client)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Correct
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Correct
 </span></span><span style="display:flex;"><span>✔ Higher throughput
 </span></span><span style="display:flex;"><span>✔ Independent clients run in parallel
 </span></span><span style="display:flex;"><span>❌ Extra memory (locks per client)
 </span></span><span style="display:flex;"><span>❌ Slightly more complex
 </span></span></code></pre></div><hr>
 <h3 id="3-atomic-operations">3. Atomic Operations</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ High performance
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ High performance
 </span></span><span style="display:flex;"><span>✔ Lock-free
 </span></span><span style="display:flex;"><span>❌ Not suitable for multi-step logic
 </span></span><span style="display:flex;"><span>❌ Hard to reason about correctness
@@ -238,33 +239,33 @@ Understand how to choose the right approach based on system requirements.</p></b
 <hr>
 <p>In production systems, we rarely jump directly to the most complex solution.</p>
 <p>Instead, we evolve:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Step 1 → Make it correct
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Step 1 → Make it correct
 </span></span><span style="display:flex;"><span>Step 2 → Identify bottlenecks
 </span></span><span style="display:flex;"><span>Step 3 → Optimize selectively
 </span></span></code></pre></div><hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Start → synchronized
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Start → synchronized
 </span></span><span style="display:flex;"><span>High latency observed → move to per-client locking
 </span></span><span style="display:flex;"><span>Extreme scale → consider lock-free or distributed design
 </span></span></code></pre></div><hr>
 <h2 id="7-hidden-trade-offs">7. Hidden Trade-offs</h2>
 <hr>
 <h3 id="memory-vs-concurrency">Memory vs Concurrency</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Per-client locking → more memory
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Per-client locking → more memory
 </span></span><span style="display:flex;"><span>Global lock → less memory
 </span></span></code></pre></div><hr>
 <h3 id="simplicity-vs-performance">Simplicity vs Performance</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized → simple but slow
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized → simple but slow
 </span></span><span style="display:flex;"><span>locks → faster but complex
 </span></span></code></pre></div><hr>
 <h3 id="correctness-vs-optimization">Correctness vs Optimization</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Always prioritize correctness first
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Always prioritize correctness first
 </span></span></code></pre></div><hr>
 <h2 id="8-what-interviewers-look-for">8. What Interviewers Look For</h2>
 <hr>
 <p>They do NOT expect you to jump to the perfect solution immediately.</p>
 <p>They expect:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Identify the problem (race condition)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>✔ Identify the problem (race condition)
 </span></span><span style="display:flex;"><span>✔ Apply a simple fix (synchronized)
 </span></span><span style="display:flex;"><span>✔ Improve it (fine-grained locking)
 </span></span><span style="display:flex;"><span>✔ Discuss trade-offs
@@ -272,16 +273,17 @@ Understand how to choose the right approach based on system requirements.</p></b
 <h2 id="9-interview-explanation">9. Interview Explanation</h2>
 <hr>
 <blockquote>
-<p>“I would first ensure correctness using synchronized. This guarantees atomicity but limits concurrency because all clients share the same lock. To improve throughput, I would introduce fine-grained locking per client, allowing independent clients to be processed in parallel. Atomic operations can help in simple cases, but since rate limiting involves multi-step logic, locks are still required. The final choice depends on traffic patterns, performance requirements, and system complexity.”</p></blockquote>
+<p>“I would first ensure correctness using synchronized. This guarantees atomicity but limits concurrency because all clients share the same lock. To improve throughput, I would introduce fine-grained locking per client, allowing independent clients to be processed in parallel. Atomic operations can help in simple cases, but since rate limiting involves multi-step logic, locks are still required. The final choice depends on traffic patterns, performance requirements, and system complexity.”</p>
+</blockquote>
 <hr>
 <h2 id="10-what-we-are-still-missing">10. What We Are Still Missing</h2>
 <hr>
 <p>So far, everything is:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single-node
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single-node
 </span></span></code></pre></div><p>But real systems are:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Distributed
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Distributed
 </span></span></code></pre></div><p>Problems we have NOT solved:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>❌ multiple instances
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>❌ multiple instances
 </span></span><span style="display:flex;"><span>❌ shared state across servers
 </span></span><span style="display:flex;"><span>❌ consistency across nodes
 </span></span></code></pre></div><hr>
@@ -289,7 +291,7 @@ Understand how to choose the right approach based on system requirements.</p></b
 <hr>
 <p>There is no one-size-fits-all solution.</p>
 <p>Good system design is about choosing the right trade-off:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>correctness → performance → scalability
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>correctness → performance → scalability
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong>Phase 3 — Distributed Rate Limiting →</strong></p>
@@ -302,7 +304,8 @@ Understand how to choose the right approach based on system requirements.</p></b
 <li>Use per-client locking for better concurrency</li>
 <li>Atomic operations are limited to simple cases</li>
 <li>Always reason about trade-offs before choosing a design</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

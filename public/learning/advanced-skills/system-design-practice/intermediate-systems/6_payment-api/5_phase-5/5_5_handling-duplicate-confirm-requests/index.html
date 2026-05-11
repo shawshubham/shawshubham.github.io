@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -166,7 +166,7 @@
           <h2 id="1-why-duplicate-confirm-requests-are-dangerous">1. Why Duplicate Confirm Requests Are Dangerous</h2>
 <hr>
 <p>When a client calls:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments<span style="color:#f92672">/</span>{paymentId}<span style="color:#f92672">/</span>confirm
 </span></span></code></pre></div><p>there is a risk that the same request is sent multiple times due to:</p>
 <ul>
 <li>client retries after timeout</li>
@@ -175,16 +175,17 @@
 </ul>
 <p>👉 Unlike create requests, duplicate confirm requests can lead to <strong>multiple actual charges</strong>.</p>
 <blockquote>
-<p>❗ This is one of the most critical problems in payment system design.</p></blockquote>
+<p>❗ This is one of the most critical problems in payment system design.</p>
+</blockquote>
 <hr>
 <h2 id="2-example-failure-scenario">2. Example Failure Scenario</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client sends confirm request
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client sends confirm request
 </span></span><span style="display:flex;"><span>→ Gateway processes payment successfully
 </span></span><span style="display:flex;"><span>→ API crashes before responding
 </span></span><span style="display:flex;"><span>→ Client retries confirm
 </span></span></code></pre></div><p>Without protection:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → Charge executed
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Request 1 → Charge executed
 </span></span><span style="display:flex;"><span>Request 2 → Charge executed again ❌
 </span></span></code></pre></div><p>👉 The user gets charged twice.</p>
 <hr>
@@ -266,7 +267,7 @@ sequenceDiagram
 </ul>
 <hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: {
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;INVALID_STATE&#34;</span>,
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Payment cannot be confirmed in current state&#34;</span>
@@ -277,7 +278,7 @@ sequenceDiagram
 <hr>
 <h3 id="problem">Problem</h3>
 <p>Two confirm requests arrive at the same time:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → confirm
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A → confirm
 </span></span><span style="display:flex;"><span>Thread B → confirm
 </span></span></code></pre></div><p>Without protection:</p>
 <ul>
@@ -380,7 +381,8 @@ sequenceDiagram
 <li>Duplicate confirm requests can cause duplicate charges</li>
 <li>Use idempotency + state checks + concurrency control</li>
 <li>Combine API-level and gateway-level protection for safety</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

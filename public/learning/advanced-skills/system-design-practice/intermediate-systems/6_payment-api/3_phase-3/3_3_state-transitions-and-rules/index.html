@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -174,7 +174,8 @@
 </ul>
 <blockquote>
 <p>📝 <strong>Key Insight:</strong><br>
-A state machine is only as strong as its <strong>transition rules</strong>.</p></blockquote>
+A state machine is only as strong as its <strong>transition rules</strong>.</p>
+</blockquote>
 <hr>
 <h2 id="2-valid-state-transitions">2. Valid State Transitions</h2>
 <hr>
@@ -208,7 +209,8 @@ stateDiagram-v2
 </ul>
 <h3 id="important-constraint">Important Constraint</h3>
 <blockquote>
-<p>❗ Once a payment is <strong>SUCCEEDED</strong>, it must never transition again</p></blockquote>
+<p>❗ Once a payment is <strong>SUCCEEDED</strong>, it must never transition again</p>
+</blockquote>
 <p>This prevents:</p>
 <ul>
 <li>duplicate charges</li>
@@ -226,13 +228,14 @@ stateDiagram-v2
 </ul>
 <blockquote>
 <p>📝 <strong>Key Point:</strong><br>
-Invalid transitions should be rejected at the service layer.</p></blockquote>
+Invalid transitions should be rejected at the service layer.</p>
+</blockquote>
 <hr>
 <h2 id="5-enforcing-transitions-in-code">5. Enforcing Transitions in Code</h2>
 <hr>
 <p>State transitions must be enforced explicitly in your backend logic.</p>
 <h3 id="example-logic">Example Logic</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (payment.<span style="color:#a6e22e">getStatus</span>() <span style="color:#f92672">!=</span> CREATED <span style="color:#f92672">&amp;&amp;</span> payment.<span style="color:#a6e22e">getStatus</span>() <span style="color:#f92672">!=</span> FAILED) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (payment.<span style="color:#a6e22e">getStatus</span>() <span style="color:#f92672">!=</span> CREATED <span style="color:#f92672">&amp;&amp;</span> payment.<span style="color:#a6e22e">getStatus</span>() <span style="color:#f92672">!=</span> FAILED) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidStateException(<span style="color:#e6db74">&#34;Payment cannot be processed again&#34;</span>);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="principle">Principle</h3>
@@ -251,7 +254,8 @@ Invalid transitions should be rejected at the service layer.</p></blockquote>
 <li>Both move to PROCESSING</li>
 </ul>
 <blockquote>
-<p>❗ Result: Duplicate processing</p></blockquote>
+<p>❗ Result: Duplicate processing</p>
+</blockquote>
 <hr>
 <h2 id="7-solutions-for-concurrency-control">7. Solutions for Concurrency Control</h2>
 <hr>
@@ -260,13 +264,13 @@ Invalid transitions should be rejected at the service layer.</p></blockquote>
 <li>Add a version field</li>
 <li>Update only if version matches</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payment
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payment
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>, <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> payment_id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#f92672">?</span>;
 </span></span></code></pre></div><p>👉 Only one request succeeds</p>
 <hr>
 <h3 id="2-atomic-state-update">2. Atomic State Update</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payment
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payment
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> payment_id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;CREATED&#39;</span>;
 </span></span></code></pre></div><p>👉 Ensures only valid transitions happen</p>
@@ -287,7 +291,8 @@ Invalid transitions should be rejected at the service layer.</p></blockquote>
 </ul>
 <p>Together they ensure:</p>
 <blockquote>
-<p>✔ Payment is processed <strong>exactly once</strong> (logically)</p></blockquote>
+<p>✔ Payment is processed <strong>exactly once</strong> (logically)</p>
+</blockquote>
 <hr>
 <h2 id="9-design-principles">9. Design Principles</h2>
 <hr>
@@ -320,7 +325,8 @@ Invalid transitions should be rejected at the service layer.</p></blockquote>
 <li>State transitions enforce <strong>system correctness</strong></li>
 <li>Invalid transitions must be strictly blocked</li>
 <li>Concurrency control is essential to prevent duplicate processing</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

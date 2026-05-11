@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -619,7 +619,8 @@
 </ul>
 <p>If our orchestrator keeps state only in memory, or retries without rules, we still end up with:</p>
 <blockquote>
-<p><strong>“Payment says confirmed, ledger disagrees.”</strong></p></blockquote>
+<p><strong>“Payment says confirmed, ledger disagrees.”</strong></p>
+</blockquote>
 <p>So this article upgrades the saga from a concept to a <strong>production-safe workflow</strong>.</p>
 <p>We’ll add:</p>
 <ul>
@@ -645,7 +646,8 @@
 <p>The key reliability property we want is:</p>
 <blockquote>
 <p><strong>Workflow state + business data + outbox record are written in one atomic transaction.</strong><br>
-Publishing happens later via a relay, so we never lose messages after committing state.</p></blockquote>
+Publishing happens later via a relay, so we never lose messages after committing state.</p>
+</blockquote>
 <p>A refined baseline architecture:</p>
 <div class="mermaid">
 flowchart LR
@@ -684,7 +686,8 @@ flowchart LR
     style OB fill:#f3e5f5,stroke:#6a1b9a
 </div>
 <blockquote>
-<p><strong>Note:</strong> In Phase 3, we evolve the existing <strong>Payment Service</strong> into an orchestrator (it contains the process engine + workflow state). In larger systems this may be split into a dedicated Orchestrator service later.</p></blockquote>
+<p><strong>Note:</strong> In Phase 3, we evolve the existing <strong>Payment Service</strong> into an orchestrator (it contains the process engine + workflow state). In larger systems this may be split into a dedicated Orchestrator service later.</p>
+</blockquote>
 <p>A few important clarifications:</p>
 <ul>
 <li><strong>Fraud + Ledger</strong> are shown as <strong>request/response</strong> calls here for baseline simplicity.
@@ -831,7 +834,8 @@ flowchart TD
 <li>“failed permanently”</li>
 </ul>
 <blockquote>
-<p>✅ <strong>Rule:</strong> Orchestrator retries must never create new side effects.</p></blockquote>
+<p>✅ <strong>Rule:</strong> Orchestrator retries must never create new side effects.</p>
+</blockquote>
 <hr>
 <h2 id="5-retry-policy-bounded-classified-observable">5. Retry Policy: Bounded, Classified, Observable</h2>
 <hr>
@@ -940,7 +944,8 @@ flowchart TD
 </ul>
 <p>This is a production-grade move:</p>
 <blockquote>
-<p>Some outcomes cannot be resolved automatically without risking money correctness.</p></blockquote>
+<p>Some outcomes cannot be resolved automatically without risking money correctness.</p>
+</blockquote>
 <hr>
 <h2 id="7-compensation-mechanics">7. Compensation Mechanics</h2>
 <hr>
@@ -978,7 +983,8 @@ flowchart TD
 <hr>
 <p>Once you coordinate via commands/events, you must avoid:</p>
 <blockquote>
-<p>“DB commit succeeded, but the message was never published.”</p></blockquote>
+<p>“DB commit succeeded, but the message was never published.”</p>
+</blockquote>
 <p>That leads to stuck workflows and silent inconsistency.</p>
 <h3 id="81-outbox-concept-hld-level">8.1 Outbox concept (HLD-level)</h3>
 <p>Instead of:</p>
@@ -1045,7 +1051,8 @@ flowchart TD
 </li>
 </ul>
 <blockquote>
-<p>This is how you prevent mismatches from becoming daily operational debt.</p></blockquote>
+<p>This is how you prevent mismatches from becoming daily operational debt.</p>
+</blockquote>
 <hr>
 <h2 id="10-what-our-payment-design-chooses-explicit-baseline">10. What Our Payment Design Chooses (Explicit Baseline)</h2>
 <hr>
@@ -1063,7 +1070,8 @@ flowchart TD
 <blockquote>
 <p>✅ <strong>Note (Choreography-based sagas):</strong><br>
 The same reliability requirements apply even if you run a saga via events (choreography): idempotent steps, durable progress, retries/timeouts, compensations, and observability.<br>
-The difference is <em>where</em> the logic lives (distributed across services). We cover choreography sagas in depth in the <strong>Concepts → Saga Pattern &amp; Distributed Coordination</strong> section.</p></blockquote>
+The difference is <em>where</em> the logic lives (distributed across services). We cover choreography sagas in depth in the <strong>Concepts → Saga Pattern &amp; Distributed Coordination</strong> section.</p>
+</blockquote>
 <hr>
 <h2 id="11-key-takeaways">11. Key Takeaways</h2>
 <hr>

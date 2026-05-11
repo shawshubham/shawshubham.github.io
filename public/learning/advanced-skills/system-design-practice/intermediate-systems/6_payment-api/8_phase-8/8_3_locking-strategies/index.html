@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -167,7 +167,8 @@
 <hr>
 <p>In the previous article, we saw that <strong>idempotency alone is not enough</strong> when different requests use different keys.</p>
 <blockquote>
-<p>❗ Multiple requests can still reach the processing stage at the same time.</p></blockquote>
+<p>❗ Multiple requests can still reach the processing stage at the same time.</p>
+</blockquote>
 <p>Locking ensures:</p>
 <ul>
 <li>only one request <strong>executes business logic</strong></li>
@@ -195,7 +196,7 @@
 <h2 id="4-pessimistic-locking">4. Pessimistic Locking</h2>
 <hr>
 <h3 id="how-it-works">How It Works</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> payments <span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> payments <span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
 </span></span></code></pre></div><ul>
 <li>locks the row</li>
 <li>other transactions must wait</li>
@@ -237,7 +238,7 @@ sequenceDiagram
 <hr>
 <h3 id="how-it-works-1">How It Works</h3>
 <p>Uses a <code>version</code> field.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payments
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payments
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>, <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> <span style="color:#66d9ef">version</span> <span style="color:#f92672">=</span> <span style="color:#f92672">?</span>;
 </span></span></code></pre></div><hr>
@@ -305,7 +306,7 @@ sequenceDiagram
 <h2 id="8-where-locking-is-applied-in-our-design">8. Where Locking is Applied in Our Design</h2>
 <hr>
 <p>During confirm flow:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Fetch + Lock Payment
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Fetch + Lock Payment
 </span></span><span style="display:flex;"><span>→ Validate state
 </span></span><span style="display:flex;"><span>→ Update to PROCESSING
 </span></span></code></pre></div><hr>
@@ -375,7 +376,8 @@ sequenceDiagram
 <li>Pessimistic locking is preferred for critical flows</li>
 <li>Optimistic locking is useful for performance scenarios</li>
 <li>Locking must be combined with validation for correctness</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

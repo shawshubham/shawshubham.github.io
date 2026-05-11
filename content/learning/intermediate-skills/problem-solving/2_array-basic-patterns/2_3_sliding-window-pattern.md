@@ -246,33 +246,208 @@ All problems live in the central index — you’ll just filter by **Core Patter
 **👉 [Sliding Window – Practice Problems](/learning/intermediate-skills/problem-solving/3_coderpad-practice/all-problems)**  
 _(CoderPad Practice → Filter by “Sliding Window”)_
 
-### ✅ Phase 1 — Core (Calibration)
+---
 
-Focus: build the window mental model (expand, shrink, maintain state).
+### ✅ Phase 1 — Fixed Window Fundamentals
 
-- **Longest Substring Without Repeating Characters**
-  _Variable window + uniqueness constraint_
+Focus:
 
-### ✅ Phase 2 — Stretch (Constraint Handling)
+- understanding contiguous ranges,
+- fixed-size movement,
+- rolling computation,
+- add-right/remove-left discipline.
 
-Focus: “at most k” style validity checks and derived constraints.
+#### 1. Maximum Average Subarray I
 
-- **Longest Repeating Character Replacement**
-  _Variable window + tolerance (`k`) + max-frequency reasoning_
+**LeetCode:** https://leetcode.com/problems/maximum-average-subarray-i/
 
-### ✅ Phase 3 — Advanced (Precise Shrinking)
+Key intuition:
 
-Focus: shrinking must be exact — the smallest valid window.
+```text
+Reuse previous window computation
+instead of recalculating the entire range.
+```
 
-- **Minimum Window Substring**
-  _Covering substring with duplicates + `formed/required` discipline_
+---
 
-### ✅ Phase 4 — Fixed Window (Core)
+#### 2. Maximum Number of Vowels in a Substring of Given Length
 
-Focus: fixed-size window with rolling update (add right, remove left).
+**LeetCode:** https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/
 
-- **Maximum Average Subarray I**
-  _Fixed window + rolling sum_
+Focus:
+
+- rolling frequency updates
+- fixed window state management
+
+---
+
+#### 3. Find All Anagrams in a String
+
+**LeetCode:** https://leetcode.com/problems/find-all-anagrams-in-a-string/
+
+Focus:
+
+- frequency matching
+- fixed-size character window
+- HashMap/array integration
+
+---
+
+### ✅ Phase 2 — Variable Window Fundamentals
+
+Focus:
+
+- expanding/shrinking dynamically,
+- maintaining validity constraints,
+- controlling duplicate handling.
+
+#### 4. Longest Substring Without Repeating Characters
+
+**LeetCode:** https://leetcode.com/problems/longest-substring-without-repeating-characters/
+
+Key intuition:
+
+```text
+Expand while valid.
+Shrink when duplicates appear.
+```
+
+---
+
+#### 5. Longest Repeating Character Replacement
+
+**LeetCode:** https://leetcode.com/problems/longest-repeating-character-replacement/
+
+Focus:
+
+- “at most k” constraints
+- maintaining dominant frequency
+- tolerance-based windows
+
+---
+
+#### 6. Permutation in String
+
+**LeetCode:** https://leetcode.com/problems/permutation-in-string/
+
+Focus:
+
+- exact frequency match
+- variable/fixed hybrid window
+- character count tracking
+
+---
+
+### ✅ Phase 3 — Constraint-Based Sliding Window
+
+Focus:
+
+- sum constraints,
+- minimum window sizing,
+- exact shrinking discipline.
+
+#### 7. Minimum Size Subarray Sum
+
+**LeetCode:** https://leetcode.com/problems/minimum-size-subarray-sum/
+
+Key intuition:
+
+```text
+Shrink aggressively once condition becomes valid.
+```
+
+---
+
+#### 8. Fruit Into Baskets
+
+**LeetCode:** https://leetcode.com/problems/fruit-into-baskets/
+
+Focus:
+
+- at most K distinct elements
+- HashMap frequency reduction
+- window invalidation handling
+
+---
+
+#### 9. Subarrays with K Different Integers
+
+**LeetCode:** https://leetcode.com/problems/subarrays-with-k-different-integers/
+
+Focus:
+
+- exact K distinct trick
+- atMost(K) transformation
+- advanced window counting
+
+---
+
+### ✅ Phase 4 — Advanced Precision Windows
+
+Focus:
+
+- exact covering conditions,
+- multiple frequency constraints,
+- difficult shrink logic.
+
+#### 10. Minimum Window Substring
+
+**LeetCode:** https://leetcode.com/problems/minimum-window-substring/
+
+Key intuition:
+
+```text
+Maintain exact coverage while minimizing window.
+```
+
+---
+
+#### 11. Repeated DNA Sequences
+
+**LeetCode:** https://leetcode.com/problems/repeated-dna-sequences/
+
+Focus:
+
+- fixed-length rolling substring tracking
+- HashSet integration
+- repeated pattern detection
+
+---
+
+#### 12. Sliding Window Maximum
+
+**LeetCode:** https://leetcode.com/problems/sliding-window-maximum/
+
+Focus:
+
+- window optimization
+- monotonic deque integration
+- advanced range maintenance
+
+---
+
+### 🚦 After This Point
+
+Once you are comfortable with these problems:
+
+- window expansion/shrinking becomes natural,
+- state maintenance feels intuitive,
+- and constraint handling becomes predictable,
+
+you can comfortably move into:
+
+- Prefix Sum + Sliding Window combinations
+- Monotonic Queue / Deque problems
+- advanced substring optimization
+- streaming/window-processing systems
+
+At this stage, Sliding Window should feel like:
+
+```text
+continuous state management over a moving range
+```
+
+rather than a memorized pointer trick.
 
 ---
 

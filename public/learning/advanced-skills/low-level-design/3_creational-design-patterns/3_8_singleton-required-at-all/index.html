@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -405,15 +405,17 @@
 </ul>
 <p>That’s why this question matters more than mechanics:</p>
 <blockquote>
-<p><strong>Should this class be a Singleton at all?</strong></p></blockquote>
+<p><strong>Should this class be a Singleton at all?</strong></p>
+</blockquote>
 <hr>
 <h2 id="2-the-core-smell-hidden-global-state-why-singleton-raises-red-flags">2. The Core Smell: Hidden Global State (Why Singleton Raises Red Flags)</h2>
 <hr>
 <p>Before we compare Singleton with Dependency Injection, we need to understand <strong>why Singleton is controversial at all</strong>.</p>
 <p>At a design level, a Singleton is essentially:</p>
 <blockquote>
-<p><strong>Global state with a controlled access point</strong></p></blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Singleton.<span style="color:#a6e22e">getInstance</span>().<span style="color:#a6e22e">doSomething</span>();
+<p><strong>Global state with a controlled access point</strong></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Singleton.<span style="color:#a6e22e">getInstance</span>().<span style="color:#a6e22e">doSomething</span>();
 </span></span></code></pre></div><p>From the call site, notice what’s missing:</p>
 <ul>
 <li>No constructor dependency</li>
@@ -458,7 +460,8 @@
 </table>
 <blockquote>
 <p>The problem is not “one instance”.<br>
-The problem is <strong>global access without explicit dependency</strong>.</p></blockquote>
+The problem is <strong>global access without explicit dependency</strong>.</p>
+</blockquote>
 <p>This section exists to teach you <strong>how to recognize the smell</strong> —<br>
 not yet how to fix it.</p>
 <hr>
@@ -466,7 +469,8 @@ not yet how to fix it.</p>
 <hr>
 <p>Once you recognize the smell, the natural question is:</p>
 <blockquote>
-<p><strong>What replaces Singleton in modern systems?</strong></p></blockquote>
+<p><strong>What replaces Singleton in modern systems?</strong></p>
+</blockquote>
 <p>The answer is <strong>Dependency Injection</strong> — not because it creates more objects,<br>
 but because it <strong>changes who controls them</strong>.</p>
 <h3 id="31-the-critical-confusion">3.1 The Critical Confusion</h3>
@@ -474,7 +478,8 @@ but because it <strong>changes who controls them</strong>.</p>
 <blockquote>
 <p>“I need only one instance”<br>
 vs<br>
-“I need global access”</p></blockquote>
+“I need global access”</p>
+</blockquote>
 <p>Singleton solves <strong>both</strong>.<br>
 DI solves <strong>only the first</strong> — intentionally.</p>
 <p>And that difference matters.</p>
@@ -484,7 +489,7 @@ DI solves <strong>only the first</strong> — intentionally.</p>
 <li>A single instance</li>
 <li>Global access to it</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayrollService</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayrollService</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">process</span>() {
 </span></span><span style="display:flex;"><span>        Logger logger <span style="color:#f92672">=</span> Logger.<span style="color:#a6e22e">getInstance</span>(); <span style="color:#75715e">//Single instance</span>
 </span></span><span style="display:flex;"><span>        logger.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Processing payroll&#34;</span>);
@@ -500,8 +505,9 @@ DI solves <strong>only the first</strong> — intentionally.</p>
 <h3 id="33-what-dependency-injection-changes">3.3 What Dependency Injection Changes</h3>
 <p>Dependency Injection shifts responsibility outward:</p>
 <blockquote>
-<p><strong>Objects no longer find their dependencies — they receive them.</strong></p></blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayrollService</span> {
+<p><strong>Objects no longer find their dependencies — they receive them.</strong></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayrollService</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Logger logger;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">PayrollService</span>(Logger logger) {
@@ -554,7 +560,8 @@ DI solves <strong>only the first</strong> — intentionally.</p>
   </tbody>
 </table>
 <blockquote>
-<p><strong>DI gives you singleton behavior without singleton coupling.</strong></p></blockquote>
+<p><strong>DI gives you singleton behavior without singleton coupling.</strong></p>
+</blockquote>
 <p>This is the real evolution in modern design.</p>
 <h3 id="35-why-modern-systems-avoid-manual-singleton">3.5 Why Modern Systems Avoid Manual Singleton</h3>
 <p>In real systems:</p>
@@ -565,14 +572,15 @@ DI solves <strong>only the first</strong> — intentionally.</p>
 </ul>
 <p>That’s why frameworks exist.</p>
 <p>Example (conceptually):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Logger logger <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Logger();   <span style="color:#75715e">// one instance</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Logger logger <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Logger();   <span style="color:#75715e">// one instance</span>
 </span></span><span style="display:flex;"><span>PayrollService service <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PayrollService(logger);
 </span></span></code></pre></div><p>There is still <strong>one Logger</strong> —<br>
 but no class assumes that fact.</p>
 <h3 id="36-spring-clarification-important-interview-point">3.6 Spring Clarification (Important Interview Point)</h3>
 <p>When people say:</p>
 <blockquote>
-<p>“Spring beans are singletons”</p></blockquote>
+<p>“Spring beans are singletons”</p>
+</blockquote>
 <p>What they really mean is:</p>
 <ul>
 <li>One instance per container</li>
@@ -583,12 +591,14 @@ but no class assumes that fact.</p>
 <p>It is <strong>DI-managed lifecycle</strong>.</p>
 <blockquote>
 <p>Singleton pattern = global access</p>
-<p>Spring singleton = scoped instance</p></blockquote>
+<p>Spring singleton = scoped instance</p>
+</blockquote>
 <p>Interviewers love this distinction.</p>
 <h3 id="37-rule-of-thumb">3.7 Rule of Thumb</h3>
 <p>Before writing a Singleton, ask:</p>
 <blockquote>
-<p><strong>Can I pass this as a dependency instead?</strong></p></blockquote>
+<p><strong>Can I pass this as a dependency instead?</strong></p>
+</blockquote>
 <ul>
 <li>If yes → use DI</li>
 <li>If no → document why Singleton is required</li>
@@ -597,7 +607,8 @@ but no class assumes that fact.</p>
 <blockquote>
 <h3 id="one-line-takeaway">One-Line Takeaway</h3>
 <p><strong>Singleton solves “how many instances”.</strong><br>
-<strong>Dependency Injection solves “who controls dependencies”.</strong></p></blockquote>
+<strong>Dependency Injection solves “who controls dependencies”.</strong></p>
+</blockquote>
 <p>Once you understand this shift,<br>
 most Singleton use cases disappear naturally.</p>
 <hr>
@@ -621,7 +632,8 @@ most Singleton use cases disappear naturally.</p>
 <p>Even if there is <strong>only one instance at runtime</strong>,<br>
 we still <strong>do not model them as Singletons</strong>.</p>
 <blockquote>
-<p><strong>“Single instance in practice” ≠ “Singleton pattern”</strong></p></blockquote>
+<p><strong>“Single instance in practice” ≠ “Singleton pattern”</strong></p>
+</blockquote>
 <hr>
 <h2 id="5-when-the-singleton-pattern-is-actually-justified-rare-but-real">5. When the Singleton Pattern Is Actually Justified (Rare, but Real)</h2>
 <hr>
@@ -630,10 +642,12 @@ we still <strong>do not model them as Singletons</strong>.</p>
 it is the <strong>correct model of reality</strong>.</p>
 <p>The key question is not:</p>
 <blockquote>
-<p>“Do I want only one instance?”</p></blockquote>
+<p>“Do I want only one instance?”</p>
+</blockquote>
 <p>The real question is:</p>
 <blockquote>
-<p><strong>“Does the system itself have only one of this thing?”</strong></p></blockquote>
+<p><strong>“Does the system itself have only one of this thing?”</strong></p>
+</blockquote>
 <hr>
 <h3 id="51-what-a-true-singleton-represents">5.1 What a <em>True</em> Singleton Represents</h3>
 <p>A legitimate Singleton represents something that is:</p>
@@ -644,7 +658,8 @@ it is the <strong>correct model of reality</strong>.</p>
 </ul>
 <p>In other words:</p>
 <blockquote>
-<p>Creating a second instance would break correctness, not performance.</p></blockquote>
+<p>Creating a second instance would break correctness, not performance.</p>
+</blockquote>
 <hr>
 <h3 id="52-concrete-examples-what-they-actually-mean">5.2 Concrete Examples (What They Actually Mean)</h3>
 <h3 id="example-1-jvm-runtime-runtimegetruntime">Example 1: JVM Runtime (<code>Runtime.getRuntime()</code>)</h3>
@@ -658,10 +673,11 @@ it is the <strong>correct model of reality</strong>.</p>
 <p>Creating multiple <code>Runtime</code> objects would make no sense —<br>
 there is still only <strong>one JVM underneath</strong>.</p>
 <blockquote>
-<p>👉 Singleton here models a <strong>real-world singular system resource</strong>.</p></blockquote>
+<p>👉 Singleton here models a <strong>real-world singular system resource</strong>.</p>
+</blockquote>
 <h3 id="example-2-system-clock--time-source">Example 2: System Clock / Time Source</h3>
 <p>Some systems expose a global clock abstraction:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>SystemClock.<span style="color:#a6e22e">now</span>()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>SystemClock.<span style="color:#a6e22e">now</span>()
 </span></span></code></pre></div><p>Why Singleton-like?</p>
 <ul>
 <li>There is one notion of “current time”</li>
@@ -684,7 +700,8 @@ there is still only <strong>one JVM underneath</strong>.</p>
 </ul>
 <p>There must be <strong>one central registry</strong> that everything reports to.</p>
 <blockquote>
-<p>👉 This is a coordination point, not business logic.</p></blockquote>
+<p>👉 This is a coordination point, not business logic.</p>
+</blockquote>
 <h3 id="53-why-these-are-not-application-services">5.3 Why These Are NOT Application Services</h3>
 <p>Notice what these examples have in common:</p>
 <ul>
@@ -713,7 +730,8 @@ it should <strong>not</strong> be a Singleton.</p>
 <blockquote>
 <h3 id="the-only-rule-you-actually-need">The Only Rule You Actually Need</h3>
 <p><strong>If duplicating the object would be logically wrong, Singleton may be valid.</strong><br>
-<strong>If duplicating it would only be inconvenient, Singleton is wrong.</strong></p></blockquote>
+<strong>If duplicating it would only be inconvenient, Singleton is wrong.</strong></p>
+</blockquote>
 <hr>
 <h2 id="6-interview-traps-around-singleton">6. Interview Traps Around Singleton</h2>
 <hr>
@@ -744,7 +762,8 @@ It’s a <strong>global access pattern with lifecycle control</strong>.</p>
 <hr>
 <p>Before using Singleton, ask:</p>
 <blockquote>
-<p>Can I pass this as a dependency instead?</p></blockquote>
+<p>Can I pass this as a dependency instead?</p>
+</blockquote>
 <p>If the answer is yes → <strong>do not use Singleton</strong>.</p>
 <p>If the answer is no → document <em>why</em>.</p>
 <hr>
@@ -759,7 +778,8 @@ It’s a <strong>global access pattern with lifecycle control</strong>.</p>
 <li>testability over convenience</li>
 </ul>
 <blockquote>
-<p><strong>Singleton should be your last resort, not your default.</strong></p></blockquote>
+<p><strong>Singleton should be your last resort, not your default.</strong></p>
+</blockquote>
 <p>You now understand not just <em>how</em> to build Singleton —
 but <strong>when to walk away from it</strong>.</p>
 <hr>
@@ -781,7 +801,8 @@ but <strong>when to walk away from it</strong>.</p>
 <li>DI replaces most Singleton use cases</li>
 <li>Avoid Singleton in domain logic</li>
 <li>Use it only with strong justification</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -611,7 +611,8 @@
 <p>In the previous article we scaled the <strong>payment service layer</strong> using multiple service instances behind a load balancer.</p>
 <p>That solved the compute bottleneck, but as the platform grows another bottleneck appears:</p>
 <blockquote>
-<p><strong>reads explode.</strong></p></blockquote>
+<p><strong>reads explode.</strong></p>
+</blockquote>
 <p>Payment systems receive a large number of <strong>read requests</strong> such as:</p>
 <ul>
 <li>checking payment status (“Did my payment go through?”)</li>
@@ -678,7 +679,8 @@ flowchart TD
 </ul>
 <p>But replication introduces a correctness risk:</p>
 <blockquote>
-<p>replicas can be behind.</p></blockquote>
+<p>replicas can be behind.</p>
+</blockquote>
 <hr>
 <h2 id="3-how-replication-works">3. How Replication Works</h2>
 <hr>
@@ -756,13 +758,14 @@ sequenceDiagram
 </ul>
 <p>Important connection:</p>
 <blockquote>
-<p>Stale reads can trigger retries — and retries are exactly what we worked to make safe via idempotency.</p></blockquote>
+<p>Stale reads can trigger retries — and retries are exactly what we worked to make safe via idempotency.</p>
+</blockquote>
 <p>So we must decide which reads require stronger guarantees.</p>
 <hr>
 <h2 id="6-classifying-reads-critical-vs-non-critical">6. Classifying Reads: Critical vs Non-Critical</h2>
 <hr>
 <p>A practical production rule is:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Writes             → Leader
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Writes             → Leader
 </span></span><span style="display:flex;"><span>Critical reads     → Leader
 </span></span><span style="display:flex;"><span>Non-critical reads → Replicas
 </span></span></code></pre></div><h3 id="critical-reads-must-reflect-the-latest-write">Critical reads (must reflect the latest write)</h3>
@@ -787,7 +790,7 @@ sequenceDiagram
 <p>We’ll keep this section practical. Deeper theory and database-specific details will be covered later in the <strong>Concepts</strong> section.</p>
 <h3 id="71-read-from-leader-strong-consistency">7.1 Read from Leader (Strong Consistency)</h3>
 <p>Simplest rule:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If correctness matters → read from leader
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If correctness matters → read from leader
 </span></span></code></pre></div><p><strong>Trade-off:</strong> the leader sees more read traffic.</p>
 <hr>
 <h2 id="72-read-your-writes-consistency-session-consistency">7.2 Read-Your-Writes Consistency (Session Consistency)</h2>
@@ -834,7 +837,7 @@ flowchart LR
 <h2 id="8-what-we-use-in-this-payment-system-design">8. What We Use in This Payment System Design</h2>
 <hr>
 <p>For our Phase 3 payment system, we choose a <strong>simple, production-realistic default</strong> that prioritizes correctness:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Writes             → Leader
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Writes             → Leader
 </span></span><span style="display:flex;"><span>Critical reads     → Leader
 </span></span><span style="display:flex;"><span>Non-critical reads → Replicas
 </span></span></code></pre></div><p>On top of that, we apply <strong>Read-Your-Writes</strong> for a short window after a payment so the user doesn’t see confusing stale status immediately after a successful write.</p>

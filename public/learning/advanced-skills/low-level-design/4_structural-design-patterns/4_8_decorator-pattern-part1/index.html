@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -396,7 +396,8 @@
 <hr>
 <p>Decorator exists to solve a very specific—and very common—problem:</p>
 <blockquote>
-<p><strong>We want to add behavior to an operation dynamically, in different combinations, without modifying existing code.</strong></p></blockquote>
+<p><strong>We want to add behavior to an operation dynamically, in different combinations, without modifying existing code.</strong></p>
+</blockquote>
 <p>Not <em>sometimes</em>.<br>
 Not <em>once</em>.<br>
 But <strong>repeatedly</strong>, as requirements evolve.</p>
@@ -413,7 +414,8 @@ EMS will make it concrete.</p>
 </ul>
 <p>Now the business adds a new requirement:</p>
 <blockquote>
-<p><strong>Enterprise customers require optional post-processing on exported reports.</strong></p></blockquote>
+<p><strong>Enterprise customers require optional post-processing on exported reports.</strong></p>
+</blockquote>
 <p>Specifically:</p>
 <ul>
 <li>Some reports must be <strong>encrypted</strong></li>
@@ -424,7 +426,8 @@ EMS will make it concrete.</p>
 </ul>
 <p>Important constraint (this is the pressure):</p>
 <blockquote>
-<p>These options can be <strong>combined arbitrarily</strong>, and <strong>will grow over time</strong>.</p></blockquote>
+<p>These options can be <strong>combined arbitrarily</strong>, and <strong>will grow over time</strong>.</p>
+</blockquote>
 <p>Examples:</p>
 <ul>
 <li>Encrypt + Compress</li>
@@ -438,16 +441,17 @@ No single “best” variant.</p>
 <h2 id="3-where-this-pressure-hits-first-report-exporting">3. Where This Pressure Hits First: Report Exporting</h2>
 <hr>
 <p>Let’s isolate the core operation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportExportStrategy</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportExportStrategy</span> {
 </span></span><span style="display:flex;"><span>    ExportedReport <span style="color:#a6e22e">export</span>(EmployeeReport report);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Concrete exporters already exist:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>PdfReportExportStrategy
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>PdfReportExportStrategy
 </span></span><span style="display:flex;"><span>HtmlReportExportStrategy
 </span></span><span style="display:flex;"><span>CsvReportExportStrategy
 </span></span></code></pre></div><p>Now the question is:</p>
 <blockquote>
-<p><strong>How do we add encryption, compression, logging, etc. without breaking this design?</strong></p></blockquote>
+<p><strong>How do we add encryption, compression, logging, etc. without breaking this design?</strong></p>
+</blockquote>
 <hr>
 <h2 id="4-the-first-wrong-solution-inheritance-explosion">4. The First Wrong Solution: Inheritance Explosion</h2>
 <hr>
@@ -480,7 +484,8 @@ ReportExportStrategy <|.. MoreVariants
 note "Every new feature multiplies combinations.<br/> N features → up to 2^N variants per format."
 </div>
 <blockquote>
-<p>Each additional <strong>cross-cutting feature</strong> (encryption, compression, signing, auditing) multiplies the number of required subclasses — leading to combinatorial explosion.</p></blockquote>
+<p>Each additional <strong>cross-cutting feature</strong> (encryption, compression, signing, auditing) multiplies the number of required subclasses — leading to combinatorial explosion.</p>
+</blockquote>
 <h3 id="why-this-fails">Why this fails</h3>
 <ul>
 <li>Combinatorial class explosion</li>
@@ -494,7 +499,7 @@ note "Every new feature multiplies combinations.<br/> N features → up to 2^N v
 <h2 id="5-the-second-wrong-solution-flag-based-logic">5. The Second Wrong Solution: Flag-Based Logic</h2>
 <hr>
 <p>Next attempt:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>export(
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>export(
 </span></span><span style="display:flex;"><span>  format <span style="color:#f92672">=</span> PDF,
 </span></span><span style="display:flex;"><span>  encrypt <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>,
 </span></span><span style="display:flex;"><span>  compress <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>,
@@ -503,7 +508,7 @@ note "Every new feature multiplies combinations.<br/> N features → up to 2^N v
 </span></span><span style="display:flex;"><span>  audit <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
 </span></span><span style="display:flex;"><span>)
 </span></span></code></pre></div><p>Inside:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (encrypt) encrypt(...)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (encrypt) encrypt(...)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (compress) compress(...)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (watermark) watermark(...)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (sign) sign(...)
@@ -532,15 +537,17 @@ Audit logging is not a <em>type</em> of exporter.</p>
 <li>does <strong>one thing</strong></li>
 <li>can wrap another exporter</li>
 <li>does not care what comes before or after</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 <p>This is the mental shift that leads to <strong>Decorator</strong>.</p>
 <hr>
 <h2 id="7-decorator-pattern-the-core-idea">7. Decorator Pattern: The Core Idea</h2>
 <hr>
 <blockquote>
-<p><strong>Decorator allows you to wrap an object to add behavior, without changing the object itself.</strong></p></blockquote>
+<p><strong>Decorator allows you to wrap an object to add behavior, without changing the object itself.</strong></p>
+</blockquote>
 <p>Instead of inheritance:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExporterWithEverything
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExporterWithEverything
 </span></span></code></pre></div><p>We use composition:</p>
 <div class="mermaid">
 flowchart TB
@@ -628,17 +635,19 @@ sequenceDiagram
     Audit-->>Caller: result
 </div>
 <blockquote>
-<p>“<strong>Call order is outside-in</strong>: the outermost decorator runs first, then delegates inward.”</p></blockquote>
+<p>“<strong>Call order is outside-in</strong>: the outermost decorator runs first, then delegates inward.”</p>
+</blockquote>
 <h3 id="key-observation">Key observation:</h3>
 <blockquote>
 <p>Every decorator <strong>is-a</strong> ReportExportStrategy (polymorphism)<br>
-and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
+and <strong>has-a</strong> ReportExportStrategy (delegation).</p>
+</blockquote>
 <p>That duality is the pattern.</p>
 <hr>
 <h2 id="9-implementing-decorator-in-ems">9. Implementing Decorator in EMS</h2>
 <hr>
 <h3 id="91-base-decorator">9.1 Base Decorator</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportExportStrategyDecorator</span> <span style="color:#66d9ef">implements</span> ReportExportStrategy {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportExportStrategyDecorator</span> <span style="color:#66d9ef">implements</span> ReportExportStrategy {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">final</span> ReportExportStrategy delegate;
 </span></span><span style="display:flex;"><span>
@@ -648,7 +657,7 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="92-encryption-decorator">9.2 Encryption Decorator</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EncryptedReportExportDecorator</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EncryptedReportExportDecorator</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EncryptedReportExportDecorator</span>(ReportExportStrategy delegate) {
@@ -663,7 +672,7 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="93-compression-decorator">9.3 Compression Decorator</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CompressedReportExportDecorator</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CompressedReportExportDecorator</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CompressedReportExportDecorator</span>(ReportExportStrategy delegate) {
@@ -678,7 +687,7 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="94-audit-logging-decorator">9.4 Audit Logging Decorator</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AuditedReportExportDecorator</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AuditedReportExportDecorator</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">extends</span> ReportExportStrategyDecorator {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">AuditedReportExportDecorator</span>(ReportExportStrategy delegate) {
@@ -702,7 +711,7 @@ and <strong>has-a</strong> ReportExportStrategy (delegation).</p></blockquote>
 <h2 id="10-assembling-the-pipeline-dynamic-composition">10. Assembling the Pipeline (Dynamic Composition)</h2>
 <hr>
 <p>Now the real power:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportExportStrategy exporter <span style="color:#f92672">=</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportExportStrategy exporter <span style="color:#f92672">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> AuditedReportExportDecorator(
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">new</span> CompressedReportExportDecorator(
 </span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">new</span> EncryptedReportExportDecorator(
@@ -722,17 +731,20 @@ Decorator does not control algorithms (behavioral).</p>
 <p>Decorator <strong>structures objects</strong> so behavior can grow safely.</p>
 <p>It is the textbook definition of:</p>
 <blockquote>
-<p><strong>Composition over inheritance</strong></p></blockquote>
+<p><strong>Composition over inheritance</strong></p>
+</blockquote>
 <hr>
 <h2 id="12-interview-grade-explanation">12. Interview-Grade Explanation</h2>
 <hr>
 <h3 id="when-should-you-use-decorator">When should you use Decorator?</h3>
 <blockquote>
 <p>When you need to add responsibilities to objects dynamically,<br>
-and inheritance or conditional logic leads to explosion or rigidity.</p></blockquote>
+and inheritance or conditional logic leads to explosion or rigidity.</p>
+</blockquote>
 <h3 id="key-line-to-remember">Key line to remember:</h3>
 <blockquote>
-<p><strong>Decorator adds behavior without changing the original class.</strong></p></blockquote>
+<p><strong>Decorator adds behavior without changing the original class.</strong></p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
@@ -776,7 +788,8 @@ and inheritance or conditional logic leads to explosion or rigidity.</p></blockq
 <li>It replaces inheritance with composition</li>
 <li>Each decorator does one thing well</li>
 <li>When behavior explodes, Decorator is your friend</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -172,17 +172,19 @@
 <li>thread-safe using proper locking</li>
 </ul>
 <p>But it still assumes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single JVM
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Single JVM
 </span></span><span style="display:flex;"><span>Single machine
 </span></span><span style="display:flex;"><span>Shared memory
 </span></span></code></pre></div><blockquote>
-<p>❗ This assumption does not hold in real-world trading systems.</p></blockquote>
+<p>❗ This assumption does not hold in real-world trading systems.</p>
+</blockquote>
 <hr>
 <h2 id="2-the-real-world-scenario">2. The Real-World Scenario</h2>
 <hr>
 <p>Let’s evolve the problem again:</p>
 <blockquote>
-<p>“Your Price Aggregator is now deployed in production for a global trading platform.”</p></blockquote>
+<p>“Your Price Aggregator is now deployed in production for a global trading platform.”</p>
+</blockquote>
 <p>New constraints:</p>
 <ul>
 <li>Users are located across regions (e.g., London, Singapore)</li>
@@ -196,11 +198,11 @@
 <p>Our current system has major limitations:</p>
 <hr>
 <h3 id="-1-single-point-of-failure">❌ 1. Single Point of Failure</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>One JVM crashes → system is down
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>One JVM crashes → system is down
 </span></span></code></pre></div><p>No redundancy.</p>
 <hr>
 <h3 id="-2-limited-scalability">❌ 2. Limited Scalability</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>One machine = limited CPU + memory
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>One machine = limited CPU + memory
 </span></span></code></pre></div><p>Cannot handle:</p>
 <ul>
 <li>high-frequency tick data</li>
@@ -208,17 +210,17 @@
 </ul>
 <hr>
 <h3 id="-3-no-data-persistence">❌ 3. No Data Persistence</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All data is in-memory
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All data is in-memory
 </span></span></code></pre></div><p>If system restarts:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All price history is lost
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All price history is lost
 </span></span></code></pre></div><hr>
 <h3 id="-4-no-horizontal-scaling">❌ 4. No Horizontal Scaling</h3>
 <p>We cannot simply add more instances because:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>State is local to each instance
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>State is local to each instance
 </span></span></code></pre></div><p>👉 Different nodes will have inconsistent data</p>
 <hr>
 <h3 id="-5-no-fault-tolerance">❌ 5. No Fault Tolerance</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If one instance fails → no recovery
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>If one instance fails → no recovery
 </span></span></code></pre></div><hr>
 <h2 id="4-new-system-requirements">4. New System Requirements</h2>
 <hr>
@@ -256,7 +258,7 @@
 <h2 id="5-key-insight--we-must-break-the-monolith">5. Key Insight — We Must Break the Monolith</h2>
 <hr>
 <p>Our current design tightly couples:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>data ingestion
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>data ingestion
 </span></span><span style="display:flex;"><span>state management
 </span></span><span style="display:flex;"><span>query handling
 </span></span></code></pre></div><p>To scale, we must separate these concerns.</p>
@@ -264,12 +266,12 @@
 <h2 id="6-new-direction">6. New Direction</h2>
 <hr>
 <p>Instead of:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>threads updating shared memory
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>threads updating shared memory
 </span></span></code></pre></div><p>We move toward:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>event-driven architecture
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>event-driven architecture
 </span></span></code></pre></div><hr>
 <p>High-level idea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Producers (price feeds)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Producers (price feeds)
 </span></span><span style="display:flex;"><span>        ↓
 </span></span><span style="display:flex;"><span>Message Queue (Kafka)
 </span></span><span style="display:flex;"><span>        ↓
@@ -282,9 +284,9 @@
 <h2 id="7-concept-shift">7. Concept Shift</h2>
 <hr>
 <p>We are moving from:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>in-memory object design
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>in-memory object design
 </span></span></code></pre></div><p>To:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>distributed streaming system
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>distributed streaming system
 </span></span></code></pre></div><hr>
 <h2 id="8-questions-we-now-need-to-answer">8. Questions We Now Need to Answer</h2>
 <hr>
@@ -302,13 +304,14 @@
 <hr>
 <p>At this stage, in an interview, you would say:</p>
 <blockquote>
-<p>“So far, we have built a thread-safe in-memory solution. However, this won’t scale for a real trading system. I would now evolve this into a distributed system using an event-driven architecture, where price updates are streamed through a message broker like Kafka, processed by aggregator services, and stored in a combination of in-memory cache and persistent storage.”</p></blockquote>
+<p>“So far, we have built a thread-safe in-memory solution. However, this won’t scale for a real trading system. I would now evolve this into a distributed system using an event-driven architecture, where price updates are streamed through a message broker like Kafka, processed by aggregator services, and stored in a combination of in-memory cache and persistent storage.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>Our Level 1 and Level 2 solutions are building blocks.</p>
 <p>But to handle real-world workloads, we must:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>move from single-node thinking → distributed system design
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>move from single-node thinking → distributed system design
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/3_level-3/3_2_high-level-architecture/">Level 3 — High-Level Architecture Design →</a></strong></p>
@@ -320,7 +323,8 @@
 <li>We need horizontal scaling and fault tolerance</li>
 <li>Event-driven systems are a natural fit for streaming data</li>
 <li>System design now shifts from code → architecture</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

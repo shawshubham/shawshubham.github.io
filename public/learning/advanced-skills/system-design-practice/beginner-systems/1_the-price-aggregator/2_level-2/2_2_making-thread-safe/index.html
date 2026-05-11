@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -174,26 +174,27 @@
 </ul>
 <blockquote>
 <p>📝 <strong>Goal:</strong><br>
-Preserve correctness first, then improve concurrency where possible.</p></blockquote>
+Preserve correctness first, then improve concurrency where possible.</p>
+</blockquote>
 <hr>
 <h2 id="2-current-problem-recap">2. Current Problem Recap</h2>
 <hr>
 <p>Our current implementation uses shared mutable state:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> prices;
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>BigDecimal<span style="color:#f92672">&gt;</span> prefixPriceSums;
 </span></span></code></pre></div><p>Both lists are modified/read by multiple methods.</p>
 <p>The dangerous operations are:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prices.<span style="color:#a6e22e">add</span>(price);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prices.<span style="color:#a6e22e">add</span>(price);
 </span></span><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">add</span>(...);
 </span></span></code></pre></div><p>and:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex)
 </span></span><span style="display:flex;"><span>prefixPriceSums.<span style="color:#a6e22e">get</span>(lastIndex <span style="color:#f92672">-</span> count)
 </span></span></code></pre></div><p>If these happen concurrently, the reader may observe inconsistent state.</p>
 <hr>
 <h2 id="3-step-1--use-synchronized-methods">3. Step 1 — Use <code>synchronized</code> Methods</h2>
 <hr>
 <p>The simplest way to make the class thread-safe is to synchronize both public methods.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addPrice</span>(<span style="color:#66d9ef">double</span> price) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addPrice</span>(<span style="color:#66d9ef">double</span> price) {
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// write shared state</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
@@ -207,7 +208,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/thepriceaggregator/optimized/threadsafe/synchronizedmethod">See Code in Git Repo</a>
 </div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.synchronizedmethod;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.synchronizedmethod;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.BigDecimal;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.RoundingMode;
@@ -267,7 +268,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <hr>
 <p><code>synchronized</code> protects the critical section using the intrinsic lock of the object.</p>
 <p>That means:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A enters addPrice()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Thread A enters addPrice()
 </span></span><span style="display:flex;"><span>Thread B tries getMovingAverage()
 </span></span><span style="display:flex;"><span>Thread B waits until Thread A exits
 </span></span></code></pre></div><p>This prevents:</p>
@@ -281,7 +282,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <hr>
 <p>The solution is correct, but it is restrictive.</p>
 <p>With synchronized methods:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one writer blocks all readers
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one writer blocks all readers
 </span></span><span style="display:flex;"><span>one reader blocks all writers
 </span></span><span style="display:flex;"><span>one reader blocks other readers
 </span></span></code></pre></div><p>This can reduce throughput when many threads only want to read the moving average.</p>
@@ -289,7 +290,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <h2 id="7-step-2--use-synchronized-blocks">7. Step 2 — Use <code>synchronized</code> Blocks</h2>
 <hr>
 <p>Instead of synchronizing the whole method, we can synchronize only the part that touches shared state.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// critical section</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>This gives more control over lock scope.</p>
@@ -299,7 +300,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/thepriceaggregator/optimized/threadsafe/synchronizedblock">See Code in Git Repo</a>
 </div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.synchronizedblock;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.synchronizedblock;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.BigDecimal;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.RoundingMode;
@@ -363,7 +364,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <hr>
 <p>We moved validation outside the lock where possible.</p>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (price <span style="color:#f92672">&lt;</span> 0) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (price <span style="color:#f92672">&lt;</span> 0) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(...);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>This does not need synchronization because it does not access shared state.</p>
@@ -377,7 +378,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <h2 id="11-step-3--use-reentrantreadwritelock">11. Step 3 — Use <code>ReentrantReadWriteLock</code></h2>
 <hr>
 <p>Now observe the operation types:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>addPrice(...)          → write operation
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>addPrice(...)          → write operation
 </span></span><span style="display:flex;"><span>getMovingAverage(...)  → read operation
 </span></span></code></pre></div><p>This suggests a better lock model.</p>
 <p>A <code>ReentrantReadWriteLock</code> provides:</p>
@@ -390,10 +391,10 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <hr>
 <p>In many systems, reads are more frequent than writes.</p>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>price feed updates occasionally
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>price feed updates occasionally
 </span></span><span style="display:flex;"><span>many dashboards query moving average frequently
 </span></span></code></pre></div><p>With a read/write lock:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>multiple readers can read together
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>multiple readers can read together
 </span></span><span style="display:flex;"><span>writer gets exclusive access
 </span></span></code></pre></div><p>This improves throughput for read-heavy workloads.</p>
 <hr>
@@ -402,7 +403,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/thepriceaggregator/optimized/threadsafe/reentrantreadwritelock">See Code in Git Repo</a>
 </div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.readwritelock;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.thepriceaggregator.threadsafe.readwritelock;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.BigDecimal;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.math.RoundingMode;
@@ -474,7 +475,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <h2 id="14-why-tryfinally-is-important">14. Why <code>try/finally</code> Is Important</h2>
 <hr>
 <p>When using explicit locks, we must always release the lock.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>lock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">lock</span>();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>lock.<span style="color:#a6e22e">writeLock</span>().<span style="color:#a6e22e">lock</span>();
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// critical section</span>
 </span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">finally</span> {
@@ -485,17 +486,18 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <h2 id="15-complexity-after-thread-safety">15. Complexity After Thread Safety</h2>
 <hr>
 <p>The algorithmic complexity remains the same:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>addPrice(price)         → O(1)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>addPrice(price)         → O(1)
 </span></span><span style="display:flex;"><span>getMovingAverage(k)     → O(1)
 </span></span></code></pre></div><p>But now we also consider concurrency cost:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized            → safe but restrictive
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>synchronized            → safe but restrictive
 </span></span><span style="display:flex;"><span>ReadWriteLock           → better for read-heavy access
 </span></span></code></pre></div><hr>
 <h2 id="16-interview-explanation">16. Interview Explanation</h2>
 <hr>
 <p>In an interview, you could explain it like this:</p>
 <blockquote>
-<p>“The prefix sum solution is not thread-safe because updates and reads touch shared mutable lists. First, I would make the public methods synchronized to guarantee correctness. Then, since <code>addPrice</code> is a write operation and <code>getMovingAverage</code> is a read operation, I would improve the design using <code>ReentrantReadWriteLock</code>, allowing multiple readers while still ensuring writers get exclusive access.”</p></blockquote>
+<p>“The prefix sum solution is not thread-safe because updates and reads touch shared mutable lists. First, I would make the public methods synchronized to guarantee correctness. Then, since <code>addPrice</code> is a write operation and <code>getMovingAverage</code> is a read operation, I would improve the design using <code>ReentrantReadWriteLock</code>, allowing multiple readers while still ensuring writers get exclusive access.”</p>
+</blockquote>
 <hr>
 <h2 id="17-summary-of-implementation-journey">17. Summary of Implementation Journey</h2>
 <hr>
@@ -540,7 +542,7 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <hr>
 <p>Thread safety is not just about adding locks randomly.</p>
 <p>We should evolve the solution carefully:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correctness first → reduce lock scope → improve read concurrency
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Correctness first → reduce lock scope → improve read concurrency
 </span></span></code></pre></div><hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
 <p>👉 <strong><a href="/learning/advanced-skills/system-design-practice/beginner-systems/1_the-price-aggregator/2_level-2/2_3_trade-offs-and-advanced-considerations/">Level 2 Trade-offs &amp; Advanced Considerations →</a></strong></p>
@@ -552,7 +554,8 @@ Preserve correctness first, then improve concurrency where possible.</p></blockq
 <li><code>synchronized</code> blocks give better lock-scope control</li>
 <li><code>ReentrantReadWriteLock</code> is better for read-heavy workloads</li>
 <li>Always release explicit locks in <code>finally</code></li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

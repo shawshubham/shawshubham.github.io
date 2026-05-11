@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -706,7 +706,8 @@ sequenceDiagram
 <blockquote>
 <p><strong>Why this gets expensive:</strong><br>
 Per-conversation polling scales with the number of active conversations a user keeps “fresh”.<br>
-Even if most users poll only 1–2 active conversations, at platform scale the aggregate request volume becomes enormous — and most responses are empty.</p></blockquote>
+Even if most users poll only 1–2 active conversations, at platform scale the aggregate request volume becomes enormous — and most responses are empty.</p>
+</blockquote>
 <h3 id="22-message-driven-notification-flow-derived-alert--receiver-polls">2.2 Message-driven notification flow (derived alert + receiver polls)</h3>
 <p>In Phase 4, a notification is typically <strong>derived from a message</strong> (e.g., “New message from X”) when the recipient is offline or not actively viewing the conversation.</p>
 <div class="mermaid">
@@ -754,11 +755,13 @@ sequenceDiagram
 </ul>
 <p>So “real-time” becomes:</p>
 <blockquote>
-<p><strong>“eventually, within N seconds”</strong></p></blockquote>
+<p><strong>“eventually, within N seconds”</strong></p>
+</blockquote>
 <p>For chat and message alerts, this feels broken.</p>
 <h3 id="32-at-scale-polling-becomes-a-cost-and-stability-problem">3.2 At scale, polling becomes a cost and stability problem</h3>
 <blockquote>
-<p>Even if each user polls only the active conversation, at millions of users the system still sees a massive volume of mostly-empty sync requests.</p></blockquote>
+<p>Even if each user polls only the active conversation, at millions of users the system still sees a massive volume of mostly-empty sync requests.</p>
+</blockquote>
 <p>When you have many clients:</p>
 <ul>
 <li>most polls return “no new updates”</li>
@@ -819,7 +822,8 @@ sequenceDiagram
 </ul>
 <p>And most importantly for our example:</p>
 <blockquote>
-<p>Long polling is awkward for <strong>bidirectional chat</strong>.</p></blockquote>
+<p>Long polling is awkward for <strong>bidirectional chat</strong>.</p>
+</blockquote>
 <p>Chat needs:</p>
 <ul>
 <li>client → server message send</li>
@@ -856,7 +860,8 @@ sequenceDiagram
 <hr>
 <p>Once we adopt WebSockets, we introduce one new component:</p>
 <blockquote>
-<p><strong>Real-Time Gateway</strong> (WebSocket servers)</p></blockquote>
+<p><strong>Real-Time Gateway</strong> (WebSocket servers)</p>
+</blockquote>
 <p>But we do <strong>not</strong> remove the Backend API.</p>
 <p>Instead, the system now has <strong>two entry points</strong> into the same backend services:</p>
 <ul>
@@ -928,7 +933,8 @@ Real-world examples: <strong>Nginx</strong>, <strong>Envoy</strong>, <strong>Kon
 <li><strong>Real-Time Gateway (WebSockets/SSE)</strong> handles long-lived connections: connect/auth, heartbeats, user→connection routing, fanout, and backpressure.<br>
 Real-world examples: managed options like <strong>AWS API Gateway (WebSocket API)</strong>, <strong>Azure Web PubSub</strong>, <strong>Pusher</strong>, <strong>Ably</strong>; or a <strong>custom WebSocket gateway</strong> built with <strong>Netty (Java)</strong>, <strong>Socket.IO (Node.js)</strong>, <strong>Phoenix Channels (Elixir)</strong>, etc.</li>
 </ul>
-<p><strong>Key idea:</strong> WebSockets is the transport; the Real-Time Gateway is the server fleet that terminates and manages those WebSocket connections at scale.</p></blockquote>
+<p><strong>Key idea:</strong> WebSockets is the transport; the Real-Time Gateway is the server fleet that terminates and manages those WebSocket connections at scale.</p>
+</blockquote>
 <hr>
 <h2 id="8-typical-flows-in-v2-gateway--backend-api">8. Typical Flows in V2 (Gateway + Backend API)</h2>
 <hr>
@@ -1063,7 +1069,8 @@ sequenceDiagram
 <p>This is exactly why real-time systems introduce <strong>an event bus</strong>:</p>
 <blockquote>
 <p>decouple event production from event delivery,<br>
-so delivery can scale independently and absorb bursts.</p></blockquote>
+so delivery can scale independently and absorb bursts.</p>
+</blockquote>
 <p>That’s our next upgrade.</p>
 <hr>
 <h2 id="key-takeaways">Key Takeaways</h2>

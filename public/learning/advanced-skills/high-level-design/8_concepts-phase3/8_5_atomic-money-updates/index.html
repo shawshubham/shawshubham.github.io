@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -610,7 +610,8 @@
 <hr>
 <p>In payment-like systems, the most dangerous concurrency bugs come from this pattern:</p>
 <blockquote>
-<p>read a value → make a decision → write a new value</p></blockquote>
+<p>read a value → make a decision → write a new value</p>
+</blockquote>
 <p>Under concurrency, that “decision” can be based on stale data, leading to:</p>
 <ul>
 <li>lost updates</li>
@@ -619,7 +620,7 @@
 </ul>
 <p>Atomic single-statement updates are one of the most effective fixes because they enforce an invariant <strong>inside the database</strong> in one operation.</p>
 <p>In Phase 3, we used the most common form:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> balance <span style="color:#f92672">=</span> balance <span style="color:#f92672">-</span> :amount
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> account_id <span style="color:#f92672">=</span> :id
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">AND</span> balance <span style="color:#f92672">&gt;=</span> :amount;
@@ -661,13 +662,14 @@ sequenceDiagram
 </div>
 <p>You can try to “fix” this with stronger isolation, but the simplest reliable fix is:</p>
 <blockquote>
-<p>don’t do a separate read + decision + write.</p></blockquote>
+<p>don’t do a separate read + decision + write.</p>
+</blockquote>
 <p>Instead, enforce the decision in the write.</p>
 <hr>
 <h2 id="2-the-core-pattern-conditional-atomic-update">2. The Core Pattern: Conditional Atomic Update</h2>
 <hr>
 <p>The database can enforce the invariant directly:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> balance <span style="color:#f92672">=</span> balance <span style="color:#f92672">-</span> :amount
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> account_id <span style="color:#f92672">=</span> :id
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">AND</span> balance <span style="color:#f92672">&gt;=</span> :amount;
@@ -711,14 +713,14 @@ sequenceDiagram
 <li><strong>capture</strong> (finalize the debit)</li>
 </ul>
 <p>You can apply atomic updates to reservations too:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> accounts
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> available <span style="color:#f92672">=</span> available <span style="color:#f92672">-</span> :amount,
 </span></span><span style="display:flex;"><span>    reserved  <span style="color:#f92672">=</span> reserved <span style="color:#f92672">+</span> :amount
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> account_id <span style="color:#f92672">=</span> :id
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">AND</span> available <span style="color:#f92672">&gt;=</span> :amount;
 </span></span></code></pre></div><h3 id="32-status-transitions-prevent-illegal-state-changes">3.2 Status transitions (prevent illegal state changes)</h3>
 <p>You can enforce state transitions atomically:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payments
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payments
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;CONFIRMED&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> payment_id <span style="color:#f92672">=</span> :pid
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">AND</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PENDING&#39;</span>;
@@ -729,7 +731,7 @@ sequenceDiagram
 </ul>
 <h3 id="33-idempotency-checks-insert-once-semantics">3.3 Idempotency checks (insert-once semantics)</h3>
 <p>A common pattern (simplified):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> idempotency_keys(<span style="color:#66d9ef">key</span>, request_hash)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> idempotency_keys(<span style="color:#66d9ef">key</span>, request_hash)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">VALUES</span> (:<span style="color:#66d9ef">key</span>, :hash)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">ON</span> CONFLICT (<span style="color:#66d9ef">key</span>) <span style="color:#66d9ef">DO</span> <span style="color:#66d9ef">NOTHING</span>;
 </span></span></code></pre></div><p>Then you branch on whether you inserted a new row.</p>

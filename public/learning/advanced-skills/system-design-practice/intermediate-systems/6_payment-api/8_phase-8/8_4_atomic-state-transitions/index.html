@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -169,7 +169,8 @@
 <p>Locking helps ensure that only one request can enter a critical section at a time.</p>
 <p>But locking alone is not enough.</p>
 <blockquote>
-<p>❗ Even with locking, the system must still guarantee that a payment moves only through <strong>valid and atomic state transitions</strong>.</p></blockquote>
+<p>❗ Even with locking, the system must still guarantee that a payment moves only through <strong>valid and atomic state transitions</strong>.</p>
+</blockquote>
 <p>If state changes are not protected properly, the system can still end up in:</p>
 <ul>
 <li>invalid lifecycle states</li>
@@ -196,10 +197,11 @@
 <hr>
 <p>An atomic state transition means:</p>
 <blockquote>
-<p>The system checks the current state and updates it as <strong>one protected operation</strong>, so no other request can interfere in between.</p></blockquote>
+<p>The system checks the current state and updates it as <strong>one protected operation</strong>, so no other request can interfere in between.</p>
+</blockquote>
 <hr>
 <h3 id="example-goal">Example Goal</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING
 </span></span></code></pre></div><p>The system must ensure:</p>
 <ul>
 <li>payment is still <code>CREATED</code> when transition happens</li>
@@ -209,13 +211,13 @@
 <h2 id="4-why-simple-check-then-update-is-dangerous">4. Why Simple Check-Then-Update is Dangerous</h2>
 <hr>
 <h3 id="unsafe-pattern">Unsafe Pattern</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read payment status = CREATED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1. Read payment status = CREATED
 </span></span><span style="display:flex;"><span>2. Decide to process
 </span></span><span style="display:flex;"><span>3. Update status = PROCESSING
 </span></span></code></pre></div><hr>
 <h3 id="what-can-go-wrong">What can go wrong?</h3>
 <p>Two threads can both do:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A reads CREATED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>A reads CREATED
 </span></span><span style="display:flex;"><span>B reads CREATED
 </span></span><span style="display:flex;"><span>A updates to PROCESSING
 </span></span><span style="display:flex;"><span>B also updates to PROCESSING
@@ -223,7 +225,8 @@
 <hr>
 <blockquote>
 <p>📝 <strong>Key Insight:</strong><br>
-Reading and updating state separately creates a race window.</p></blockquote>
+Reading and updating state separately creates a race window.</p>
+</blockquote>
 <hr>
 <h2 id="5-safe-transition-model">5. Safe Transition Model</h2>
 <hr>
@@ -238,7 +241,7 @@ Reading and updating state separately creates a race window.</p></blockquote>
 <h3 id="2-compare-and-update">2. Compare-and-Update</h3>
 <p>Update only if state still matches expected value.</p>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payments
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> payments
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PROCESSING&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">AND</span> status <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;CREATED&#39;</span>;
 </span></span></code></pre></div><p>If rows affected = 1:</p>
@@ -253,7 +256,7 @@ Reading and updating state separately creates a race window.</p></blockquote>
 <h2 id="6-valid-state-transition-rules">6. Valid State Transition Rules</h2>
 <hr>
 <p>For our payment lifecycle:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING → SUCCEEDED / FAILED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING → SUCCEEDED / FAILED
 </span></span></code></pre></div><hr>
 <h3 id="allowed-examples">Allowed Examples</h3>
 <ul>
@@ -275,7 +278,7 @@ Reading and updating state separately creates a race window.</p></blockquote>
 <hr>
 <h3 id="goal">Goal</h3>
 <p>Move payment from:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CREATED → PROCESSING
 </span></span></code></pre></div><hr>
 <h3 id="safe-execution">Safe Execution</h3>
 <div class="mermaid">
@@ -300,7 +303,7 @@ sequenceDiagram
 <hr>
 <p>Some states should behave as <strong>terminal states</strong>.</p>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>SUCCEEDED
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>SUCCEEDED
 </span></span></code></pre></div><p>Once payment is <code>SUCCEEDED</code>:</p>
 <ul>
 <li>no confirm request should re-execute payment</li>
@@ -401,7 +404,8 @@ sequenceDiagram
 <li>Locking prevents interference</li>
 <li>Atomic transitions prevent invalid state changes</li>
 <li>Both are required for a safe payment lifecycle</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

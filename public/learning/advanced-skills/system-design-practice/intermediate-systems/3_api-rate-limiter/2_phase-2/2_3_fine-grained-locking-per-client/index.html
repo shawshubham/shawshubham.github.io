@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -167,27 +167,28 @@
 <hr>
 <p>In the previous article, we made the rate limiter thread-safe using <code>synchronized</code>.</p>
 <p>That solved correctness, but introduced one major limitation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All clients share the same lock
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>All clients share the same lock
 </span></span></code></pre></div><p>So even if two requests belong to different clients, they still block each other.</p>
 <hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request → holds lock
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request → holds lock
 </span></span><span style="display:flex;"><span>Client B request → waits
 </span></span><span style="display:flex;"><span>Client C request → waits
 </span></span></code></pre></div><p>This is safe, but inefficient.</p>
 <hr>
 <blockquote>
 <p>📝 <strong>Goal:</strong><br>
-Allow requests for different clients to proceed concurrently, while still protecting each client’s own rate-limit state.</p></blockquote>
+Allow requests for different clients to proceed concurrently, while still protecting each client’s own rate-limit state.</p>
+</blockquote>
 <hr>
 <h2 id="2-key-idea">2. Key Idea</h2>
 <hr>
 <p>Instead of one global lock, use a separate lock per client.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A → Lock A
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A → Lock A
 </span></span><span style="display:flex;"><span>Client B → Lock B
 </span></span><span style="display:flex;"><span>Client C → Lock C
 </span></span></code></pre></div><p>This means:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>same client → synchronized
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>same client → synchronized
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>different clients → can run in parallel
 </span></span></code></pre></div><hr>
@@ -195,14 +196,14 @@ Allow requests for different clients to proceed concurrently, while still protec
 <hr>
 <p>Rate limiting state is independent per client.</p>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A timestamps do not affect Client B timestamps
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A timestamps do not affect Client B timestamps
 </span></span></code></pre></div><p>So we do not need to block Client B while processing Client A.</p>
 <p>We only need to ensure that requests for the <strong>same client</strong> are processed atomically.</p>
 <hr>
 <h2 id="4-data-structures">4. Data Structures</h2>
 <hr>
 <p>We need two maps:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
 </span></span><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, ReentrantLock<span style="color:#f92672">&gt;</span> clientLocks;
 </span></span></code></pre></div><p>Where:</p>
 <ul>
@@ -212,7 +213,7 @@ Allow requests for different clients to proceed concurrently, while still protec
 <hr>
 <h2 id="5-java-implementation">5. Java Implementation</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.threadsafe.perclientlock;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.threadsafe.perclientlock;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayDeque;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Deque;
@@ -282,25 +283,26 @@ Allow requests for different clients to proceed concurrently, while still protec
 <h2 id="6-why-concurrenthashmap-is-used">6. Why <code>ConcurrentHashMap</code> Is Used</h2>
 <hr>
 <p>We use <code>ConcurrentHashMap</code> because multiple threads may access the maps at the same time.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, ReentrantLock<span style="color:#f92672">&gt;</span> clientLocks <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
 </span></span></code></pre></div><p>This makes map-level operations safe, such as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>computeIfAbsent(...)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>computeIfAbsent(...)
 </span></span></code></pre></div><hr>
 <h2 id="7-why-we-still-need-locks">7. Why We Still Need Locks</h2>
 <hr>
 <p><code>ConcurrentHashMap</code> protects the map structure, but it does not protect the full rate-limit operation.</p>
 <p>The operation is still compound:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>get queue → cleanup → check size → add timestamp
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>get queue → cleanup → check size → add timestamp
 </span></span></code></pre></div><p>So we still need a per-client lock around that logic.</p>
 <blockquote>
 <p>🧠 <strong>Important:</strong><br>
-Thread-safe data structures protect individual operations, not your full business rule.</p></blockquote>
+Thread-safe data structures protect individual operations, not your full business rule.</p>
+</blockquote>
 <hr>
 <h2 id="8-why-tryfinally-is-required">8. Why <code>try/finally</code> Is Required</h2>
 <hr>
 <p>When using explicit locks, we must always release the lock.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>lock.<span style="color:#a6e22e">lock</span>();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>lock.<span style="color:#a6e22e">lock</span>();
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// critical section</span>
 </span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">finally</span> {
@@ -311,9 +313,9 @@ Thread-safe data structures protect individual operations, not your full busines
 <h2 id="9-what-improved">9. What Improved?</h2>
 <hr>
 <p>With global synchronization:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A blocks Client B
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A blocks Client B
 </span></span></code></pre></div><p>With per-client locking:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request → Lock A
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request → Lock A
 </span></span><span style="display:flex;"><span>Client B request → Lock B
 </span></span></code></pre></div><p>Both can proceed concurrently.</p>
 <hr>
@@ -321,7 +323,7 @@ Thread-safe data structures protect individual operations, not your full busines
 <hr>
 <p>Requests for the same client are still serialized.</p>
 <p>That is intentional.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request 1
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client A request 1
 </span></span><span style="display:flex;"><span>Client A request 2
 </span></span><span style="display:flex;"><span>Client A request 3
 </span></span></code></pre></div><p>These must be processed one at a time to avoid exceeding the limit incorrectly.</p>
@@ -329,7 +331,7 @@ Thread-safe data structures protect individual operations, not your full busines
 <h2 id="11-limitation--lock-map-growth">11. Limitation — Lock Map Growth</h2>
 <hr>
 <p>This design introduces another memory concern.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>New client → new lock entry
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>New client → new lock entry
 </span></span></code></pre></div><p>If many unique clients appear, <code>clientLocks</code> can grow over time.</p>
 <p>Possible cleanup strategies:</p>
 <ul>
@@ -342,32 +344,33 @@ Thread-safe data structures protect individual operations, not your full busines
 <h2 id="12-alternative--striped-locking">12. Alternative — Striped Locking</h2>
 <hr>
 <p>Instead of one lock per client, we can maintain a fixed number of locks.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client ID → hash → one of N locks
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Client ID → hash → one of N locks
 </span></span></code></pre></div><p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1024 locks shared across all clients
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>1024 locks shared across all clients
 </span></span></code></pre></div><p>This reduces memory usage but introduces some lock sharing.</p>
 <hr>
 <h3 id="trade-off">Trade-off</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Per-client lock → more concurrency, more memory
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Per-client lock → more concurrency, more memory
 </span></span><span style="display:flex;"><span>Striped lock → less memory, possible contention
 </span></span></code></pre></div><hr>
 <h2 id="13-complexity">13. Complexity</h2>
 <hr>
 <p>Algorithmic complexity remains:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId) → amortized O(1)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId) → amortized O(1)
 </span></span></code></pre></div><p>Concurrency behavior improves:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Different clients can be processed in parallel
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Different clients can be processed in parallel
 </span></span></code></pre></div><hr>
 <h2 id="14-interview-explanation">14. Interview Explanation</h2>
 <hr>
 <blockquote>
-<p>“The synchronized version is correct but uses one global lock, so all clients block each other. Since rate-limit state is independent per client, I can improve throughput by using a separate lock per client. This allows different clients to be processed concurrently while still serializing requests for the same client. I would use ConcurrentHashMap for safe map access and ReentrantLock with try/finally to protect the per-client critical section.”</p></blockquote>
+<p>“The synchronized version is correct but uses one global lock, so all clients block each other. Since rate-limit state is independent per client, I can improve throughput by using a separate lock per client. This allows different clients to be processed concurrently while still serializing requests for the same client. I would use ConcurrentHashMap for safe map access and ReentrantLock with try/finally to protect the per-client critical section.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
 <p>Fine-grained locking improves concurrency by reducing unnecessary blocking.</p>
 <p>It changes the design from:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one global lock → many client-specific locks
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>one global lock → many client-specific locks
 </span></span></code></pre></div><p>This keeps correctness while improving throughput for multi-client traffic.</p>
 <hr>
 <h3 id="-whats-next">🔗 What’s Next?</h3>
@@ -381,7 +384,8 @@ Thread-safe data structures protect individual operations, not your full busines
 <li><code>ConcurrentHashMap</code> is not enough by itself</li>
 <li>Compound business logic still needs locking</li>
 <li>Lock cleanup must be considered</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -166,11 +166,12 @@
           <h2 id="1-purpose-of-create-payment">1. Purpose of Create Payment</h2>
 <hr>
 <p>The <strong>Create Payment</strong> API initializes a payment record in the system.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
 </span></span></code></pre></div><p>It does <strong>not</strong> execute the payment.</p>
 <blockquote>
 <p>📝 <strong>Key Insight:</strong><br>
-Creation defines intent. Execution happens later during confirm.</p></blockquote>
+Creation defines intent. Execution happens later during confirm.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-this-flow-must-ensure">2. What This Flow Must Ensure</h2>
 <hr>
@@ -213,10 +214,10 @@ sequenceDiagram
 <hr>
 <h3 id="step-1-receive-request">Step 1: Receive Request</h3>
 <p>Client sends:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>POST <span style="color:#f92672">/</span>payments
 </span></span><span style="display:flex;"><span>Idempotency<span style="color:#f92672">-</span>Key: <span style="color:#f92672">&lt;</span>key<span style="color:#f92672">&gt;</span>
 </span></span></code></pre></div><p>Payload example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;orderId&#34;</span>: <span style="color:#e6db74">&#34;ORD-123&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;amount&#34;</span>: <span style="color:#ae81ff">100.0</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;currency&#34;</span>: <span style="color:#e6db74">&#34;GBP&#34;</span>,
@@ -244,7 +245,7 @@ sequenceDiagram
 <h3 id="step-4-reserve-idempotency-key-critical-step">Step 4: Reserve Idempotency Key (Critical Step)</h3>
 <hr>
 <p>Try to <strong>atomically insert</strong> idempotency record:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>idempotencyKey = &lt;key&gt;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>idempotencyKey = &lt;key&gt;
 </span></span><span style="display:flex;"><span>requestHash = &lt;hash&gt;
 </span></span><span style="display:flex;"><span>status = IN_PROGRESS
 </span></span></code></pre></div><hr>
@@ -273,14 +274,14 @@ sequenceDiagram
 <h3 id="step-6-create-payment-entity">Step 6: Create Payment Entity</h3>
 <hr>
 <p>Create new payment record:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>paymentId = generated UUID
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>paymentId = generated UUID
 </span></span><span style="display:flex;"><span>status = CREATED
 </span></span></code></pre></div><p>Persist in DB.</p>
 <hr>
 <h3 id="step-7-build-response">Step 7: Build Response</h3>
 <hr>
 <p>Example response:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;paymentId&#34;</span>: <span style="color:#e6db74">&#34;pay_001&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;CREATED&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;amount&#34;</span>: <span style="color:#ae81ff">100.0</span>,
@@ -369,7 +370,8 @@ sequenceDiagram
 <li>Idempotency prevents duplicate records</li>
 <li>Business rules prevent logical duplication</li>
 <li>No external execution happens at this stage</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

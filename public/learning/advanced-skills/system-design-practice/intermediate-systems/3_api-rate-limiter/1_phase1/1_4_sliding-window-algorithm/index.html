@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -166,27 +166,28 @@
           <h2 id="1-why-do-we-need-sliding-window">1. Why Do We Need Sliding Window?</h2>
 <hr>
 <p>In the previous approach (Fixed Window Counter), we saw a major issue:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Boundary Burst Problem
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Boundary Burst Problem
 </span></span></code></pre></div><p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>12:00:59 → 100 requests
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>12:00:59 → 100 requests
 </span></span><span style="display:flex;"><span>12:01:00 → 100 requests
 </span></span></code></pre></div><p>Result:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>200 requests in ~1 second ❌
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>200 requests in ~1 second ❌
 </span></span></code></pre></div><p>This happens because each window is treated independently.</p>
 <hr>
 <blockquote>
 <p>📝 <strong>Goal:</strong><br>
-Smooth out request distribution across time instead of resetting abruptly.</p></blockquote>
+Smooth out request distribution across time instead of resetting abruptly.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-is-sliding-window">2. What is Sliding Window?</h2>
 <hr>
 <p>Sliding Window removes the concept of rigid boundaries.</p>
 <p>Instead of fixed intervals, it considers a <strong>rolling time window</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>At any point in time:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>At any point in time:
 </span></span><span style="display:flex;"><span>Only consider requests in the last N seconds
 </span></span></code></pre></div><hr>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests per 60 seconds
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests per 60 seconds
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>At time T:
 </span></span><span style="display:flex;"><span>Count requests between (T - 60 seconds) → T
@@ -201,7 +202,7 @@ Smooth out request distribution across time instead of resetting abruptly.</p></
 <li>Else → reject</li>
 </ol>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId):
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>allowRequest(clientId):
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    remove requests older than (now - window)
 </span></span><span style="display:flex;"><span>
@@ -215,10 +216,10 @@ Smooth out request distribution across time instead of resetting abruptly.</p></
 <h2 id="4-sliding-window-log-exact-approach">4. Sliding Window Log (Exact Approach)</h2>
 <hr>
 <p>We store timestamps of all requests.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>clientId → list of timestamps
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>clientId → list of timestamps
 </span></span></code></pre></div><hr>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 3 requests / 10 seconds
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 3 requests / 10 seconds
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Timestamps:
 </span></span><span style="display:flex;"><span>[10, 12, 15]
@@ -231,7 +232,7 @@ Smooth out request distribution across time instead of resetting abruptly.</p></
 </span></span><span style="display:flex;"><span>Count = 3 → reject ❌
 </span></span></code></pre></div><hr>
 <h3 id="data-structure">Data Structure</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> timestamps;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> timestamps;
 </span></span></code></pre></div><p>We use a queue because:</p>
 <ul>
 <li>oldest request at front</li>
@@ -240,12 +241,12 @@ Smooth out request distribution across time instead of resetting abruptly.</p></
 <hr>
 <h2 id="5-simple-implementation-idea">5. Simple Implementation Idea</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Deque<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;&gt;</span> requestLogs;
 </span></span></code></pre></div><hr>
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/apiratelimiter/slidingwindowrequestlog">See Code in Git Repo</a>
 </div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.slidingwindowrequestlog;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.slidingwindowrequestlog;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.ArrayDeque;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Deque;
@@ -293,22 +294,22 @@ Smooth out request distribution across time instead of resetting abruptly.</p></
 <h2 id="6-complexity">6. Complexity</h2>
 <hr>
 <h3 id="time-complexity">Time Complexity</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Worst-case: O(n) (cleanup of old timestamps)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Worst-case: O(n) (cleanup of old timestamps)
 </span></span><span style="display:flex;"><span>Average: amortized O(1)
 </span></span></code></pre></div><hr>
 <h3 id="space-complexity">Space Complexity</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>O(number of requests in window per client)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>O(number of requests in window per client)
 </span></span></code></pre></div><p>This can be large under heavy traffic.</p>
 <hr>
 <h2 id="7-pros-and-cons">7. Pros and Cons</h2>
 <hr>
 <h3 id="pros">Pros</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Accurate rate limiting
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Accurate rate limiting
 </span></span><span style="display:flex;"><span>- No boundary burst problem
 </span></span><span style="display:flex;"><span>- Smooth request distribution
 </span></span></code></pre></div><hr>
 <h3 id="cons">Cons</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- High memory usage (store all timestamps)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- High memory usage (store all timestamps)
 </span></span><span style="display:flex;"><span>- Cleanup overhead
 </span></span><span style="display:flex;"><span>- Not ideal for very high traffic systems
 </span></span></code></pre></div><hr>
@@ -318,19 +319,19 @@ Smooth out request distribution across time instead of resetting abruptly.</p></
 <p>To optimize this, we can use an <strong>approximation technique</strong> called <strong>Sliding Window Counter</strong>.</p>
 <h3 id="-core-idea">💡 Core Idea</h3>
 <p>Instead of storing every request timestamp, we:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Track request count for current window
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Track request count for current window
 </span></span><span style="display:flex;"><span>- Track request count for previous window
 </span></span><span style="display:flex;"><span>- Estimate current usage using a weighted combination
 </span></span></code></pre></div><h3 id="-formula">📊 Formula</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>estimatedCount =
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>estimatedCount =
 </span></span><span style="display:flex;"><span>    currentWindowCount +
 </span></span><span style="display:flex;"><span>    (previousWindowCount × overlapRatio)
 </span></span></code></pre></div><p>Where:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>overlapRatio =
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>overlapRatio =
 </span></span><span style="display:flex;"><span>    remaining time in current window / full window size
 </span></span></code></pre></div><hr>
 <p>Example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests / 60 seconds
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Limit = 100 requests / 60 seconds
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Previous window count = 80
 </span></span><span style="display:flex;"><span>Current window count = 30
@@ -341,16 +342,17 @@ Smooth out request distribution across time instead of resetting abruptly.</p></
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Estimated count = 30 + (80 × 0.5)
 </span></span><span style="display:flex;"><span>                = 70
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>70 &lt; 100 → allow request
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>70 &lt; 100 → allow request
 </span></span></code></pre></div><h3 id="-full-java-implementation-for-learning">🔧 Full Java Implementation (For Learning)</h3>
 <blockquote>
 <p>⚠️ Note:<br>
 This implementation is provided for conceptual understanding.
-In interviews, you are usually expected to implement Sliding Window Log, not this optimized version.</p></blockquote>
+In interviews, you are usually expected to implement Sliding Window Log, not this optimized version.</p>
+</blockquote>
 <div class="btn-row">
     <a class="btn nav-btn" href="https://github.com/shawshubham/system-design-practice/tree/master/src/main/java/com/theshubhamco/apiratelimiter/slidingwindowcounter">See Code in Git Repo</a>
 </div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.slidingwindowcounter;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> com.theshubhamco.apiratelimiter.slidingwindowcounter;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.HashMap;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Map;
@@ -416,7 +418,7 @@ In interviews, you are usually expected to implement Sliding Window Log, not thi
 </span></span><span style="display:flex;"><span>               (window.<span style="color:#a6e22e">previousWindowCount</span> <span style="color:#f92672">*</span> overlapRatio);
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ClientWindow</span> {
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ClientWindow</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">long</span> currentWindowStart;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> currentWindowCount;
@@ -430,7 +432,7 @@ In interviews, you are usually expected to implement Sliding Window Log, not thi
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h3 id="trade-off">Trade-off</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Sliding Window Log:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Sliding Window Log:
 </span></span><span style="display:flex;"><span>✔ Accurate
 </span></span><span style="display:flex;"><span>❌ High memory
 </span></span><span style="display:flex;"><span>
@@ -439,17 +441,17 @@ In interviews, you are usually expected to implement Sliding Window Log, not thi
 </span></span><span style="display:flex;"><span>❌ Approximate results
 </span></span></code></pre></div><h3 id="-when-to-use">🎯 When to Use</h3>
 <p>Use Sliding Window Counter when:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- traffic is very high
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- traffic is very high
 </span></span><span style="display:flex;"><span>- memory is constrained
 </span></span><span style="display:flex;"><span>- slight approximation is acceptable
 </span></span></code></pre></div><h3 id="-interview-guidance">📝 Interview Guidance</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Implement Sliding Window Log (expected)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Implement Sliding Window Log (expected)
 </span></span><span style="display:flex;"><span>- Explain Sliding Window Counter (bonus)
 </span></span><span style="display:flex;"><span>- Avoid coding this unless explicitly asked
 </span></span></code></pre></div><hr>
 <h2 id="9-fixed-window-vs-sliding-window">9. Fixed Window vs Sliding Window</h2>
 <hr>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Fixed Window:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Fixed Window:
 </span></span><span style="display:flex;"><span>- simple
 </span></span><span style="display:flex;"><span>- fast
 </span></span><span style="display:flex;"><span>- bursty ❌
@@ -471,7 +473,8 @@ In interviews, you are usually expected to implement Sliding Window Log, not thi
 <h2 id="11-interview-explanation">11. Interview Explanation</h2>
 <hr>
 <blockquote>
-<p>“Sliding Window solves the boundary burst issue by considering a rolling time window instead of fixed intervals. The simplest implementation uses a log of timestamps per client and removes expired entries before counting. This provides accurate rate limiting but increases memory usage, so optimized versions use bucket-based approximation.”</p></blockquote>
+<p>“Sliding Window solves the boundary burst issue by considering a rolling time window instead of fixed intervals. The simplest implementation uses a log of timestamps per client and removes expired entries before counting. This provides accurate rate limiting but increases memory usage, so optimized versions use bucket-based approximation.”</p>
+</blockquote>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
 <hr>
@@ -488,7 +491,8 @@ In interviews, you are usually expected to implement Sliding Window Log, not thi
 <li>Eliminates boundary burst issue</li>
 <li>More accurate but memory-intensive</li>
 <li>Can be optimized using bucket-based approximation</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -174,7 +174,8 @@
 </ul>
 <blockquote>
 <p>📝 <strong>Key Insight:</strong><br>
-Transactions ensure that operations are <strong>all-or-nothing</strong>, preventing inconsistent system states.</p></blockquote>
+Transactions ensure that operations are <strong>all-or-nothing</strong>, preventing inconsistent system states.</p>
+</blockquote>
 <hr>
 <h2 id="2-what-is-a-transaction">2. What is a Transaction?</h2>
 <hr>
@@ -192,14 +193,14 @@ Transactions ensure that operations are <strong>all-or-nothing</strong>, prevent
 <hr>
 <h3 id="1-create-payment-flow">1. Create Payment Flow</h3>
 <p>We must ensure:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency record + Payment creation → atomic
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Idempotency record + Payment creation → atomic
 </span></span></code></pre></div><hr>
 <h3 id="2-confirm-payment-flow">2. Confirm Payment Flow</h3>
 <p>We must ensure:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Lock payment + Update status + Create attempt → atomic
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Lock payment + Update status + Create attempt → atomic
 </span></span></code></pre></div><hr>
 <h3 id="3-finalization-step">3. Finalization Step</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Update payment + Update idempotency → atomic
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Update payment + Update idempotency → atomic
 </span></span></code></pre></div><hr>
 <h2 id="4-create-payment-transaction-flow">4. Create Payment Transaction Flow</h2>
 <hr>
@@ -229,17 +230,17 @@ sequenceDiagram
 <h3 id="correct-approach">Correct Approach</h3>
 <p>Split into phases:</p>
 <h3 id="phase-1-pre-processing-transaction">Phase 1: Pre-processing (Transaction)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Reserve idempotency
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Reserve idempotency
 </span></span><span style="display:flex;"><span>- Lock payment
 </span></span><span style="display:flex;"><span>- Validate state
 </span></span><span style="display:flex;"><span>- Mark PROCESSING
 </span></span><span style="display:flex;"><span>- Create attempt
 </span></span></code></pre></div><hr>
 <h3 id="phase-2-external-call-no-transaction">Phase 2: External Call (No Transaction)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Call payment gateway
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Call payment gateway
 </span></span></code></pre></div><hr>
 <h3 id="phase-3-finalization-transaction">Phase 3: Finalization (Transaction)</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Update payment status
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>- Update payment status
 </span></span><span style="display:flex;"><span>- Update attempt
 </span></span><span style="display:flex;"><span>- Complete idempotency
 </span></span></code></pre></div><hr>
@@ -279,7 +280,7 @@ sequenceDiagram
 <h2 id="8-isolation--concurrency">8. Isolation &amp; Concurrency</h2>
 <hr>
 <h3 id="pessimistic-locking">Pessimistic Locking</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> payments <span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> payments <span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
 </span></span></code></pre></div><ul>
 <li>blocks concurrent updates</li>
 </ul>
@@ -369,7 +370,8 @@ sequenceDiagram
 <li>Keep transactions short and focused</li>
 <li>Combine with idempotency for full safety</li>
 <li>Always design for failure scenarios</li>
-</ul></blockquote>
+</ul>
+</blockquote>
 
         </article>
 

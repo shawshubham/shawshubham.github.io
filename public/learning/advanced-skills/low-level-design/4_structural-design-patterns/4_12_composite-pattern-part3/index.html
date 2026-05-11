@@ -9,7 +9,7 @@
 
 <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
 
-<link rel="stylesheet" href="/css/main.css?v=1778366807">
+<link rel="stylesheet" href="/css/main.css?v=1778372783">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
 <link
@@ -410,12 +410,13 @@ without polluting it with execution logic.</p>
 <h2 id="2-reconfirm-the-structural-contract-unchanged">2. Reconfirm the Structural Contract (Unchanged)</h2>
 <hr>
 <p>Composite remains clean and minimal:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportTarget</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportTarget</span> {
 </span></span><span style="display:flex;"><span>    Stream<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">resolveEmployees</span>(EmployeeRepository repository);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Key rule:</p>
 <blockquote>
-<p>ReportTarget defines <strong>who is included</strong>, not how they are processed.</p></blockquote>
+<p>ReportTarget defines <strong>who is included</strong>, not how they are processed.</p>
+</blockquote>
 <p>We will not modify this interface.</p>
 <p>Execution belongs elsewhere.</p>
 <hr>
@@ -434,7 +435,7 @@ without polluting it with execution logic.</p>
 <p>Batching is not a structural feature of targets.<br>
 It is a runtime execution strategy.</p>
 <p>We keep it in a utility class:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StreamBatcher</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StreamBatcher</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">StreamBatcher</span>() {}
 </span></span><span style="display:flex;"><span>
@@ -474,7 +475,7 @@ It is a runtime execution strategy.</p>
 <h2 id="5-export-modes-flatten-vs-aggregate">5. Export Modes: Flatten vs Aggregate</h2>
 <hr>
 <p>Hierarchical reporting typically requires two distinct behaviors.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> ExportMode {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> ExportMode {
 </span></span><span style="display:flex;"><span>    PER_EMPLOYEE,
 </span></span><span style="display:flex;"><span>    AGGREGATED
 </span></span><span style="display:flex;"><span>}
@@ -494,7 +495,7 @@ Export mode affects only execution.</p>
 <h2 id="6-failure-policies-make-behavior-explicit">6. Failure Policies: Make Behavior Explicit</h2>
 <hr>
 <p>Long-running exports require clear semantics.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> FailurePolicy {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> FailurePolicy {
 </span></span><span style="display:flex;"><span>    FAIL_FAST,
 </span></span><span style="display:flex;"><span>    SKIP_FAILED_EMPLOYEES,
 </span></span><span style="display:flex;"><span>    RETRY_BATCH_THEN_SKIP
@@ -532,10 +533,11 @@ flowchart TD
 </ul>
 <p>The important clarification:</p>
 <blockquote>
-<p>The decorator chain <strong>is already the export pipeline</strong>.</p></blockquote>
+<p>The decorator chain <strong>is already the export pipeline</strong>.</p>
+</blockquote>
 <p>We do <strong>not</strong> need an additional <code>ExportPipeline</code> abstraction.</p>
 <p>Instead, the execution layer depends directly on:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportExportStrategy
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ReportExportStrategy
 </span></span></code></pre></div><p>The runner does not need to know:</p>
 <ul>
 <li>whether the strategy is base or decorated</li>
@@ -543,13 +545,13 @@ flowchart TD
 <li>what format is used</li>
 </ul>
 <p>It simply calls:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>exportStrategy.<span style="color:#a6e22e">export</span>(report);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>exportStrategy.<span style="color:#a6e22e">export</span>(report);
 </span></span></code></pre></div><p>This keeps the architecture honest and minimal.</p>
 <hr>
 <h2 id="9-production-ready-execution-layer-clean-version">9. Production-Ready Execution Layer (Clean Version)</h2>
 <hr>
 <p>To prevent <strong>ReportingOperationsService</strong> from becoming overloaded with batching and failure logic, we extract execution mechanics into a dedicated executor.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingExportExecutor</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportingExportExecutor</span> {
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeRepository repository;
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EmployeeReportService reportService;
@@ -744,7 +746,8 @@ flowchart TD
 </ul>
 <p>The next structural pressure in real systems is:</p>
 <blockquote>
-<p>Controlled access without modifying clients.</p></blockquote>
+<p>Controlled access without modifying clients.</p>
+</blockquote>
 <p>Caching.<br>
 Lazy loading.<br>
 Permission checks.<br>
