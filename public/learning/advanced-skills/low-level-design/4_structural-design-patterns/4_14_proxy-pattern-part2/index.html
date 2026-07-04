@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=50298&amp;path=livereload" data-no-instant defer></script>
+  <meta name="google-site-verification" content="uAulF6MENawH52RaV8zdWc1-fpSxxrBC5VtDtTOIQCY" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proxy Pattern – Caching Expensive Report Artifacts Safely (Part 2)</title>
+
+
+<link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32">
+
+<link rel="stylesheet" href="/css/main.css?v=1783163236">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+
+<script src="/js/nav-scroll.js" defer></script>
+<script src="/js/theme-toggle.js" defer></script>
+<script src="/js/nav-toggle.js" defer></script>
+</head>
+<body>
+  <header>
+  <div class="nav-container">
+    <div class="nav-left">
+      
+      <div class="logo">
+        <a href="/">THE SHUBHAM CO.</a>
+      </div>
+      
+      
+      
+      <div class="theme-toggle mobile-only-inline">
+        <select id="theme-select-mobile">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      
+      <button class="hamburger" id="menu-toggle" aria-label="Toggle menu">☰</button>
+    </div>
+
+    
+    <nav class="nav-links" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/learning">Learning</a>
+      <a href="/projects">Projects</a>
+      <a href="/ai-systems-projects">AI Projects</a>
+      <a href="/interview-prep">Interview Prep</a>
+      <a href="/badminton-trainings">Badminton Trainings</a>
+
+      
+      
+
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+  
+    <div class="theme-toggle desktop-only">
+      <select id="theme-select-desktop">
+        <option value="auto">Auto</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+  <main>
+    
+<section class="hero hero-small">
+  <div class="container">
+    <p class="tagline">Let's Explore</p>
+    <h1 class="main-heading">Proxy Pattern – Caching Expensive Report Artifacts Safely (Part 2)</h1>
+    <h3>
+  </div>
+</section>
+
+<section class="section topic-content-wrapper">
+  
+  <div class="progress-ring-floating">
+    <svg class="ring" width="60" height="60">
+      <circle class="bg" cx="30" cy="30" r="25"></circle>
+      <circle class="progress" cx="30" cy="30" r="25"></circle>
+    </svg>
+    <div class="progress-text">0%</div>
+  </div>
+
+  <div class="container">
+
+    <div class="topic-layout" id="topicLayout">
+
+      
+      <aside class="topic-subject-sidebar" aria-label="Subject navigation">
+        
+            
+
+            
+                
+                
+                
+
+                
+                <div class="subject-sidebar-inner">
+                  <div class="sidebar-header">
+                    <span class="sidebar-title">Low-Level Design (LLD)</span>
+                    <button class="sidebar-toggle btn" id="subjectSidebarToggle" type="button"
+                      aria-label="Toggle subject navigation">❮</button>
+                  </div>
+
+                  <nav class="subject-toc">
+                    <ul>
+                      
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">1. Phase 1: Core Design Principles</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_1_introduction-to-lld/">1.1. Introduction</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_2_solid-principles-overview/">1.2. SOLID Principles</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_3_dry-principle-overview/">1.3. DRY (Don&#39;t Repeat Yourself) - Avoiding code duplication</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_4_kiss-principle-overview/">1.4. Keep It Simple, Stupid (KISS) - Keeping code simple and maintainable</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_5_yagni-principle-overview/">1.5. You Ain&#39;t Gonna Need It (YAGNI) - Avoiding unnecessary features</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/1_core-design-principles/1_6_lod-principle-overview/">1.6. Law Of Demeter (LoD) - Minimizing Object Dependencies</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">2. Phase 2: SOLID Principles in Action</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_1_solid-in-action-intro/">2.1. Designing a Real System from Scratch</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_2_srp-example1/">2.2. SRP – Basics and Initial Refactoring</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_3_srp-example2/">2.3. SRP – Inheritance &amp; Subtypes</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_4_srp-example3/">2.4. SRP – Enhancements: Enum, Logging &amp; Final Touches</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_5_ocp-example1/">2.5. OCP – Saving Data to Different Destinations</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_6_ocp-example2/">2.6. OCP – Extending Business Rules per Employee Type</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_7_lsp-example1/">2.7. LSP – Preventing Broken Inheritance in Employee Management</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_8_isp-example1/">2.8. ISP – Designing Focused Contracts in Employee Management</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_9_dip-example1/">2.9. DIP – Decoupling Business Logic from Infrastructure</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_10_how-solid-work-together/">2.10. SOLID – How the Principles Work Together</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/2_solid-in-action/2_11_design-intervew-insights/">2.11. SOLID – Interview &amp; Design Insights</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">3. Phase 3: Design Patterns - Creational Design Patterns</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_1_design-patterns-introduction/">3.1. Design Patterns – Introduction: From Principles to Practice</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_2_creational-patterns-overview/">3.2. Creational Design Patterns – Managing Object Creation</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_3_factory-builder-abstract-whentouse/">3.3. Factory Method vs Builder vs Abstract Factory – When to Use What</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_4_factory-pattern/">3.4. Factory Method Pattern – Solving Type Explosion in a Real System</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_5_builder-pattern-part1/">3.5. Builder Pattern – Constructing Complex Objects Safely (Part 1)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_6_builder-pattern-part2/">3.6. Builder Pattern – Advanced Enhancements (Staged Builder &#43; toBuilder) (Part 2)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_7_singleton-pattern/">3.7. Singleton Pattern – Mechanics &amp; Correct Implementations</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_8_singleton-required-at-all/">3.8. Singleton Pattern – Should This Be a Singleton at All?</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_9_abstract-factory-pattern-part1/">3.9. Abstract Factory Pattern – When Good Designs Still Break (Part 1)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_10_abstract-factory-pattern-part2/">3.10. Abstract Factory Pattern – Enforcing Compatible Object Families (Part 2)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/3_creational-design-patterns/3_11_abstract-factory-pattern-part3/">3.11. Abstract Factory Pattern – Making Invalid Requests Unrepresentable (Part 3)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase is-open">
+                          <details class="subject-phase-details" open>
+                            <summary class="subject-phase-title">4. Phase 4: Design Patterns - Structural Design Patterns</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_1_structural-patterns-overview/">4.1. Structural Design Patterns – Assemble Objects into Maintainable Systems</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_2_adapter-pattern-part1/">4.2. Adapter Pattern – Bridging Incompatible Interfaces (Part 1)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_3_adapter-pattern-part2/">4.3. Adapter Pattern – Object vs Class Adapter and Design Trade-offs (Part 2)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_4_adapter-pattern-part3/">4.4. Adapter Pattern – Real-World Applications and Pattern Recognition (Part 3)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_5_facade-pattern-part1/">4.5. Facade Pattern – Simplifying Complex Subsystems (Part 1)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_6_facade-pattern-part2/">4.6. Facade Pattern – Orchestrating Employee Offboarding (Part 2)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_7_facade-pattern-part3/">4.7. Facade Pattern – From Orchestration to Distributed Workflows (Part 3)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_8_decorator-pattern-part1/">4.8. Decorator Pattern – Adding Behavior Without Modifying Code (Part 1)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_9_decorator-pattern-part2/">4.9. Decorator Pattern – Building Configurable Processing Pipelines (Part 2)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_12_composite-pattern-part3/">4.10. Composite Pattern – Scaling Hierarchical Reporting (Part 3)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_10_composite-pattern-part1/">4.11. Composite Pattern – Treating Individuals and Groups Uniformly (Part 1)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_11_composite-pattern-part2/">4.12. Composite Pattern – Avoiding Target Explosion with Filters (Part 2)</a>
+                                </li>
+                              
+                                <li class="">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_13_proxy-pattern-part1/">4.13. Proxy Pattern – Controlling Access Without Changing Clients (Part 1)</a>
+                                </li>
+                              
+                                <li class="active">
+                                  <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_14_proxy-pattern-part2/">4.14. Proxy Pattern – Caching Expensive Report Artifacts Safely (Part 2)</a>
+                                </li>
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">5. Phase 5: Design Patterns - Behavioral Design Patterns</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">6. Phase 6: UML &amp; Modeling</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                        
+                        
+
+                        <li class="subject-phase ">
+                          <details class="subject-phase-details" >
+                            <summary class="subject-phase-title">7. Phase 7: Engineering Design Foundations</summary>
+
+                            <ul class="subject-phase-topics">
+                              
+                            </ul>
+                          </details>
+                        </li>
+                      
+                    </ul>
+                  </nav>
+                </div>
+                
+                
+      </aside>
+
+      
+      <div class="topic-main">
+
+        <div class="topic-meta">
+          <p class="last-updated">
+            
+            Last updated on: 18 Jun, 2026
+            
+          </p>
+        </div>
+
+        <article class="topic-content">
+          <h2 id="1-recap-protection-proxy">1. Recap: Protection Proxy</h2>
+<hr>
+<p>In Part 1, we introduced a <strong>Protection Proxy</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Controller
+</span></span><span style="display:flex;"><span>   ↓
+</span></span><span style="display:flex;"><span>SecureReportingOperationsProxy
+</span></span><span style="display:flex;"><span>   ↓
+</span></span><span style="display:flex;"><span>ReportingOperationsService
+</span></span></code></pre></div><p>The proxy enforced authorization before delegating to the real service.</p>
+<p>This allowed us to:</p>
+<ul>
+<li>isolate security logic</li>
+<li>keep ReportingOperationsService focused on reporting</li>
+<li>evolve security independently</li>
+</ul>
+<p>Now a different pressure appears.</p>
+<hr>
+<h2 id="2-new-design-pressure-expensive-report-generation">2. New Design Pressure: Expensive Report Generation</h2>
+<hr>
+<p>As EMS grows, reports become more expensive to generate.</p>
+<p>A single export may involve:</p>
+<ul>
+<li>resolving employees through Composite targets</li>
+<li>applying filters</li>
+<li>generating EmployeeReport objects</li>
+<li>executing Decorator pipelines</li>
+<li>exporting to PDF / HTML / CSV</li>
+</ul>
+<p>For large departments or organizations, this can become costly.</p>
+<p>Naturally, teams start asking:</p>
+<blockquote>
+<p>Can we cache reports?</p>
+</blockquote>
+<p>The answer is:</p>
+<blockquote>
+<p>Sometimes — but not always.</p>
+</blockquote>
+<hr>
+<h2 id="3-the-first-mistake-caching-the-entire-workflow">3. The First Mistake: Caching the Entire Workflow</h2>
+<hr>
+<p>Our current workflow looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Generate Report
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>Export Artifact
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>Deliver
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>Notify
+</span></span></code></pre></div><p>A common first attempt is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>cache.<span style="color:#a6e22e">get</span>(key)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">orElseGet</span>(() <span style="color:#f92672">-&gt;</span> exportReport(...));
+</span></span></code></pre></div><p>This seems reasonable until we realize:</p>
+<ul>
+<li>delivery is a side effect</li>
+<li>notifications are side effects</li>
+<li>users may legitimately want multiple deliveries</li>
+<li>retries should not necessarily regenerate reports</li>
+</ul>
+<p>Caching the entire workflow mixes two different concerns.</p>
+<hr>
+<h2 id="4-identifying-the-cacheable-boundary">4. Identifying the Cacheable Boundary</h2>
+<hr>
+<p>Let&rsquo;s separate the workflow into two parts.</p>
+<h3 id="part-a--pure-artifact-generation">Part A — Pure Artifact Generation</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Employee Data
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>EmployeeReport
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>Export Strategy
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>ExportedReport
+</span></span></code></pre></div><p>This step is:</p>
+<ul>
+<li>expensive</li>
+<li>deterministic</li>
+<li>potentially reusable</li>
+</ul>
+<h3 id="part-b--side-effects">Part B — Side Effects</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>ExportedReport
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>Delivery
+</span></span><span style="display:flex;"><span>      ↓
+</span></span><span style="display:flex;"><span>Notification
+</span></span></code></pre></div><p>This step is:</p>
+<ul>
+<li>not expensive</li>
+<li>user-triggered</li>
+<li>often should execute every time</li>
+</ul>
+<p>The insight:</p>
+<blockquote>
+<p>We should cache the generated artifact, not the entire export workflow.</p>
+</blockquote>
+<hr>
+<h2 id="5-extracting-a-reportartifactgenerator">5. Extracting a ReportArtifactGenerator</h2>
+<hr>
+<p>To make the cache boundary explicit, we introduce a dedicated abstraction.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">ReportArtifactGenerator</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ExportedReport <span style="color:#a6e22e">generate</span>(
+</span></span><span style="display:flex;"><span>            Employee employee,
+</span></span><span style="display:flex;"><span>            ExportReportRequest request,
+</span></span><span style="display:flex;"><span>            ReportBundleFactory bundle);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Its responsibility is simple:</p>
+<blockquote>
+<p>Generate an exported artifact.</p>
+</blockquote>
+<p>Nothing more.</p>
+<p>No delivery.
+No notification.</p>
+<hr>
+<h2 id="6-default-artifact-generator">6. Default Artifact Generator</h2>
+<hr>
+<p>This simply contains logic previously embedded inside ReportingOperationsService.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DefaultReportArtifactGenerator</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> ReportArtifactGenerator {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">generate</span>(
+</span></span><span style="display:flex;"><span>            Employee employee,
+</span></span><span style="display:flex;"><span>            ExportReportRequest request,
+</span></span><span style="display:flex;"><span>            ReportBundleFactory bundle) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        EmployeeReport report <span style="color:#f92672">=</span> generateReport(employee);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> bundle.<span style="color:#a6e22e">createExportStrategy</span>()
+</span></span><span style="display:flex;"><span>                     .<span style="color:#a6e22e">export</span>(report);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Nothing changes functionally.</p>
+<p>We have simply isolated the expensive work.</p>
+<hr>
+<h2 id="7-introducing-the-caching-proxy">7. Introducing the Caching Proxy</h2>
+<hr>
+<p>Now the Proxy Pattern becomes useful.</p>
+<div class="mermaid">
+flowchart LR
+    A[ReportingOperationsService]
+    B[CachingReportArtifactGeneratorProxy]
+    C[DefaultReportArtifactGenerator]
+
+    A --> B
+    B --> C
+</div>
+<p>The service still asks for an artifact.</p>
+<p>The proxy decides whether:</p>
+<ul>
+<li>an existing artifact can be reused</li>
+<li>a new artifact must be generated</li>
+</ul>
+<hr>
+<h2 id="8-implementing-the-caching-proxy">8. Implementing the Caching Proxy</h2>
+<hr>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CachingReportArtifactGeneratorProxy</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">implements</span> ReportArtifactGenerator {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ReportArtifactGenerator delegate;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String, ExportedReport<span style="color:#f92672">&gt;</span> cache <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CachingReportArtifactGeneratorProxy</span>(
+</span></span><span style="display:flex;"><span>            ReportArtifactGenerator delegate) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">delegate</span> <span style="color:#f92672">=</span> delegate;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ExportedReport <span style="color:#a6e22e">generate</span>(
+</span></span><span style="display:flex;"><span>            Employee employee,
+</span></span><span style="display:flex;"><span>            ExportReportRequest request,
+</span></span><span style="display:flex;"><span>            ReportBundleFactory bundle) {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        String cacheKey <span style="color:#f92672">=</span> buildCacheKey(employee, request, bundle);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cache.<span style="color:#a6e22e">computeIfAbsent</span>(
+</span></span><span style="display:flex;"><span>                cacheKey,
+</span></span><span style="display:flex;"><span>                key <span style="color:#f92672">-&gt;</span> delegate.<span style="color:#a6e22e">generate</span>(employee, request, bundle));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The proxy:</p>
+<ol>
+<li>checks cache</li>
+<li>generates only on cache miss</li>
+<li>returns the artifact</li>
+</ol>
+<p>The real generator remains unchanged.</p>
+<hr>
+<h2 id="9-cache-keys-matter-more-than-caching">9. Cache Keys Matter More Than Caching</h2>
+<hr>
+<p>The difficult part is not storing reports.</p>
+<p>The difficult part is deciding:</p>
+<blockquote>
+<p>When are two report requests actually identical?</p>
+</blockquote>
+<p>A cache key may include:</p>
+<ul>
+<li>employee identifier</li>
+<li>export format</li>
+<li>report period</li>
+<li>filter configuration</li>
+<li>decorator configuration</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>employee:123
+</span></span><span style="display:flex;"><span>period:2026-03
+</span></span><span style="display:flex;"><span>format:PDF
+</span></span><span style="display:flex;"><span>encrypted:true
+</span></span></code></pre></div><p>Poor cache keys lead to:</p>
+<ul>
+<li>stale reports</li>
+<li>incorrect exports</li>
+<li>security problems</li>
+</ul>
+<hr>
+<h2 id="10-should-we-cache-reports-at-all">10. Should We Cache Reports At All?</h2>
+<hr>
+<p>This is the most important question.</p>
+<p>Caching only helps when reports are reused.</p>
+<p>Good candidates:</p>
+<ul>
+<li>monthly payroll reports</li>
+<li>downloadable report links</li>
+<li>report previews followed by exports</li>
+<li>frequently requested compliance reports</li>
+</ul>
+<p>Poor candidates:</p>
+<ul>
+<li>highly dynamic reports</li>
+<li>one-off exports</li>
+<li>reports that change every few seconds</li>
+</ul>
+<blockquote>
+<p>Not every expensive operation deserves a cache.</p>
+</blockquote>
+<p>Cache only when reuse is likely.</p>
+<hr>
+<h2 id="11-ttl-cache-warming-and-reality">11. TTL, Cache Warming, and Reality</h2>
+<hr>
+<p>Three common questions appear immediately.</p>
+<h3 id="ttl">TTL</h3>
+<p>How long should artifacts live?</p>
+<p>Answer:</p>
+<blockquote>
+<p>It depends on how frequently underlying data changes.</p>
+</blockquote>
+<p>Stable monthly reports may survive for days.</p>
+<p>Real-time operational reports may survive for minutes.</p>
+<hr>
+<h3 id="cache-warming">Cache Warming</h3>
+<p>Should we generate reports before they are requested?</p>
+<p>Usually no.</p>
+<p>Warm caches only when:</p>
+<ul>
+<li>requests are predictable</li>
+<li>generation is expensive</li>
+<li>usage is frequent</li>
+</ul>
+<hr>
+<h3 id="memory-usage">Memory Usage</h3>
+<p>Caching large PDFs in memory is rarely ideal.</p>
+<p>A common production approach is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Artifact Storage
+</span></span><span style="display:flex;"><span>        ↓
+</span></span><span style="display:flex;"><span>Cache Artifact ID
+</span></span></code></pre></div><p>Store the actual file elsewhere.</p>
+<p>Cache only references.</p>
+<hr>
+<h2 id="12-how-this-fits-into-ems">12. How This Fits Into EMS</h2>
+<hr>
+<p>Our updated architecture now looks like this:</p>
+<div class="mermaid">
+flowchart TD
+
+    A[Controller]
+    B[SecureReportingOperationsProxy]
+    C[ReportingOperationsService]
+    D[CachingReportArtifactGeneratorProxy]
+    E[DefaultReportArtifactGenerator]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+</div>
+<p>Responsibilities remain clean:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Component</th>
+          <th>Responsibility</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>SecureReportingOperationsProxy</td>
+          <td>Authorization</td>
+      </tr>
+      <tr>
+          <td>ReportingOperationsService</td>
+          <td>Workflow orchestration</td>
+      </tr>
+      <tr>
+          <td>CachingReportArtifactGeneratorProxy</td>
+          <td>Artifact caching</td>
+      </tr>
+      <tr>
+          <td>DefaultReportArtifactGenerator</td>
+          <td>Artifact generation</td>
+      </tr>
+  </tbody>
+</table>
+<p>Each layer has exactly one reason to change.</p>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<hr>
+<p>Caching can be powerful.</p>
+<p>But caching the wrong thing creates more problems than it solves.</p>
+<p>In EMS:</p>
+<ul>
+<li>report generation is cacheable</li>
+<li>delivery is not</li>
+<li>notifications are not</li>
+</ul>
+<p>By placing a Proxy around artifact generation, we:</p>
+<ul>
+<li>avoid repeated expensive work</li>
+<li>keep workflows correct</li>
+<li>preserve clean separation of concerns</li>
+</ul>
+<p>The Proxy Pattern once again allows us to add behavior without modifying the real implementation.</p>
+<hr>
+<h2 id="-whats-next">🔗 What’s Next?</h2>
+<hr>
+<p>So far, we have used proxies for:</p>
+<ul>
+<li>authorization</li>
+<li>caching</li>
+</ul>
+<p>Both controlled access to an existing service.</p>
+<p>The next question is:</p>
+<blockquote>
+<p>What if creating the real object itself is expensive?</p>
+</blockquote>
+<p>This leads to another proxy variant:</p>
+<p>👉 Proxy Pattern – Lazy Initialization with Virtual Proxy (Part 3)</p>
+<hr>
+<blockquote>
+<p>📝 <strong>Takeaway</strong></p>
+<ul>
+<li>Cache the expensive artifact, not the entire workflow</li>
+<li>Proxy keeps caching concerns separate from business logic</li>
+<li>Cache keys are often harder than caching itself</li>
+<li>Not every report benefits from caching</li>
+</ul>
+</blockquote>
+
+        </article>
+
+      </div>
+
+      
+      <aside class="topic-sidebar" id="topicSidebar" aria-label="Page navigation">
+        <div class="topic-sidebar-inner">
+
+          <div class="sidebar-header">
+            <span class="sidebar-title">Contents</span>
+            <button class="sidebar-toggle btn" id="articleSidebarToggle" type="button"
+              aria-label="Toggle article navigation">
+              ❮
+            </button>
+          </div>
+
+          
+
+
+
+<nav class="sidebar-toc" aria-label="Table of contents">
+  <ul class="sidebar-toc-list">
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#1-recap-protection-proxy" data-toc-target="1-recap-protection-proxy">1. Recap: Protection Proxy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#2-new-design-pressure-expensive-report-generation" data-toc-target="2-new-design-pressure-expensive-report-generation">2. New Design Pressure: Expensive Report Generation</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#3-the-first-mistake-caching-the-entire-workflow" data-toc-target="3-the-first-mistake-caching-the-entire-workflow">3. The First Mistake: Caching the Entire Workflow</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#4-identifying-the-cacheable-boundary" data-toc-target="4-identifying-the-cacheable-boundary">4. Identifying the Cacheable Boundary</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#5-extracting-a-reportartifactgenerator" data-toc-target="5-extracting-a-reportartifactgenerator">5. Extracting a ReportArtifactGenerator</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#6-default-artifact-generator" data-toc-target="6-default-artifact-generator">6. Default Artifact Generator</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#7-introducing-the-caching-proxy" data-toc-target="7-introducing-the-caching-proxy">7. Introducing the Caching Proxy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#8-implementing-the-caching-proxy" data-toc-target="8-implementing-the-caching-proxy">8. Implementing the Caching Proxy</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#9-cache-keys-matter-more-than-caching" data-toc-target="9-cache-keys-matter-more-than-caching">9. Cache Keys Matter More Than Caching</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#10-should-we-cache-reports-at-all" data-toc-target="10-should-we-cache-reports-at-all">10. Should We Cache Reports At All?</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#11-ttl-cache-warming-and-reality" data-toc-target="11-ttl-cache-warming-and-reality">11. TTL, Cache Warming, and Reality</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#12-how-this-fits-into-ems" data-toc-target="12-how-this-fits-into-ems">12. How This Fits Into EMS</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#conclusion" data-toc-target="conclusion">Conclusion</a>
+      </li>
+    
+      
+      
+      <li class="toc-item toc-h2">
+        <a class="toc-link" href="#-whats-next" data-toc-target="-whats-next">🔗 What’s Next?</a>
+      </li>
+    
+  </ul>
+</nav>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<section class="topic-nav">
+  <div class="container nav-buttons">
+    
+    <a href="/learning/advanced-skills/low-level-design/4_structural-design-patterns/4_13_proxy-pattern-part1/" class="btn nav-btn">&larr; Back</a>
+    
+
+    
+
+
+
+
+
+  
+
+  
+    
+    
+      
+      
+      
+      
+        
+      
+    
+    
+
+
+    
+    
+    <a href="/learning/advanced-skills/low-level-design/" class="btn nav-btn">
+      Low-Level Design (LLD) : Home Page
+    </a>
+    
+
+    
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("scroll", function () {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+
+    const circle = document.querySelector(".progress-ring-floating .progress");
+    const text = document.querySelector(".progress-ring-floating .progress-text");
+
+    const radius = 25;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (scrollPercent / 100) * circumference;
+
+    circle.style.strokeDashoffset = offset;
+    text.textContent = Math.round(scrollPercent) + "%";
+  });
+</script>
+
+
+<script>
+  (() => {
+    const NAV_HEIGHT = 60; 
+    const headings = document.querySelectorAll(".topic-content h2");
+
+    headings.forEach(h => {
+      
+      const sentinel = document.createElement("div");
+      sentinel.className = "sticky-sentinel";
+      sentinel.style.height = "1px";
+
+      h.parentNode.insertBefore(sentinel, h);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          
+          h.classList.toggle("is-stuck", !entry.isIntersecting);
+        },
+        {
+          root: null,
+          threshold: 0,
+          
+          
+          rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`
+        }
+      );
+
+      observer.observe(sentinel);
+    });
+  })();
+</script>
+
+
+<script>
+  (() => {
+    const SUBJECT_KEY = "theshubhamco:subjectSidebar:v1";
+    const ARTICLE_KEY = "theshubhamco:articleSidebar:v2";
+    const BREAKPOINT = 1400; 
+
+    const layout = document.getElementById("topicLayout");
+    const subjectToggle = document.getElementById("subjectSidebarToggle");
+    const articleToggle = document.getElementById("articleSidebarToggle");
+
+    if (!layout) return;
+
+    
+
+    function restoreState() {
+      if (window.innerWidth < 1100) return; 
+
+      try {
+        const subject = JSON.parse(localStorage.getItem(SUBJECT_KEY) || "{}");
+        if (subject.collapsed) layout.classList.add("subject-sidebar-collapsed");
+      } catch { }
+
+      
+      if (window.innerWidth < BREAKPOINT) return;
+
+      try {
+        const article = JSON.parse(localStorage.getItem(ARTICLE_KEY) || "{}");
+        if (article.collapsed) layout.classList.add("article-sidebar-collapsed");
+      } catch { }
+    }
+
+    restoreState();
+
+    
+
+    if (subjectToggle) {
+      subjectToggle.addEventListener("click", () => {
+        layout.classList.toggle("subject-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            SUBJECT_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("subject-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    if (articleToggle) {
+      articleToggle.addEventListener("click", () => {
+        layout.classList.toggle("article-sidebar-collapsed");
+        try {
+          localStorage.setItem(
+            ARTICLE_KEY,
+            JSON.stringify({ collapsed: layout.classList.contains("article-sidebar-collapsed") })
+          );
+        } catch { }
+      });
+    }
+
+    
+
+
+    
+    const tocLinks = Array.from(document.querySelectorAll(".topic-sidebar .toc-link"));
+    const headings = Array.from(document.querySelectorAll(".topic-content h2[id]"));
+
+    if (!tocLinks.length || !headings.length) return;
+
+    
+    tocLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const id = link.getAttribute("data-toc-target");
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      });
+    });
+
+    
+    const linkById = new Map(tocLinks.map(a => [a.getAttribute("data-toc-target"), a]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        tocLinks.forEach(a => a.classList.remove("is-active"));
+        const active = linkById.get(id);
+        if (active) active.classList.add("is-active");
+      },
+      {
+        rootMargin: "-20% 0px -70% 0px",
+        threshold: 0
+      }
+    );
+
+    headings.forEach(h => observer.observe(h));
+  })();
+</script>
+
+  </main>
+
+  <footer>
+  <div class="container">
+    <p class="connect-label">Connect</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/shawshubham/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+      <a href="https://github.com/shawshubham​" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="mailto:shubhamshaw139@gmail.com" title="Email">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://www.instagram.com/shawshubham/" target="_blank" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@ShubhamShawSharingKnowlege" target="_blank" title="YouTube">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+    <br/><br/><hr/>
+    <p>© 2026 The Shubham Co. All rights reserved.</p>
+  </div>
+</footer>
+
+  
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: isDark ? "dark" : "default",
+        flowchart: { curve: "basis" }
+      });
+    </script>
+  
+</body>
+</html>

@@ -225,7 +225,7 @@ correctness → performance → scalability
 
 ### 🔗 What’s Next?
 
-👉 **Phase 3 — Distributed Rate Limiting →**
+👉 **[Phase 3 — Distributed Rate Limiting →](/learning/advanced-skills/system-design-practice/intermediate-systems/3_api-rate-limiter/3_phase-3/3_1_problem-evolution/)**
 
 ---
 
