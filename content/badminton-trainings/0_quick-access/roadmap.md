@@ -235,6 +235,6 @@ We'll begin with the most important part of every badminton player's journey:
 
 The first lesson covers the most overlooked skill in badminton:
 
-👉 **Grip & Racket Basics**
+👉 **[Grip & Racket Basics →](/badminton-trainings/1_foundations/1_grip-and-racquet-basics)**
 
 Everything—from clears and drops to smashes and net shots—starts with the correct grip.

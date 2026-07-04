@@ -511,4 +511,4 @@ The next lesson covers:
 - Athletic Stance
 - Basic Court Preparation
 
-➡️ **Next Lesson: Ready Position & Split Step**
+👉 **[Next Lesson: Ready Position, Split Step & Court Preparation→](/badminton-trainings/1_foundations/2_ready-position-split-step-court-prep)**
